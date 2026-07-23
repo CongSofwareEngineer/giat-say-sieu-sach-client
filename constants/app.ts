@@ -11,3 +11,8 @@ export const INFO_CONTACT = {
   Mail: 'mailto:hodiencong2000@gmail.com',
   Phone: '+84-392-225-405',
 }
+
+export const COOKIES = {
+  ACCESS_TOKEN_KEY: 'accessToken',
+  REFRESH_TOKEN_KEY: 'refreshToken',
+}
