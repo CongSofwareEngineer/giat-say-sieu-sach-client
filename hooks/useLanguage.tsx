@@ -11,10 +11,10 @@ const useLanguage = () => {
     defaultMessage: string = ''
   ): any => {
     try {
-      const arrKey = key!.split('.')
+      const arrKey = (key as any)?.toString().split('.')
       let raw: any = ''
 
-      arrKey.forEach((e) => {
+      arrKey.forEach((e: any) => {
         if (!raw) {
           raw = language?.messages[e]
         } else {
