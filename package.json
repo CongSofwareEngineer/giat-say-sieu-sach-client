@@ -11,6 +11,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.101.4",
     "clsx": "^2.1.1",
+    "dayjs": "^1.11.21",
     "libphonenumber-js": "^1.13.9",
     "next": "16.2.11",
     "next-sitemap": "^4.2.3",

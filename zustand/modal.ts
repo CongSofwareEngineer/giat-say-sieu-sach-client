@@ -1,10 +1,11 @@
 import { ReactNode } from 'react'
 import { create } from 'zustand'
+import { devtools } from 'zustand/middleware'
 
 export interface ModalState {
   id: string
   addModal?: boolean
-  callBackAfter?: () => any
+  onClose?: () => any
   showBtnClose?: boolean
   children?: ReactNode
   title?: ReactNode
@@ -25,55 +26,62 @@ interface ModalStore {
   closeAll: () => void
 }
 
-let modalCounter = 0
+export const modal = create<ModalStore>()(
+  devtools(
+    (set, get) => ({
+      modals: [],
 
-export const modal = create<ModalStore>()((set, get) => ({
-  modals: [],
+      open: (modal) => {
+        const listModals = get().modals
+        const id = modal.id || `modal-${listModals.length + 1}`
 
-  open: (modal) => {
-    const id = modal.id || `modal-${++modalCounter}`
+        if (modal.addModal === false) {
+          set((state) => {
+            const last = state.modals[state.modals.length - 1]
 
-    if (modal.addModal === false) {
-      set((state) => {
-        const last = state.modals[state.modals.length - 1]
+            if (last?.onClose) last.onClose()
 
-        if (last?.callBackAfter) last.callBackAfter()
-
-        return {
-          modals: [...state.modals.slice(0, -1), { ...modal, id }],
+            return {
+              modals: [...state.modals.slice(0, -1), { ...modal, id }],
+            }
+          })
+        } else {
+          set((state) => ({
+            modals: [...state.modals, { ...modal, id }],
+          }))
         }
-      })
-    } else {
-      set((state) => ({
-        modals: [...state.modals, { ...modal, id }],
-      }))
+      },
+
+      close: (id) => {
+        set((state) => {
+          if (!id) {
+            const last = state.modals[state.modals.length - 1]
+
+            if (last?.onClose) last.onClose()
+
+            return { modals: state.modals.slice(0, -1) }
+          }
+
+          const target = state.modals.find((m) => m.id === id)
+
+          if (target?.onClose) target.onClose()
+
+          return {
+            modals: state.modals.filter((m) => m.id !== id),
+          }
+        })
+      },
+
+      closeAll: () => {
+        const { modals } = get()
+
+        modals.forEach((m) => m.onClose?.())
+        set({ modals: [] })
+      },
+    }),
+    {
+      enabled: process.env.NEXT_PUBLIC_ENV !== 'production',
+      name: 'modal-zustand',
     }
-  },
-
-  close: (id) => {
-    set((state) => {
-      if (!id) {
-        const last = state.modals[state.modals.length - 1]
-
-        if (last?.callBackAfter) last.callBackAfter()
-
-        return { modals: state.modals.slice(0, -1) }
-      }
-
-      const target = state.modals.find((m) => m.id === id)
-
-      if (target?.callBackAfter) target.callBackAfter()
-
-      return {
-        modals: state.modals.filter((m) => m.id !== id),
-      }
-    })
-  },
-
-  closeAll: () => {
-    const { modals } = get()
-
-    modals.forEach((m) => m.callBackAfter?.())
-    set({ modals: [] })
-  },
-}))
+  )
+)
