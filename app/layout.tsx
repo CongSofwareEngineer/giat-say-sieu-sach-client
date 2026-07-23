@@ -5,6 +5,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import { ModalProvider } from '@/components'
 import './globals.css'
 import { INFO_CONTACT, SITE_CONFIG } from '@/constants/app'
+import ReactQuery from '@/components/ReactQuery'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -125,7 +126,7 @@ export default function RootLayout({
         )}
       </head>
       <body className='min-h-full flex flex-col'>
-        {children}
+        <ReactQuery>{children}</ReactQuery>
         <ModalProvider />
       </body>
     </html>
