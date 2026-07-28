@@ -2,11 +2,12 @@
 
 import { useState } from 'react'
 
-import useModal from '@/hooks/useModal'
+import useModalDrawer from '@/hooks/useModalDrawer'
+import MyButton from '@/components/MyButton'
 
 function DemoContent() {
   const [count, setCount] = useState(0)
-  const { close } = useModal()
+  const { close } = useModalDrawer()
 
   return (
     <div className='flex flex-col gap-4'>
@@ -21,8 +22,25 @@ function DemoContent() {
   )
 }
 
+function DrawerContent() {
+  const [count, setCount] = useState(0)
+  const { close } = useModalDrawer()
+
+  return (
+    <div className='flex flex-col gap-4 p-4'>
+      <p>Count: {count}</p>
+      <button className='btn btn-primary' onClick={() => setCount(count + 1)}>
+        Tăng count
+      </button>
+      <button className='btn' onClick={() => close()}>
+        Đóng drawer
+      </button>
+    </div>
+  )
+}
+
 function ConfirmContent() {
-  const { close, open } = useModal()
+  const { close, open } = useModalDrawer()
 
   return (
     <div className='flex flex-col gap-4'>
@@ -36,8 +54,8 @@ function ConfirmContent() {
           onClick={() => {
             close()
             open({
-              title: 'Thành công',
               children: <p>Đã xóa thành công!</p>,
+              mode: 'modal',
               placement: 'center',
             })
           }}
@@ -50,7 +68,7 @@ function ConfirmContent() {
 }
 
 export default function Home() {
-  const { open, closeAll } = useModal()
+  const { open, closeAll } = useModalDrawer()
 
   return (
     <div className='flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black p-8'>
@@ -58,56 +76,60 @@ export default function Home() {
         <h1 className='text-3xl font-bold'>Modal Demo</h1>
 
         <div className='flex flex-col gap-4 w-full max-w-md'>
-          <button
-            className='btn btn-primary'
+          <MyButton
             onClick={() =>
               open({
                 title: 'Modal cơ bản',
                 children: <DemoContent />,
-                callBackAfter: () => {},
+                mode: 'modal',
+                onClose: () => {},
               })
             }
           >
             1. Modal cơ bản
-          </button>
+          </MyButton>
 
-          <button
-            className='btn btn-secondary'
+          <MyButton
+            variant='primary'
             onClick={() =>
               open({
                 title: 'Không có nút close',
                 children: <p>Chỉ đóng được bằng backdrop</p>,
+                mode: 'modal',
                 showBtnClose: false,
               })
             }
           >
             2. Không có nút close
-          </button>
+          </MyButton>
 
-          <button
-            className='btn btn-accent'
+          <MyButton
+            variant='warning'
             onClick={() =>
               open({
                 title: 'Không close bằng backdrop',
                 children: <p>Phải bấm nút close để đóng</p>,
+                mode: 'modal',
                 overClickClose: false,
               })
             }
           >
             3. Không close bằng backdrop
-          </button>
+          </MyButton>
 
-          <button
-            className='btn btn-info'
+          <MyButton
+            variant='error'
             onClick={() =>
               open({
                 title: 'Stack modal 1',
+                mode: 'modal',
                 children: (
                   <button
                     className='btn btn-primary'
                     onClick={() =>
                       open({
                         title: 'Stack modal 2',
+                        mode: 'modal',
                         children: <p>Modal này chồng lên modal 1</p>,
                       })
                     }
@@ -119,19 +141,21 @@ export default function Home() {
             }
           >
             4. Stack modal
-          </button>
+          </MyButton>
 
           <button
             className='btn btn-warning'
             onClick={() =>
               open({
                 title: 'Modal cũ',
+                mode: 'modal',
                 children: (
                   <button
                     className='btn btn-primary'
                     onClick={() =>
                       open({
-                        addModal: false,
+                        mode: 'modal',
+                        add: false,
                         title: 'Modal mới (replace)',
                         children: <p>Đã thay thế modal cũ</p>,
                       })
@@ -152,6 +176,7 @@ export default function Home() {
               open({
                 title: 'Xác nhận xóa',
                 children: <ConfirmContent />,
+                mode: 'modal',
                 placement: 'center',
               })
             }
@@ -165,6 +190,7 @@ export default function Home() {
               open({
                 title: 'Modal top-left',
                 children: <p>Vị trí top-left</p>,
+                mode: 'modal',
                 placement: 'top-left',
               })
             }
@@ -178,6 +204,7 @@ export default function Home() {
               open({
                 title: 'Modal bottom-right',
                 children: <p>Vị trí bottom-right</p>,
+                mode: 'modal',
                 placement: 'bottom-right',
               })
             }
@@ -187,6 +214,130 @@ export default function Home() {
 
           <button className='btn btn-ghost' onClick={closeAll}>
             Đóng tất cả modal
+          </button>
+        </div>
+
+        <h1 className='text-3xl font-bold mt-8'>Drawer Demo</h1>
+
+        <div className='flex flex-col gap-4 w-full max-w-md'>
+          <MyButton
+            onClick={() =>
+              open({
+                title: 'Drawer bên phải',
+                children: <DrawerContent />,
+                mode: 'drawer',
+                drawerPlacement: 'right',
+              })
+            }
+          >
+            1. Drawer phải (default)
+          </MyButton>
+
+          <MyButton
+            variant='primary'
+            onClick={() =>
+              open({
+                title: 'Drawer bên trái',
+                children: <p>Nội dung drawer bên trái</p>,
+                mode: 'drawer',
+                drawerPlacement: 'left',
+              })
+            }
+          >
+            2. Drawer trái
+          </MyButton>
+
+          <MyButton
+            variant='warning'
+            onClick={() =>
+              open({
+                title: 'Drawer từ dưới lên',
+                children: <p>Nội dung drawer bottom</p>,
+                mode: 'drawer',
+                drawerPlacement: 'bottom',
+              })
+            }
+          >
+            3. Drawer bottom
+          </MyButton>
+
+          <MyButton
+            variant='error'
+            onClick={() =>
+              open({
+                title: 'Drawer từ trên xuống',
+                children: <p>Nội dung drawer top</p>,
+                mode: 'drawer',
+                drawerPlacement: 'top',
+              })
+            }
+          >
+            4. Drawer top
+          </MyButton>
+
+          <button
+            className='btn btn-outline'
+            onClick={() =>
+              open({
+                title: 'Drawer không close bằng overlay',
+                children: <p>Phải bấm nút ✕ để đóng</p>,
+                mode: 'drawer',
+                drawerPlacement: 'right',
+                overClickClose: false,
+              })
+            }
+          >
+            5. Không close bằng overlay
+          </button>
+
+          <button
+            className='btn btn-outline'
+            onClick={() =>
+              open({
+                title: 'Stack drawer 1',
+                mode: 'drawer',
+                drawerPlacement: 'right',
+                children: (
+                  <div className='p-4'>
+                    <button
+                      className='btn btn-primary'
+                      onClick={() =>
+                        open({
+                          title: 'Stack drawer 2',
+                          mode: 'drawer',
+                          drawerPlacement: 'right',
+                          children: <p>Drawer này chồng lên drawer 1</p>,
+                          add: true,
+                        })
+                      }
+                    >
+                      Mở drawer mới
+                    </button>
+                  </div>
+                ),
+              })
+            }
+          >
+            6. Stack drawer
+          </button>
+
+          <button
+            className='btn btn-error'
+            onClick={() =>
+              open({
+                title: 'Drawer có callback onClose',
+                children: <p>Drawer này có callback khi đóng</p>,
+                mode: 'drawer',
+                drawerPlacement: 'right',
+                onClose: () => console.log('Drawer closed!'),
+              })
+            }
+          >
+            7. onClose callback
+          </button>
+
+          <button className='btn btn-ghost' onClick={closeAll}>
+            Đóng tất cả drawer
           </button>
         </div>
       </main>

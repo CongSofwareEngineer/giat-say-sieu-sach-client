@@ -4,6 +4,7 @@ import { StorageValue } from 'zustand/middleware'
 
 import MessageEN from '@/public/assets/language/en.json'
 import MessageVN from '@/public/assets/language/vn.json'
+import { IS_PRODUCTION } from '@/constants/app'
 
 export enum LANGUAGE_SUPPORT {
   EN = 'en',
@@ -83,7 +84,7 @@ export const language = create<LanguageState>()(
     ),
     {
       name: 'language-zustand',
-      enabled: process.env.NEXT_PUBLIC_ENV !== 'production',
+      enabled: !IS_PRODUCTION,
     }
   )
 )

@@ -1,4 +1,27 @@
 @import "tailwindcss";
-@plugin "daisyui" {
-  exclude: calendar;
+
+body {
+  @apply text-white;
+}
+
+@keyframes zoom {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@utility animation-zoom {
+  animation: zoom 0.2s ease-in-out;
+}
+
+@utility absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }

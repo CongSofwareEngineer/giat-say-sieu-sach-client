@@ -2,8 +2,9 @@ import { ReactNode } from 'react'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 
-export interface ModalState {
-  id: string
+import { IS_PRODUCTION } from '@/constants/app'
+
+export type Modal = {
   addModal?: boolean
   onClose?: () => any
   showBtnClose?: boolean
@@ -19,69 +20,54 @@ export interface ModalState {
   placement?: 'center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
 }
 
-interface ModalStore {
-  modals: ModalState[]
-  open: (modal: Omit<ModalState, 'id'> & { id?: string }) => void
-  close: (id?: string) => void
+interface ModalState {
+  listModals: Modal[]
+  open: (nextModalAdmin: Modal) => void
+  close: (isIconClose?: boolean) => void
   closeAll: () => void
 }
-
-export const modal = create<ModalStore>()(
+export const modal = create<ModalState>()(
   devtools(
     (set, get) => ({
-      modals: [],
+      listModals: [],
+      open: (param: Modal) => {
+        const listModals = get().listModals
+        const newModal = {
+          showBtnClose: true,
+          overClickClose: true,
+          ...param,
+        }
 
-      open: (modal) => {
-        const listModals = get().modals
-        const id = modal.id || `modal-${listModals.length + 1}`
-
-        if (modal.addModal === false) {
-          set((state) => {
-            const last = state.modals[state.modals.length - 1]
-
-            if (last?.onClose) last.onClose()
-
-            return {
-              modals: [...state.modals.slice(0, -1), { ...modal, id }],
-            }
-          })
+        if (param.addModal) {
+          listModals.push(newModal)
         } else {
-          set((state) => ({
-            modals: [...state.modals, { ...modal, id }],
-          }))
+          listModals[listModals.length === 0 ? 0 : listModals.length - 1] = newModal
+        }
+        set({ listModals })
+        document.body.style.overflow = 'hidden'
+      },
+      close: () => {
+        const listModals = get().listModals
+        const modal = listModals.pop()
+
+        modal?.onClose && modal?.onClose()
+
+        set({ listModals })
+        if (listModals.length === 0) {
+          document.body.style.removeProperty('overflow')
         }
       },
-
-      close: (id) => {
-        set((state) => {
-          if (!id) {
-            const last = state.modals[state.modals.length - 1]
-
-            if (last?.onClose) last.onClose()
-
-            return { modals: state.modals.slice(0, -1) }
-          }
-
-          const target = state.modals.find((m) => m.id === id)
-
-          if (target?.onClose) target.onClose()
-
-          return {
-            modals: state.modals.filter((m) => m.id !== id),
-          }
-        })
-      },
-
       closeAll: () => {
-        const { modals } = get()
+        const { listModals } = get()
 
-        modals.forEach((m) => m.onClose?.())
-        set({ modals: [] })
+        listModals.forEach((m) => m.onClose?.())
+        set({ listModals: [] })
+        document.body.style.removeProperty('overflow')
       },
     }),
     {
-      enabled: process.env.NEXT_PUBLIC_ENV !== 'production',
       name: 'modal-zustand',
+      enabled: !IS_PRODUCTION,
     }
   )
 )

@@ -7,12 +7,9 @@ export const SITE_CONFIG = {
   keywords: ['Next.js', 'TailwindCSS', 'TypeScript', 'Starter Template'],
 }
 
-export const INFO_CONTACT = {
-  Mail: 'mailto:hodiencong2000@gmail.com',
-  Phone: '+84-392-225-405',
+export enum INFO_CONTACT {
+  Mail = 'mailto:hodiencong2000@gmail.com',
+  Phone = '+84-392-225-405',
 }
 
-export const COOKIES = {
-  ACCESS_TOKEN_KEY: 'accessToken',
-  REFRESH_TOKEN_KEY: 'refreshToken',
-}
+export const IS_PRODUCTION = process.env.NEXT_PUBLIC_ENV === 'production'

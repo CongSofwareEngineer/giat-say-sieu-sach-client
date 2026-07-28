@@ -1,4 +1,4 @@
-import { COOKIES } from '@/constants/app'
+import { COOKIES_KEY } from '@/constants/cookies'
 import { getCookie, setCookie, removeCookie } from '@/utils/cookie'
 
 interface TokenResponse {
@@ -24,23 +24,23 @@ class BaseAPI {
   }
 
   private async saveTokens(tokens: TokenResponse): Promise<void> {
-    await setCookie(COOKIES.ACCESS_TOKEN_KEY, tokens.accessToken, tokens.accessTokenExpiresIn)
-    await setCookie(COOKIES.REFRESH_TOKEN_KEY, tokens.refreshToken, tokens.refreshTokenExpiresIn)
+    await setCookie(COOKIES_KEY.accessToken, tokens.accessToken, tokens.accessTokenExpiresIn)
+    await setCookie(COOKIES_KEY.refreshToken, tokens.refreshToken, tokens.refreshTokenExpiresIn)
   }
 
   private async clearTokens(): Promise<void> {
-    await removeCookie(COOKIES.ACCESS_TOKEN_KEY)
-    await removeCookie(COOKIES.REFRESH_TOKEN_KEY)
+    await removeCookie(COOKIES_KEY.accessToken)
+    await removeCookie(COOKIES_KEY.refreshToken)
   }
 
   async getAuthToken(): Promise<string | null> {
-    const accessToken = await getCookie(COOKIES.ACCESS_TOKEN_KEY)
+    const accessToken = await getCookie(COOKIES_KEY.accessToken)
 
     if (accessToken) {
       return accessToken
     }
 
-    const refreshToken = await getCookie(COOKIES.REFRESH_TOKEN_KEY)
+    const refreshToken = await getCookie(COOKIES_KEY.refreshToken)
 
     if (!refreshToken) {
       return null
@@ -121,7 +121,7 @@ class BaseAPI {
     })
 
     if (response.status === 401) {
-      const refreshToken = await getCookie(COOKIES.REFRESH_TOKEN_KEY)
+      const refreshToken = await getCookie(COOKIES_KEY.refreshToken)
 
       if (refreshToken) {
         try {

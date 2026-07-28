@@ -1,18 +1,33 @@
 import type { NextConfig } from 'next'
 
+const path = require('path')
+const isProduction = process.env.NEXT_PUBLIC_ENV === 'production'
+
 const nextConfig: NextConfig = {
-  cleanDistDir: true,
-  compress: true,
-  i18n: {
-    locales: ['vi'],
-    defaultLocale: 'vi',
+  sassOptions: {
+    includePaths: [path.join(__dirname, 'styles')],
   },
-  productionBrowserSourceMaps: process.env.NEXT_PUBLIC_ENV === 'production',
-  enablePrerenderSourceMaps: process.env.NEXT_PUBLIC_ENV === 'production',
+  transpilePackages: ['zustand', '@tanstack/react-query', 'query-string'],
+
+  productionBrowserSourceMaps: !isProduction,
+  enablePrerenderSourceMaps: !isProduction,
+  compress: isProduction,
+  reactStrictMode: isProduction,
+  cleanDistDir: isProduction,
+  experimental: {
+    optimizePackageImports: ['@tanstack/react-query', 'zustand'],
+  },
   compiler: {
-    styledComponents: true,
-    removeConsole: process.env.NEXT_PUBLIC_ENV === 'production',
+    removeConsole: isProduction,
+    styledComponents: {
+      ssr: true,
+      minify: true,
+    },
   },
+}
+
+if (!isProduction) {
+  nextConfig.allowedDevOrigins = ['localhost', '*.localhost', '192.168.50.253', '*.trycloudflare.com']
 }
 
 export default nextConfig

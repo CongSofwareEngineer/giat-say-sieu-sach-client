@@ -4,8 +4,11 @@ import { Geist, Geist_Mono } from 'next/font/google'
 
 import { ModalProvider } from '@/components'
 import './globals.css'
-import { INFO_CONTACT, SITE_CONFIG } from '@/constants/app'
+import { INFO_CONTACT, IS_PRODUCTION, SITE_CONFIG } from '@/constants/app'
 import ReactQuery from '@/components/ReactQuery'
+import MyModal from '@/components/MyModal'
+
+import MyDrawer from '../components/MyDrawer/index'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -96,7 +99,7 @@ export default function RootLayout({
   return (
     <html lang='en' className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <head>
-        {process.env.NEXT_PUBLIC_ENV === 'production' && (
+        {IS_PRODUCTION && (
           <>
             <script
               dangerouslySetInnerHTML={{
@@ -127,7 +130,8 @@ export default function RootLayout({
       </head>
       <body className='min-h-full flex flex-col'>
         <ReactQuery>{children}</ReactQuery>
-        <ModalProvider />
+        <MyModal />
+        <MyDrawer />
       </body>
     </html>
   )
