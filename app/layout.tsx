@@ -2,13 +2,12 @@ import type { Metadata, Viewport } from 'next'
 
 import { Geist, Geist_Mono } from 'next/font/google'
 
-import { ModalProvider } from '@/components'
 import './globals.css'
+import MyDrawer from '../components/MyDrawer/index'
+
 import { INFO_CONTACT, IS_PRODUCTION, SITE_CONFIG } from '@/constants/app'
 import ReactQuery from '@/components/ReactQuery'
 import MyModal from '@/components/MyModal'
-
-import MyDrawer from '../components/MyDrawer/index'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
