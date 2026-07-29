@@ -1,23 +1,12 @@
 import type { Metadata, Viewport } from 'next'
 
-import { Geist, Geist_Mono } from 'next/font/google'
-
 import './globals.css'
 import MyDrawer from '../components/MyDrawer/index'
 
 import { INFO_CONTACT, IS_PRODUCTION, SITE_CONFIG } from '@/constants/app'
 import ReactQuery from '@/components/ReactQuery'
 import MyModal from '@/components/MyModal'
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-})
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-})
+import ClientRender from '@/components/ClientRender'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_CONFIG.url),
@@ -96,7 +85,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang='en' className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html lang='en' className={`h-full antialiased`}>
       <head>
         {IS_PRODUCTION && (
           <>
@@ -128,9 +117,13 @@ export default function RootLayout({
         )}
       </head>
       <body className='min-h-full flex flex-col'>
-        <ReactQuery>{children}</ReactQuery>
-        <MyModal />
-        <MyDrawer />
+        <ReactQuery>
+          <ClientRender>
+            {children}
+            <MyModal />
+            <MyDrawer />
+          </ClientRender>
+        </ReactQuery>
       </body>
     </html>
   )
