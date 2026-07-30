@@ -1,1 +1,6 @@
-export const images = {}
+export const images = {
+  favicon: '/favicon.png',
+  icons: {
+    avatarDefault: '',
+  },
+}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import useModalDrawer from '@/hooks/useModalDrawer'
 import MyButton from '@/components/MyButton'
@@ -70,6 +70,16 @@ function ConfirmContent() {
 export default function Home() {
   const { open, closeAll } = useModalDrawer()
 
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (loading) {
+      setTimeout(() => {
+        setLoading(false)
+      }, 3000)
+    }
+  }, [loading])
+
   return (
     <div className='flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black p-8'>
       <main className='flex flex-1 w-full max-w-3xl flex-col items-center gap-8 py-16'>
@@ -77,19 +87,23 @@ export default function Home() {
 
         <div className='flex flex-col gap-4 w-full max-w-md'>
           <MyButton
-            onClick={() =>
+            loading={loading}
+            variant='primary'
+            onClick={() => {
+              setLoading(true)
               open({
                 title: 'Modal cơ bản',
                 children: <DemoContent />,
                 mode: 'modal',
                 onClose: () => {},
               })
-            }
+            }}
           >
             1. Modal cơ bản
           </MyButton>
 
           <MyButton
+            loading={loading}
             variant='primary'
             onClick={() =>
               open({
@@ -104,6 +118,7 @@ export default function Home() {
           </MyButton>
 
           <MyButton
+            loading={loading}
             variant='warning'
             onClick={() =>
               open({
@@ -118,6 +133,7 @@ export default function Home() {
           </MyButton>
 
           <MyButton
+            loading={loading}
             variant='error'
             onClick={() =>
               open({
@@ -221,6 +237,7 @@ export default function Home() {
 
         <div className='flex flex-col gap-4 w-full max-w-md'>
           <MyButton
+            loading={loading}
             onClick={() =>
               open({
                 title: 'Drawer bên phải',
@@ -234,6 +251,7 @@ export default function Home() {
           </MyButton>
 
           <MyButton
+            loading={loading}
             variant='primary'
             onClick={() =>
               open({
@@ -248,6 +266,7 @@ export default function Home() {
           </MyButton>
 
           <MyButton
+            loading={loading}
             variant='warning'
             onClick={() =>
               open({
@@ -262,6 +281,7 @@ export default function Home() {
           </MyButton>
 
           <MyButton
+            loading={loading}
             variant='error'
             onClick={() =>
               open({

@@ -1,10 +1,4 @@
-'use client'
-
-import { ReactNode, useLayoutEffect } from 'react'
-
-// import Header from '../Header'
-
-// Mở rộng Type cho Window toàn cục của TS
+import { PropsWithChildren } from 'react'
 declare global {
   interface Window {
     next?: {
@@ -21,11 +15,10 @@ if (typeof window !== 'undefined') {
   } catch {}
 }
 
-function ClientRender({ children }: { children: ReactNode }) {
+const ClientRender = ({ children }: PropsWithChildren) => {
   return (
     <>
-      {/* <Header /> */}
-      <main className='w-full h-full min-h-[calc(100dvh-64px)]'>{children}</main>
+      <main className='w-full min-h-[100dvh-62px]'>{children}</main>
     </>
   )
 }

@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@plugin "daisyui" {
+  exclude: calendar;
+}
 
 body {
   @apply text-white;
