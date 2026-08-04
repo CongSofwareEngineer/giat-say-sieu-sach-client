@@ -94,7 +94,7 @@ export default function MySelect({ data, value, placeholder = 'Chọn', classNam
             <li
               key={item.value ?? index}
               onClick={() => handleSelect(item)}
-              className={`cursor-pointer px-4 py-2 hover:bg-gray-100 ${item.value === value ? 'bg-blue-50 font-medium' : ''}`}
+              className={`cursor-pointer px-4 py-2 ${item.value === value ? 'bg-blue-50 font-medium' : ''}`}
             >
               {item.label}
             </li>

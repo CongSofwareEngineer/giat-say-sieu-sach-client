@@ -1,12 +1,52 @@
 @import "tailwindcss";
 @plugin "daisyui" {
   exclude: calendar;
+  themes: giat-say-sieu-sach --default,
+    giat-say-sieu-sach light;
+}
+
+@theme {
+  --color-primary: #12B3D6;
+  --color-primary-content: #ffffff;
+  --color-secondary: #00C2A8;
+  --color-secondary-content: #ffffff;
+  --color-accent: #FFC857;
+  --color-accent-content: #1F2937;
+  --color-background: #F8FBFD;
+  --color-card: #FFFFFF;
+  --color-border: #E7EEF5;
+  --color-text: #1F2937;
+  --color-footer: #0F172A;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  @apply text-white;
+  @apply min-h-screen bg-background text-text antialiased;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400;
+}
+
+/* Animation keyframes */
 @keyframes zoom {
   from {
     transform: scale(0.95);
@@ -18,8 +58,36 @@ body {
   }
 }
 
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @utility animation-zoom {
   animation: zoom 0.2s ease-in-out;
+}
+
+@utility animation-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@utility animation-fade-in {
+  animation: fadeIn 0.3s ease-out;
 }
 
 @utility absolute-center {
@@ -27,4 +95,18 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+/* Shadow utilities */
+@utility shadow-card {
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+@utility shadow-card-hover {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Transition utilities */
+@utility transition-default {
+  transition: all 0.2s ease-in-out;
 }

@@ -7,7 +7,7 @@ import { cn } from '@/utils/tailwind'
 export type MyButtonVariant = 'default' | 'primary' | 'warning' | 'error'
 export type MyButtonSize = 'default' | 'small' | 'large'
 
-export type MyButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & {
+export type MyButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: MyButtonVariant
   size?: MyButtonSize
   loading?: boolean

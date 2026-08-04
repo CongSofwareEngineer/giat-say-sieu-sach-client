@@ -1,1 +1,466 @@
-{}
+{
+  "common": {
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "edit": "Sửa",
+    "add": "Thêm",
+    "search": "Tìm kiếm",
+    "filter": "Lọc",
+    "sort": "Sắp xếp",
+    "loading": "Đang tải...",
+    "noData": "Không có dữ liệu",
+    "confirm": "Xác nhận",
+    "close": "Đóng",
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "submit": "Gửi",
+    "reset": "Đặt lại",
+    "viewAll": "Xem tất cả",
+    "viewMore": "Xem thêm",
+    "learnMore": "Tìm hiểu thêm",
+    "or": "hoặc",
+    "required": "Bắt buộc",
+    "optional": "Tùy chọn",
+    "success": "Thành công",
+    "error": "Lỗi",
+    "warning": "Cảnh báo",
+    "info": "Thông tin",
+    "yes": "Có",
+    "no": "Không",
+    "all": "Tất cả",
+    "status": "Trạng thái",
+    "date": "Ngày",
+    "time": "Thời gian",
+    "price": "Giá",
+    "total": "Tổng",
+    "totalPrice": "Tổng cộng",
+    "phone": "Số điện thoại",
+    "email": "Email",
+    "address": "Địa chỉ",
+    "name": "Họ tên",
+    "note": "Ghi chú",
+    "description": "Mô tả",
+    "title": "Tiêu đề",
+    "content": "Nội dung",
+    "image": "Hình ảnh",
+    "avatar": "Ảnh đại diện",
+    "password": "Mật khẩu",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "rememberMe": "Ghi nhớ đăng nhập",
+    "forgotPassword": "Quên mật khẩu?",
+    "noAccount": "Chưa có tài khoản?",
+    "hasAccount": "Đã có tài khoản?",
+    "registerNow": "Đăng ký ngay",
+    "loginNow": "Đăng nhập ngay",
+    "orContinueWith": "Hoặc tiếp tục với",
+    "page": "Trang",
+    "of": "của",
+    "rowsPerPage": "Số dòng mỗi trang",
+    "showing": "Hiển thị",
+    "to": "đến",
+    "from": "từ",
+    "results": "kết quả"
+  },
+  "menu": {
+    "home": "Trang chủ",
+    "priceList": "Bảng giá",
+    "blog": "Blog",
+    "about": "Giới thiệu",
+    "tracking": "Theo dõi đơn",
+    "booking": "Đặt lịch",
+    "contact": "Liên hệ",
+    "login": "Đăng nhập",
+    "register": "Đăng ký",
+    "logout": "Đăng xuất",
+    "profile": "Hồ sơ",
+    "myOrders": "Đơn hàng của tôi",
+    "admin": "Quản trị"
+  },
+  "language": {
+    "vi": "Tiếng Việt",
+    "en": "English",
+    "select": "Chọn ngôn ngữ"
+  },
+  "home": {
+    "title": "Giặt Ủi Siêu Sạch",
+    "subtitle": "Dịch vụ giặt ủi cao cấp, giao nhận tận nơi",
+    "heroTitle": "Giặt Ủi Siêu Sạch",
+    "heroSubtitle": "Giá rẻ - Siêu nhanh - Đúng hẹn - Chất lượng cao",
+    "heroDescription": "Dịch vụ giặt ủi cao cấp với giá rẻ bất ngờ. Giao nhận tận nơi, siêu nhanh, đúng hẹn, chất lượng hàng đầu.",
+    "heroCTA": "Đặt lịch ngay",
+    "heroSecondaryCTA": "Xem bảng giá",
+    "process": {
+      "title": "Quy trình 4 bước",
+      "subtitle": "Đơn giản, nhanh chóng, tiện lợi",
+      "step1": "Đặt lịch",
+      "step1Desc": "Chọn ngày giờ phù hợp và đặt lịch qua ứng dụng",
+      "step2": "Nhận đồ",
+      "step2Desc": "Nhân viên đến tận nơi nhận đồ theo lịch hẹn",
+      "step3": "Giặt ủi",
+      "step3Desc": "Đồ được giặt ủi sạch sẽ, thơm tho bằng thiết bị hiện đại",
+      "step4": "Giao đồ",
+      "step4Desc": "Giao đồ tận nơi đúng hẹn, sạch sẽ thơm tho"
+    },
+    "benefits": {
+      "title": "Tại sao chọn chúng tôi?",
+      "subtitle": "Chất lượng là ưu tiên hàng đầu",
+      "fast": "Siêu nhanh",
+      "fastDesc": "Giao nhận trong 24h, đáp ứng nhanh chóng",
+      "quality": "Chất lượng cao",
+      "qualityDesc": "Sử dụng thiết bị và hóa chất cao cấp",
+      "price": "Giá rẻ",
+      "priceDesc": "Giá cả hợp lý, cạnh tranh nhất thị trường",
+      "convenience": "Tiện lợi",
+      "convenienceDesc": "Giao nhận tận nơi, không cần di chuyển",
+      "schedule": "Đúng hẹn",
+      "scheduleDesc": "Cam kết giao đúng giờ hẹn",
+      "support": "Hỗ trợ 24/7",
+      "supportDesc": "Đội ngũ tư vấn nhiệt tình, sẵn sàng hỗ trợ"
+    },
+    "pricing": {
+      "title": "Bảng giá",
+      "subtitle": "Giá cả hợp lý, cạnh tranh nhất thị trường",
+      "viewFull": "Xem bảng giá đầy đủ",
+      "perKg": "/kg"
+    },
+    "commitment": {
+      "title": "Cam kết của chúng tôi",
+      "subtitle": "Sự hài lòng của bạn là ưu tiên hàng đầu",
+      "clean": "Sạch sẽ tuyệt đối",
+      "cleanDesc": "Đồ được giặt sạch, thơm tho, không còn vết bẩn",
+      "safe": "An toàn tuyệt đối",
+      "safeDesc": "Sử dụng hóa chất an toàn, không gây hại cho vải",
+      "fast": "Nhanh chóng",
+      "fastDesc": "Giao nhận trong 24h, đúng giờ hẹn",
+      "price": "Giá cả hợp lý",
+      "priceDesc": "Giá rẻ bất ngờ, cạnh tranh nhất thị trường"
+    },
+    "feedback": {
+      "title": "Khách hàng nói gì về chúng tôi",
+      "subtitle": "Đánh giá từ khách hàng thực tế"
+    },
+    "faq": {
+      "title": "Câu hỏi thường gặp",
+      "subtitle": "Giải đáp thắc mắc của bạn"
+    },
+    "cta": {
+      "title": "Sẵn sàng giặt ủi?",
+      "subtitle": "Đặt lịch ngay để trải nghiệm dịch vụ tốt nhất",
+      "button": "Đặt lịch ngay"
+    }
+  },
+  "booking": {
+    "title": "Đặt lịch giặt ủi",
+    "subtitle": "Điền thông tin để đặt lịch giao nhận đồ",
+    "form": {
+      "fullName": "Họ tên",
+      "fullNamePlaceholder": "Nhập họ tên",
+      "phone": "Số điện thoại",
+      "phonePlaceholder": "Nhập số điện thoại",
+      "email": "Email",
+      "emailPlaceholder": "Nhập email (tùy chọn)",
+      "pickupAddress": "Địa chỉ nhận đồ",
+      "pickupAddressPlaceholder": "Nhập địa chỉ nhận đồ",
+      "deliveryAddress": "Địa chỉ trả đồ",
+      "deliveryAddressPlaceholder": "Nhập địa chỉ trả đồ",
+      "pickupDate": "Ngày nhận",
+      "pickupTime": "Giờ nhận",
+      "service": "Dịch vụ",
+      "selectService": "Chọn dịch vụ",
+      "weight": "Khối lượng ước tính (kg)",
+      "weightPlaceholder": "Nhập khối lượng ước tính",
+      "note": "Ghi chú",
+      "notePlaceholder": "Nhập ghi chú (tùy chọn)",
+      "submit": "Đặt lịch ngay",
+      "submitting": "Đang đặt lịch..."
+    },
+    "success": {
+      "title": "Đặt lịch thành công!",
+      "message": "Cảm ơn bạn đã đặt lịch. Mã đơn hàng của bạn là:",
+      "track": "Theo dõi đơn hàng",
+      "backHome": "Về trang chủ"
+    },
+    "validation": {
+      "nameRequired": "Vui lòng nhập họ tên",
+      "phoneRequired": "Vui lòng nhập số điện thoại",
+      "phoneInvalid": "Số điện thoại không hợp lệ",
+      "pickupAddressRequired": "Vui lòng nhập địa chỉ nhận đồ",
+      "deliveryAddressRequired": "Vui lòng nhập địa chỉ trả đồ",
+      "dateRequired": "Vui lòng chọn ngày nhận",
+      "timeRequired": "Vui lòng chọn giờ nhận",
+      "serviceRequired": "Vui lòng chọn dịch vụ",
+      "weightRequired": "Vui lòng nhập khối lượng ước tính",
+      "weightMin": "Khối lượng tối thiểu là 1kg"
+    }
+  },
+  "tracking": {
+    "title": "Theo dõi đơn hàng",
+    "subtitle": "Nhập thông tin để theo dõi tiến độ đơn hàng",
+    "form": {
+      "phone": "Số điện thoại",
+      "phonePlaceholder": "Nhập số điện thoại",
+      "orderCode": "Mã đơn hàng",
+      "orderCodePlaceholder": "Nhập mã đơn hàng",
+      "track": "Theo dõi ngay",
+      "tracking": "Đang tìm kiếm..."
+    },
+    "result": {
+      "title": "Thông tin đơn hàng",
+      "code": "Mã đơn",
+      "status": "Trạng thái",
+      "progress": "Tiến độ",
+      "eta": "Thời gian giao dự kiến",
+      "pickupDate": "Ngày nhận",
+      "deliveryDate": "Ngày giao",
+      "service": "Dịch vụ",
+      "weight": "Khối lượng",
+      "totalPrice": "Tổng cộng",
+      "notFound": "Không tìm thấy đơn hàng"
+    },
+    "status": {
+      "CREATED": "Đã tạo",
+      "CONFIRMED": "Đã xác nhận",
+      "PICKED_UP": "Đã nhận đồ",
+      "WASHING": "Đang giặt",
+      "DRYING": "Đang sấy",
+      "IRONING": "Đang ủi",
+      "FOLDING": "Đang gấp",
+      "PACKAGING": "Đang đóng gói",
+      "DELIVERING": "Đang giao",
+      "COMPLETED": "Hoàn thành"
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Mẹo vặt và tin tức về giặt ủi",
+    "readMore": "Đọc thêm",
+    "noPosts": "Chưa có bài viết nào",
+    "relatedPosts": "Bài viết liên quan",
+    "share": "Chia sẻ",
+    "backToList": "Quay lại danh sách"
+  },
+  "about": {
+    "title": "Giới thiệu",
+    "subtitle": "Về Giặt Ủi Siêu Sạch",
+    "story": {
+      "title": "Câu chuyện của chúng tôi",
+      "content": "Giặt Ủi Siêu Sạch được thành lập với sứ mệnh mang đến dịch vụ giặt ủi chất lượng cao, giá cả hợp lý cho mọi gia đình. Với đội ngũ nhân viên chuyên nghiệp và thiết bị hiện đại, chúng tôi cam kết mang đến sự hài lòng tuyệt đối cho khách hàng."
+    },
+    "mission": {
+      "title": "Sứ mệnh",
+      "content": "Mang đến dịch vụ giặt ủi chất lượng cao, tiện lợi, giá cả hợp lý cho mọi gia đình Việt Nam."
+    },
+    "vision": {
+      "title": "Tầm nhìn",
+      "content": "Trở thành chuỗi dịch vụ giặt ủi hàng đầu Việt Nam, được khách hàng tin tưởng và yêu thích."
+    },
+    "values": {
+      "title": "Giá trị cốt lõi",
+      "quality": "Chất lượng",
+      "qualityDesc": "Cam kết chất lượng dịch vụ tốt nhất",
+      "integrity": "Minh bạch",
+      "integrityDesc": "Giá cả rõ ràng, không phát sinh",
+      "innovation": "Đổi mới",
+      "innovationDesc": "Không ngừng cải tiến quy trình",
+      "customer": "Khách hàng",
+      "customerDesc": "Đặt sự hài lòng của khách hàng lên hàng đầu"
+    },
+    "team": {
+      "title": "Đội ngũ",
+      "content": "Đội ngũ nhân viên chuyên nghiệp, được đào tạo bài bản, tận tâm với công việc."
+    }
+  },
+  "contact": {
+    "title": "Liên hệ",
+    "subtitle": "Liên hệ với chúng tôi",
+    "info": {
+      "title": "Thông tin liên hệ",
+      "phone": "Điện thoại",
+      "email": "Email",
+      "address": "Địa chỉ",
+      "facebook": "Facebook",
+      "zalo": "Zalo",
+      "workingHours": "Giờ làm việc"
+    },
+    "form": {
+      "title": "Liên hệ với chúng tôi",
+      "name": "Họ tên",
+      "namePlaceholder": "Nhập họ tên",
+      "email": "Email",
+      "emailPlaceholder": "Nhập email",
+      "phone": "Số điện thoại",
+      "phonePlaceholder": "Nhập số điện thoại",
+      "subject": "Tiêu đề",
+      "subjectPlaceholder": "Nhập tiêu đề",
+      "message": "Nội dung",
+      "messagePlaceholder": "Nhập nội dung liên hệ",
+      "submit": "Gửi liên hệ",
+      "submitting": "Đang gửi...",
+      "success": "Gửi liên hệ thành công!",
+      "error": "Có lỗi xảy ra, vui lòng thử lại sau"
+    },
+    "map": {
+      "title": "Vị trí của chúng tôi"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Đăng nhập",
+      "subtitle": "Chào mừng bạn quay trở lại",
+      "phone": "Số điện thoại",
+      "phonePlaceholder": "Nhập số điện thoại",
+      "password": "Mật khẩu",
+      "passwordPlaceholder": "Nhập mật khẩu",
+      "rememberMe": "Ghi nhớ đăng nhập",
+      "forgotPassword": "Quên mật khẩu?",
+      "submit": "Đăng nhập",
+      "submitting": "Đang đăng nhập...",
+      "noAccount": "Chưa có tài khoản?",
+      "registerNow": "Đăng ký ngay",
+      "error": "Số điện thoại hoặc mật khẩu không đúng"
+    },
+    "register": {
+      "title": "Đăng ký",
+      "subtitle": "Tạo tài khoản mới",
+      "name": "Họ tên",
+      "namePlaceholder": "Nhập họ tên",
+      "phone": "Số điện thoại",
+      "phonePlaceholder": "Nhập số điện thoại",
+      "password": "Mật khẩu",
+      "passwordPlaceholder": "Nhập mật khẩu",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "confirmPasswordPlaceholder": "Nhập lại mật khẩu",
+      "submit": "Đăng ký",
+      "submitting": "Đang đăng ký...",
+      "hasAccount": "Đã có tài khoản?",
+      "loginNow": "Đăng nhập ngay",
+      "error": "Đăng ký thất bại, vui lòng thử lại",
+      "passwordMismatch": "Mật khẩu không khớp"
+    }
+  },
+  "orders": {
+    "title": "Đơn hàng của tôi",
+    "subtitle": "Quản lý đơn hàng",
+    "empty": "Bạn chưa có đơn hàng nào",
+    "createFirst": "Đặt lịch ngay",
+    "detail": "Chi tiết",
+    "track": "Theo dõi",
+    "cancel": "Hủy đơn",
+    "cancelConfirm": "Bạn có chắc chắn muốn hủy đơn hàng này?",
+    "list": {
+      "code": "Mã đơn",
+      "service": "Dịch vụ",
+      "status": "Trạng thái",
+      "price": "Giá",
+      "date": "Ngày tạo",
+      "actions": "Thao tác"
+    }
+  },
+  "footer": {
+    "about": "Giặt Ủi Siêu Sạch",
+    "aboutDesc": "Dịch vụ giặt ủi cao cấp, giao nhận tận nơi, siêu nhanh, đúng hẹn, chất lượng cao.",
+    "quickLinks": "Liên kết nhanh",
+    "services": "Dịch vụ",
+    "contactInfo": "Thông tin liên hệ",
+    "newsletter": "Đăng ký nhận tin",
+    "newsletterPlaceholder": "Nhập email của bạn",
+    "subscribe": "Đăng ký",
+    "copyright": "© 2024 Giặt Ủi Siêu Sạch. Tất cả quyền được bảo lưu.",
+    "privacy": "Chính sách bảo mật",
+    "terms": "Điều khoản sử dụng"
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Dashboard",
+      "totalRevenue": "Tổng doanh thu",
+      "todayOrders": "Đơn hôm nay",
+      "processingOrders": "Đơn đang xử lý",
+      "completedOrders": "Đơn hoàn thành",
+      "totalCustomers": "Tổng khách hàng",
+      "revenueChart": "Biểu đồ doanh thu",
+      "ordersChart": "Biểu đồ đơn hàng"
+    },
+    "orders": {
+      "title": "Quản lý đơn hàng",
+      "list": {
+        "title": "Danh sách đơn hàng",
+        "code": "Mã đơn",
+        "customer": "Khách hàng",
+        "phone": "SĐT",
+        "address": "Địa chỉ",
+        "service": "Dịch vụ",
+        "status": "Trạng thái",
+        "price": "Giá",
+        "date": "Ngày tạo"
+      },
+      "detail": "Chi tiết đơn hàng",
+      "create": "Tạo đơn hàng",
+      "edit": "Sửa đơn hàng",
+      "delete": "Xóa đơn hàng",
+      "deleteConfirm": "Bạn có chắc chắn muốn xóa đơn hàng này?",
+      "status": "Trạng thái",
+      "updateStatus": "Cập nhật trạng thái",
+      "filters": {
+        "all": "Tất cả",
+        "pending": "Chờ xử lý",
+        "processing": "Đang xử lý",
+        "completed": "Hoàn thành",
+        "cancelled": "Đã hủy"
+      }
+    },
+    "customers": {
+      "title": "Quản lý khách hàng",
+      "list": "Danh sách khách hàng",
+      "detail": "Chi tiết khách hàng",
+      "create": "Thêm khách hàng",
+      "edit": "Sửa khách hàng",
+      "delete": "Xóa khách hàng",
+      "deleteConfirm": "Bạn có chắc chắn muốn xóa khách hàng này?"
+    },
+    "blog": {
+      "title": "Quản lý blog",
+      "list": "Danh sách bài viết",
+      "create": "Thêm bài viết",
+      "edit": "Sửa bài viết",
+      "delete": "Xóa bài viết",
+      "deleteConfirm": "Bạn có chắc chắn muốn xóa bài viết này?"
+    },
+    "banner": {
+      "title": "Quản lý banner",
+      "list": "Danh sách banner",
+      "create": "Thêm banner",
+      "edit": "Sửa banner",
+      "delete": "Xóa banner",
+      "deleteConfirm": "Bạn có chắc chắn muốn xóa banner này?"
+    },
+    "prices": {
+      "title": "Quản lý bảng giá",
+      "list": "Danh sách dịch vụ",
+      "create": "Thêm dịch vụ",
+      "edit": "Sửa dịch vụ",
+      "delete": "Xóa dịch vụ",
+      "deleteConfirm": "Bạn có chắc chắn muốn xóa dịch vụ này?"
+    },
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "orders": "Đơn hàng",
+      "customers": "Khách hàng",
+      "blog": "Blog",
+      "banner": "Banner",
+      "prices": "Bảng giá",
+      "settings": "Cài đặt",
+      "logout": "Đăng xuất"
+    }
+  },
+  "chat": {
+    "title": "Chat hỗ trợ",
+    "subtitle": "Chúng tôi sẵn sàng hỗ trợ bạn",
+    "inputPlaceholder": "Nhập tin nhắn...",
+    "send": "Gửi",
+    "welcome": "Xin chào! Chúng tôi có thể giúp gì cho bạn?",
+    "autoReply": "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong thời gian sớm nhất.",
+    "offline": "Chúng tôi hiện đang offline. Vui lòng để lại tin nhắn.",
+    "online": "Đang trực tuyến"
+  }
+}

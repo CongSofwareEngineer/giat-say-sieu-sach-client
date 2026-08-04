@@ -97,7 +97,7 @@ const MyModal = () => {
                       modal?.onClose()
                     }
                   }}
-                  className={'p-0 min-h-auto h-6 hover:bg-transparent aspect-square rounded-full border-0'}
+                  className={'p-0 min-h-auto h-6 aspect-square rounded-full border-0'}
                 >
                   <CloseIcon className='cursor-pointer size-6 text-black dark:text-white' />
                 </button>

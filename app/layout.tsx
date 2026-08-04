@@ -2,6 +2,9 @@ import type { Metadata, Viewport } from 'next'
 
 import './globals.css'
 import MyDrawer from '../components/MyDrawer/index'
+import Header from '../components/Header'
+import Footer from '../components/Footer'
+import FloatingChat from '../components/FloatingChat'
 
 import { INFO_CONTACT, IS_PRODUCTION, SITE_CONFIG } from '@/constants/app'
 import ReactQuery from '@/components/ReactQuery'
@@ -21,7 +24,7 @@ export const metadata: Metadata = {
     title: SITE_CONFIG.title,
     description: SITE_CONFIG.description,
     emails: INFO_CONTACT.Mail,
-    phoneNumbers: ['+84392225405'],
+    phoneNumbers: [INFO_CONTACT.Phone],
     siteName: SITE_CONFIG.title,
     locale: 'vi',
     images: {
@@ -50,7 +53,6 @@ export const metadata: Metadata = {
     shortcut: { url: SITE_CONFIG.icon },
     apple: { url: SITE_CONFIG.icon },
   },
-  // manifest: '/manifest.ts',
   twitter: {
     title: SITE_CONFIG.title,
     description: SITE_CONFIG.description,
@@ -61,11 +63,8 @@ export const metadata: Metadata = {
     title: SITE_CONFIG.title,
     capable: true,
   },
-  // <meta name="google-site-verification" content="-SD7kSWHZKEXxbtkWRvn1r5wtOy8o6Gv0wDuA_ituHk" />
   verification: {
-    // google: 'YXX_WFs2UUKUX0hoW9cYgZsaKYARrlvneVgGWm7eGx8',
     google: process.env.NEXT_PUBLIC_MODE_PRODUCTION ? '-SD7kSWHZKEXxbtkWRvn1r5wtOy8o6Gv0wDuA_ituHk' : '',
-    // me:'YXX_WFs2UUKUX0hoW9cYgZsaKYARrlvneVgGWm7eGx8'
   },
 }
 
@@ -85,7 +84,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang='en' className={`h-full antialiased`}>
+    <html lang='vi' className='h-full antialiased'>
       <head>
         {IS_PRODUCTION && (
           <>
@@ -93,7 +92,7 @@ export default function RootLayout({
               dangerouslySetInnerHTML={{
                 __html: JSON.stringify({
                   '@context': 'https://schema.org',
-                  '@type': 'Person',
+                  '@type': 'LocalBusiness',
                   name: SITE_CONFIG.title,
                   url: SITE_CONFIG.url,
                   logo: SITE_CONFIG.icon,
@@ -102,13 +101,15 @@ export default function RootLayout({
                     '@type': 'PostalAddress',
                     streetAddress: 'Tân Bình',
                     addressLocality: 'Sài Gòn',
-                    addressCountry: 'Việt nam',
+                    addressCountry: 'Việt Nam',
                   },
                   contactPoint: {
                     '@type': 'ContactPoint',
                     telephone: INFO_CONTACT.Phone,
-                    contactType: INFO_CONTACT.Mail,
+                    contactType: 'customer service',
                   },
+                  priceRange: '$$',
+                  openingHours: 'Mo-Su 08:00-20:00',
                 }),
               }}
               type='application/ld+json'
@@ -116,12 +117,15 @@ export default function RootLayout({
           </>
         )}
       </head>
-      <body className='min-h-full flex flex-col'>
+      <body className='min-h-full flex flex-col bg-background text-text'>
         <ReactQuery>
           <ClientRender>
-            {children}
+            <Header />
+            <main className='flex-1 pt-16 lg:pt-20'>{children}</main>
+            <Footer />
             <MyModal />
             <MyDrawer />
+            <FloatingChat />
           </ClientRender>
         </ReactQuery>
       </body>

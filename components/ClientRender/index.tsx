@@ -1,4 +1,5 @@
 import { PropsWithChildren } from 'react'
+
 declare global {
   interface Window {
     next?: {
@@ -16,11 +17,7 @@ if (typeof window !== 'undefined') {
 }
 
 const ClientRender = ({ children }: PropsWithChildren) => {
-  return (
-    <>
-      <main className='w-full min-h-[100dvh-62px]'>{children}</main>
-    </>
-  )
+  return <>{children}</>
 }
 
 export default ClientRender

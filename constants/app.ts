@@ -1,15 +1,44 @@
 export const SITE_CONFIG = {
-  title: 'Next.js + TailwindCSS + TypeScript Starter',
-  description: 'A starter template for Next.js with TailwindCSS and TypeScript.',
-  url: 'https://example.com',
+  title: 'Giặt Ủi Siêu Sạch',
+  description: 'Dịch vụ giặt ủi cao cấp, giao nhận tận nơi, siêu nhanh, đúng hẹn, chất lượng cao. Đặt lịch ngay!',
+  url: 'https://giatsaysieusach.com',
   icon: '/logo.png',
   thumbnail: '/thumbnail.png',
-  keywords: ['Next.js', 'TailwindCSS', 'TypeScript', 'Starter Template'],
+  keywords: ['giặt ủi', 'giặt ủi siêu sạch', 'giặt đồ', 'ủi đồ', 'giao nhận tận nơi', 'dịch vụ giặt ủi'],
 }
 
 export enum INFO_CONTACT {
-  Mail = 'mailto:hodiencong2000@gmail.com',
+  Mail = 'mailto:contact@giatsaysieusach.com',
   Phone = '+84-392-225-405',
+  Address = 'Tân Bình, Sài Gòn, Việt Nam',
+  Facebook = 'https://facebook.com/giatsaysieusach',
+  Zalo = 'https://zalo.me/giatsaysieusach',
 }
 
 export const IS_PRODUCTION = process.env.NEXT_PUBLIC_ENV === 'production'
+
+// Primary colors
+export const COLORS = {
+  primary: '#12B3D6',
+  secondary: '#00C2A8',
+  accent: '#FFC857',
+  background: '#F8FBFD',
+  card: '#FFFFFF',
+  border: '#E7EEF5',
+  text: '#1F2937',
+  footer: '#0F172A',
+}
+
+// Order statuses
+export enum ORDER_STATUS {
+  CREATED = 'CREATED',
+  CONFIRMED = 'CONFIRMED',
+  PICKED_UP = 'PICKED_UP',
+  WASHING = 'WASHING',
+  DRYING = 'DRYING',
+  IRONING = 'IRONING',
+  FOLDING = 'FOLDING',
+  PACKAGING = 'PACKAGING',
+  DELIVERING = 'DELIVERING',
+  COMPLETED = 'COMPLETED',
+}
