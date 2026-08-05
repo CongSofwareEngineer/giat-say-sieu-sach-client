@@ -113,7 +113,7 @@ const FloatingChat = () => {
     if (!isOpen || isMobile) return null
 
     return (
-      <div className='fixed bottom-24 right-6 w-[60rem] h-[72rem] bg-white rounded-2xl shadow-2xl border border-border z-50 flex flex-col'>
+      <div className='fixed bottom-24 right-6 z-50 flex h-[70dvh] max-h-[calc(100dvh-7rem)] w-[500px] max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-2xl'>
         <div className='flex items-center justify-between px-4 py-3 bg-primary text-white rounded-t-2xl'>
           <div>
             <p className='font-semibold text-sm'>{translate('chat.title')}</p>
