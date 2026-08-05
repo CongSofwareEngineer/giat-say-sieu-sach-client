@@ -2,26 +2,33 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 import MyImage from '../MyImage'
 import { MenuIcon } from '../Icons/Functions/Menu'
 import { CloseIcon } from '../Icons/Functions/Close'
+import { LogOutIcon } from '../Icons/Functions/LogOut'
+import { SettingIcon } from '../Icons/Functions/Setting'
+import { UserCircleIcon } from '../Icons/UserCircle'
 import GlobeIcon from '../Icons/Globe'
 
 import { cn } from '@/utils/tailwind'
 import { images } from '@/config/images'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
+import useUser from '@/hooks/useUser'
 import { LANGUAGE_SUPPORT } from '@/zustand/language'
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isLangOpen, setIsLangOpen] = useState(false)
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
   const { translate, lang, setLanguage } = useLanguage()
   const { isMobile } = useModalDrawer()
+  const { user, isLogin, hasHydrated, logout } = useUser()
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20)
@@ -33,7 +40,14 @@ const Header = () => {
 
   useEffect(() => {
     setIsMobileMenuOpen(false)
+    setIsLangOpen(false)
+    setIsUserMenuOpen(false)
   }, [pathname])
+
+  const handleLogout = () => {
+    logout()
+    router.replace('/')
+  }
 
   const navItems = [
     { href: '/', label: translate('menu.home') },
@@ -119,7 +133,61 @@ const Header = () => {
               )}
             </div>
 
-            {!isMobile && (
+            {!isMobile && hasHydrated && isLogin && (
+              <div className='relative hidden lg:block'>
+                <button
+                  type='button'
+                  onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                  className='flex items-center gap-2 rounded-full p-1 pr-3 transition-colors hover:bg-gray-100'
+                >
+                  <div className='relative h-9 w-9 overflow-hidden rounded-full bg-gradient-to-br from-primary to-secondary'>
+                    {user?.avatar ? (
+                      <MyImage src={user.avatar} alt={user?.name || 'avatar'} fill sizes='36px' className='object-cover' />
+                    ) : (
+                      <UserCircleIcon className='h-9 w-9 text-white' />
+                    )}
+                  </div>
+                  <span className='max-w-[120px] truncate text-sm font-medium text-text'>{user?.name || user?.phone}</span>
+                </button>
+
+                {isUserMenuOpen && (
+                  <div className='absolute right-0 top-full mt-2 w-56 rounded-xl border border-border bg-white shadow-lg z-50'>
+                    <div className='border-b border-border px-4 py-3'>
+                      <p className='truncate text-sm font-semibold text-text'>{user?.name || translate('menu.profile')}</p>
+                      <p className='truncate text-xs text-gray-500'>{user?.phone}</p>
+                    </div>
+                    <div className='p-1.5'>
+                      <Link
+                        href='/profile'
+                        className='flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-text transition-colors hover:bg-primary/5 hover:text-primary'
+                      >
+                        <UserCircleIcon className='h-5 w-5' />
+                        {translate('menu.profile')}
+                      </Link>
+                      {user?.isAdmin && (
+                        <Link
+                          href='/admin'
+                          className='flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-text transition-colors hover:bg-primary/5 hover:text-primary'
+                        >
+                          <SettingIcon className='h-5 w-5' />
+                          {translate('menu.admin')}
+                        </Link>
+                      )}
+                      <button
+                        type='button'
+                        onClick={handleLogout}
+                        className='flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-600 transition-colors hover:bg-red-50'
+                      >
+                        <LogOutIcon className='h-5 w-5' />
+                        {translate('menu.logout')}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!isMobile && (!hasHydrated || !isLogin) && (
               <div className='hidden lg:flex items-center gap-2'>
                 <Link href='/login' className='border  border-primary text-primary px-4 py-2.5 text-sm font-medium  rounded-lg transition-colors'>
                   {translate('menu.login')}
@@ -158,14 +226,40 @@ const Header = () => {
                 {item.label}
               </Link>
             ))}
-            <div className='pt-4 border-t border-border mt-4 space-y-2'>
-              <Link href='/login' className='block px-4 py-3 rounded-lg text-base font-medium text-text transition-colors'>
-                {translate('menu.login')}
-              </Link>
-              <Link href='/register' className='block px-4 py-3 rounded-lg text-base font-medium text-white bg-primary transition-colors text-center'>
-                {translate('menu.register')}
-              </Link>
-            </div>
+            {hasHydrated && isLogin ? (
+              <div className='pt-4 border-t border-border mt-4 space-y-2'>
+                <Link href='/profile' className='flex items-center gap-2 px-4 py-3 rounded-lg text-base font-medium text-text transition-colors'>
+                  <UserCircleIcon className='h-5 w-5' />
+                  {translate('menu.profile')}
+                </Link>
+                {user?.isAdmin && (
+                  <Link href='/admin' className='flex items-center gap-2 px-4 py-3 rounded-lg text-base font-medium text-text transition-colors'>
+                    <SettingIcon className='h-5 w-5' />
+                    {translate('menu.admin')}
+                  </Link>
+                )}
+                <button
+                  type='button'
+                  onClick={handleLogout}
+                  className='flex w-full items-center gap-2 px-4 py-3 rounded-lg text-base font-medium text-red-600 transition-colors'
+                >
+                  <LogOutIcon className='h-5 w-5' />
+                  {translate('menu.logout')}
+                </button>
+              </div>
+            ) : (
+              <div className='pt-4 border-t border-border mt-4 space-y-2'>
+                <Link href='/login' className='block px-4 py-3 rounded-lg text-base font-medium text-text transition-colors'>
+                  {translate('menu.login')}
+                </Link>
+                <Link
+                  href='/register'
+                  className='block px-4 py-3 rounded-lg text-base font-medium text-white bg-primary transition-colors text-center'
+                >
+                  {translate('menu.register')}
+                </Link>
+              </div>
+            )}
           </nav>
         </div>
       )}

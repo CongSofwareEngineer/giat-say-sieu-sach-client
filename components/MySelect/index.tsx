@@ -14,12 +14,24 @@ export type MySelectProps = {
   className?: string
   style?: React.CSSProperties
   search?: boolean
+  disabled?: boolean
   onSearch?: (keyword: string) => void
   onChange?: (item: MySelectItem) => void
   onClick?: () => void
 }
 
-export default function MySelect({ data, value, placeholder = 'Chọn', className, style, search = true, onSearch, onChange, onClick }: MySelectProps) {
+export default function MySelect({
+  data,
+  value,
+  placeholder = 'Chọn',
+  className,
+  style,
+  search = true,
+  disabled = false,
+  onSearch,
+  onChange,
+  onClick,
+}: MySelectProps) {
   const [open, setOpen] = useState(false)
   const [keyword, setKeyword] = useState('')
 
@@ -46,6 +58,8 @@ export default function MySelect({ data, value, placeholder = 'Chọn', classNam
   }, [data, keyword])
 
   const handleToggle = () => {
+    if (disabled) return
+
     setOpen((v) => !v)
     onClick?.()
   }
@@ -66,7 +80,8 @@ export default function MySelect({ data, value, placeholder = 'Chọn', classNam
       <button
         type='button'
         onClick={handleToggle}
-        className='cursor-pointer flex w-full items-center justify-between rounded-lg border bg-white px-4 py-2'
+        disabled={disabled}
+        className='cursor-pointer flex w-full items-center justify-between rounded-lg border bg-white px-4 py-2 disabled:cursor-not-allowed disabled:opacity-60'
       >
         <span>{selected?.label ?? placeholder}</span>
         <span className={`transition-transform ${open ? 'rotate-180' : ''}`}>▼</span>

@@ -521,6 +521,63 @@
       "actions": "Actions"
     }
   },
+  "profile": {
+    "title": "My Profile",
+    "subtitle": "Manage your personal info and delivery addresses",
+    "menu": {
+      "info": "Personal Info",
+      "addresses": "Address Book"
+    },
+    "info": {
+      "title": "Personal Information",
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "Enter your full name",
+      "phone": "Phone Number",
+      "phonePlaceholder": "Enter phone number",
+      "email": "Email",
+      "emailPlaceholder": "Enter email",
+      "save": "Save Changes",
+      "saved": "Changes saved!"
+    },
+    "avatar": {
+      "change": "Change Avatar",
+      "uploading": "Uploading..."
+    },
+    "addresses": {
+      "title": "Address Book",
+      "subtitle": "Manage your delivery addresses",
+      "empty": "You have no addresses yet",
+      "add": "Add New Address",
+      "edit": "Edit Address",
+      "delete": "Delete Address",
+      "deleteConfirm": "Are you sure you want to delete this address?",
+      "setDefault": "Set as default",
+      "default": "Default",
+      "form": {
+        "name": "Recipient Name",
+        "namePlaceholder": "Enter recipient name",
+        "phone": "Phone Number",
+        "phonePlaceholder": "Enter phone number",
+        "detail": "Detailed Address",
+        "detailPlaceholder": "House number, street...",
+        "city": "Province/City",
+        "district": "District",
+        "ward": "Ward",
+        "isDefault": "Set as default address",
+        "submit": "Save Address",
+        "submitting": "Saving..."
+      },
+      "validation": {
+        "nameRequired": "Please enter recipient name",
+        "phoneRequired": "Please enter phone number",
+        "phoneInvalid": "Invalid phone number",
+        "detailRequired": "Please enter detailed address",
+        "cityRequired": "Please select province/city",
+        "districtRequired": "Please select district",
+        "wardRequired": "Please select ward"
+      }
+    }
+  },
   "footer": {
     "about": "Super Clean Laundry",
     "aboutDesc": "Premium laundry service, doorstep delivery, super fast, on time, high quality.",

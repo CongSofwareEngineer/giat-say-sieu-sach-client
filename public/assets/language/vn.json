@@ -521,6 +521,63 @@
       "actions": "Thao tác"
     }
   },
+  "profile": {
+    "title": "Hồ sơ của tôi",
+    "subtitle": "Quản lý thông tin cá nhân và địa chỉ giao nhận",
+    "menu": {
+      "info": "Thông tin cá nhân",
+      "addresses": "Sổ địa chỉ"
+    },
+    "info": {
+      "title": "Thông tin cá nhân",
+      "fullName": "Họ tên",
+      "fullNamePlaceholder": "Nhập họ tên",
+      "phone": "Số điện thoại",
+      "phonePlaceholder": "Nhập số điện thoại",
+      "email": "Email",
+      "emailPlaceholder": "Nhập email",
+      "save": "Lưu thay đổi",
+      "saved": "Đã lưu thay đổi!"
+    },
+    "avatar": {
+      "change": "Đổi ảnh đại diện",
+      "uploading": "Đang tải ảnh..."
+    },
+    "addresses": {
+      "title": "Sổ địa chỉ",
+      "subtitle": "Quản lý địa chỉ giao nhận của bạn",
+      "empty": "Bạn chưa có địa chỉ nào",
+      "add": "Thêm địa chỉ mới",
+      "edit": "Sửa địa chỉ",
+      "delete": "Xóa địa chỉ",
+      "deleteConfirm": "Bạn có chắc chắn muốn xóa địa chỉ này?",
+      "setDefault": "Đặt làm mặc định",
+      "default": "Mặc định",
+      "form": {
+        "name": "Tên người nhận",
+        "namePlaceholder": "Nhập tên người nhận",
+        "phone": "Số điện thoại",
+        "phonePlaceholder": "Nhập số điện thoại",
+        "detail": "Địa chỉ chi tiết",
+        "detailPlaceholder": "Số nhà, tên đường...",
+        "city": "Tỉnh/Thành phố",
+        "district": "Quận/Huyện",
+        "ward": "Phường/Xã",
+        "isDefault": "Đặt làm địa chỉ mặc định",
+        "submit": "Lưu địa chỉ",
+        "submitting": "Đang lưu..."
+      },
+      "validation": {
+        "nameRequired": "Vui lòng nhập tên người nhận",
+        "phoneRequired": "Vui lòng nhập số điện thoại",
+        "phoneInvalid": "Số điện thoại không hợp lệ",
+        "detailRequired": "Vui lòng nhập địa chỉ chi tiết",
+        "cityRequired": "Vui lòng chọn tỉnh/thành phố",
+        "districtRequired": "Vui lòng chọn quận/huyện",
+        "wardRequired": "Vui lòng chọn phường/xã"
+      }
+    }
+  },
   "footer": {
     "about": "Giặt Ủi Siêu Sạch",
     "aboutDesc": "Dịch vụ giặt ủi cao cấp, giao nhận tận nơi, siêu nhanh, đúng hẹn, chất lượng cao.",
