@@ -117,12 +117,12 @@ const FloatingChat = () => {
         <div className='flex items-center justify-between px-4 py-3 bg-primary text-white rounded-t-2xl'>
           <div>
             <p className='font-semibold text-sm'>{translate('chat.title')}</p>
-            <p className='text-xs text-white/80 flex items-center gap-1'>
+            <p className='text-xs text-white/90 flex items-center gap-1'>
               <span className='w-2 h-2 bg-green-400 rounded-full inline-block' />
               {translate('chat.online')}
             </p>
           </div>
-          <button onClick={closeChat} aria-label='Close' className='rounded-full p-1 bg-white/15'>
+          <button onClick={closeChat} aria-label='Close' className='rounded-full p-2 bg-white/15'>
             <CloseIcon className='w-4 h-4' />
           </button>
         </div>
@@ -134,7 +134,7 @@ const FloatingChat = () => {
                 className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${msg.isUser ? 'bg-primary text-white rounded-br-md' : 'bg-gray-100 text-text rounded-bl-md'}`}
               >
                 <p>{msg.text}</p>
-                <p className={`text-[10px] mt-1 ${msg.isUser ? 'text-white/70' : 'text-gray-400'}`}>{msg.time}</p>
+                <p className={`text-[10px] mt-1 ${msg.isUser ? 'text-white/90' : 'text-gray-500'}`}>{msg.time}</p>
               </div>
             </div>
           ))}
@@ -148,11 +148,11 @@ const FloatingChat = () => {
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={translate('chat.inputPlaceholder')}
-            className='w-full px-3 py-2 text-sm border border-border rounded-2xl focus:outline-none resize-none'
+            className='w-full px-3 py-2 text-sm border border-border rounded-2xl focus:outline-none resize-none placeholder:text-gray-500'
           />
           <div className='flex items-center justify-between mt-2'>
-            <p className='text-xs text-gray-400'>{translate('chat.pressEnterToSend')}</p>
-            <MyButton onClick={handleSend} disabled={!inputValue.trim() || isSending} className='p-2'>
+            <p className='text-xs text-gray-500'>{translate('chat.pressEnterToSend')}</p>
+            <MyButton onClick={handleSend} disabled={!inputValue.trim() || isSending} className='p-3'>
               {isSending ? (
                 <span className='inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white' />
               ) : (
@@ -218,7 +218,7 @@ const ChatContent = ({
               className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${msg.isUser ? 'bg-primary text-white rounded-br-md' : 'bg-gray-100 text-text rounded-bl-md'}`}
             >
               <p>{msg.text}</p>
-              <p className={`text-[10px] mt-1 ${msg.isUser ? 'text-white/70' : 'text-gray-400'}`}>{msg.time}</p>
+              <p className={`text-[10px] mt-1 ${msg.isUser ? 'text-white/90' : 'text-gray-500'}`}>{msg.time}</p>
             </div>
           </div>
         ))}
@@ -235,8 +235,8 @@ const ChatContent = ({
           className='w-full px-3 py-2 text-sm border border-border rounded-2xl focus:outline-none resize-none'
         />
         <div className='flex items-center justify-between mt-2'>
-          <p className='text-xs text-gray-400'>{translate('chat.pressEnterToSend')}</p>
-          <MyButton onClick={handleSend} disabled={!inputValue.trim() || isSending} className='p-2'>
+          <p className='text-xs text-gray-500'>{translate('chat.pressEnterToSend')}</p>
+          <MyButton onClick={handleSend} disabled={!inputValue.trim() || isSending} className='p-3'>
             {isSending ? (
               <span className='inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white' />
             ) : (

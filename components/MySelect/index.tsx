@@ -86,13 +86,13 @@ export default function MySelect({ data, value, placeholder = 'Chọn', classNam
               value={keyword}
               onChange={(e) => handleSearch(e.target.value)}
               placeholder='Tìm...'
-              className='w-full rounded border px-3 py-2 outline-none'
+              className='w-full rounded border px-3 py-2 outline-none placeholder:text-gray-500'
             />
           </div>
         )}
 
         <ul className='max-h-60 overflow-auto'>
-          {filtered.length === 0 && <li className='px-4 py-3 text-gray-400'>Không tìm thấy</li>}
+          {filtered.length === 0 && <li className='px-4 py-3 text-gray-500'>Không tìm thấy</li>}
 
           {filtered.map((item, index) => (
             <li

@@ -15,14 +15,14 @@ export type MyButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 }
 
 const variantStyles: Record<MyButtonVariant, string> = {
-  default: 'bg-gradient-to-br from-primary to-secondary text-primary-content shadow-[0px_6px_24px_rgba(18,179,214,0.5)]',
+  default: 'bg-gradient-to-br from-primary to-secondary text-primary-content shadow-[0px_6px_24px_rgba(10,111,135,0.35)]',
   primary: 'bg-primary text-primary-content',
   warning: 'bg-yellow-500 text-white',
   error: 'bg-red-600 text-white',
 }
 
 const sizeStyles: Record<MyButtonSize, string> = {
-  default: 'px-4 py-2 text-sm',
+  default: 'px-4 py-2.5 text-sm',
   small: 'px-2 py-1 text-xs',
   large: 'px-6 py-3 text-base',
 }

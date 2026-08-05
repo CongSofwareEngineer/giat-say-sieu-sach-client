@@ -141,7 +141,7 @@ const TrackingPage = () => {
         {error && (
           <MyCard className='mb-8'>
             <MyCardBody className='text-center'>
-              <p className='text-red-500'>{error}</p>
+              <p className='text-red-600'>{error}</p>
             </MyCardBody>
           </MyCard>
         )}
@@ -171,7 +171,7 @@ const TrackingPage = () => {
                     const isCurrent = index === currentIndex
 
                     return (
-                      <div key={status} className={`flex items-center gap-3 ${isCompleted ? 'text-text' : 'text-gray-400'}`}>
+                      <div key={status} className={`flex items-center gap-3 ${isCompleted ? 'text-text' : 'text-gray-500'}`}>
                         <div
                           className={`w-3 h-3 rounded-full flex-shrink-0 ${
                             isCurrent ? 'bg-primary ring-4 ring-primary/20' : isCompleted ? 'bg-primary' : 'bg-gray-300'

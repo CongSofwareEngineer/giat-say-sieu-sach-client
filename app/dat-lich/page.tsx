@@ -258,7 +258,7 @@ const BookingPage = () => {
                 <div>
                   <label className='block text-sm font-medium text-text mb-1.5'>
                     {translate('booking.form.pickupTime')}
-                    <span className='text-red-500 ml-1'>*</span>
+                    <span className='text-red-600 ml-1'>*</span>
                   </label>
                   <MySelect
                     data={timeOptions}
@@ -266,7 +266,7 @@ const BookingPage = () => {
                     placeholder='Chọn giờ'
                     onChange={(item) => handleChange('pickupTime', item.value as string)}
                   />
-                  {errors.pickupTime && <p className='mt-1 text-sm text-red-500'>{errors.pickupTime}</p>}
+                  {errors.pickupTime && <p className='mt-1 text-sm text-red-600'>{errors.pickupTime}</p>}
                 </div>
               </div>
 
@@ -274,7 +274,7 @@ const BookingPage = () => {
                 <div>
                   <label className='block text-sm font-medium text-text mb-1.5'>
                     {translate('booking.form.service')}
-                    <span className='text-red-500 ml-1'>*</span>
+                    <span className='text-red-600 ml-1'>*</span>
                   </label>
                   <MySelect
                     data={serviceOptions}
@@ -282,7 +282,7 @@ const BookingPage = () => {
                     placeholder={translate('booking.form.selectService')}
                     onChange={(item) => handleChange('service', item.value as string)}
                   />
-                  {errors.service && <p className='mt-1 text-sm text-red-500'>{errors.service}</p>}
+                  {errors.service && <p className='mt-1 text-sm text-red-600'>{errors.service}</p>}
                 </div>
                 <MyInput
                   label={translate('booking.form.weight')}

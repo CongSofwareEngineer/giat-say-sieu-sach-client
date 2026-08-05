@@ -80,7 +80,7 @@ const PriceListPage = () => {
                 <h3 className='text-lg font-bold text-text'>{plan.name}</h3>
                 <div className='mt-2 text-3xl font-extrabold text-primary'>
                   {plan.price}
-                  <span className='text-sm font-normal text-gray-400'>{plan.unit}</span>
+                  <span className='text-sm font-normal text-gray-500'>{plan.unit}</span>
                 </div>
                 <p className='mt-2 text-sm leading-relaxed text-gray-500'>{plan.description}</p>
 

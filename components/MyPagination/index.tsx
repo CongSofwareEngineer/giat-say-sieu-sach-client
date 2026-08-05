@@ -41,7 +41,7 @@ const MyPagination = ({ currentPage, totalPages, onPageChange, className }: MyPa
   }
 
   return (
-    <div className={cn('flex items-center justify-center gap-1', className)}>
+    <div className={cn('flex items-center justify-center gap-2', className)}>
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
@@ -63,7 +63,7 @@ const MyPagination = ({ currentPage, totalPages, onPageChange, className }: MyPa
             {page}
           </button>
         ) : (
-          <span key={index} className='px-2 text-gray-400'>
+          <span key={index} className='px-2 text-gray-500'>
             {page}
           </span>
         )

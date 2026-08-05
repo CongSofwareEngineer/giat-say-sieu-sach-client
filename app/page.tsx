@@ -193,7 +193,7 @@ const HomePage = () => {
                   <div className='mt-6 h-2 w-full overflow-hidden rounded-full bg-gray-100'>
                     <div className='h-full w-3/4 rounded-full bg-gradient-to-r from-primary to-secondary' />
                   </div>
-                  <div className='mt-3 flex justify-between text-xs text-gray-400'>
+                  <div className='mt-3 flex justify-between text-xs text-gray-500'>
                     <span>{translate('home.process.step2')}</span>
                     <span>{translate('home.process.step3')}</span>
                     <span>{translate('home.process.step4')}</span>
@@ -222,7 +222,7 @@ const HomePage = () => {
             {processSteps.map((step) => (
               <MyCard key={step.step} className='group transition-transform duration-300 hover:-translate-y-1'>
                 <MyCardBody className='p-6 lg:p-7'>
-                  <span className='text-5xl font-extrabold text-primary/15 transition-colors group-hover:text-primary/25'>{step.step}</span>
+                  <span className='text-5xl font-extrabold text-primary transition-colors group-hover:text-secondary'>{step.step}</span>
                   <h3 className='mt-4 text-lg font-bold text-text'>{step.title}</h3>
                   <p className='mt-2 text-sm leading-relaxed text-gray-500'>{step.description}</p>
                 </MyCardBody>
@@ -276,7 +276,7 @@ const HomePage = () => {
                   <h3 className='text-lg font-bold text-text'>{plan.name}</h3>
                   <div className='mt-3 text-4xl font-extrabold text-primary'>
                     {plan.price}
-                    <span className='text-base font-normal text-gray-400'>{translate('home.pricing.perKg')}</span>
+                    <span className='text-base font-normal text-gray-500'>{translate('home.pricing.perKg')}</span>
                   </div>
                   <p className='mt-3 text-sm leading-relaxed text-gray-500'>{plan.description}</p>
                   <Link href='/dat-lich' className='mt-6 block w-full sm:flex-none'>
@@ -309,7 +309,7 @@ const HomePage = () => {
                   <commitment.icon className='h-8 w-8' />
                 </div>
                 <h3 className='mt-5 text-lg font-bold'>{commitment.title}</h3>
-                <p className='mt-2 text-sm leading-relaxed text-white/85'>{commitment.description}</p>
+                <p className='mt-2 text-sm leading-relaxed text-white'>{commitment.description}</p>
               </div>
             ))}
           </div>
@@ -366,7 +366,7 @@ const HomePage = () => {
                     {isOpen ? (
                       <ArrowUpIcon className='h-5 w-5 flex-shrink-0 text-primary' />
                     ) : (
-                      <ArrowDownIcon className='h-5 w-5 flex-shrink-0 text-gray-400' />
+                      <ArrowDownIcon className='h-5 w-5 flex-shrink-0 text-gray-500' />
                     )}
                   </button>
                   <div className={cn('grid transition-all duration-300', isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0')}>
@@ -389,7 +389,7 @@ const HomePage = () => {
             <div className='pointer-events-none absolute -bottom-16 -right-16 h-64 w-64 rounded-full bg-white/10 blur-2xl' />
             <div className='relative'>
               <h2 className='text-3xl font-extrabold leading-tight text-white lg:text-4xl'>{translate('home.cta.title')}</h2>
-              <p className='mx-auto mt-4 max-w-xl text-lg text-white/85'>{translate('home.cta.subtitle')}</p>
+              <p className='mx-auto mt-4 max-w-xl text-lg text-white'>{translate('home.cta.subtitle')}</p>
               <div className='mt-8'>
                 <Link
                   href='/dat-lich'

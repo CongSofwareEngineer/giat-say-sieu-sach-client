@@ -19,8 +19,8 @@ export const IS_PRODUCTION = process.env.NEXT_PUBLIC_ENV === 'production'
 
 // Primary colors
 export const COLORS = {
-  primary: '#12B3D6',
-  secondary: '#00C2A8',
+  primary: '#0A6F87',
+  secondary: '#007F6A',
   accent: '#FFC857',
   background: '#F8FBFD',
   card: '#FFFFFF',

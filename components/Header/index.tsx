@@ -81,7 +81,7 @@ const Header = () => {
             <div className='relative'>
               <button
                 onClick={() => setIsLangOpen(!isLangOpen)}
-                className='flex items-center gap-1 px-2 py-1.5 rounded-lg text-sm text-text transition-colors'
+                className='flex items-center gap-1 px-2 py-2.5 rounded-lg text-sm text-text transition-colors'
                 aria-label={translate('language.select')}
               >
                 <GlobeIcon className='w-4 h-4' />
@@ -121,17 +121,21 @@ const Header = () => {
 
             {!isMobile && (
               <div className='hidden lg:flex items-center gap-2'>
-                <Link href='/dang-nhap' className='px-4 py-2 text-sm font-medium text-text rounded-lg transition-colors'>
+                <Link href='/dang-nhap' className='px-4 py-2.5 text-sm font-medium text-text rounded-lg transition-colors'>
                   {translate('menu.login')}
                 </Link>
-                <Link href='/dang-ky' className='px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg transition-colors'>
+                <Link href='/dang-ky' className='px-4 py-2.5 text-sm font-medium text-white bg-primary rounded-lg transition-colors'>
                   {translate('menu.register')}
                 </Link>
               </div>
             )}
 
             {isMobile && (
-              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className='lg:hidden p-2 rounded-lg text-text' aria-label='Toggle menu'>
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className='lg:hidden p-2.5 rounded-lg text-text'
+                aria-label='Toggle menu'
+              >
                 {isMobileMenuOpen ? <CloseIcon className='w-5 h-5' /> : <MenuIcon className='w-5 h-5' />}
               </button>
             )}

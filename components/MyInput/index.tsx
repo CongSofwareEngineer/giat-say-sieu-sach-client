@@ -18,14 +18,14 @@ const MyInput = forwardRef<HTMLInputElement, MyInputProps>(({ label, error, requ
       {label && (
         <label htmlFor={inputId} className='block text-sm font-medium text-text mb-1.5'>
           {label}
-          {required && <span className='text-red-500 ml-1'>*</span>}
+          {required && <span className='text-red-600 ml-1'>*</span>}
         </label>
       )}
       <input
         ref={ref}
         id={inputId}
         className={cn(
-          'w-full px-4 py-2.5 rounded-lg border bg-white text-text placeholder-gray-400',
+          'w-full px-4 py-2.5 rounded-lg border bg-white text-text placeholder-gray-500',
           'border-primary',
           'transition-colors',
           error ? 'border-red-500' : 'border-border',
@@ -33,7 +33,7 @@ const MyInput = forwardRef<HTMLInputElement, MyInputProps>(({ label, error, requ
         )}
         {...props}
       />
-      {error && <p className='mt-1 text-sm text-red-500'>{error}</p>}
+      {error && <p className='mt-1 text-sm text-red-600'>{error}</p>}
     </div>
   )
 })

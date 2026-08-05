@@ -92,7 +92,7 @@ const LoginPage = () => {
                 onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
                 error={errors.password}
               />
-              <button type='button' onClick={() => setShowPassword(!showPassword)} className='absolute right-3 top-9 text-gray-400'>
+              <button type='button' onClick={() => setShowPassword(!showPassword)} className='absolute right-3 top-9 p-3 -m-3 text-gray-500'>
                 {showPassword ? <EyeSlashIcon className='w-5 h-5' /> : <EyeIcon className='w-5 h-5' />}
               </button>
             </div>
@@ -107,7 +107,7 @@ const LoginPage = () => {
                 />
                 <span className='text-sm text-gray-600'>{translate('auth.login.rememberMe')}</span>
               </label>
-              <button type='button' className='text-sm text-primary'>
+              <button type='button' className='px-1 py-2 text-sm text-primary'>
                 {translate('auth.login.forgotPassword')}
               </button>
             </div>

@@ -18,14 +18,14 @@ const MyTextarea = forwardRef<HTMLTextAreaElement, MyTextareaProps>(({ label, er
       {label && (
         <label htmlFor={textareaId} className='block text-sm font-medium text-text mb-1.5'>
           {label}
-          {required && <span className='text-red-500 ml-1'>*</span>}
+          {required && <span className='text-red-600 ml-1'>*</span>}
         </label>
       )}
       <textarea
         ref={ref}
         id={textareaId}
         className={cn(
-          'w-full px-4 py-2.5 rounded-lg border bg-white text-text placeholder-gray-400 min-h-[100px] resize-y',
+          'w-full px-4 py-2.5 rounded-lg border bg-white text-text placeholder-gray-500 min-h-[100px] resize-y',
           'border-primary',
           'transition-colors',
           error ? 'border-red-500' : 'border-border',
@@ -33,7 +33,7 @@ const MyTextarea = forwardRef<HTMLTextAreaElement, MyTextareaProps>(({ label, er
         )}
         {...props}
       />
-      {error && <p className='mt-1 text-sm text-red-500'>{error}</p>}
+      {error && <p className='mt-1 text-sm text-red-600'>{error}</p>}
     </div>
   )
 })
