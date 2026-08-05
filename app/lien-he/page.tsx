@@ -12,7 +12,9 @@ import { MapPinIcon } from '@/components/Icons/MapPin'
 import FacebookIcon from '@/components/Icons/SocialMedia/Facebook'
 import ZaloIcon from '@/components/Icons/SocialMedia/Zalo'
 import { INFO_CONTACT } from '@/constants/app'
+import SeoJsonLd from '@/components/SeoJsonLd'
 import useLanguage from '@/hooks/useLanguage'
+import { breadcrumbSchema, contactPageSchema, localBusinessSchema } from '@/config/seo'
 
 const ContactPage = () => {
   const { translate } = useLanguage()
@@ -48,6 +50,14 @@ const ContactPage = () => {
 
   return (
     <div className='py-12 px-4'>
+      <SeoJsonLd data={localBusinessSchema()} />
+      <SeoJsonLd data={contactPageSchema()} />
+      <SeoJsonLd
+        data={breadcrumbSchema([
+          { name: 'Trang chủ', path: '/' },
+          { name: 'Liên hệ', path: '/lien-he' },
+        ])}
+      />
       <div className='max-w-7xl mx-auto'>
         <div className='text-center mb-12'>
           <h1 className='text-3xl lg:text-4xl font-bold text-text mb-4'>{translate('contact.title')}</h1>

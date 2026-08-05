@@ -7,6 +7,7 @@ import Footer from '../components/Footer'
 import FloatingChat from '../components/FloatingChat'
 
 import { INFO_CONTACT, IS_PRODUCTION, SITE_CONFIG } from '@/constants/app'
+import { organizationSchema, toJsonLd, webSiteSchema } from '@/config/seo'
 import ReactQuery from '@/components/ReactQuery'
 import MyModal from '@/components/MyModal'
 import ClientRender from '@/components/ClientRender'
@@ -86,36 +87,8 @@ export default function RootLayout({
   return (
     <html lang='vi' className='h-full antialiased'>
       <head>
-        {IS_PRODUCTION && (
-          <>
-            <script
-              dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
-                  '@context': 'https://schema.org',
-                  '@type': 'LocalBusiness',
-                  name: SITE_CONFIG.title,
-                  url: SITE_CONFIG.url,
-                  logo: SITE_CONFIG.icon,
-                  description: SITE_CONFIG.description,
-                  address: {
-                    '@type': 'PostalAddress',
-                    streetAddress: 'Tân Bình',
-                    addressLocality: 'Sài Gòn',
-                    addressCountry: 'Việt Nam',
-                  },
-                  contactPoint: {
-                    '@type': 'ContactPoint',
-                    telephone: INFO_CONTACT.Phone,
-                    contactType: 'customer service',
-                  },
-                  priceRange: '$$',
-                  openingHours: 'Mo-Su 08:00-20:00',
-                }),
-              }}
-              type='application/ld+json'
-            />
-          </>
-        )}
+        <script dangerouslySetInnerHTML={{ __html: toJsonLd(organizationSchema()) }} type='application/ld+json' />
+        <script dangerouslySetInnerHTML={{ __html: toJsonLd(webSiteSchema()) }} type='application/ld+json' />
       </head>
       <body className='min-h-full flex flex-col bg-background text-text'>
         <ReactQuery>

@@ -7,7 +7,9 @@ import MyTextarea from '@/components/MyTextarea'
 import MyButton from '@/components/MyButton'
 import MyCard, { MyCardBody } from '@/components/MyCard'
 import MySelect from '@/components/MySelect'
+import SeoJsonLd from '@/components/SeoJsonLd'
 import useLanguage from '@/hooks/useLanguage'
+import { breadcrumbSchema, webPageSchema } from '@/config/seo'
 
 type BookingFormData = {
   fullName: string
@@ -182,6 +184,13 @@ const BookingPage = () => {
 
   return (
     <div className='py-12 px-4'>
+      <SeoJsonLd data={webPageSchema('Đặt lịch giặt ủi tại nhà', '/dat-lich', 'Đặt lịch giặt ủi online, lấy đồ tận nhà miễn phí tại TP.HCM')} />
+      <SeoJsonLd
+        data={breadcrumbSchema([
+          { name: 'Trang chủ', path: '/' },
+          { name: 'Đặt lịch', path: '/dat-lich' },
+        ])}
+      />
       <div className='max-w-2xl mx-auto'>
         <div className='text-center mb-8'>
           <h1 className='text-3xl font-bold text-text mb-2'>{translate('booking.title')}</h1>

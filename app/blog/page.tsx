@@ -6,7 +6,9 @@ import Link from 'next/link'
 import MyCard, { MyCardBody } from '@/components/MyCard'
 import MyEmpty from '@/components/MyEmpty'
 import MyImage from '@/components/MyImage'
+import SeoJsonLd from '@/components/SeoJsonLd'
 import useLanguage from '@/hooks/useLanguage'
+import { blogSchema, breadcrumbSchema } from '@/config/seo'
 import { cn } from '@/utils/tailwind'
 
 type Post = {
@@ -41,6 +43,13 @@ const BlogPage = () => {
 
   return (
     <div className='py-16 lg:py-24'>
+      <SeoJsonLd data={blogSchema()} />
+      <SeoJsonLd
+        data={breadcrumbSchema([
+          { name: 'Trang chủ', path: '/' },
+          { name: 'Blog', path: '/blog' },
+        ])}
+      />
       <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
         {/* Page header */}
         <div className='mx-auto mb-10 max-w-2xl text-center'>

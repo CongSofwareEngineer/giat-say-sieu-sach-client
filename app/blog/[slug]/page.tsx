@@ -3,7 +3,9 @@
 import Link from 'next/link'
 
 import MyCard, { MyCardBody } from '@/components/MyCard'
+import SeoJsonLd from '@/components/SeoJsonLd'
 import useLanguage from '@/hooks/useLanguage'
+import { articleSchema, breadcrumbSchema } from '@/config/seo'
 
 // Mock data
 const mockPost = {
@@ -11,6 +13,7 @@ const mockPost = {
   title: 'Cách giặt đồ trắng đúng cách',
   slug: 'cach-giat-do-trang-dung-cach',
   thumbnail: '/thumbnail.png',
+  excerpt: 'Hướng dẫn chi tiết cách giặt đồ trắng đúng cách: phân loại vải, chọn nước giặt, nhiệt độ phù hợp và phơi đồ để luôn trắng sáng như mới.',
   content: `
     <p>Đồ trắng là items không thể thiếu trong tủ đồ của mỗi người. Tuy nhiên, việc giữ cho đồ trắng luôn sạch sẽ và mới mẻ không phải là điều dễ dàng. Dưới đây là hướng dẫn chi tiết cách giặt đồ trắng đúng cách.</p>
     
@@ -35,6 +38,21 @@ const BlogDetailPage = () => {
 
   return (
     <div className='py-12 px-4'>
+      <SeoJsonLd
+        data={articleSchema({
+          slug: mockPost.slug,
+          title: mockPost.title,
+          excerpt: mockPost.excerpt,
+          publishedTime: mockPost.createdAt,
+        })}
+      />
+      <SeoJsonLd
+        data={breadcrumbSchema([
+          { name: 'Trang chủ', path: '/' },
+          { name: 'Blog', path: '/blog' },
+          { name: mockPost.title, path: `/blog/${mockPost.slug}` },
+        ])}
+      />
       <div className='max-w-3xl mx-auto'>
         <Link href='/blog' className='inline-flex items-center text-primary mb-6'>
           ← {translate('blog.backToList')}

@@ -16,7 +16,9 @@ import { PaymentIcon } from '@/components/Icons/Payment'
 import SmartPhoneIcon from '@/components/Icons/Home/SmartPhone'
 import ChatBubbleIcon from '@/components/Icons/ChatBubble'
 import AwardIcon from '@/components/Icons/Home/Award'
+import SeoJsonLd from '@/components/SeoJsonLd'
 import useLanguage from '@/hooks/useLanguage'
+import { breadcrumbSchema, faqSchema, localBusinessSchema, SEO_FAQS } from '@/config/seo'
 import { cn } from '@/utils/tailwind'
 
 type TagProps = {
@@ -120,6 +122,9 @@ const HomePage = () => {
 
   return (
     <div>
+      <SeoJsonLd data={localBusinessSchema()} />
+      <SeoJsonLd data={faqSchema(SEO_FAQS)} />
+      <SeoJsonLd data={breadcrumbSchema([{ name: 'Trang chủ', path: '/' }])} />
       {/* Hero Section */}
       <section className='relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-secondary/5'>
         <div className='pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-primary/10 blur-3xl' />

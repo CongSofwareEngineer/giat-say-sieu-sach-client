@@ -6,8 +6,10 @@ import MyInput from '@/components/MyInput'
 import MyButton from '@/components/MyButton'
 import MyCard, { MyCardBody } from '@/components/MyCard'
 import MyBadge from '@/components/MyBadge'
+import SeoJsonLd from '@/components/SeoJsonLd'
 import { ORDER_STATUS } from '@/constants/app'
 import useLanguage from '@/hooks/useLanguage'
+import { breadcrumbSchema, webPageSchema } from '@/config/seo'
 
 type TrackingResult = {
   code: string
@@ -98,6 +100,13 @@ const TrackingPage = () => {
 
   return (
     <div className='py-12 px-4'>
+      <SeoJsonLd data={webPageSchema('Theo dõi đơn hàng giặt ủi', '/theo-doi-don', 'Tra cứu tình trạng đơn hàng giặt ủi theo thời gian thực')} />
+      <SeoJsonLd
+        data={breadcrumbSchema([
+          { name: 'Trang chủ', path: '/' },
+          { name: 'Theo dõi đơn', path: '/theo-doi-don' },
+        ])}
+      />
       <div className='max-w-2xl mx-auto'>
         <div className='text-center mb-8'>
           <h1 className='text-3xl font-bold text-text mb-2'>{translate('tracking.title')}</h1>

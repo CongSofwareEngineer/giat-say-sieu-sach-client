@@ -10,7 +10,9 @@ import ZapIcon from '@/components/Icons/Zap'
 import ChatBubbleIcon from '@/components/Icons/ChatBubble'
 import { UserCircleIcon } from '@/components/Icons/UserCircle'
 import StarIcon from '@/components/Icons/Star'
+import SeoJsonLd from '@/components/SeoJsonLd'
 import useLanguage from '@/hooks/useLanguage'
+import { aboutPageSchema, breadcrumbSchema } from '@/config/seo'
 import { cn } from '@/utils/tailwind'
 
 type TagProps = {
@@ -56,6 +58,13 @@ const AboutPage = () => {
 
   return (
     <div>
+      <SeoJsonLd data={aboutPageSchema()} />
+      <SeoJsonLd
+        data={breadcrumbSchema([
+          { name: 'Trang chủ', path: '/' },
+          { name: 'Giới thiệu', path: '/gioi-thieu' },
+        ])}
+      />
       {/* Hero / Story */}
       <section className='bg-gradient-to-br from-primary/5 via-background to-secondary/5 py-16 lg:py-24'>
         <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
