@@ -334,7 +334,7 @@ const HomePage = () => {
           <h2 className='text-3xl lg:text-4xl font-bold text-white mb-4'>{translate('home.cta.title')}</h2>
           <p className='text-white/80 text-lg mb-8'>{translate('home.cta.subtitle')}</p>
           <Link href='/dat-lich'>
-            <MyButton variant='default' size='large' className='bg-white text-primary'>
+            <MyButton variant='primary' size='large' className='bg-white text-primary'>
               {translate('home.cta.button')}
             </MyButton>
           </Link>

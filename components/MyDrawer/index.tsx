@@ -93,8 +93,9 @@ function MyDrawerItem(drawer: MyDrawer) {
           <div onClick={() => close()} className='h-1 w-10 cursor-pointer rounded-full bg-gray-300' />
         </div>
 
-        <div className='flex items-center justify-between border-b p-4'>
-          <button onClick={() => close()} className='text-xl'>
+        <div className='flex items-center justify-between gap-4 border-b p-4'>
+          <div className='min-w-0 flex-1 text-sm font-semibold'>{drawer.title}</div>
+          <button onClick={() => close()} aria-label='Close' className='shrink-0 text-xl'>
             <div className='text-black'>✕</div>
           </button>
         </div>

@@ -461,6 +461,7 @@
     "welcome": "Hello! How can we help you?",
     "autoReply": "Thank you for contacting us! We will respond as soon as possible.",
     "offline": "We're currently offline. Please leave a message.",
-    "online": "Online"
+    "online": "Online",
+    "pressEnterToSend": "Note: press Enter to send"
   }
 }

@@ -15,10 +15,10 @@ export type MyButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 }
 
 const variantStyles: Record<MyButtonVariant, string> = {
-  default: 'bg-gray-200 ',
-  primary: 'bg-blue-600',
-  warning: 'bg-yellow-500',
-  error: 'bg-red-600',
+  default: 'bg-gradient-to-br from-primary to-secondary text-primary-content shadow-[0px_6px_24px_rgba(18,179,214,0.5)]',
+  primary: 'bg-primary text-primary-content',
+  warning: 'bg-yellow-500 text-white',
+  error: 'bg-red-600 text-white',
 }
 
 const sizeStyles: Record<MyButtonSize, string> = {
@@ -32,7 +32,7 @@ export default function MyButton({ variant = 'default', size = 'default', loadin
     <button
       disabled={disabled || loading}
       className={cn(
-        'cursor-pointer inline-flex relative  items-center justify-center rounded-lg disabled:cursor-not-allowed disabled:opacity-60',
+        'relative inline-flex cursor-pointer items-center justify-center rounded-full transition-[transform] duration-[250ms] disabled:cursor-not-allowed disabled:opacity-60',
         variantStyles[variant],
         sizeStyles[size],
         className

@@ -8,6 +8,7 @@ import SendIcon from '../Icons/Functions/Send'
 
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
+import MyButton from '@/components/MyButton'
 import { PATH_LANGUAGE, TYPE_LANGUAGE } from '@/zustand/language'
 
 type Message = {
@@ -30,6 +31,7 @@ const FloatingChat = () => {
     },
   ])
   const [inputValue, setInputValue] = useState('')
+  const [isSending, setIsSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -41,7 +43,7 @@ const FloatingChat = () => {
   }, [messages])
 
   const handleSend = () => {
-    if (!inputValue.trim()) return
+    if (!inputValue.trim() || isSending) return
 
     const userMessage: Message = {
       id: messages.length + 1,
@@ -52,6 +54,7 @@ const FloatingChat = () => {
 
     setMessages((prev) => [...prev, userMessage])
     setInputValue('')
+    setIsSending(true)
 
     // Simulate auto-reply
     setTimeout(() => {
@@ -61,7 +64,9 @@ const FloatingChat = () => {
         isUser: false,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       }
+
       setMessages((prev) => [...prev, reply])
+      setIsSending(false)
     }, 1000)
   }
 
@@ -82,7 +87,18 @@ const FloatingChat = () => {
         classNames: {
           container: 'rounded-t-2xl',
         },
-        children: <ChatContent messages={messages} inputValue={inputValue} setInputValue={setInputValue} handleSend={handleSend} handleKeyDown={handleKeyDown} messagesEndRef={messagesEndRef} translate={translate} />,
+        children: (
+          <ChatContent
+            messages={messages}
+            inputValue={inputValue}
+            setInputValue={setInputValue}
+            handleSend={handleSend}
+            handleKeyDown={handleKeyDown}
+            messagesEndRef={messagesEndRef}
+            isSending={isSending}
+            translate={translate}
+          />
+        ),
       })
     }
   }
@@ -97,7 +113,7 @@ const FloatingChat = () => {
     if (!isOpen || isMobile) return null
 
     return (
-      <div className='fixed bottom-24 right-6 w-80 h-96 bg-white rounded-2xl shadow-2xl border border-border z-50 flex flex-col'>
+      <div className='fixed bottom-24 right-6 w-[60rem] h-[72rem] bg-white rounded-2xl shadow-2xl border border-border z-50 flex flex-col'>
         <div className='flex items-center justify-between px-4 py-3 bg-primary text-white rounded-t-2xl'>
           <div>
             <p className='font-semibold text-sm'>{translate('chat.title')}</p>
@@ -106,7 +122,7 @@ const FloatingChat = () => {
               {translate('chat.online')}
             </p>
           </div>
-          <button onClick={closeChat} className='p-1'>
+          <button onClick={closeChat} aria-label='Close' className='rounded-full p-1 bg-white/15'>
             <CloseIcon className='w-4 h-4' />
           </button>
         </div>
@@ -114,7 +130,9 @@ const FloatingChat = () => {
         <div className='flex-1 overflow-y-auto p-4 space-y-3'>
           {messages.map((msg) => (
             <div key={msg.id} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${msg.isUser ? 'bg-primary text-white rounded-br-md' : 'bg-gray-100 text-text rounded-bl-md'}`}>
+              <div
+                className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${msg.isUser ? 'bg-primary text-white rounded-br-md' : 'bg-gray-100 text-text rounded-bl-md'}`}
+              >
                 <p>{msg.text}</p>
                 <p className={`text-[10px] mt-1 ${msg.isUser ? 'text-white/70' : 'text-gray-400'}`}>{msg.time}</p>
               </div>
@@ -124,22 +142,23 @@ const FloatingChat = () => {
         </div>
 
         <div className='p-3 border-t border-border'>
-          <div className='flex items-center gap-2'>
-            <input
-              type='text'
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={translate('chat.inputPlaceholder')}
-              className='flex-1 px-3 py-2 text-sm border border-border rounded-full focus:outline-none'
-            />
-            <button
-              onClick={handleSend}
-              disabled={!inputValue.trim()}
-              className='p-2 bg-primary text-white rounded-full disabled:opacity-50 disabled:cursor-not-allowed'
-            >
-              <SendIcon className='w-4 h-4' />
-            </button>
+          <textarea
+            rows={1}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={translate('chat.inputPlaceholder')}
+            className='w-full px-3 py-2 text-sm border border-border rounded-2xl focus:outline-none resize-none'
+          />
+          <div className='flex items-center justify-between mt-2'>
+            <p className='text-xs text-gray-400'>{translate('chat.pressEnterToSend')}</p>
+            <MyButton onClick={handleSend} disabled={!inputValue.trim() || isSending} className='p-2'>
+              {isSending ? (
+                <span className='inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white' />
+              ) : (
+                <SendIcon className='w-4 h-4' />
+              )}
+            </MyButton>
           </div>
         </div>
       </div>
@@ -150,13 +169,13 @@ const FloatingChat = () => {
     <>
       {renderDesktopChat()}
 
-      <button
+      <MyButton
         onClick={isOpen ? closeChat : openChat}
-        className='fixed bottom-6 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-lg z-50 flex items-center justify-center'
         aria-label={translate('chat.title')}
+        className='fixed bottom-6 right-6 z-50 h-[58px] w-[58px] p-0'
       >
         {isOpen ? <CloseIcon className='w-6 h-6' /> : <ChatBubbleIcon className='w-6 h-6' />}
-      </button>
+      </MyButton>
     </>
   )
 }
@@ -169,6 +188,7 @@ const ChatContent = ({
   handleSend,
   handleKeyDown,
   messagesEndRef,
+  isSending,
   translate,
 }: {
   messages: Message[]
@@ -177,7 +197,12 @@ const ChatContent = ({
   handleSend: () => void
   handleKeyDown: (e: React.KeyboardEvent) => void
   messagesEndRef: React.RefObject<HTMLDivElement | null>
-  translate: (key?: PATH_LANGUAGE<TYPE_LANGUAGE>, variables?: Record<string, string | number | React.ReactNode | ((value: string | number) => React.ReactNode)>, defaultMessage?: string) => any
+  isSending: boolean
+  translate: (
+    key?: PATH_LANGUAGE<TYPE_LANGUAGE>,
+    variables?: Record<string, string | number | React.ReactNode | ((value: string | number) => React.ReactNode)>,
+    defaultMessage?: string
+  ) => any
 }) => {
   return (
     <div className='flex flex-col h-full'>
@@ -189,7 +214,9 @@ const ChatContent = ({
       <div className='flex-1 overflow-y-auto p-4 space-y-3'>
         {messages.map((msg) => (
           <div key={msg.id} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${msg.isUser ? 'bg-primary text-white rounded-br-md' : 'bg-gray-100 text-text rounded-bl-md'}`}>
+            <div
+              className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${msg.isUser ? 'bg-primary text-white rounded-br-md' : 'bg-gray-100 text-text rounded-bl-md'}`}
+            >
               <p>{msg.text}</p>
               <p className={`text-[10px] mt-1 ${msg.isUser ? 'text-white/70' : 'text-gray-400'}`}>{msg.time}</p>
             </div>
@@ -199,22 +226,23 @@ const ChatContent = ({
       </div>
 
       <div className='p-3 border-t border-border'>
-        <div className='flex items-center gap-2'>
-          <input
-            type='text'
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={translate('chat.inputPlaceholder')}
-            className='flex-1 px-3 py-2 text-sm border border-border rounded-full focus:outline-none'
-          />
-          <button
-            onClick={handleSend}
-            disabled={!inputValue.trim()}
-            className='p-2 bg-primary text-white rounded-full disabled:opacity-50 disabled:cursor-not-allowed'
-          >
-            <SendIcon className='w-4 h-4' />
-          </button>
+        <textarea
+          rows={1}
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={translate('chat.inputPlaceholder')}
+          className='w-full px-3 py-2 text-sm border border-border rounded-2xl focus:outline-none resize-none'
+        />
+        <div className='flex items-center justify-between mt-2'>
+          <p className='text-xs text-gray-400'>{translate('chat.pressEnterToSend')}</p>
+          <MyButton onClick={handleSend} disabled={!inputValue.trim() || isSending} className='p-2'>
+            {isSending ? (
+              <span className='inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white' />
+            ) : (
+              <SendIcon className='w-4 h-4' />
+            )}
+          </MyButton>
         </div>
       </div>
     </div>
