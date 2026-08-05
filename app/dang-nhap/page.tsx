@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 import MyInput from '@/components/MyInput'
 import MyButton from '@/components/MyButton'
@@ -9,9 +10,12 @@ import MyCard, { MyCardBody } from '@/components/MyCard'
 import { EyeIcon } from '@/components/Icons/Eye'
 import { EyeSlashIcon } from '@/components/Icons/EyeSlash'
 import useLanguage from '@/hooks/useLanguage'
+import useUser from '@/hooks/useUser'
 
 const LoginPage = () => {
   const { translate } = useLanguage()
+  const router = useRouter()
+  const { login } = useUser()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
@@ -56,7 +60,17 @@ const LoginPage = () => {
     try {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1500))
-      // Handle success
+
+      // Mock login result for testing
+      login({
+        id: '1',
+        name: 'Admin',
+        phone: formData.phone,
+        isAdmin: true,
+        accessToken: 'mock-access-token',
+        refreshToken: 'mock-refresh-token',
+      })
+      router.replace('/admin')
     } catch {
       // Handle error
     } finally {
