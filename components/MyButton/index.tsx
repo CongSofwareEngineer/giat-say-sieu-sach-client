@@ -4,7 +4,7 @@ import { ButtonHTMLAttributes, ReactNode } from 'react'
 
 import { cn } from '@/utils/tailwind'
 
-export type MyButtonVariant = 'default' | 'primary' | 'warning' | 'error'
+export type MyButtonVariant = 'default' | 'primary' | 'warning' | 'error' | 'outline'
 export type MyButtonSize = 'default' | 'small' | 'large'
 
 export type MyButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -19,6 +19,7 @@ const variantStyles: Record<MyButtonVariant, string> = {
   primary: 'bg-primary text-primary-content',
   warning: 'bg-yellow-500 text-white',
   error: 'bg-red-600 text-white',
+  outline: 'bg-transparent border border-bright-cyan text-bright-cyan ',
 }
 
 const sizeStyles: Record<MyButtonSize, string> = {

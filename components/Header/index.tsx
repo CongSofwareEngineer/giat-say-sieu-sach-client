@@ -37,12 +37,12 @@ const Header = () => {
 
   const navItems = [
     { href: '/', label: translate('menu.home') },
-    { href: '/bang-gia', label: translate('menu.priceList') },
+    { href: '/pricing', label: translate('menu.priceList') },
     { href: '/blog', label: translate('menu.blog') },
-    { href: '/gioi-thieu', label: translate('menu.about') },
-    { href: '/theo-doi-don', label: translate('menu.tracking') },
-    { href: '/dat-lich', label: translate('menu.booking'), highlight: true },
-    { href: '/lien-he', label: translate('menu.contact') },
+    { href: '/about', label: translate('menu.about') },
+    { href: '/track-order', label: translate('menu.tracking') },
+    { href: '/booking', label: translate('menu.booking'), highlight: true },
+    { href: '/contact', label: translate('menu.contact') },
   ]
 
   return (
@@ -81,7 +81,7 @@ const Header = () => {
             <div className='relative'>
               <button
                 onClick={() => setIsLangOpen(!isLangOpen)}
-                className='flex items-center gap-1 px-2 py-2.5 rounded-lg text-sm text-text transition-colors'
+                className='cursor-pointer flex items-center gap-1 px-2 py-2.5 rounded-lg text-sm text-text transition-colors'
                 aria-label={translate('language.select')}
               >
                 <GlobeIcon className='w-4 h-4' />
@@ -95,7 +95,7 @@ const Header = () => {
                       setIsLangOpen(false)
                     }}
                     className={cn(
-                      'w-full flex items-center gap-2 px-3 py-2 text-sm rounded-t-lg',
+                      'cursor-pointer w-full flex items-center gap-2 px-3 py-2 text-sm rounded-t-lg',
                       lang === LANGUAGE_SUPPORT.VN && 'bg-primary/10 text-primary'
                     )}
                   >
@@ -121,10 +121,13 @@ const Header = () => {
 
             {!isMobile && (
               <div className='hidden lg:flex items-center gap-2'>
-                <Link href='/dang-nhap' className='px-4 py-2.5 text-sm font-medium text-text rounded-lg transition-colors'>
+                <Link
+                  href='/login'
+                  className='border border-bright-cyan text-bright-cyan px-4 py-2.5 text-sm font-medium  rounded-lg transition-colors'
+                >
                   {translate('menu.login')}
                 </Link>
-                <Link href='/dang-ky' className='px-4 py-2.5 text-sm font-medium text-white bg-primary rounded-lg transition-colors'>
+                <Link href='/register' className='px-4 py-2.5 text-sm font-medium text-white bg-primary rounded-lg transition-colors'>
                   {translate('menu.register')}
                 </Link>
               </div>
@@ -159,10 +162,10 @@ const Header = () => {
               </Link>
             ))}
             <div className='pt-4 border-t border-border mt-4 space-y-2'>
-              <Link href='/dang-nhap' className='block px-4 py-3 rounded-lg text-base font-medium text-text transition-colors'>
+              <Link href='/login' className='block px-4 py-3 rounded-lg text-base font-medium text-text transition-colors'>
                 {translate('menu.login')}
               </Link>
-              <Link href='/dang-ky' className='block px-4 py-3 rounded-lg text-base font-medium text-white bg-primary transition-colors text-center'>
+              <Link href='/register' className='block px-4 py-3 rounded-lg text-base font-medium text-white bg-primary transition-colors text-center'>
                 {translate('menu.register')}
               </Link>
             </div>

@@ -100,11 +100,11 @@ const TrackingPage = () => {
 
   return (
     <div className='py-12 px-4'>
-      <SeoJsonLd data={webPageSchema('Theo dõi đơn hàng giặt ủi', '/theo-doi-don', 'Tra cứu tình trạng đơn hàng giặt ủi theo thời gian thực')} />
+      <SeoJsonLd data={webPageSchema('Theo dõi đơn hàng giặt ủi', '/track-order', 'Tra cứu tình trạng đơn hàng giặt ủi theo thời gian thực')} />
       <SeoJsonLd
         data={breadcrumbSchema([
           { name: 'Trang chủ', path: '/' },
-          { name: 'Theo dõi đơn', path: '/theo-doi-don' },
+          { name: 'Theo dõi đơn', path: '/track-order' },
         ])}
       />
       <div className='max-w-2xl mx-auto'>

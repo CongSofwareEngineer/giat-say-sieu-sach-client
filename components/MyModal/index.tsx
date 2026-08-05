@@ -72,10 +72,11 @@ const MyModal = () => {
         <div
           key={`modal-${index}`}
           className={cn(
-            'fixed z-9999 flex justify-center items-center flex-col inset-0 w-[100dvw] h-[100dvh] bg-black/20 ',
+            'fixed flex justify-center items-center flex-col inset-0 w-[100dvw] h-[100dvh] bg-black/20 ',
             modal?.classNames?.backdrop
           )}
           style={{
+            zIndex: 100 + index * 2,
             backdropFilter: 'blur(5px)',
             ...getPosition(modal),
           }}

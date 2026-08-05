@@ -46,12 +46,12 @@ const AdminShell = ({ children }: { children: React.ReactNode }) => {
 
   const menuItems: MenuItem[] = [
     { href: '/admin', label: translate('admin.sidebar.dashboard'), icon: HomeIcon },
-    { href: '/admin/don-hang', label: translate('admin.sidebar.orders'), icon: InboxIcon },
-    { href: '/admin/khach-hang', label: translate('admin.sidebar.customers'), icon: UserCircleIcon },
+    { href: '/admin/orders', label: translate('admin.sidebar.orders'), icon: InboxIcon },
+    { href: '/admin/customers', label: translate('admin.sidebar.customers'), icon: UserCircleIcon },
     { href: '/admin/blog', label: translate('admin.sidebar.blog'), icon: ClassIcon },
-    { href: '/admin/banner', label: translate('admin.sidebar.banner'), icon: CameraIcon },
-    { href: '/admin/bang-gia', label: translate('admin.sidebar.prices'), icon: PaymentIcon },
-    { href: '/admin/doanh-thu', label: translate('admin.sidebar.revenue'), icon: DataBaseIcon },
+    { href: '/admin/banners', label: translate('admin.sidebar.banner'), icon: CameraIcon },
+    { href: '/admin/pricing', label: translate('admin.sidebar.prices'), icon: PaymentIcon },
+    { href: '/admin/revenue', label: translate('admin.sidebar.revenue'), icon: DataBaseIcon },
   ]
 
   const isActive = (href: string) => (href === '/admin' ? pathname === '/admin' : pathname.startsWith(href))

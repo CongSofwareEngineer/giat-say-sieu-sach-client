@@ -50,7 +50,7 @@ const PriceListPage = () => {
       <SeoJsonLd
         data={breadcrumbSchema([
           { name: 'Trang chủ', path: '/' },
-          { name: 'Bảng giá', path: '/bang-gia' },
+          { name: 'Bảng giá', path: '/pricing' },
         ])}
       />
       <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
@@ -68,7 +68,7 @@ const PriceListPage = () => {
               key={plan.name}
               className={cn(
                 'relative transition-transform duration-300 hover:-translate-y-1',
-                plan.popular && 'border-primary shadow-card-hover ring-2 ring-primary xl:-translate-y-3 xl:hover:-translate-y-4'
+                plan.popular && 'bg-linear-default border-primary shadow-card-hover ring-2 ring-primary xl:-translate-y-3 xl:hover:-translate-y-4'
               )}
             >
               <MyCardBody className='flex h-full flex-col p-6 lg:p-7'>
@@ -93,7 +93,7 @@ const PriceListPage = () => {
                   ))}
                 </ul>
 
-                <Link href='/dat-lich' className='mt-6 block w-full'>
+                <Link href='/booking' className='mt-6 block w-full'>
                   <MyButton variant={plan.popular ? 'default' : 'primary'} className='w-full'>
                     {translate('pricing.bookNow')}
                   </MyButton>

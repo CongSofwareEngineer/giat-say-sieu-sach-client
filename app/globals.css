@@ -17,6 +17,7 @@
   --color-border: #E7EEF5;
   --color-text: #1F2937;
   --color-footer: #0F172A;
+  --color-bright-cyan: rgb(18, 179, 214);
 }
 
 html {
@@ -109,4 +110,10 @@ body {
 /* Transition utilities */
 @utility transition-default {
   transition: all 0.2s ease-in-out;
+}
+
+
+/* background */
+@utility bg-linear-default {
+  background: linear-gradient(135deg, rgb(198, 232, 243), rgb(175, 226, 231));
 }

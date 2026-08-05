@@ -190,7 +190,7 @@ const AdminDashboardPage = () => {
       <MyCard>
         <MyCardHeader className='flex items-center justify-between'>
           <h2 className='font-semibold text-text'>{translate('admin.dashboard.recentOrders')}</h2>
-          <Link href='/admin/don-hang' className='text-sm font-medium text-primary hover:underline'>
+          <Link href='/admin/orders' className='text-sm font-medium text-primary hover:underline'>
             {translate('admin.dashboard.viewAll')}
           </Link>
         </MyCardHeader>

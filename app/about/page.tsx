@@ -62,7 +62,7 @@ const AboutPage = () => {
       <SeoJsonLd
         data={breadcrumbSchema([
           { name: 'Trang chủ', path: '/' },
-          { name: 'Giới thiệu', path: '/gioi-thieu' },
+          { name: 'Giới thiệu', path: '/about' },
         ])}
       />
       {/* Hero / Story */}

@@ -132,7 +132,7 @@ const LoginPage = () => {
           <div className='mt-6 text-center'>
             <p className='text-gray-600 text-sm'>
               {translate('auth.login.noAccount')}{' '}
-              <Link href='/dang-ky' className='text-primary font-medium'>
+              <Link href='/register' className='text-primary font-medium'>
                 {translate('auth.login.registerNow')}
               </Link>
             </p>

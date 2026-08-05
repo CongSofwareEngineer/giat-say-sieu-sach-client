@@ -143,13 +143,13 @@ const HomePage = () => {
               <p className='mt-5 max-w-xl text-lg leading-relaxed text-gray-600'>{translate('home.hero.description')}</p>
 
               <div className='mt-8 flex flex-col gap-4 sm:flex-row'>
-                <Link href='/dat-lich' className='sm:flex-none'>
+                <Link href='/booking' className='sm:flex-none'>
                   <MyButton variant='default' size='large' className='w-full px-8'>
                     {translate('home.hero.bookCta')}
                   </MyButton>
                 </Link>
                 <Link
-                  href='/theo-doi-don'
+                  href='/track-order'
                   className='inline-flex items-center justify-center rounded-xl border-2 border-primary px-8 py-3 text-base font-bold text-primary transition-all duration-250 hover:bg-primary hover:text-white sm:flex-none'
                 >
                   {translate('home.hero.trackCta')}
@@ -279,7 +279,7 @@ const HomePage = () => {
                     <span className='text-base font-normal text-gray-500'>{translate('home.pricing.perKg')}</span>
                   </div>
                   <p className='mt-3 text-sm leading-relaxed text-gray-500'>{plan.description}</p>
-                  <Link href='/dat-lich' className='mt-6 block w-full sm:flex-none'>
+                  <Link href='/booking' className='mt-6 block w-full sm:flex-none'>
                     <MyButton variant={plan.popular ? 'default' : 'primary'} className='w-full'>
                       {translate('home.pricing.bookNow')}
                     </MyButton>
@@ -289,7 +289,7 @@ const HomePage = () => {
             ))}
           </div>
           <div className='mt-10 text-center'>
-            <Link href='/bang-gia' className='inline-flex items-center gap-2 font-semibold text-primary transition-colors hover:text-primary-dark'>
+            <Link href='/pricing' className='inline-flex items-center gap-2 font-semibold text-primary transition-colors hover:text-primary-dark'>
               {translate('home.pricing.viewAll')}
             </Link>
           </div>
@@ -392,7 +392,7 @@ const HomePage = () => {
               <p className='mx-auto mt-4 max-w-xl text-lg text-white'>{translate('home.cta.subtitle')}</p>
               <div className='mt-8'>
                 <Link
-                  href='/dat-lich'
+                  href='/booking'
                   className='inline-flex items-center justify-center rounded-xl bg-white px-8 py-3.5 text-base font-bold text-primary shadow-lg transition-all duration-250 hover:-translate-y-0.5 hover:shadow-xl'
                 >
                   {translate('home.cta.button')}

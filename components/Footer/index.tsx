@@ -18,15 +18,15 @@ const Footer = () => {
 
   const quickLinks = [
     { href: '/', label: translate('menu.home') },
-    { href: '/bang-gia', label: translate('menu.priceList') },
+    { href: '/pricing', label: translate('menu.priceList') },
     { href: '/blog', label: translate('menu.blog') },
-    { href: '/gioi-thieu', label: translate('menu.about') },
-    { href: '/lien-he', label: translate('menu.contact') },
+    { href: '/about', label: translate('menu.about') },
+    { href: '/contact', label: translate('menu.contact') },
   ]
 
   const serviceLinks = [
-    { href: '/dat-lich', label: translate('menu.booking') },
-    { href: '/theo-doi-don', label: translate('menu.tracking') },
+    { href: '/booking', label: translate('menu.booking') },
+    { href: '/track-order', label: translate('menu.tracking') },
   ]
 
   return (

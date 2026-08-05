@@ -151,7 +151,7 @@ const RegisterPage = () => {
           <div className='mt-6 text-center'>
             <p className='text-gray-600 text-sm'>
               {translate('auth.register.hasAccount')}{' '}
-              <Link href='/dang-nhap' className='text-primary font-medium'>
+              <Link href='/login' className='text-primary font-medium'>
                 {translate('auth.register.loginNow')}
               </Link>
             </p>

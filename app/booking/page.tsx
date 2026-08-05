@@ -184,11 +184,11 @@ const BookingPage = () => {
 
   return (
     <div className='py-12 px-4'>
-      <SeoJsonLd data={webPageSchema('Đặt lịch giặt ủi tại nhà', '/dat-lich', 'Đặt lịch giặt ủi online, lấy đồ tận nhà miễn phí tại TP.HCM')} />
+      <SeoJsonLd data={webPageSchema('Đặt lịch giặt ủi tại nhà', '/booking', 'Đặt lịch giặt ủi online, lấy đồ tận nhà miễn phí tại TP.HCM')} />
       <SeoJsonLd
         data={breadcrumbSchema([
           { name: 'Trang chủ', path: '/' },
-          { name: 'Đặt lịch', path: '/dat-lich' },
+          { name: 'Đặt lịch', path: '/booking' },
         ])}
       />
       <div className='max-w-2xl mx-auto'>

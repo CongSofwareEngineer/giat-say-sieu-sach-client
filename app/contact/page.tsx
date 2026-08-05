@@ -55,7 +55,7 @@ const ContactPage = () => {
       <SeoJsonLd
         data={breadcrumbSchema([
           { name: 'Trang chủ', path: '/' },
-          { name: 'Liên hệ', path: '/lien-he' },
+          { name: 'Liên hệ', path: '/contact' },
         ])}
       />
       <div className='max-w-7xl mx-auto'>

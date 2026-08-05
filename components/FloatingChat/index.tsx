@@ -87,6 +87,7 @@ const FloatingChat = () => {
         classNames: {
           container: 'rounded-t-2xl',
         },
+        onClose: () => setIsOpen(false),
         children: (
           <ChatContent
             messages={messages}

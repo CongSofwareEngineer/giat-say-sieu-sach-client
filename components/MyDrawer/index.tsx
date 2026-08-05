@@ -36,11 +36,12 @@ const placementBase = {
   top: 'left-0 top-0 w-full',
 }
 
-function MyDrawerItem(drawer: MyDrawer) {
+function MyDrawerItem({ index = 0, ...drawer }: MyDrawer & { index?: number }) {
   const { close } = useDrawer()
   const [open, setOpen] = useState(false)
 
   const placement = drawer.placement || 'bottom'
+  const zIndex = 60 + index * 2
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setOpen(true))
@@ -75,32 +76,29 @@ function MyDrawerItem(drawer: MyDrawer) {
       {/* Overlay */}
       <div
         onClick={onClickBackdrop}
-        className={`
-          fixed inset-0 z-40 bg-black/40
+        style={{ zIndex }}
+        className='
+          fixed inset-0 bg-black/40 backdrop-blur-xs
           transition-opacity duration-300 
-        `}
+        '
       />
 
       {/* Drawer */}
       <aside
+        style={{ zIndex: zIndex + 1 }}
         className={cn(
-          'fixed z-50 bg-white rounded-t-2xl shadow-olive-500 transition-transform duration-300',
+          'fixed bg-white  shadow-olive-500 transition-transform duration-300',
           placementBase[placement],
           open ? placementFinal[placement] : placementInitial[placement]
         )}
       >
-        <div className='flex justify-center pt-3'>
-          <div onClick={() => close()} className='h-1 w-10 cursor-pointer rounded-full bg-gray-300' />
-        </div>
-
-        <div className='flex items-center justify-between gap-4 border-b p-4'>
+        <div className='flex absolute inset-0 h-15 items-center justify-between gap-4 border-b bg-linear-default p-4 shadow-md'>
           <div className='min-w-0 flex-1 text-sm font-semibold'>{drawer.title}</div>
           <button onClick={() => close()} aria-label='Close' className='shrink-0 text-xl'>
             <div className='text-black'>✕</div>
           </button>
         </div>
-
-        {drawer.children}
+        <div className='w-full h-full pt-15'>{drawer.children}</div>
       </aside>
     </>
   )
@@ -110,6 +108,6 @@ export default function MyDrawer() {
   const { drawers } = useDrawer()
 
   return drawers.map((e, index) => {
-    return <MyDrawerItem key={`drawer_${index}`} {...e} />
+    return <MyDrawerItem key={`drawer_${index}`} {...e} index={index} />
   })
 }
