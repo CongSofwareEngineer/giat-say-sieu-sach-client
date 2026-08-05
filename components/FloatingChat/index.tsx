@@ -111,8 +111,8 @@ const FloatingChat = () => {
               {translate('chat.online')}
             </p>
           </div>
-          <button onClick={closeChat} aria-label='Close' className='rounded-full p-2 bg-white/15'>
-            <CloseIcon className='w-4 h-4' />
+          <button onClick={closeChat} aria-label='Close' className='cursor-pointer rounded-full p-2 bg-white/15'>
+            <CloseIcon className='w-5 h-5' />
           </button>
         </div>
 
@@ -161,7 +161,7 @@ const FloatingChat = () => {
       <MyButton
         onClick={isOpen ? closeChat : openChat}
         aria-label={translate('chat.title')}
-        className='fixed bottom-6 right-6 z-50 h-[58px] w-[58px] p-0'
+        className={`fixed z-50 p-0 shadow-lg ${isMobile ? 'bottom-5 right-5 h-10 w-10' : 'bottom-6 right-6 h-[58px] w-[58px]'}`}
       >
         {isOpen ? <CloseIcon className='w-6 h-6' /> : <ChatBubbleIcon className='w-6 h-6' />}
       </MyButton>

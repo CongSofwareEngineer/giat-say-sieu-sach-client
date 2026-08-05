@@ -121,10 +121,7 @@ const Header = () => {
 
             {!isMobile && (
               <div className='hidden lg:flex items-center gap-2'>
-                <Link
-                  href='/login'
-                  className='border border-bright-cyan text-bright-cyan px-4 py-2.5 text-sm font-medium  rounded-lg transition-colors'
-                >
+                <Link href='/login' className='border  border-primary text-primary px-4 py-2.5 text-sm font-medium  rounded-lg transition-colors'>
                   {translate('menu.login')}
                 </Link>
                 <Link href='/register' className='px-4 py-2.5 text-sm font-medium text-white bg-primary rounded-lg transition-colors'>
