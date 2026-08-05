@@ -3,22 +3,23 @@ import Image, { ImageProps } from 'next/image'
 import { cn } from '@/utils/tailwind'
 import { images } from '@/config/images'
 
-type Props = {
-  noAnimation?: boolean
-} & Omit<ImageProps, 'alt' | 'src'> & {
+type Props = {} & Omit<ImageProps, 'alt' | 'src'> & {
     alt?: string
     src?: string
   }
 
-const MyImage = ({ noAnimation = false, src, alt = 'thay-hong-toan', ...props }: Props) => {
+const MyImage = ({ src, alt = 'thay-hong-toan', loading, priority = false, preload = false, ...props }: Props) => {
+  const isPreloaded = priority || preload
+
   return (
     <Image
       fill
       alt={alt}
       draggable={false}
-      loading='lazy'
-      priority={false}
+      loading={isPreloaded ? 'eager' : loading || 'lazy'}
+      priority={priority}
       placeholder='blur'
+      preload={preload}
       {...props}
       className={cn('relative! overflow-hidden', props?.className)}
       style={props?.style}

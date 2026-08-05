@@ -87,7 +87,7 @@ const AboutPage = () => {
             <div className='relative'>
               <div className='pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-secondary/20 blur-2xl' />
               <div className='relative aspect-[4/3] overflow-hidden rounded-3xl shadow-card-hover'>
-                <MyImage src='/thumbnail.png' alt='Giặt Ủi Siêu Sạch' fill sizes='(min-width: 1024px) 50vw, 100vw' className='object-cover' />
+                <MyImage src='/thumbnail.png' alt='Giặt Ủi Siêu Sạch' fill sizes='(min-width: 1024px) 50vw, 100vw' className='object-cover' priority />
               </div>
             </div>
           </div>

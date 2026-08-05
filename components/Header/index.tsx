@@ -56,7 +56,7 @@ const Header = () => {
         <div className='flex items-center justify-between h-16 lg:h-20'>
           <Link href='/' className='flex-shrink-0'>
             <div className='relative w-10 h-10 lg:w-12 lg:h-12'>
-              <MyImage src={images.favicon} alt='Giặt Ủi Siêu Sạch' fill className='object-contain' sizes='48px' />
+              <MyImage src={images.favicon} alt='Giặt Ủi Siêu Sạch' fill className='object-contain' sizes='48px' priority />
             </div>
           </Link>
 
