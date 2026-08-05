@@ -67,8 +67,6 @@ const LoginPage = () => {
         name: 'Admin',
         phone: formData.phone,
         isAdmin: true,
-        accessToken: 'mock-access-token',
-        refreshToken: 'mock-refresh-token',
       })
       router.replace('/admin')
     } catch {

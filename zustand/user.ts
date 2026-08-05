@@ -3,7 +3,6 @@ import { devtools, persist } from 'zustand/middleware'
 import { StorageValue } from 'zustand/middleware'
 
 import { IS_PRODUCTION } from '@/constants/app'
-import { COOKIES_KEY } from '@/constants/cookies'
 
 export type User = {
   id?: string
@@ -12,8 +11,6 @@ export type User = {
   email?: string
   avatar?: string
   isAdmin?: boolean
-  accessToken?: string
-  refreshToken?: string
 }
 
 type PersistedState = {
@@ -32,37 +29,6 @@ type UserState = PersistedState & {
 
 const initialUser: User = {}
 
-// Save token fields to document.cookie (not localStorage)
-const syncTokensToCookie = (user: User) => {
-  if (typeof document === 'undefined') return
-
-  if (user.accessToken) {
-    document.cookie = `${COOKIES_KEY.accessToken}=${encodeURIComponent(user.accessToken)}; path=/`
-  }
-
-  if (user.refreshToken) {
-    document.cookie = `${COOKIES_KEY.refreshToken}=${encodeURIComponent(user.refreshToken)}; path=/`
-  }
-}
-
-// Clear all user cookies
-const clearTokensFromCookie = () => {
-  if (typeof document === 'undefined') return
-
-  document.cookie = `${COOKIES_KEY.accessToken}=; path=/; max-age=0`
-  document.cookie = `${COOKIES_KEY.refreshToken}=; path=/; max-age=0`
-}
-
-// Strip cookie-only fields before persisting user to localStorage
-const stripTokens = (user: User): User => {
-  const rest: User = { ...user }
-
-  delete rest.accessToken
-  delete rest.refreshToken
-
-  return rest
-}
-
 export const user = create<UserState>()(
   devtools(
     persist(
@@ -76,7 +42,6 @@ export const user = create<UserState>()(
         },
 
         logout: () => {
-          clearTokensFromCookie()
           set({ user: initialUser, isLogin: false })
         },
 
@@ -105,20 +70,9 @@ export const user = create<UserState>()(
             return saved ? (JSON.parse(saved) as StorageValue<PersistedState>) : null
           },
           setItem: (name: string, value: StorageValue<PersistedState>) => {
-            syncTokensToCookie(value.state.user)
-            localStorage.setItem(
-              name,
-              JSON.stringify({
-                ...value,
-                state: {
-                  ...value.state,
-                  user: stripTokens(value.state.user),
-                },
-              })
-            )
+            localStorage.setItem(name, JSON.stringify(value))
           },
           removeItem: (name: string) => {
-            clearTokensFromCookie()
             localStorage.removeItem(name)
           },
         },
