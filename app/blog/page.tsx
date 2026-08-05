@@ -1,108 +1,118 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 
 import MyCard, { MyCardBody } from '@/components/MyCard'
-import MyPagination from '@/components/MyPagination'
 import MyEmpty from '@/components/MyEmpty'
+import MyImage from '@/components/MyImage'
 import useLanguage from '@/hooks/useLanguage'
+import { cn } from '@/utils/tailwind'
 
-// Mock data
-const mockPosts = [
-  {
-    id: 1,
-    title: 'Cách giặt đồ trắng đúng cách',
-    slug: 'cach-giat-do-trang-dung-cach',
-    thumbnail: '/thumbnail.png',
-    excerpt: 'Hướng dẫn chi tiết cách giặt đồ trắng để giữ được màu sắc và chất liệu vải.',
-    createdAt: '2024-01-15',
-  },
-  {
-    id: 2,
-    title: 'Mẹo ủi đồ phẳng lì',
-    slug: 'meo-ui-do-phang-li',
-    thumbnail: '/thumbnail.png',
-    excerpt: 'Những mẹo nhỏ giúp bạn ủi đồ phẳng lì như thợ chuyên nghiệp.',
-    createdAt: '2024-01-12',
-  },
-  {
-    id: 3,
-    title: 'Lựa chọn hóa chất giặt ủi an toàn',
-    slug: 'lua-chon-hoa-chat-giat-ui-an-toan',
-    thumbnail: '/thumbnail.png',
-    excerpt: 'Tìm hiểu về các loại hóa chất giặt ủi an toàn cho sức khỏe và môi trường.',
-    createdAt: '2024-01-10',
-  },
-  {
-    id: 4,
-    title: 'Cách xử lý vết bẩn cứng đầu',
-    slug: 'cach-xu-ly-vet-ban-cung-dau',
-    thumbnail: '/thumbnail.png',
-    excerpt: 'Hướng dẫn xử lý các loại vết bẩn cứng đầu trên quần áo.',
-    createdAt: '2024-01-08',
-  },
-  {
-    id: 5,
-    title: 'Bí quyết giữ quần áo mới lâu',
-    slug: 'bi-quyet-giu-quan-ao-moi-lau',
-    thumbnail: '/thumbnail.png',
-    excerpt: 'Mẹo nhỏ giúp quần áo luôn mới và bền màu sau thời gian dài sử dụng.',
-    createdAt: '2024-01-05',
-  },
-  {
-    id: 6,
-    title: 'Xu hướng giặt ủi thông minh 2024',
-    slug: 'xu-huong-giat-ui-thong-minh-2024',
-    thumbnail: '/thumbnail.png',
-    excerpt: 'Công nghệ mới trong ngành giặt ủi giúp tiết kiệm thời gian và chi phí.',
-    createdAt: '2024-01-03',
-  },
+type Post = {
+  category: string
+  minutes: number
+  title: string
+  excerpt: string
+  slug: string
+}
+
+const categoryPalette = [
+  'bg-blue-100 text-blue-700',
+  'bg-purple-100 text-purple-700',
+  'bg-amber-100 text-amber-700',
+  'bg-emerald-100 text-emerald-700',
 ]
 
 const BlogPage = () => {
   const { translate } = useLanguage()
+  const [activeCategory, setActiveCategory] = useState<string | null>(null)
 
-  if (mockPosts.length === 0) {
-    return (
-      <div className='py-12 px-4'>
-        <div className='max-w-7xl mx-auto'>
-          <div className='text-center mb-8'>
-            <h1 className='text-3xl font-bold text-text mb-2'>{translate('blog.title')}</h1>
-            <p className='text-gray-600'>{translate('blog.subtitle')}</p>
-          </div>
-          <MyEmpty message={translate('blog.noPosts')} />
-        </div>
-      </div>
-    )
+  const categories = (translate('blog.categories') || []) as string[]
+  const posts = (translate('blog.posts') || []) as Post[]
+
+  const filteredPosts = activeCategory ? posts.filter((post) => post.category === activeCategory) : posts
+
+  const categoryColor = (category: string) => {
+    const index = categories.indexOf(category)
+
+    return categoryPalette[Math.max(index, 0) % categoryPalette.length]
   }
 
   return (
-    <div className='py-12 px-4'>
-      <div className='max-w-7xl mx-auto'>
-        <div className='text-center mb-8'>
-          <h1 className='text-3xl font-bold text-text mb-2'>{translate('blog.title')}</h1>
-          <p className='text-gray-600'>{translate('blog.subtitle')}</p>
+    <div className='py-16 lg:py-24'>
+      <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
+        {/* Page header */}
+        <div className='mx-auto mb-10 max-w-2xl text-center'>
+          <h1 className='text-3xl font-extrabold leading-tight text-text lg:text-4xl'>{translate('blog.title')}</h1>
+          <p className='mt-3 text-base leading-relaxed text-gray-500 lg:text-lg'>{translate('blog.subtitle')}</p>
         </div>
 
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-          {mockPosts.map((post) => (
-            <Link key={post.id} href={`/blog/${post.slug}`}>
-              <MyCard className='h-full'>
-                <div className='relative aspect-video'>
-                  <img src={post.thumbnail} alt={post.title} className='w-full h-full object-cover rounded-t-2xl' />
-                </div>
-                <MyCardBody>
-                  <p className='text-sm text-gray-500 mb-2'>{post.createdAt}</p>
-                  <h2 className='text-lg font-semibold text-text mb-2 line-clamp-2'>{post.title}</h2>
-                  <p className='text-gray-600 text-sm line-clamp-2'>{post.excerpt}</p>
-                  <span className='inline-block mt-4 text-primary text-sm font-medium'>{translate('blog.readMore')} →</span>
-                </MyCardBody>
-              </MyCard>
-            </Link>
+        {/* Category filter */}
+        <div className='mb-12 flex flex-wrap items-center justify-center gap-3'>
+          <button
+            type='button'
+            onClick={() => setActiveCategory(null)}
+            className={cn(
+              'rounded-full px-5 py-2 text-sm font-semibold transition-colors',
+              activeCategory === null ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-md' : 'bg-white text-text hover:bg-primary/10'
+            )}
+          >
+            {translate('blog.all')}
+          </button>
+          {categories.map((category) => (
+            <button
+              key={category}
+              type='button'
+              onClick={() => setActiveCategory(activeCategory === category ? null : category)}
+              className={cn(
+                'rounded-full px-5 py-2 text-sm font-semibold transition-colors',
+                activeCategory === category
+                  ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-md'
+                  : 'bg-white text-text hover:bg-primary/10'
+              )}
+            >
+              {category}
+            </button>
           ))}
         </div>
 
-        <MyPagination currentPage={1} totalPages={3} onPageChange={() => {}} className='mt-8' />
+        {/* Posts */}
+        {filteredPosts.length === 0 ? (
+          <MyEmpty message={translate('blog.noPosts')} />
+        ) : (
+          <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
+            {filteredPosts.map((post) => (
+              <Link key={post.slug} href={`/blog/${post.slug}`} className='group block h-full'>
+                <MyCard className='flex h-full flex-col overflow-hidden transition-transform duration-300 group-hover:-translate-y-1'>
+                  <div className='relative aspect-video flex-shrink-0 overflow-hidden'>
+                    <MyImage
+                      src='/thumbnail.png'
+                      alt={post.title}
+                      fill
+                      sizes='(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw'
+                      className='object-cover transition-transform duration-300 group-hover:scale-105'
+                    />
+                  </div>
+                  <MyCardBody className='flex flex-1 flex-col p-5 lg:p-6'>
+                    <div className='flex items-center gap-3'>
+                      <span className={cn('rounded-full px-3 py-1 text-xs font-bold', categoryColor(post.category))}>{post.category}</span>
+                      <span className='text-xs text-gray-500'>{translate('blog.readTime', { minutes: post.minutes })}</span>
+                    </div>
+                    <h2 className='mt-4 line-clamp-2 text-lg font-bold leading-snug text-text transition-colors group-hover:text-primary'>
+                      {post.title}
+                    </h2>
+                    <p className='mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-gray-500'>{post.excerpt}</p>
+                    <span className='mt-5 inline-flex items-center gap-1 text-sm font-bold text-primary'>
+                      {translate('blog.readMore')}
+                      <span aria-hidden='true'>→</span>
+                    </span>
+                  </MyCardBody>
+                </MyCard>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

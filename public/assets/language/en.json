@@ -85,70 +85,169 @@
   "home": {
     "title": "Super Clean Laundry",
     "subtitle": "Premium laundry service, doorstep delivery",
-    "heroTitle": "Super Clean Laundry",
-    "heroSubtitle": "Cheap - Super Fast - On Time - High Quality",
-    "heroDescription": "Premium laundry service at surprisingly affordable prices. Doorstep delivery, super fast, on time, top quality.",
-    "heroCTA": "Book Now",
-    "heroSecondaryCTA": "View Prices",
+    "hero": {
+      "tag": "Professional laundry service",
+      "title1": "Clean Wash — Crisp Ironing",
+      "title2": "Delivered To Your Door",
+      "description": "We pick up your clothes from home, wash them clean, iron them flat and deliver back on time. 5-star quality at fair prices.",
+      "bookCta": "Book Now",
+      "trackCta": "Track Order",
+      "statsCustomersValue": "10,000+",
+      "statsCustomersLabel": "Happy customers",
+      "statsOrdersValue": "50,000+",
+      "statsOrdersLabel": "Orders completed",
+      "statsRatingValue": "4.9★",
+      "statsRatingLabel": "Average rating",
+      "orderCode": "Order #GS2847",
+      "orderStatus": "Out for delivery",
+      "orderRatingValue": "4.9",
+      "orderRatingLabel": "Rating"
+    },
     "process": {
-      "title": "4-Step Process",
-      "subtitle": "Simple, fast, convenient",
+      "tag": "Process",
+      "title": "4 Simple Steps",
+      "subtitle": "Just book, we handle the rest",
       "step1": "Book",
-      "step1Desc": "Choose your preferred date and time, book through the app",
+      "step1Desc": "Pick a suitable date and time, fill in the pickup address",
       "step2": "Pickup",
-      "step2Desc": "Staff comes to your location at the scheduled time",
-      "step3": "Wash",
-      "step3Desc": "Your clothes are washed and ironed with modern equipment",
+      "step2Desc": "Staff arrive on time and package your clothes carefully",
+      "step3": "Wash & Iron",
+      "step3Desc": "Professional handling, 99.9% bacteria removal",
       "step4": "Deliver",
-      "step4Desc": "Delivered to your doorstep on time, clean and fresh"
+      "step4Desc": "Delivered back on time, clean, fresh and neatly ironed"
     },
     "benefits": {
+      "tag": "Benefits",
       "title": "Why Choose Us?",
-      "subtitle": "Quality is our top priority",
-      "fast": "Super Fast",
-      "fastDesc": "Delivery within 24h, quick response",
-      "quality": "High Quality",
-      "qualityDesc": "Using premium equipment and chemicals",
-      "price": "Affordable",
-      "priceDesc": "Reasonable prices, most competitive in the market",
-      "convenience": "Convenient",
-      "convenienceDesc": "Doorstep delivery, no need to travel",
-      "schedule": "On Time",
-      "scheduleDesc": "Committed to delivering on schedule",
+      "pickup": "Doorstep Pickup & Delivery",
+      "pickupDesc": "No need to leave home, we serve you at your door",
+      "ontime": "100% On Time",
+      "ontimeDesc": "Committed to on-time delivery, never late",
+      "clean": "99.9% Germ Free",
+      "cleanDesc": "Modern washing technology with safe detergents",
+      "price": "Transparent Pricing",
+      "priceDesc": "Clear price list, no hidden costs",
+      "track": "Order Tracking",
+      "trackDesc": "Know exactly which step your order is at",
       "support": "24/7 Support",
-      "supportDesc": "Dedicated team, always ready to help"
+      "supportDesc": "Advice and problem solving at any time"
     },
     "pricing": {
-      "title": "Price List",
-      "subtitle": "Reasonable prices, most competitive in the market",
-      "viewFull": "View Full Price List",
-      "perKg": "/kg"
+      "tag": "Pricing",
+      "title": "Clear Pricing",
+      "subtitle": "No hidden fees, no surprises",
+      "perKg": "/kg",
+      "bookNow": "Book Now",
+      "popular": "POPULAR",
+      "viewAll": "View Full Price List",
+      "plan1Name": "Regular Wash",
+      "plan1Price": "25,000đ",
+      "plan1Desc": "Regular machine wash, tumble dried",
+      "plan2Name": "Express Wash",
+      "plan2Price": "40,000đ",
+      "plan2Desc": "Wash + dry within 4 hours",
+      "plan3Name": "Dry Cleaning",
+      "plan3Price": "80,000đ",
+      "plan3Desc": "Best for premium items, suits, ao dai",
+      "plan4Name": "Wash + Iron",
+      "plan4Price": "50,000đ",
+      "plan4Desc": "Clean wash, flat ironing, neatly folded"
     },
     "commitment": {
       "title": "Our Commitment",
-      "subtitle": "Your satisfaction is our top priority",
-      "clean": "Absolutely Clean",
-      "cleanDesc": "Clothes are washed clean, fresh, stain-free",
-      "safe": "Absolutely Safe",
-      "safeDesc": "Using safe chemicals, no harm to fabric",
-      "fast": "Fast",
-      "fastDesc": "Delivery within 24h, on time",
-      "price": "Affordable",
-      "priceDesc": "Surprisingly cheap, most competitive in the market"
+      "warranty": "Quality Guarantee",
+      "warrantyDesc": "Not satisfied? We rewash it for free",
+      "privacy": "Data Protection",
+      "privacyDesc": "Your personal information is fully protected",
+      "compensation": "Damage Compensation",
+      "compensationDesc": "Committed to compensation for any damage"
     },
     "feedback": {
-      "title": "What Customers Say",
-      "subtitle": "Reviews from real customers"
+      "tag": "Reviews",
+      "title": "What Customers Say?",
+      "item1Comment": "Amazing service! Clothes come out spotless, fresh and on time. I've been using it for 2 years and never disappointed.",
+      "item1Name": "Nguyen Thi Lan",
+      "item1Role": "Loyal customer",
+      "item2Comment": "Booking is so easy, staff arrive on time. My office shirts are ironed perfectly flat, very professional.",
+      "item2Name": "Tran Van Minh",
+      "item2Role": "New customer",
+      "item3Comment": "Fair prices, high quality. The order tracking feature is especially handy — I always know the current step.",
+      "item3Name": "Pham Thu Huong",
+      "item3Role": "Regular customer"
     },
     "faq": {
       "title": "Frequently Asked Questions",
-      "subtitle": "Answering your questions"
+      "q1": "How long does an order take?",
+      "a1": "Regular orders are processed and returned within 24 hours. With our express service, you get your clothes back in just 4 hours.",
+      "q2": "Do you offer home pickup?",
+      "a2": "Yes. Our staff will come to your home to pick up your clothes and deliver them to the address you request, completely free of charge.",
+      "q3": "What if my clothes get damaged?",
+      "a3": "We guarantee 100% compensation if clothes are damaged due to our fault during the washing process.",
+      "q4": "Do you handle premium garments?",
+      "a4": "Yes. We offer professional dry cleaning for suits, ao dai and other sensitive premium fabrics.",
+      "q5": "How to pay?",
+      "a5": "You can pay in cash on delivery or by bank transfer. We are always transparent about costs."
     },
     "cta": {
-      "title": "Ready to Do Laundry?",
-      "subtitle": "Book now to experience the best service",
-      "button": "Book Now"
+      "title": "Ready To Try?",
+      "subtitle": "Book today — we pick up within 2 hours!",
+      "button": "Book For Free"
     }
+  },
+  "pricing": {
+    "tag": "Pricing",
+    "title": "Clear Pricing — No Hidden Fees",
+    "subtitle": "We are committed to price transparency. You know exactly what you'll pay before you book.",
+    "bookNow": "Book Now",
+    "popular": "⭐ MOST POPULAR",
+    "plans": [
+      {
+        "name": "Regular Wash",
+        "price": "25,000đ",
+        "unit": "/kg",
+        "description": "Perfect for everyday clothes",
+        "features": ["Standard machine wash", "Fully tumble dried", "Neatly folded", "Delivery in 24–48 hours"]
+      },
+      {
+        "name": "Express Wash",
+        "price": "40,000đ",
+        "unit": "/kg",
+        "description": "Need it fast? Done in 4–6 hours!",
+        "popular": true,
+        "features": ["Priority handling", "Fast drying", "Neatly folded", "Delivery in 4–6 hours", "Real-time notifications"]
+      },
+      {
+        "name": "Dry Cleaning",
+        "price": "80,000đ",
+        "unit": "/kg",
+        "description": "For suits, blazers, ao dai, premium items",
+        "features": ["Specialized handling", "Premium solvent", "No shrinkage", "Professional ironing", "Protective packaging"]
+      },
+      {
+        "name": "Ironing",
+        "price": "15,000đ",
+        "unit": "/piece",
+        "description": "Crisp, crease-free professional ironing",
+        "features": ["Professional steam ironing", "No fabric burn", "Perfect creases", "Delivery within 24 hours"]
+      },
+      {
+        "name": "Wash + Iron",
+        "price": "50,000đ",
+        "unit": "/kg",
+        "description": "Money-saving combo, clean and neatly ironed",
+        "features": ["Standard clean wash", "Fully tumble dried", "Steam ironing", "Neatly folded", "Delivery in 24–36 hours"]
+      }
+    ],
+    "extraTitle": "Additional Services",
+    "extras": [
+      { "name": "Stubborn stain treatment", "price": "20,000đ/spot" },
+      { "name": "Mold treatment", "price": "30,000đ/kg" },
+      { "name": "Blanket & bedsheet washing", "price": "80,000đ/set" },
+      { "name": "Stuffed toy washing", "price": "50,000đ/piece" },
+      { "name": "Leather shoe polishing", "price": "30,000đ/pair" },
+      { "name": "Express delivery (within 2h)", "price": "+ 30,000đ" }
+    ],
+    "note": "* Prices may vary depending on fabric type and level of dirt. Free consultation: 0901 234 567"
   },
   "booking": {
     "title": "Book Laundry Service",
@@ -232,43 +331,108 @@
     }
   },
   "blog": {
-    "title": "Blog",
-    "subtitle": "Tips and news about laundry",
+    "title": "Blog & News",
+    "subtitle": "Laundry tips, clothing care and much more",
+    "all": "All",
+    "categories": ["Tips", "Knowledge", "Care", "Environment"],
+    "readTime": "{minutes} min read",
     "readMore": "Read More",
     "noPosts": "No posts yet",
     "relatedPosts": "Related Posts",
     "share": "Share",
-    "backToList": "Back to list"
+    "backToList": "Back to list",
+    "posts": [
+      {
+        "category": "Tips",
+        "minutes": 5,
+        "title": "10 Laundry Tips to Wash Clothes Properly and Keep Colors Fading",
+        "excerpt": "Washing clothes seems simple, but without the right know-how your clothes will fade quickly and get damaged. Let's find out the expert secrets.",
+        "slug": "10-meo-giat-quan-ao-dung-cach-de-ben-mau"
+      },
+      {
+        "category": "Knowledge",
+        "minutes": 7,
+        "title": "What Is Dry Cleaning? When Should You Use It?",
+        "excerpt": "Dry cleaning is not washing without water. It's a specialized process for premium fabrics. Find out more!",
+        "slug": "giat-kho-la-gi-khi-nao-nen-dung"
+      },
+      {
+        "category": "Care",
+        "minutes": 6,
+        "title": "How to Properly Care for Suits and Blazers",
+        "excerpt": "Suits are expensive items that need careful maintenance. This article will guide you on how to wash, iron and store suits to keep them like new.",
+        "slug": "cach-bao-quan-ao-vest-va-comple"
+      },
+      {
+        "category": "Tips",
+        "minutes": 4,
+        "title": "5 Signs Your Washing Machine Is About to Break",
+        "excerpt": "Washing machines also show warning signs before fully breaking down. Detecting them early saves you from costly repairs.",
+        "slug": "5-dau-hieu-may-giat-cua-ban-dang-bi-hong"
+      },
+      {
+        "category": "Environment",
+        "minutes": 5,
+        "title": "Water-Saving Laundry: Green Habits for Your Family",
+        "excerpt": "A few small changes in your washing habits can save thousands of liters of water every year. Find out how!",
+        "slug": "giat-giu-tiet-kiem-nuoc-thoi-quen-xanh"
+      },
+      {
+        "category": "Knowledge",
+        "minutes": 8,
+        "title": "Decoding the Washing Symbols on Your Clothes",
+        "excerpt": "Those tiny symbols on clothing labels are actually your guide to protecting your garments. Let's decode them together.",
+        "slug": "giai-ma-cac-ky-hieu-giat-la-tren-quan-ao"
+      }
+    ]
   },
   "about": {
-    "title": "About Us",
-    "subtitle": "About Super Clean Laundry",
-    "story": {
-      "title": "Our Story",
-      "content": "Super Clean Laundry was established with the mission to provide high-quality laundry services at reasonable prices for every family. With a professional team and modern equipment, we are committed to delivering absolute satisfaction to our customers."
+    "tag": "About us",
+    "title": "Our Story",
+    "storyContent": "Founded in 2018, Super Clean Laundry started as a small shop with the goal of bringing high-quality laundry services to the people of Hanoi. After 6 years of growth, we have served more than 10,000 customers with a team of 50+ professional staff.",
+    "stats": [
+      { "value": "10K+", "label": "Customers" },
+      { "value": "50K+", "label": "Orders" },
+      { "value": "6+", "label": "Years of experience" }
+    ],
+    "vision": {
+      "title": "Vision",
+      "content": "To become the No.1 laundry service chain in Vietnam, applying modern technology to bring the best experience to customers."
     },
     "mission": {
       "title": "Mission",
-      "content": "To provide high-quality, convenient, and affordable laundry services for every Vietnamese family."
-    },
-    "vision": {
-      "title": "Vision",
-      "content": "To become the leading laundry service chain in Vietnam, trusted and loved by customers."
+      "content": "Free your time from laundry, so you can focus on the things that matter more in life."
     },
     "values": {
       "title": "Core Values",
-      "quality": "Quality",
-      "qualityDesc": "Committed to the best service quality",
-      "integrity": "Transparency",
-      "integrityDesc": "Clear pricing, no hidden fees",
-      "innovation": "Innovation",
-      "innovationDesc": "Continuously improving processes",
-      "customer": "Customer",
-      "customerDesc": "Putting customer satisfaction first"
+      "items": [
+        {
+          "title": "Quality",
+          "description": "We never compromise on quality. Every order is handled with the utmost dedication."
+        },
+        {
+          "title": "Dedication",
+          "description": "We serve with our hearts, not just our skills."
+        },
+        {
+          "title": "Team",
+          "description": "50+ professional, friendly and devoted staff members."
+        },
+        {
+          "title": "Trust",
+          "description": "6 years of building trust with customers. More than 10,000 customers trust us."
+        }
+      ]
     },
     "team": {
       "title": "Our Team",
-      "content": "A professional team, well-trained, dedicated to their work."
+      "subtitle": "The dedicated people behind every clean shirt",
+      "members": [
+        { "name": "Nguyen Van Hung", "role": "CEO & Founder" },
+        { "name": "Tran Thi Mai", "role": "Operations Manager" },
+        { "name": "Le Van Thanh", "role": "Head of Tech" },
+        { "name": "Pham Thu Ha", "role": "Customer Success" }
+      ]
     }
   },
   "contact": {
@@ -373,13 +537,43 @@
   "admin": {
     "dashboard": {
       "title": "Dashboard",
+      "subtitle": "Business overview",
       "totalRevenue": "Total Revenue",
+      "totalRevenueValue": "42,580,000đ",
+      "totalRevenueTrend": "+12.5%",
       "todayOrders": "Today's Orders",
-      "processingOrders": "Processing Orders",
-      "completedOrders": "Completed Orders",
+      "todayOrdersValue": "28",
+      "todayOrdersTrend": "+4",
+      "processingOrders": "Processing",
+      "processingOrdersValue": "12",
+      "completedOrders": "Completed",
+      "completedOrdersValue": "2,847",
+      "completedOrdersTrend": "+8.3%",
       "totalCustomers": "Total Customers",
-      "revenueChart": "Revenue Chart",
-      "ordersChart": "Orders Chart"
+      "totalCustomersValue": "1,243",
+      "totalCustomersTrend": "+23",
+      "revenueChart": "Monthly Revenue (million VND)",
+      "orderRatio": "Order Ratio",
+      "popularServices": "Popular Services",
+      "recentOrders": "Recent Orders",
+      "viewAll": "View All →",
+      "ratio": [
+        { "name": "Completed", "percent": 72 },
+        { "name": "Processing", "percent": 18 },
+        { "name": "Cancelled", "percent": 10 }
+      ],
+      "services": [
+        { "name": "Wash + Iron", "percent": 45 },
+        { "name": "Express Wash", "percent": 30 },
+        { "name": "Regular Wash", "percent": 25 }
+      ],
+      "orders": [
+        { "code": "#GS28471", "customer": "Nguyen Thi Lan", "phone": "0901234567", "service": "Wash + Iron", "total": "225,000đ", "status": "Delivering", "variant": "blue", "date": "15/01/2024" },
+        { "code": "#GS28470", "customer": "Tran Van Minh", "phone": "0902345678", "service": "Express Wash", "total": "160,000đ", "status": "Washing", "variant": "yellow", "date": "15/01/2024" },
+        { "code": "#GS28469", "customer": "Le Thu Huong", "phone": "0903456789", "service": "Dry Cleaning", "total": "320,000đ", "status": "Completed", "variant": "green", "date": "14/01/2024" },
+        { "code": "#GS28468", "customer": "Pham Van Nam", "phone": "0904567890", "service": "Regular Wash", "total": "75,000đ", "status": "Confirmed", "variant": "gray", "date": "14/01/2024" },
+        { "code": "#GS28467", "customer": "Hoang Thi Mai", "phone": "0905678901", "service": "Wash + Iron", "total": "300,000đ", "status": "Completed", "variant": "green", "date": "13/01/2024" }
+      ]
     },
     "orders": {
       "title": "Order Management",
@@ -449,8 +643,13 @@
       "blog": "Blog",
       "banner": "Banners",
       "prices": "Prices",
-      "settings": "Settings",
-      "logout": "Logout"
+      "revenue": "Revenue",
+      "logoutAdmin": "Exit Admin"
+    },
+    "topbar": {
+      "name": "Admin",
+      "role": "Administrator",
+      "backHome": "← Back to home"
     }
   },
   "chat": {

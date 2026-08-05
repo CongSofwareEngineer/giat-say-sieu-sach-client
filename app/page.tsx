@@ -1,193 +1,247 @@
 'use client'
 
+import { useState, type ReactNode } from 'react'
 import Link from 'next/link'
 
 import MyCard, { MyCardBody } from '@/components/MyCard'
 import MyButton from '@/components/MyButton'
+import { CheckBadgeIcon } from '@/components/Icons/CheckBadge'
+import StarIcon from '@/components/Icons/Star'
+import { ArrowDownIcon } from '@/components/Icons/ArrowDown'
+import { ArrowUpIcon } from '@/components/Icons/ArrowUp'
+import InboxIcon from '@/components/Icons/Inbox'
+import CalendarIcon from '@/components/Icons/Calendar'
+import SparklesIcon from '@/components/Icons/Home/Sparkles'
+import { PaymentIcon } from '@/components/Icons/Payment'
+import SmartPhoneIcon from '@/components/Icons/Home/SmartPhone'
+import ChatBubbleIcon from '@/components/Icons/ChatBubble'
+import AwardIcon from '@/components/Icons/Home/Award'
 import useLanguage from '@/hooks/useLanguage'
+import { cn } from '@/utils/tailwind'
+
+type TagProps = {
+  children: ReactNode
+}
+
+// Small pill label used above section titles
+const Tag = ({ children }: TagProps) => (
+  <span className='inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1.5 text-[13px] font-bold uppercase tracking-wider text-primary'>
+    {children}
+  </span>
+)
+
+type SectionHeaderProps = {
+  tag?: string
+  title: string
+  subtitle?: string
+}
+
+// Reusable centered section header (tag + title + subtitle)
+const SectionHeader = ({ tag, title, subtitle }: SectionHeaderProps) => (
+  <div className='mx-auto mb-12 max-w-2xl text-center lg:mb-16'>
+    {tag && <Tag>{tag}</Tag>}
+    <h2 className='mt-4 text-3xl font-extrabold leading-tight text-text lg:text-4xl'>{title}</h2>
+    {subtitle && <p className='mt-3 text-base leading-relaxed text-gray-500 lg:text-lg'>{subtitle}</p>}
+  </div>
+)
 
 const HomePage = () => {
   const { translate } = useLanguage()
+  const [openFaq, setOpenFaq] = useState(0)
+
+  const heroStats = [
+    { value: translate('home.hero.statsCustomersValue'), label: translate('home.hero.statsCustomersLabel') },
+    { value: translate('home.hero.statsOrdersValue'), label: translate('home.hero.statsOrdersLabel') },
+    { value: translate('home.hero.statsRatingValue'), label: translate('home.hero.statsRatingLabel') },
+  ]
 
   const processSteps = [
-    {
-      step: 1,
-      title: translate('home.process.step1'),
-      description: translate('home.process.step1Desc'),
-      icon: '📅',
-    },
-    {
-      step: 2,
-      title: translate('home.process.step2'),
-      description: translate('home.process.step2Desc'),
-      icon: '🚚',
-    },
-    {
-      step: 3,
-      title: translate('home.process.step3'),
-      description: translate('home.process.step3Desc'),
-      icon: '🧼',
-    },
-    {
-      step: 4,
-      title: translate('home.process.step4'),
-      description: translate('home.process.step4Desc'),
-      icon: '✨',
-    },
+    { step: '01', title: translate('home.process.step1'), description: translate('home.process.step1Desc') },
+    { step: '02', title: translate('home.process.step2'), description: translate('home.process.step2Desc') },
+    { step: '03', title: translate('home.process.step3'), description: translate('home.process.step3Desc') },
+    { step: '04', title: translate('home.process.step4'), description: translate('home.process.step4Desc') },
   ]
 
   const benefits = [
+    { icon: InboxIcon, title: translate('home.benefits.pickup'), description: translate('home.benefits.pickupDesc') },
+    { icon: CalendarIcon, title: translate('home.benefits.ontime'), description: translate('home.benefits.ontimeDesc') },
+    { icon: SparklesIcon, title: translate('home.benefits.clean'), description: translate('home.benefits.cleanDesc') },
+    { icon: PaymentIcon, title: translate('home.benefits.price'), description: translate('home.benefits.priceDesc') },
+    { icon: SmartPhoneIcon, title: translate('home.benefits.track'), description: translate('home.benefits.trackDesc') },
+    { icon: ChatBubbleIcon, title: translate('home.benefits.support'), description: translate('home.benefits.supportDesc') },
+  ]
+
+  const plans = [
     {
-      icon: '⚡',
-      title: translate('home.benefits.fast'),
-      description: translate('home.benefits.fastDesc'),
+      name: translate('home.pricing.plan1Name'),
+      price: translate('home.pricing.plan1Price'),
+      description: translate('home.pricing.plan1Desc'),
+      popular: false,
     },
     {
-      icon: '⭐',
-      title: translate('home.benefits.quality'),
-      description: translate('home.benefits.qualityDesc'),
+      name: translate('home.pricing.plan2Name'),
+      price: translate('home.pricing.plan2Price'),
+      description: translate('home.pricing.plan2Desc'),
+      popular: true,
     },
     {
-      icon: '💰',
-      title: translate('home.benefits.price'),
-      description: translate('home.benefits.priceDesc'),
+      name: translate('home.pricing.plan3Name'),
+      price: translate('home.pricing.plan3Price'),
+      description: translate('home.pricing.plan3Desc'),
+      popular: false,
     },
     {
-      icon: '🎯',
-      title: translate('home.benefits.convenience'),
-      description: translate('home.benefits.convenienceDesc'),
-    },
-    {
-      icon: '⏰',
-      title: translate('home.benefits.schedule'),
-      description: translate('home.benefits.scheduleDesc'),
-    },
-    {
-      icon: '📞',
-      title: translate('home.benefits.support'),
-      description: translate('home.benefits.supportDesc'),
+      name: translate('home.pricing.plan4Name'),
+      price: translate('home.pricing.plan4Price'),
+      description: translate('home.pricing.plan4Desc'),
+      popular: false,
     },
   ]
 
   const commitments = [
-    {
-      icon: '✨',
-      title: translate('home.commitment.clean'),
-      description: translate('home.commitment.cleanDesc'),
-    },
-    {
-      icon: '🛡️',
-      title: translate('home.commitment.safe'),
-      description: translate('home.commitment.safeDesc'),
-    },
-    {
-      icon: '🚀',
-      title: translate('home.commitment.fast'),
-      description: translate('home.commitment.fastDesc'),
-    },
-    {
-      icon: '💵',
-      title: translate('home.commitment.price'),
-      description: translate('home.commitment.priceDesc'),
-    },
-  ]
-
-  const faqs = [
-    {
-      question: 'Dịch vụ giặt ủi có những loại nào?',
-      answer: 'Chúng tôi cung cấp đa dạng dịch vụ: giặt thường, giặt sấy, giặt hấp, ủi đồ, và gói combo tiết kiệm.',
-    },
-    {
-      question: 'Thời gian giao nhận đồ là bao lâu?',
-      answer: 'Thời gian giao nhận đồ thông thường là 24 giờ. Đối với dịch vụ gấp, chúng tôi có thể giao trong 4 giờ.',
-    },
-    {
-      question: 'Giá cả như thế nào?',
-      answer: 'Giá cả rất cạnh tranh, chỉ từ 8.000đ/kg. Xem chi tiết tại trang Bảng giá.',
-    },
-    {
-      question: 'Làm sao để theo dõi đơn hàng?',
-      answer: 'Bạn có thể theo dõi đơn hàng bằng cách nhập mã đơn và số điện thoại tại trang Theo dõi đơn.',
-    },
+    { icon: AwardIcon, title: translate('home.commitment.warranty'), description: translate('home.commitment.warrantyDesc') },
+    { icon: CheckBadgeIcon, title: translate('home.commitment.privacy'), description: translate('home.commitment.privacyDesc') },
+    { icon: PaymentIcon, title: translate('home.commitment.compensation'), description: translate('home.commitment.compensationDesc') },
   ]
 
   const feedbacks = [
-    {
-      name: 'Nguyễn Văn A',
-      rating: 5,
-      comment: 'Dịch vụ rất tốt, đồ sạch sẽ và giao đúng hẹn. Sẽ sử dụng lại!',
-    },
-    {
-      name: 'Trần Thị B',
-      rating: 5,
-      comment: 'Giá cả hợp lý, nhân viên nhiệt tình. Rất hài lòng!',
-    },
-    {
-      name: 'Lê Văn C',
-      rating: 5,
-      comment: 'Tiện lợi, không cần phải đi đâu. Đồ được giao tận nơi!',
-    },
+    { comment: translate('home.feedback.item1Comment'), name: translate('home.feedback.item1Name'), role: translate('home.feedback.item1Role') },
+    { comment: translate('home.feedback.item2Comment'), name: translate('home.feedback.item2Name'), role: translate('home.feedback.item2Role') },
+    { comment: translate('home.feedback.item3Comment'), name: translate('home.feedback.item3Name'), role: translate('home.feedback.item3Role') },
+  ]
+
+  const faqs = [
+    { question: translate('home.faq.q1'), answer: translate('home.faq.a1') },
+    { question: translate('home.faq.q2'), answer: translate('home.faq.a2') },
+    { question: translate('home.faq.q3'), answer: translate('home.faq.a3') },
+    { question: translate('home.faq.q4'), answer: translate('home.faq.a4') },
+    { question: translate('home.faq.q5'), answer: translate('home.faq.a5') },
   ]
 
   return (
-    <div className='min-h-screen'>
+    <div>
       {/* Hero Section */}
-      <section className='relative bg-gradient-to-br from-primary/5 via-background to-secondary/5 py-20 lg:py-32'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='text-center max-w-3xl mx-auto'>
-            <h1 className='text-4xl lg:text-6xl font-bold text-text mb-6'>{translate('home.heroTitle')}</h1>
-            <p className='text-xl lg:text-2xl text-primary font-semibold mb-4'>{translate('home.heroSubtitle')}</p>
-            <p className='text-gray-600 text-lg mb-8'>{translate('home.heroDescription')}</p>
-            <div className='flex flex-col sm:flex-row items-center justify-center gap-4'>
-              <Link href='/dat-lich'>
-                <MyButton variant='primary' size='large'>
-                  {translate('home.heroCTA')}
-                </MyButton>
-              </Link>
-              <Link href='/bang-gia'>
-                <MyButton variant='default' size='large'>
-                  {translate('home.heroSecondaryCTA')}
-                </MyButton>
-              </Link>
+      <section className='relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-secondary/5'>
+        <div className='pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-primary/10 blur-3xl' />
+        <div className='pointer-events-none absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-secondary/10 blur-3xl' />
+
+        <div className='relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24'>
+          <div className='grid items-center gap-14 lg:grid-cols-2 lg:gap-16'>
+            {/* Hero copy */}
+            <div>
+              <Tag>{translate('home.hero.tag')}</Tag>
+              <h1 className='mt-5 text-4xl font-extrabold leading-tight text-text sm:text-5xl lg:text-[3.4rem]'>
+                <span className='bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent'>{translate('home.hero.title1')}</span>
+                <br />
+                {translate('home.hero.title2')}
+              </h1>
+              <p className='mt-5 max-w-xl text-lg leading-relaxed text-gray-600'>{translate('home.hero.description')}</p>
+
+              <div className='mt-8 flex flex-col gap-4 sm:flex-row'>
+                <Link href='/dat-lich' className='sm:flex-none'>
+                  <MyButton variant='default' size='large' className='w-full px-8'>
+                    {translate('home.hero.bookCta')}
+                  </MyButton>
+                </Link>
+                <Link
+                  href='/theo-doi-don'
+                  className='inline-flex items-center justify-center rounded-xl border-2 border-primary px-8 py-3 text-base font-bold text-primary transition-all duration-250 hover:bg-primary hover:text-white sm:flex-none'
+                >
+                  {translate('home.hero.trackCta')}
+                </Link>
+              </div>
+
+              {/* Stats */}
+              <div className='mt-12 grid max-w-md grid-cols-3 gap-6'>
+                {heroStats.map((stat) => (
+                  <div key={stat.label}>
+                    <div className='text-2xl font-extrabold text-text lg:text-3xl'>{stat.value}</div>
+                    <div className='mt-1 text-xs text-gray-500 lg:text-sm'>{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Hero visual - order card mockup */}
+            <div className='relative mx-auto w-full max-w-md lg:max-w-none'>
+              <div className='pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-accent/20 blur-2xl' />
+              <div className='pointer-events-none absolute -bottom-10 -left-10 h-48 w-48 rounded-full bg-secondary/20 blur-2xl' />
+
+              <MyCard className='relative rotate-1 rounded-3xl shadow-card-hover'>
+                <MyCardBody className='p-6 lg:p-8'>
+                  <div className='flex items-center justify-between'>
+                    <div className='flex items-center gap-4'>
+                      <div className='flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-secondary text-white'>
+                        <CheckBadgeIcon className='h-6 w-6' />
+                      </div>
+                      <div>
+                        <p className='font-bold text-text'>{translate('home.hero.orderCode')}</p>
+                        <p className='mt-0.5 flex items-center gap-1.5 text-sm text-gray-500'>
+                          <span className='inline-block h-1.5 w-1.5 rounded-full bg-secondary' />
+                          {translate('home.hero.orderStatus')}
+                        </p>
+                      </div>
+                    </div>
+                    <span className='text-sm font-bold text-primary'>✓</span>
+                  </div>
+
+                  <div className='mt-6 h-2 w-full overflow-hidden rounded-full bg-gray-100'>
+                    <div className='h-full w-3/4 rounded-full bg-gradient-to-r from-primary to-secondary' />
+                  </div>
+                  <div className='mt-3 flex justify-between text-xs text-gray-400'>
+                    <span>{translate('home.process.step2')}</span>
+                    <span>{translate('home.process.step3')}</span>
+                    <span>{translate('home.process.step4')}</span>
+                  </div>
+                </MyCardBody>
+              </MyCard>
+
+              {/* Floating rating card */}
+              <MyCard className='absolute -bottom-8 -left-4 flex items-center gap-3 rounded-2xl px-5 py-4 shadow-card-hover lg:-left-10'>
+                <StarIcon className='h-8 w-8 text-yellow-400' fill='currentColor' strokeWidth={0} />
+                <div>
+                  <p className='text-2xl font-extrabold leading-none text-text'>{translate('home.hero.orderRatingValue')}</p>
+                  <p className='mt-1 text-xs text-gray-500'>{translate('home.hero.orderRatingLabel')}</p>
+                </div>
+              </MyCard>
             </div>
           </div>
         </div>
       </section>
 
       {/* Process Section */}
-      <section className='py-16 lg:py-24 bg-white'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='text-center mb-12'>
-            <h2 className='text-3xl lg:text-4xl font-bold text-text mb-4'>{translate('home.process.title')}</h2>
-            <p className='text-gray-600 text-lg'>{translate('home.process.subtitle')}</p>
-          </div>
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
+      <section className='py-16 lg:py-24'>
+        <SectionHeader tag={translate('home.process.tag')} title={translate('home.process.title')} subtitle={translate('home.process.subtitle')} />
+        <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
+          <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4'>
             {processSteps.map((step) => (
-              <div key={step.step} className='text-center'>
-                <div className='w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-2xl flex items-center justify-center text-3xl'>{step.icon}</div>
-                <div className='text-sm font-semibold text-primary mb-2'>Bước {step.step}</div>
-                <h3 className='text-lg font-semibold text-text mb-2'>{step.title}</h3>
-                <p className='text-gray-600 text-sm'>{step.description}</p>
-              </div>
+              <MyCard key={step.step} className='group transition-transform duration-300 hover:-translate-y-1'>
+                <MyCardBody className='p-6 lg:p-7'>
+                  <span className='text-5xl font-extrabold text-primary/15 transition-colors group-hover:text-primary/25'>{step.step}</span>
+                  <h3 className='mt-4 text-lg font-bold text-text'>{step.title}</h3>
+                  <p className='mt-2 text-sm leading-relaxed text-gray-500'>{step.description}</p>
+                </MyCardBody>
+              </MyCard>
             ))}
           </div>
         </div>
       </section>
 
       {/* Benefits Section */}
-      <section className='py-16 lg:py-24 bg-background'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='text-center mb-12'>
-            <h2 className='text-3xl lg:text-4xl font-bold text-text mb-4'>{translate('home.benefits.title')}</h2>
-            <p className='text-gray-600 text-lg'>{translate('home.benefits.subtitle')}</p>
-          </div>
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
-            {benefits.map((benefit, index) => (
-              <MyCard key={index}>
-                <MyCardBody>
-                  <div className='text-4xl mb-4'>{benefit.icon}</div>
-                  <h3 className='text-lg font-semibold text-text mb-2'>{benefit.title}</h3>
-                  <p className='text-gray-600 text-sm'>{benefit.description}</p>
+      <section className='bg-white py-16 lg:py-24'>
+        <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
+          <SectionHeader tag={translate('home.benefits.tag')} title={translate('home.benefits.title')} />
+          <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
+            {benefits.map((benefit) => (
+              <MyCard key={benefit.title} className='group transition-transform duration-300 hover:-translate-y-1'>
+                <MyCardBody className='flex items-start gap-4 p-6'>
+                  <div className='flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-gradient-to-br group-hover:from-primary group-hover:to-secondary group-hover:text-white'>
+                    <benefit.icon className='h-6 w-6' />
+                  </div>
+                  <div>
+                    <h3 className='font-bold text-text'>{benefit.title}</h3>
+                    <p className='mt-1 text-sm leading-relaxed text-gray-500'>{benefit.description}</p>
+                  </div>
                 </MyCardBody>
               </MyCard>
             ))}
@@ -196,78 +250,61 @@ const HomePage = () => {
       </section>
 
       {/* Pricing Section */}
-      <section className='py-16 lg:py-24 bg-white'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='text-center mb-12'>
-            <h2 className='text-3xl lg:text-4xl font-bold text-text mb-4'>{translate('home.pricing.title')}</h2>
-            <p className='text-gray-600 text-lg'>{translate('home.pricing.subtitle')}</p>
+      <section className='py-16 lg:py-24'>
+        <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
+          <SectionHeader tag={translate('home.pricing.tag')} title={translate('home.pricing.title')} subtitle={translate('home.pricing.subtitle')} />
+          <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4'>
+            {plans.map((plan) => (
+              <MyCard
+                key={plan.name}
+                className={cn(
+                  'relative text-center transition-transform duration-300 hover:-translate-y-1',
+                  plan.popular && 'border-primary shadow-card-hover ring-2 ring-primary lg:-translate-y-3 lg:hover:-translate-y-4'
+                )}
+              >
+                <MyCardBody className='p-6 lg:p-7'>
+                  {plan.popular && (
+                    <div className='absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-primary to-secondary px-3.5 py-1 text-[11px] font-bold tracking-wider text-white shadow-md'>
+                      {translate('home.pricing.popular')}
+                    </div>
+                  )}
+                  <h3 className='text-lg font-bold text-text'>{plan.name}</h3>
+                  <div className='mt-3 text-4xl font-extrabold text-primary'>
+                    {plan.price}
+                    <span className='text-base font-normal text-gray-400'>{translate('home.pricing.perKg')}</span>
+                  </div>
+                  <p className='mt-3 text-sm leading-relaxed text-gray-500'>{plan.description}</p>
+                  <Link href='/dat-lich' className='mt-6 block w-full sm:flex-none'>
+                    <MyButton variant={plan.popular ? 'default' : 'primary'} className='w-full'>
+                      {translate('home.pricing.bookNow')}
+                    </MyButton>
+                  </Link>
+                </MyCardBody>
+              </MyCard>
+            ))}
           </div>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto'>
-            <MyCard>
-              <MyCardBody className='text-center'>
-                <h3 className='text-lg font-semibold text-text mb-2'>Giặt thường</h3>
-                <div className='text-3xl font-bold text-primary mb-4'>
-                  8.000đ<span className='text-sm font-normal text-gray-500'>/kg</span>
-                </div>
-                <p className='text-gray-600 text-sm mb-4'>Phù hợp cho đồ hàng ngày</p>
-                <Link href='/dat-lich'>
-                  <MyButton variant='primary' className='w-full'>
-                    Đặt lịch
-                  </MyButton>
-                </Link>
-              </MyCardBody>
-            </MyCard>
-            <MyCard className='ring-2 ring-primary'>
-              <MyCardBody className='text-center'>
-                <div className='inline-block px-3 py-1 bg-primary text-white text-xs font-semibold rounded-full mb-2'>Phổ biến</div>
-                <h3 className='text-lg font-semibold text-text mb-2'>Giặt sấy</h3>
-                <div className='text-3xl font-bold text-primary mb-4'>
-                  12.000đ<span className='text-sm font-normal text-gray-500'>/kg</span>
-                </div>
-                <p className='text-gray-600 text-sm mb-4'>Giặt và sấy khô</p>
-                <Link href='/dat-lich'>
-                  <MyButton variant='primary' className='w-full'>
-                    Đặt lịch
-                  </MyButton>
-                </Link>
-              </MyCardBody>
-            </MyCard>
-            <MyCard>
-              <MyCardBody className='text-center'>
-                <h3 className='text-lg font-semibold text-text mb-2'>Giặt hấp</h3>
-                <div className='text-3xl font-bold text-primary mb-4'>
-                  15.000đ<span className='text-sm font-normal text-gray-500'>/kg</span>
-                </div>
-                <p className='text-gray-600 text-sm mb-4'>Cho đồ cao cấp, dễ hư</p>
-                <Link href='/dat-lich'>
-                  <MyButton variant='primary' className='w-full'>
-                    Đặt lịch
-                  </MyButton>
-                </Link>
-              </MyCardBody>
-            </MyCard>
-          </div>
-          <div className='text-center mt-8'>
-            <Link href='/bang-gia'>
-              <MyButton variant='default'>{translate('home.pricing.viewFull')}</MyButton>
+          <div className='mt-10 text-center'>
+            <Link href='/bang-gia' className='inline-flex items-center gap-2 font-semibold text-primary transition-colors hover:text-primary-dark'>
+              {translate('home.pricing.viewAll')}
             </Link>
           </div>
         </div>
       </section>
 
       {/* Commitment Section */}
-      <section className='py-16 lg:py-24 bg-background'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='text-center mb-12'>
-            <h2 className='text-3xl lg:text-4xl font-bold text-text mb-4'>{translate('home.commitment.title')}</h2>
-            <p className='text-gray-600 text-lg'>{translate('home.commitment.subtitle')}</p>
+      <section className='bg-gradient-to-br from-primary to-secondary py-16 lg:py-24'>
+        <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
+          <div className='mx-auto mb-12 max-w-2xl text-center lg:mb-16'>
+            <h2 className='text-3xl font-extrabold leading-tight text-white lg:text-4xl'>{translate('home.commitment.title')}</h2>
           </div>
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
-            {commitments.map((commitment, index) => (
-              <div key={index} className='text-center'>
-                <div className='text-4xl mb-4'>{commitment.icon}</div>
-                <h3 className='text-lg font-semibold text-text mb-2'>{commitment.title}</h3>
-                <p className='text-gray-600 text-sm'>{commitment.description}</p>
+          <div className='grid grid-cols-1 gap-8 md:grid-cols-3'>
+            {commitments.map((commitment) => (
+              <div key={commitment.title} className='text-center text-white'>
+                <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15'>
+                  <commitment.icon className='h-8 w-8' />
+                </div>
+                <h3 className='mt-5 text-lg font-bold'>{commitment.title}</h3>
+                <p className='mt-2 text-sm leading-relaxed text-white/85'>{commitment.description}</p>
               </div>
             ))}
           </div>
@@ -275,32 +312,28 @@ const HomePage = () => {
       </section>
 
       {/* Feedback Section */}
-      <section className='py-16 lg:py-24 bg-white'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='text-center mb-12'>
-            <h2 className='text-3xl lg:text-4xl font-bold text-text mb-4'>{translate('home.feedback.title')}</h2>
-            <p className='text-gray-600 text-lg'>{translate('home.feedback.subtitle')}</p>
-          </div>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-            {feedbacks.map((feedback, index) => (
-              <MyCard key={index}>
-                <MyCardBody>
-                  <div className='flex items-center mb-4'>
-                    <div className='w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-semibold'>
+      <section className='py-16 lg:py-24'>
+        <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
+          <SectionHeader tag={translate('home.feedback.tag')} title={translate('home.feedback.title')} />
+          <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
+            {feedbacks.map((feedback) => (
+              <MyCard key={feedback.name} className='transition-transform duration-300 hover:-translate-y-1'>
+                <MyCardBody className='p-6 lg:p-7'>
+                  <div className='flex items-center gap-1'>
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <StarIcon key={index} className='h-4 w-4 text-yellow-400' fill='currentColor' strokeWidth={0} />
+                    ))}
+                  </div>
+                  <p className='mt-4 text-sm leading-relaxed text-gray-600'>&quot;{feedback.comment}&quot;</p>
+                  <div className='mt-6 flex items-center gap-3 border-t border-border pt-5'>
+                    <div className='flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary font-bold text-white'>
                       {feedback.name.charAt(0)}
                     </div>
-                    <div className='ml-3'>
+                    <div>
                       <p className='font-semibold text-text'>{feedback.name}</p>
-                      <div className='flex items-center'>
-                        {Array.from({ length: feedback.rating }).map((_, i) => (
-                          <span key={i} className='text-yellow-400'>
-                            ★
-                          </span>
-                        ))}
-                      </div>
+                      <p className='text-xs text-gray-500'>{feedback.role}</p>
                     </div>
                   </div>
-                  <p className='text-gray-600 text-sm'>&quot;{feedback.comment}&quot;</p>
                 </MyCardBody>
               </MyCard>
             ))}
@@ -309,35 +342,59 @@ const HomePage = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className='py-16 lg:py-24 bg-background'>
-        <div className='max-w-3xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='text-center mb-12'>
-            <h2 className='text-3xl lg:text-4xl font-bold text-text mb-4'>{translate('home.faq.title')}</h2>
-            <p className='text-gray-600 text-lg'>{translate('home.faq.subtitle')}</p>
-          </div>
+      <section className='bg-white py-16 lg:py-24'>
+        <div className='mx-auto max-w-3xl px-4 sm:px-6 lg:px-8'>
+          <SectionHeader title={translate('home.faq.title')} />
           <div className='space-y-4'>
-            {faqs.map((faq, index) => (
-              <MyCard key={index}>
-                <MyCardBody>
-                  <h3 className='font-semibold text-text mb-2'>{faq.question}</h3>
-                  <p className='text-gray-600 text-sm'>{faq.answer}</p>
-                </MyCardBody>
-              </MyCard>
-            ))}
+            {faqs.map((faq, index) => {
+              const isOpen = openFaq === index
+
+              return (
+                <MyCard key={faq.question} className='overflow-hidden'>
+                  <button
+                    type='button'
+                    onClick={() => setOpenFaq(isOpen ? -1 : index)}
+                    className='flex w-full items-center justify-between gap-4 p-5 text-left lg:p-6'
+                    aria-expanded={isOpen}
+                  >
+                    <span className='font-semibold text-text'>{faq.question}</span>
+                    {isOpen ? (
+                      <ArrowUpIcon className='h-5 w-5 flex-shrink-0 text-primary' />
+                    ) : (
+                      <ArrowDownIcon className='h-5 w-5 flex-shrink-0 text-gray-400' />
+                    )}
+                  </button>
+                  <div className={cn('grid transition-all duration-300', isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0')}>
+                    <div className='overflow-hidden'>
+                      <p className='px-5 pb-5 text-sm leading-relaxed text-gray-500 lg:px-6 lg:pb-6'>{faq.answer}</p>
+                    </div>
+                  </div>
+                </MyCard>
+              )
+            })}
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className='py-16 lg:py-24 bg-primary'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center'>
-          <h2 className='text-3xl lg:text-4xl font-bold text-white mb-4'>{translate('home.cta.title')}</h2>
-          <p className='text-white/80 text-lg mb-8'>{translate('home.cta.subtitle')}</p>
-          <Link href='/dat-lich'>
-            <MyButton variant='primary' size='large' className='bg-white text-primary'>
-              {translate('home.cta.button')}
-            </MyButton>
-          </Link>
+      <section className='py-16 lg:py-24'>
+        <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
+          <div className='relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-secondary px-6 py-14 text-center shadow-card-hover lg:px-12 lg:py-20'>
+            <div className='pointer-events-none absolute -left-16 -top-16 h-64 w-64 rounded-full bg-white/10 blur-2xl' />
+            <div className='pointer-events-none absolute -bottom-16 -right-16 h-64 w-64 rounded-full bg-white/10 blur-2xl' />
+            <div className='relative'>
+              <h2 className='text-3xl font-extrabold leading-tight text-white lg:text-4xl'>{translate('home.cta.title')}</h2>
+              <p className='mx-auto mt-4 max-w-xl text-lg text-white/85'>{translate('home.cta.subtitle')}</p>
+              <div className='mt-8'>
+                <Link
+                  href='/dat-lich'
+                  className='inline-flex items-center justify-center rounded-xl bg-white px-8 py-3.5 text-base font-bold text-primary shadow-lg transition-all duration-250 hover:-translate-y-0.5 hover:shadow-xl'
+                >
+                  {translate('home.cta.button')}
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </div>

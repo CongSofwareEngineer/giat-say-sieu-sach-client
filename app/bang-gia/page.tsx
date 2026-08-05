@@ -1,175 +1,115 @@
 'use client'
 
+import type { ReactNode } from 'react'
+
 import Link from 'next/link'
 
 import MyCard, { MyCardBody } from '@/components/MyCard'
 import MyButton from '@/components/MyButton'
+import { CheckBadgeIcon } from '@/components/Icons/CheckBadge'
 import useLanguage from '@/hooks/useLanguage'
+import { cn } from '@/utils/tailwind'
+
+type TagProps = {
+  children: ReactNode
+}
+
+// Small pill label used above section titles
+const Tag = ({ children }: TagProps) => (
+  <span className='inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1.5 text-[13px] font-bold uppercase tracking-wider text-primary'>
+    {children}
+  </span>
+)
+
+type Plan = {
+  name: string
+  price: string
+  unit: string
+  description: string
+  popular?: boolean
+  features: string[]
+}
+
+type Extra = {
+  name: string
+  price: string
+}
 
 const PriceListPage = () => {
   const { translate } = useLanguage()
 
-  const services = [
-    {
-      id: 1,
-      name: 'Giặt thường',
-      description: 'Phù hợp cho đồ hàng ngày, đồ cotton, đồ tổng hợp',
-      price: 8000,
-      unit: 'kg',
-      features: ['Giặt sạch', 'Phơi khô', 'Gói gọn'],
-    },
-    {
-      id: 2,
-      name: 'Giặt sấy',
-      description: 'Giặt và sấy khô, phù hợp cho đồ dày',
-      price: 12000,
-      unit: 'kg',
-      features: ['Giặt sạch', 'Sấy khô', 'Gói gọn'],
-      popular: true,
-    },
-    {
-      id: 3,
-      name: 'Giặt hấp',
-      description: 'Cho đồ cao cấp, đồ dễ hư, đồ lụa',
-      price: 15000,
-      unit: 'kg',
-      features: ['Giặt hấp', 'Bảo quản tốt', 'Gói gọn'],
-    },
-    {
-      id: 4,
-      name: 'Ủi đồ',
-      description: 'Ủi phẳng lì, phù hợp cho đồ công sở',
-      price: 5000,
-      unit: 'kg',
-      features: ['Ủi phẳng', 'Bảo quản tốt', 'Gói gọn'],
-    },
-    {
-      id: 5,
-      name: 'Giặt chăn ga',
-      description: 'Giặt chăn, ga, gối, nệm',
-      price: 20000,
-      unit: 'kg',
-      features: ['Giặt sạch', 'Sấy khô', 'Khử mùi'],
-    },
-    {
-      id: 6,
-      name: 'Giặt rèm',
-      description: 'Giặt rèm cửa, rèm treo',
-      price: 25000,
-      unit: 'kg',
-      features: ['Giặt sạch', 'Phơi khô', 'Gấp gọn'],
-    },
-  ]
-
-  const combos = [
-    {
-      id: 1,
-      name: 'Combo Tiết Kiệm',
-      description: 'Phù hợp cho gia đình nhỏ',
-      price: 200000,
-      weight: '20kg',
-      savings: 'Tiết kiệm 20%',
-    },
-    {
-      id: 2,
-      name: 'Combo Gia Đình',
-      description: 'Phù hợp cho gia đình đông người',
-      price: 450000,
-      weight: '50kg',
-      savings: 'Tiết kiệm 25%',
-      popular: true,
-    },
-    {
-      id: 3,
-      name: 'Combo Tháng',
-      description: 'Dành cho khách hàng thân thiết',
-      price: 800000,
-      weight: '100kg',
-      savings: 'Tiết kiệm 30%',
-    },
-  ]
+  const plans = (translate('pricing.plans') || []) as Plan[]
+  const extras = (translate('pricing.extras') || []) as Extra[]
 
   return (
-    <div className='py-12 px-4'>
-      <div className='max-w-7xl mx-auto'>
-        <div className='text-center mb-12'>
-          <h1 className='text-3xl lg:text-4xl font-bold text-text mb-4'>{translate('home.pricing.title')}</h1>
-          <p className='text-gray-600 text-lg'>{translate('home.pricing.subtitle')}</p>
+    <div className='py-16 lg:py-24'>
+      <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
+        {/* Page header */}
+        <div className='mx-auto mb-14 max-w-2xl text-center'>
+          <Tag>{translate('pricing.tag')}</Tag>
+          <h1 className='mt-4 text-3xl font-extrabold leading-tight text-text lg:text-4xl'>{translate('pricing.title')}</h1>
+          <p className='mt-3 text-base leading-relaxed text-gray-500 lg:text-lg'>{translate('pricing.subtitle')}</p>
         </div>
 
-        {/* Services */}
-        <section className='mb-16'>
-          <h2 className='text-2xl font-bold text-text mb-8 text-center'>Dịch vụ lẻ</h2>
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-            {services.map((service) => (
-              <MyCard key={service.id} className='relative'>
-                {service.popular && (
-                  <div className='absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-white text-xs font-semibold rounded-full'>
-                    Phổ biến
+        {/* Plans */}
+        <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5'>
+          {plans.map((plan) => (
+            <MyCard
+              key={plan.name}
+              className={cn(
+                'relative transition-transform duration-300 hover:-translate-y-1',
+                plan.popular && 'border-primary shadow-card-hover ring-2 ring-primary xl:-translate-y-3 xl:hover:-translate-y-4'
+              )}
+            >
+              <MyCardBody className='flex h-full flex-col p-6 lg:p-7'>
+                {plan.popular && (
+                  <div className='absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-primary to-secondary px-3.5 py-1 text-[11px] font-bold tracking-wider text-white shadow-md'>
+                    {translate('pricing.popular')}
                   </div>
                 )}
-                <MyCardBody>
-                  <h3 className='text-xl font-bold text-text mb-2'>{service.name}</h3>
-                  <p className='text-gray-600 text-sm mb-4'>{service.description}</p>
-                  <div className='mb-4'>
-                    <span className='text-3xl font-bold text-primary'>{service.price.toLocaleString()}đ</span>
-                    <span className='text-gray-500 text-sm'>/{service.unit}</span>
-                  </div>
-                  <ul className='space-y-2 mb-6'>
-                    {service.features.map((feature, index) => (
-                      <li key={index} className='flex items-center gap-2 text-sm text-gray-600'>
-                        <span className='text-green-500'>✓</span>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <Link href='/dat-lich'>
-                    <MyButton variant='primary' className='w-full'>
-                      Đặt lịch
-                    </MyButton>
-                  </Link>
-                </MyCardBody>
-              </MyCard>
-            ))}
-          </div>
-        </section>
+                <h3 className='text-lg font-bold text-text'>{plan.name}</h3>
+                <div className='mt-2 text-3xl font-extrabold text-primary'>
+                  {plan.price}
+                  <span className='text-sm font-normal text-gray-400'>{plan.unit}</span>
+                </div>
+                <p className='mt-2 text-sm leading-relaxed text-gray-500'>{plan.description}</p>
 
-        {/* Combos */}
-        <section>
-          <h2 className='text-2xl font-bold text-text mb-8 text-center'>Combo tiết kiệm</h2>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto'>
-            {combos.map((combo) => (
-              <MyCard
-                key={combo.id}
+                <ul className='mt-5 flex-1 space-y-2.5'>
+                  {plan.features.map((feature) => (
+                    <li key={feature} className='flex items-start gap-2 text-sm text-gray-600'>
+                      <CheckBadgeIcon className='mt-0.5 h-4 w-4 flex-shrink-0 text-secondary' />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
 
-                className={combo.popular ? 'ring-2 ring-primary' : ''}
-              >
-                <MyCardBody className='text-center'>
-                  {combo.popular && (
-                    <div className='inline-block px-3 py-1 bg-primary text-white text-xs font-semibold rounded-full mb-2'>Phổ biến</div>
-                  )}
-                  <h3 className='text-xl font-bold text-text mb-2'>{combo.name}</h3>
-                  <p className='text-gray-600 text-sm mb-4'>{combo.description}</p>
-                  <div className='mb-2'>
-                    <span className='text-3xl font-bold text-primary'>{combo.price.toLocaleString()}đ</span>
-                  </div>
-                  <p className='text-sm text-gray-500 mb-2'>{combo.weight}</p>
-                  <p className='text-sm text-green-600 font-medium mb-4'>{combo.savings}</p>
-                  <Link href='/dat-lich'>
-                    <MyButton variant='primary' className='w-full'>
-                      Đặt lịch
-                    </MyButton>
-                  </Link>
-                </MyCardBody>
-              </MyCard>
-            ))}
-          </div>
-        </section>
+                <Link href='/dat-lich' className='mt-6 block w-full'>
+                  <MyButton variant={plan.popular ? 'default' : 'primary'} className='w-full'>
+                    {translate('pricing.bookNow')}
+                  </MyButton>
+                </Link>
+              </MyCardBody>
+            </MyCard>
+          ))}
+        </div>
+
+        {/* Extra services */}
+        <MyCard className='mt-14'>
+          <MyCardBody className='p-6 lg:p-8'>
+            <h2 className='text-xl font-bold text-text lg:text-2xl'>{translate('pricing.extraTitle')}</h2>
+            <div className='mt-6 grid grid-cols-1 gap-x-10 gap-y-4 sm:grid-cols-2 lg:grid-cols-3'>
+              {extras.map((extra) => (
+                <div key={extra.name} className='flex items-center justify-between gap-4 border-b border-border pb-3'>
+                  <span className='text-sm text-gray-600 lg:text-base'>{extra.name}</span>
+                  <span className='flex-shrink-0 text-sm font-semibold text-primary lg:text-base'>{extra.price}</span>
+                </div>
+              ))}
+            </div>
+          </MyCardBody>
+        </MyCard>
 
         {/* Note */}
-        <div className='mt-12 text-center'>
-          <p className='text-gray-500 text-sm'>* Giá có thể thay đổi tùy theo loại vải và mức độ bẩn. Vui lòng liên hệ để được tư vấn chi tiết.</p>
-        </div>
+        <p className='mt-10 text-center text-sm text-gray-500'>{translate('pricing.note')}</p>
       </div>
     </div>
   )
