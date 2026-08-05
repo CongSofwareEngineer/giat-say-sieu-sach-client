@@ -32,7 +32,7 @@ export default function MyButton({ variant = 'default', size = 'default', loadin
     <button
       disabled={disabled || loading}
       className={cn(
-        'inline-flex relative  items-center justify-center rounded-lg disabled:cursor-not-allowed disabled:opacity-60',
+        'cursor-pointer inline-flex relative  items-center justify-center rounded-lg disabled:cursor-not-allowed disabled:opacity-60',
         variantStyles[variant],
         sizeStyles[size],
         className

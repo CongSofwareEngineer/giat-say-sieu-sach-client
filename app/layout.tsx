@@ -64,7 +64,7 @@ export const metadata: Metadata = {
     capable: true,
   },
   verification: {
-    google: process.env.NEXT_PUBLIC_MODE_PRODUCTION ? '-SD7kSWHZKEXxbtkWRvn1r5wtOy8o6Gv0wDuA_ituHk' : '',
+    google: IS_PRODUCTION ? '-SD7kSWHZKEXxbtkWRvn1r5wtOy8o6Gv0wDuA_ituHk' : '',
   },
 }
 

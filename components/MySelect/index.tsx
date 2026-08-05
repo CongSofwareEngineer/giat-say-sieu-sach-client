@@ -63,7 +63,11 @@ export default function MySelect({ data, value, placeholder = 'Chọn', classNam
 
   return (
     <div className={`relative w-72 ${className ?? ''}`} style={style} ref={wrapperRef}>
-      <button type='button' onClick={handleToggle} className='flex w-full items-center justify-between rounded-lg border bg-white px-4 py-2'>
+      <button
+        type='button'
+        onClick={handleToggle}
+        className='cursor-pointer flex w-full items-center justify-between rounded-lg border bg-white px-4 py-2'
+      >
         <span>{selected?.label ?? placeholder}</span>
         <span className={`transition-transform ${open ? 'rotate-180' : ''}`}>▼</span>
       </button>
