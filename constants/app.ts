@@ -1,7 +1,7 @@
 export const SITE_CONFIG = {
   title: 'Giặt Ủi Siêu Sạch',
   description: 'Dịch vụ giặt ủi cao cấp, giao nhận tận nơi, siêu nhanh, đúng hẹn, chất lượng cao. Đặt lịch ngay!',
-  url: 'https://giatsaysieusach.com',
+  url: 'https://giatsaysieusach.vercel.app',
   icon: '/logo.png',
   thumbnail: '/thumbnail.png',
   keywords: ['giặt ủi', 'giặt ủi siêu sạch', 'giặt đồ', 'ủi đồ', 'giao nhận tận nơi', 'dịch vụ giặt ủi'],
