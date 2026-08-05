@@ -1,7 +1,7 @@
 import { useLayoutEffect, useState } from 'react'
 
 const useMedia = (maxWidth = 768) => {
-  const [isMobile, setIsMobile] = useState(false)
+  const [isMobile, setIsMobile] = useState(true)
   const [isClient, setIsClient] = useState(false)
 
   useLayoutEffect(() => {
@@ -28,7 +28,7 @@ const useMedia = (maxWidth = 768) => {
   }, [])
 
   return {
-    isMobile: isMobile || false,
+    isMobile,
     isClient,
   }
 }

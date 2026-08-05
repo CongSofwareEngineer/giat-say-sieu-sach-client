@@ -39,9 +39,27 @@ const placementBase = {
 function MyDrawerItem({ index = 0, ...drawer }: MyDrawer & { index?: number }) {
   const { close } = useDrawer()
   const [open, setOpen] = useState(false)
+  const [visual, setVisual] = useState<{ offsetTop: number; height: number } | null>(null)
 
   const placement = drawer.placement || 'bottom'
   const zIndex = 60 + index * 2
+
+  useEffect(() => {
+    const vv = window.visualViewport
+
+    if (!vv) return
+
+    const update = () => setVisual({ offsetTop: vv.offsetTop, height: vv.height })
+
+    update()
+    vv.addEventListener('resize', update)
+    vv.addEventListener('scroll', update)
+
+    return () => {
+      vv.removeEventListener('resize', update)
+      vv.removeEventListener('scroll', update)
+    }
+  }, [])
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setOpen(true))
@@ -71,6 +89,15 @@ function MyDrawerItem({ index = 0, ...drawer }: MyDrawer & { index?: number }) {
     }
   }
 
+  const drawerStyle: React.CSSProperties = { zIndex: zIndex + 1 }
+
+  if (placement === 'bottom' && visual) {
+    const keyboardHeight = Math.max(0, window.innerHeight - (visual.offsetTop + visual.height))
+
+    drawerStyle.height = `calc(${visual.height}px - 68px)`
+    drawerStyle.bottom = keyboardHeight
+  }
+
   return (
     <>
       {/* Overlay */}
@@ -85,20 +112,20 @@ function MyDrawerItem({ index = 0, ...drawer }: MyDrawer & { index?: number }) {
 
       {/* Drawer */}
       <aside
-        style={{ zIndex: zIndex + 1 }}
+        style={drawerStyle}
         className={cn(
-          'fixed bg-white  shadow-olive-500 transition-transform duration-300',
+          'fixed overflow-hidden bg-white  shadow-olive-500 transition-transform duration-300',
           placementBase[placement],
           open ? placementFinal[placement] : placementInitial[placement]
         )}
       >
-        <div className='flex absolute inset-0 h-15 items-center justify-between gap-4 border-b bg-linear-default p-4 shadow-md'>
+        <div className='absolute top-0 left-0 right-0 z-10 flex h-15 items-center justify-between gap-4 border-b bg-linear-default p-4 shadow-md'>
           <div className='min-w-0 flex-1 text-sm font-semibold'>{drawer.title}</div>
           <button onClick={() => close()} aria-label='Close' className='shrink-0 text-xl'>
             <div className='text-black'>✕</div>
           </button>
         </div>
-        <div className='w-full h-full pt-15'>{drawer.children}</div>
+        <div className='h-full w-full overflow-y-auto overscroll-contain pt-15'>{drawer.children}</div>
       </aside>
     </>
   )

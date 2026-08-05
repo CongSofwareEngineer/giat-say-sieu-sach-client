@@ -6,33 +6,30 @@ import ChatBubbleIcon from '../Icons/ChatBubble'
 import { CloseIcon } from '../Icons/Functions/Close'
 import SendIcon from '../Icons/Functions/Send'
 
+import useChat from '@/hooks/useChat'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
 import MyButton from '@/components/MyButton'
+import { chat } from '@/zustand/chat'
 import { PATH_LANGUAGE, TYPE_LANGUAGE } from '@/zustand/language'
-
-type Message = {
-  id: number
-  text: string
-  isUser: boolean
-  time: string
-}
 
 const FloatingChat = () => {
   const { translate } = useLanguage()
   const { open, close, isMobile } = useModalDrawer({ maxWidth: 768 })
   const [isOpen, setIsOpen] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 1,
-      text: translate('chat.welcome'),
-      isUser: false,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    },
-  ])
-  const [inputValue, setInputValue] = useState('')
-  const [isSending, setIsSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const { messages, inputValue, isSending, setInputValue, addMessage } = useChat()
+
+  useEffect(() => {
+    if (chat.getState().messages.length === 0) {
+      addMessage({
+        id: 1,
+        text: translate('chat.welcome'),
+        isUser: false,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      })
+    }
+  }, [addMessage, translate])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -43,30 +40,32 @@ const FloatingChat = () => {
   }, [messages])
 
   const handleSend = () => {
+    const { messages, inputValue, isSending, setInputValue, setSending, addMessage } = chat.getState()
+
     if (!inputValue.trim() || isSending) return
 
-    const userMessage: Message = {
+    const userMessage = {
       id: messages.length + 1,
       text: inputValue,
       isUser: true,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     }
 
-    setMessages((prev) => [...prev, userMessage])
+    addMessage(userMessage)
     setInputValue('')
-    setIsSending(true)
+    setSending(true)
 
     // Simulate auto-reply
     setTimeout(() => {
-      const reply: Message = {
+      const reply = {
         id: messages.length + 2,
         text: translate('chat.autoReply'),
         isUser: false,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       }
 
-      setMessages((prev) => [...prev, reply])
-      setIsSending(false)
+      addMessage(reply)
+      setSending(false)
     }, 1000)
   }
 
@@ -88,18 +87,7 @@ const FloatingChat = () => {
           container: 'rounded-t-2xl',
         },
         onClose: () => setIsOpen(false),
-        children: (
-          <ChatContent
-            messages={messages}
-            inputValue={inputValue}
-            setInputValue={setInputValue}
-            handleSend={handleSend}
-            handleKeyDown={handleKeyDown}
-            messagesEndRef={messagesEndRef}
-            isSending={isSending}
-            translate={translate}
-          />
-        ),
+        children: <ChatContent handleSend={handleSend} handleKeyDown={handleKeyDown} messagesEndRef={messagesEndRef} translate={translate} />,
       })
     }
   }
@@ -183,28 +171,22 @@ const FloatingChat = () => {
 
 // Reusable chat content for both modal and drawer
 const ChatContent = ({
-  messages,
-  inputValue,
-  setInputValue,
   handleSend,
   handleKeyDown,
   messagesEndRef,
-  isSending,
   translate,
 }: {
-  messages: Message[]
-  inputValue: string
-  setInputValue: (val: string) => void
   handleSend: () => void
   handleKeyDown: (e: React.KeyboardEvent) => void
   messagesEndRef: React.RefObject<HTMLDivElement | null>
-  isSending: boolean
   translate: (
     key?: PATH_LANGUAGE<TYPE_LANGUAGE>,
     variables?: Record<string, string | number | React.ReactNode | ((value: string | number) => React.ReactNode)>,
     defaultMessage?: string
   ) => any
 }) => {
+  const { messages, inputValue, isSending, setInputValue } = useChat()
+
   return (
     <div className='flex flex-col h-full'>
       <div className='flex items-center gap-2 px-4 py-2 bg-gray-50 border-b border-border text-xs text-gray-500'>
