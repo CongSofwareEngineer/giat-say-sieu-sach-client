@@ -18,7 +18,7 @@ import ChatBubbleIcon from '@/components/Icons/ChatBubble'
 import AwardIcon from '@/components/Icons/Home/Award'
 import SeoJsonLd from '@/components/SeoJsonLd'
 import useLanguage from '@/hooks/useLanguage'
-import { breadcrumbSchema, faqSchema, localBusinessSchema, SEO_FAQS } from '@/config/seo'
+import { breadcrumbSchema, faqSchema, localBusinessSchema, SEO_FAQS, SERVICE_OFFERS } from '@/config/seo'
 import { cn } from '@/utils/tailwind'
 
 type TagProps = {
@@ -122,7 +122,7 @@ const HomePage = () => {
 
   return (
     <div>
-      <SeoJsonLd data={localBusinessSchema()} />
+      <SeoJsonLd data={localBusinessSchema(SERVICE_OFFERS)} />
       <SeoJsonLd data={faqSchema(SEO_FAQS)} />
       <SeoJsonLd data={breadcrumbSchema([{ name: 'Trang chủ', path: '/' }])} />
       {/* Hero Section */}

@@ -9,7 +9,7 @@ import MyButton from '@/components/MyButton'
 import { CheckBadgeIcon } from '@/components/Icons/CheckBadge'
 import SeoJsonLd from '@/components/SeoJsonLd'
 import useLanguage from '@/hooks/useLanguage'
-import { breadcrumbSchema, localBusinessSchema, serviceSchema } from '@/config/seo'
+import { breadcrumbSchema, localBusinessSchema, serviceSchema, SERVICE_OFFERS } from '@/config/seo'
 import { cn } from '@/utils/tailwind'
 
 type TagProps = {
@@ -45,15 +45,7 @@ const PriceListPage = () => {
 
   return (
     <div className='py-16 lg:py-24'>
-      <SeoJsonLd
-        data={localBusinessSchema([
-          { name: 'Giặt Thường', price: '25000', description: 'Giặt máy tiêu chuẩn, sấy khô hoàn toàn' },
-          { name: 'Giặt Nhanh', price: '40000', description: 'Xử lý ưu tiên, giao trong 4-6 giờ' },
-          { name: 'Giặt Khô', price: '80000', description: 'Cho vest, comple, áo dài, đồ hiệu' },
-          { name: 'Ủi', price: '15000', description: 'Ủi phẳng, thẳng nếp, chuyên nghiệp' },
-          { name: 'Giặt + Ủi', price: '50000', description: 'Combo tiết kiệm, giặt sạch và ủi đẹp' },
-        ])}
-      />
+      <SeoJsonLd data={localBusinessSchema(SERVICE_OFFERS)} />
       <SeoJsonLd data={serviceSchema()} />
       <SeoJsonLd
         data={breadcrumbSchema([

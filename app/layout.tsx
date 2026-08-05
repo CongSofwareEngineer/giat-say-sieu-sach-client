@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   description: SITE_CONFIG.description,
   keywords: SITE_CONFIG.keywords,
-
+  alternates: { canonical: `${SITE_CONFIG.url}/` },
   openGraph: {
     title: SITE_CONFIG.title,
     description: SITE_CONFIG.description,

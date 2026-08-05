@@ -147,6 +147,15 @@ type ServiceOffer = {
   description?: string
 }
 
+// Core services offered, reused by LocalBusiness, Service and home schemas
+export const SERVICE_OFFERS: ServiceOffer[] = [
+  { name: 'Giặt Thường', price: '25000', description: 'Giặt máy tiêu chuẩn, sấy khô hoàn toàn' },
+  { name: 'Giặt Nhanh', price: '40000', description: 'Xử lý ưu tiên, giao trong 4-6 giờ' },
+  { name: 'Giặt Khô', price: '80000', description: 'Cho vest, comple, áo dài, đồ hiệu' },
+  { name: 'Ủi', price: '15000', description: 'Ủi phẳng, thẳng nếp, chuyên nghiệp' },
+  { name: 'Giặt + Ủi', price: '50000', description: 'Combo tiết kiệm, giặt sạch và ủi đẹp' },
+]
+
 // LocalBusiness schema with contact, geo, hours, offers and rating
 export const localBusinessSchema = (offers: ServiceOffer[] = []): JsonLd => ({
   '@context': 'https://schema.org',
@@ -250,14 +259,14 @@ export const serviceSchema = (): JsonLd => ({
     priceCurrency: 'VND',
     lowPrice: '15000',
     highPrice: '80000',
-    offerCount: 5,
-    offers: [
-      { '@type': 'Offer', name: 'Giặt Thường', price: '25000', priceCurrency: 'VND', availability: 'https://schema.org/InStock' },
-      { '@type': 'Offer', name: 'Giặt Nhanh', price: '40000', priceCurrency: 'VND', availability: 'https://schema.org/InStock' },
-      { '@type': 'Offer', name: 'Giặt Khô', price: '80000', priceCurrency: 'VND', availability: 'https://schema.org/InStock' },
-      { '@type': 'Offer', name: 'Ủi', price: '15000', priceCurrency: 'VND', availability: 'https://schema.org/InStock' },
-      { '@type': 'Offer', name: 'Giặt + Ủi', price: '50000', priceCurrency: 'VND', availability: 'https://schema.org/InStock' },
-    ],
+    offerCount: SERVICE_OFFERS.length,
+    offers: SERVICE_OFFERS.map((offer) => ({
+      '@type': 'Offer',
+      name: offer.name,
+      price: offer.price,
+      priceCurrency: 'VND',
+      availability: 'https://schema.org/InStock',
+    })),
   },
 })
 
@@ -356,7 +365,6 @@ export const articleSchema = (post: Pick<BlogPost, 'slug' | 'title' | 'excerpt' 
   author: { '@type': 'Organization', name: seo.siteName, url: seo.url },
   publisher: { '@id': `${seo.url}/#organization` },
   mainEntityOfPage: absolute(`/blog/${post.slug}`),
-  wordCount: 0,
 })
 
 // Blog schema for the listing page
