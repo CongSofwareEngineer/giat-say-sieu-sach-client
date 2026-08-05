@@ -1,5 +1,5 @@
 import Image, { ImageProps } from 'next/image'
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 
 import { cn } from '@/utils/tailwind'
 import { images } from '@/config/images'
@@ -13,10 +13,17 @@ type Props = {
 const MyImage = ({ noAnimation = false, src, alt = 'thay-hong-toan', ...props }: Props) => {
   // const [ref, inView] = useInView({ triggerOnce: true })
 
+  const imgRef = useRef<HTMLImageElement>(null)
+
   const [loaded, setLoaded] = useState(false)
+
+  useLayoutEffect(() => {
+    if (imgRef.current?.complete) setLoaded(true)
+  }, [])
 
   return (
     <Image
+      ref={imgRef}
       // ref={ref}
       fill
       alt={alt}
