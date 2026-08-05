@@ -41,7 +41,7 @@ const Header = () => {
     { href: '/blog', label: translate('menu.blog') },
     { href: '/about', label: translate('menu.about') },
     { href: '/track-order', label: translate('menu.tracking') },
-    { href: '/booking', label: translate('menu.booking'), highlight: true },
+    // { href: '/booking', label: translate('menu.booking'), highlight: true },
     { href: '/contact', label: translate('menu.contact') },
   ]
 
