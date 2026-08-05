@@ -1,5 +1,4 @@
 import Image, { ImageProps } from 'next/image'
-import { useLayoutEffect, useRef, useState } from 'react'
 
 import { cn } from '@/utils/tailwind'
 import { images } from '@/config/images'
@@ -10,49 +9,25 @@ type Props = {
     alt?: string
     src?: string
   }
+
 const MyImage = ({ noAnimation = false, src, alt = 'thay-hong-toan', ...props }: Props) => {
-  // const [ref, inView] = useInView({ triggerOnce: true })
-
-  const imgRef = useRef<HTMLImageElement>(null)
-
-  const [loaded, setLoaded] = useState(false)
-
-  useLayoutEffect(() => {
-    if (imgRef.current?.complete) setLoaded(true)
-  }, [])
-
   return (
     <Image
-      ref={imgRef}
-      // ref={ref}
       fill
       alt={alt}
       draggable={false}
       loading='lazy'
       priority={false}
-      // sizes='100vw'
-      // sizes='100vw'
+      placeholder='blur'
       {...props}
       className={cn('relative! overflow-hidden', props?.className)}
-      style={{
-        filter: loaded || noAnimation ? 'none' : 'blur(20px)',
-        transition: 'filter 0.08s ease-out',
-        ...props.style,
-      }}
+      style={props?.style}
       onError={({ currentTarget }) => {
         currentTarget.onerror = null
         currentTarget.src = images.icons.avatarDefault
       }}
-      onLoad={() => {
-        setLoaded(true)
-      }}
-      src={
-        src || images.icons.avatarDefault
-        // inView
-        //   ? src || images.icons.avatarDefault
-        //   : 'https://res.cloudinary.com/tc-store/image/upload/w_100/v1734883048/tc-store/bgWhiteBlur_yxlqi7.png'
-      }
-      // src={src || images.icons.avatarDefault}
+      src={src || images.icons.avatarDefault}
+      blurDataURL='https://res.cloudinary.com/tc-store/image/upload/w_100/v1734883048/tc-store/bgWhiteBlur_yxlqi7.png'
     />
   )
 }
