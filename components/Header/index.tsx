@@ -68,7 +68,7 @@ const Header = () => {
                   href={item.href}
                   className={cn(
                     'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-                    item.highlight ? 'bg-primary text-white' : pathname === item.href ? 'text-primary bg-primary/10' : 'text-text'
+                    pathname === item.href ? 'text-primary bg-primary/10' : 'text-text'
                   )}
                 >
                   {item.label}
