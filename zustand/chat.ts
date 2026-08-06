@@ -1,3 +1,5 @@
+import type { AgentMessage } from '@/agents/base'
+
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 
@@ -12,11 +14,13 @@ export type ChatMessage = {
 
 interface ChatState {
   messages: ChatMessage[]
+  history: AgentMessage[]
   inputValue: string
   isSending: boolean
   setInputValue: (value: string) => void
   setSending: (sending: boolean) => void
   addMessage: (message: ChatMessage) => void
+  setHistory: (history: AgentMessage[]) => void
 }
 
 export const chat = create<ChatState>()(
@@ -24,17 +28,20 @@ export const chat = create<ChatState>()(
     persist(
       (set, get) => ({
         messages: [],
+        history: [],
         inputValue: '',
         isSending: false,
 
         setInputValue: (value) => set({ inputValue: value }),
         setSending: (sending) => set({ isSending: sending }),
         addMessage: (message) => set({ messages: [...get().messages, message] }),
+        setHistory: (history) => set({ history }),
       }),
       {
         name: 'chat-zustand',
         partialize: (state) => ({
           messages: state.messages,
+          history: state.history,
           inputValue: state.inputValue,
         }),
       }

@@ -39,8 +39,8 @@ const FloatingChat = () => {
     scrollToBottom()
   }, [messages])
 
-  const handleSend = () => {
-    const { messages, inputValue, isSending, setInputValue, setSending, addMessage } = chat.getState()
+  const handleSend = async () => {
+    const { messages, inputValue, isSending, setInputValue, setSending, addMessage, history } = chat.getState()
 
     if (!inputValue.trim() || isSending) return
 
@@ -55,18 +55,36 @@ const FloatingChat = () => {
     setInputValue('')
     setSending(true)
 
-    // Simulate auto-reply
-    setTimeout(() => {
-      const reply = {
+    try {
+      const response = await fetch('/api/chat-agent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage.text, history }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.text) {
+        addMessage({
+          id: messages.length + 2,
+          text: data.text,
+          isUser: false,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        })
+        chat.getState().setHistory(data.history)
+      } else {
+        throw new Error(data?.error || 'Request failed')
+      }
+    } catch {
+      addMessage({
         id: messages.length + 2,
-        text: translate('chat.autoReply'),
+        text: translate('chat.error'),
         isUser: false,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      }
-
-      addMessage(reply)
+      })
+    } finally {
       setSending(false)
-    }, 1000)
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

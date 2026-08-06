@@ -783,6 +783,7 @@
     "send": "Send",
     "welcome": "Hello! How can we help you?",
     "autoReply": "Thank you for contacting us! We will respond as soon as possible.",
+    "error": "Sorry, something went wrong. Please try again later.",
     "offline": "We're currently offline. Please leave a message.",
     "online": "Online",
     "pressEnterToSend": "Note: press Enter to send"
