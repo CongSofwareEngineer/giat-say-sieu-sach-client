@@ -42,3 +42,5 @@ export enum ORDER_STATUS {
   DELIVERING = 'DELIVERING',
   COMPLETED = 'COMPLETED',
 }
+
+export const MAX_PIXEL_REDUCE = 300 as number

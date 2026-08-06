@@ -719,5 +719,12 @@
     "offline": "We're currently offline. Please leave a message.",
     "online": "Online",
     "pressEnterToSend": "Note: press Enter to send"
+  },
+  "imageCropper": {
+    "title": "Crop Image",
+    "subtitle": "Drag and zoom the image to select the crop area (square)",
+    "zoom": "Zoom",
+    "confirm": "Crop & Optimize",
+    "processing": "Processing..."
   }
 }

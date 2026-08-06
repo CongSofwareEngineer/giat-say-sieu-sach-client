@@ -13,7 +13,6 @@
   "dependencies": {
     "@tanstack/react-query": "^5.101.4",
     "clsx": "^2.1.1",
-    "daisyui": "^5.7.8",
     "dayjs": "^1.11.21",
     "libphonenumber-js": "^1.13.9",
     "next": "16.2.11",
@@ -32,6 +31,7 @@
     "@react-types/shared": "3.30.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^20",
+     "daisyui": "^5.7.8",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@typescript-eslint/eslint-plugin": "8.31.1",
