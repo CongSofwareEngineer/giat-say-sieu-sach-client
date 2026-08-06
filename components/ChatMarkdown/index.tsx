@@ -23,7 +23,7 @@ const ChatMarkdown = ({ children }: { children: string }) => {
           hr: () => <hr className='my-2 border-border' />,
           blockquote: ({ children }) => <blockquote className='border-l-2 border-gray-300 pl-3 my-1.5 text-gray-600 italic'>{children}</blockquote>,
           a: ({ children, href }) => (
-            <a href={href} target='_blank' rel='noreferrer' className='underline text-primary-content hover:opacity-80'>
+            <a href={href} target='_blank' rel='noreferrer' className='underline text-blue-700 hover:opacity-80'>
               {children}
             </a>
           ),
