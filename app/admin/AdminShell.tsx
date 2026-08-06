@@ -13,6 +13,7 @@ import { UserCircleIcon } from '@/components/Icons/UserCircle'
 import { ClassIcon } from '@/components/Icons/Class'
 import { CameraIcon } from '@/components/Icons/Camera'
 import { PaymentIcon } from '@/components/Icons/Payment'
+import ChatBubbleIcon from '@/components/Icons/ChatBubble'
 import DataBaseIcon from '@/components/Icons/Home/Database'
 import MyImage from '@/components/MyImage'
 import { images } from '@/config/images'
@@ -51,6 +52,7 @@ const AdminShell = ({ children }: { children: React.ReactNode }) => {
     { href: '/admin/blog', label: translate('admin.sidebar.blog'), icon: ClassIcon },
     { href: '/admin/banners', label: translate('admin.sidebar.banner'), icon: CameraIcon },
     { href: '/admin/pricing', label: translate('admin.sidebar.prices'), icon: PaymentIcon },
+    { href: '/admin/comments', label: translate('admin.sidebar.comments'), icon: ChatBubbleIcon },
     { href: '/admin/revenue', label: translate('admin.sidebar.revenue'), icon: DataBaseIcon },
   ]
 

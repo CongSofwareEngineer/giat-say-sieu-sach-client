@@ -96,6 +96,7 @@ const useBase64Img = (maxSizeOutputKB = 15, maxScale = MAX_PIXEL_REDUCE, outputF
           title: translate('imageCropper.title'),
           showBtnClose: false,
           overClickClose: false,
+          add: true,
           classNames: { container: 'md:w-[540px]' },
           onClose: () => finish(new Error('Crop cancelled')),
           children: (

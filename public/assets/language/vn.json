@@ -60,13 +60,15 @@
     "showing": "Hiển thị",
     "to": "đến",
     "from": "từ",
-    "results": "kết quả"
+    "results": "kết quả",
+    "actions": "Thao tác"
   },
   "menu": {
     "home": "Trang chủ",
     "priceList": "Bảng giá",
     "blog": "Blog",
     "about": "Giới thiệu",
+    "reviews": "Đánh giá",
     "tracking": "Theo dõi đơn",
     "booking": "Đặt lịch",
     "contact": "Liên hệ",
@@ -200,8 +202,10 @@
     "subtitle": "Chúng tôi cam kết minh bạch về giá. Bạn biết chính xác bạn sẽ trả bao nhiêu trước khi đặt lịch.",
     "bookNow": "Đặt ngay",
     "popular": "⭐ PHỔ BIẾN NHẤT",
+    "reviews": "Xem đánh giá",
     "plans": [
       {
+        "id": "giat-thuong",
         "name": "Giặt Thường",
         "price": "25.000đ",
         "unit": "/kg",
@@ -209,6 +213,7 @@
         "features": ["Giặt máy tiêu chuẩn", "Sấy khô hoàn toàn", "Gấp gọn cẩn thận", "Giao trong 24–48 giờ"]
       },
       {
+        "id": "giat-nhanh",
         "name": "Giặt Nhanh",
         "price": "40.000đ",
         "unit": "/kg",
@@ -217,6 +222,7 @@
         "features": ["Xử lý ưu tiên", "Sấy khô nhanh", "Gấp gọn cẩn thận", "Giao trong 4–6 giờ", "Thông báo realtime"]
       },
       {
+        "id": "giat-kho",
         "name": "Giặt Khô",
         "price": "80.000đ",
         "unit": "/kg",
@@ -224,6 +230,7 @@
         "features": ["Xử lý chuyên biệt", "Dung môi cao cấp", "Giặt không co rút", "Ủi phẳng chuyên nghiệp", "Đóng gói bảo vệ"]
       },
       {
+        "id": "ui",
         "name": "Ủi",
         "price": "15.000đ",
         "unit": "/cái",
@@ -231,6 +238,7 @@
         "features": ["Ủi bàn hơi chuyên nghiệp", "Không cháy vải", "Phẳng nếp hoàn hảo", "Giao trong 24 giờ"]
       },
       {
+        "id": "giat-ui",
         "name": "Giặt + Ủi",
         "price": "50.000đ",
         "unit": "/kg",
@@ -291,6 +299,57 @@
       "serviceRequired": "Vui lòng chọn dịch vụ",
       "weightRequired": "Vui lòng nhập khối lượng ước tính",
       "weightMin": "Khối lượng tối thiểu là 1kg"
+    }
+  },
+  "reviews": {
+    "tag": "Đánh giá",
+    "title": "Đánh giá dịch vụ",
+    "subtitle": "Khách hàng chia sẻ trải nghiệm thực tế về dịch vụ của chúng tôi",
+    "writeReview": "Viết đánh giá",
+    "allServices": "Tất cả dịch vụ",
+    "service": "Dịch vụ",
+    "empty": "Chưa có đánh giá nào. Hãy là người đầu tiên chia sẻ trải nghiệm của bạn!",
+    "success": "Gửi đánh giá thành công! Cảm ơn bạn.",
+    "error": "Có lỗi xảy ra, vui lòng thử lại sau",
+    "summary": {
+      "count": "{count} đánh giá",
+      "replyCount": "{count} phản hồi"
+    },
+    "shopReply": "Phản hồi từ cửa hàng",
+    "deleteTitle": "Xóa đánh giá",
+    "deleteConfirm": "Bạn có chắc chắn muốn xóa đánh giá này?",
+    "form": {
+      "heading": "Viết đánh giá",
+      "edit": "Chỉnh sửa đánh giá",
+      "update": "Cập nhật đánh giá",
+      "reply": "Phản hồi",
+      "replyLabel": "Nội dung phản hồi",
+      "replyPlaceholder": "Nhập phản hồi của bạn cho đánh giá này...",
+      "replySubmit": "Gửi phản hồi",
+      "name": "Họ tên",
+      "namePlaceholder": "Nhập họ tên của bạn",
+      "phone": "Số điện thoại",
+      "phonePlaceholder": "Nhập số điện thoại",
+      "service": "Dịch vụ sử dụng",
+      "selectService": "Chọn dịch vụ",
+      "rating": "Đánh giá sao",
+      "title": "Tiêu đề",
+      "titlePlaceholder": "Tóm tắt trải nghiệm của bạn",
+      "content": "Nội dung",
+      "contentPlaceholder": "Chia sẻ chi tiết trải nghiệm của bạn",
+      "images": "Hình ảnh",
+      "maxImages": "Tối đa {max} ảnh",
+      "submit": "Gửi đánh giá"
+    },
+    "validation": {
+      "nameRequired": "Vui lòng nhập họ tên",
+      "phoneRequired": "Vui lòng nhập số điện thoại",
+      "phoneInvalid": "Số điện thoại không hợp lệ",
+      "serviceRequired": "Vui lòng chọn dịch vụ",
+      "ratingRequired": "Vui lòng chọn số sao",
+      "titleRequired": "Vui lòng nhập tiêu đề",
+      "contentRequired": "Vui lòng nhập nội dung",
+      "replyRequired": "Vui lòng nhập nội dung phản hồi"
     }
   },
   "tracking": {
@@ -693,6 +752,13 @@
       "delete": "Xóa dịch vụ",
       "deleteConfirm": "Bạn có chắc chắn muốn xóa dịch vụ này?"
     },
+      "comments": {
+        "title": "Quản lý đánh giá",
+        "list": "Danh sách đánh giá",
+        "delete": "Xóa đánh giá",
+        "deleteConfirm": "Bạn có chắc chắn muốn xóa đánh giá này?",
+        "reply": "Phản hồi đánh giá"
+      },
     "sidebar": {
       "dashboard": "Dashboard",
       "orders": "Đơn hàng",
@@ -700,6 +766,7 @@
       "blog": "Blog",
       "banner": "Banner",
       "prices": "Bảng giá",
+      "comments": "Đánh giá",
       "revenue": "Doanh thu",
       "logoutAdmin": "Thoát Admin"
     },

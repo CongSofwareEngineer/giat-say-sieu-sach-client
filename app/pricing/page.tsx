@@ -2,11 +2,14 @@
 
 import type { ReactNode } from 'react'
 
+import { useRef, useState } from 'react'
 import Link from 'next/link'
 
 import MyCard, { MyCardBody } from '@/components/MyCard'
 import MyButton from '@/components/MyButton'
+import CommentSection from '@/components/Comment/CommentSection'
 import { CheckBadgeIcon } from '@/components/Icons/CheckBadge'
+import ChatBubbleIcon from '@/components/Icons/ChatBubble'
 import SeoJsonLd from '@/components/SeoJsonLd'
 import useLanguage from '@/hooks/useLanguage'
 import { breadcrumbSchema, localBusinessSchema, serviceSchema, SERVICE_OFFERS } from '@/config/seo'
@@ -24,6 +27,7 @@ const Tag = ({ children }: TagProps) => (
 )
 
 type Plan = {
+  id?: string
   name: string
   price: string
   unit: string
@@ -39,9 +43,17 @@ type Extra = {
 
 const PriceListPage = () => {
   const { translate } = useLanguage()
+  const [reviewServiceId, setReviewServiceId] = useState('all')
+  const reviewRef = useRef<HTMLDivElement>(null)
 
   const plans = (translate('pricing.plans') || []) as Plan[]
   const extras = (translate('pricing.extras') || []) as Extra[]
+
+  // Jump to the review section filtered by the selected service
+  const scrollToReviews = (serviceId: string) => {
+    setReviewServiceId(serviceId)
+    reviewRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
 
   return (
     <div className='py-16 lg:py-24'>
@@ -98,6 +110,13 @@ const PriceListPage = () => {
                     {translate('pricing.bookNow')}
                   </MyButton>
                 </Link>
+
+                {plan.id && (
+                  <MyButton variant='outline' className='mt-3 w-full' onClick={() => scrollToReviews(plan.id!)}>
+                    <ChatBubbleIcon className='mr-1 h-4 w-4' />
+                    {translate('pricing.reviews')}
+                  </MyButton>
+                )}
               </MyCardBody>
             </MyCard>
           ))}
@@ -120,6 +139,17 @@ const PriceListPage = () => {
 
         {/* Note */}
         <p className='mt-10 text-center text-sm text-gray-500'>{translate('pricing.note')}</p>
+      </div>
+
+      {/* Reviews */}
+      <div ref={reviewRef} className='mx-auto mt-20 max-w-7xl scroll-mt-24 px-4 sm:px-6 lg:px-8'>
+        <CommentSection
+          tag={translate('reviews.tag')}
+          title={translate('reviews.title')}
+          subtitle={translate('reviews.subtitle')}
+          serviceId={reviewServiceId}
+          onServiceChange={setReviewServiceId}
+        />
       </div>
     </div>
   )

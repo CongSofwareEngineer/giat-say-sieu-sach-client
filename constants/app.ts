@@ -44,3 +44,4 @@ export enum ORDER_STATUS {
 }
 
 export const MAX_PIXEL_REDUCE = 300 as number
+export const MAX_COMMENT_IMAGES = 5 as number

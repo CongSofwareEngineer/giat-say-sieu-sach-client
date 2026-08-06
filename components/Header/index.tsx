@@ -52,6 +52,7 @@ const Header = () => {
   const navItems = [
     { href: '/', label: translate('menu.home') },
     { href: '/pricing', label: translate('menu.priceList') },
+    { href: '/reviews', label: translate('menu.reviews') },
     { href: '/blog', label: translate('menu.blog') },
     { href: '/about', label: translate('menu.about') },
     { href: '/track-order', label: translate('menu.tracking') },
