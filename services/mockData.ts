@@ -137,6 +137,25 @@ export const mockServices = [
   { id: '6', name: 'Giặt rèm', price: 25000 },
 ]
 
+export const mockPromotions = [
+  {
+    id: '1',
+    title: 'Giảm 20% đơn đầu tiên',
+    description: 'Áp dụng cho khách hàng mới đặt dịch vụ giặt ủi lần đầu.',
+    discountPercent: 20,
+    startDate: '2024-01-01',
+    endDate: '2024-12-31',
+  },
+  {
+    id: '2',
+    title: 'Combo giặt sấy tiết kiệm',
+    description: 'Giảm thêm 10% khi đặt combo giặt sấy trên 5kg.',
+    discountPercent: 10,
+    startDate: '2024-01-01',
+    endDate: '2024-12-31',
+  },
+]
+
 export const mockDashboardStats = {
   totalRevenue: 15600000,
   todayOrders: 12,

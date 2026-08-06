@@ -39,7 +39,8 @@ export async function POST(request: NextRequest) {
     }
 
     const history = Array.isArray(body?.history) ? (body.history as AgentMessage[]).filter(isHistoryMessage) : []
-    const result = await chatAgent.chat(message, history)
+    const locale = typeof body?.locale === 'string' && body.locale.trim() ? body.locale.trim() : undefined
+    const result = await chatAgent.chat(message, history, { locale })
 
     return Response.json(result)
   } catch (error) {

@@ -1,4 +1,4 @@
-import { BaseTools } from './tools'
+import { BaseTools, buildLanguageSystemPrompt } from './tools'
 
 export type OpenAIToolCall = {
   id: string
@@ -7,6 +7,11 @@ export type OpenAIToolCall = {
     name: string
     arguments: string
   }
+}
+
+// Extra per-request options passed from the client (e.g. selected language)
+export type AgentChatOptions = {
+  locale?: string
 }
 
 // OpenAI-compatible chat message (chat/completions format)
@@ -55,8 +60,10 @@ export class AgentBase {
   }
 
   // Run a full chat turn with the tool loop and return the final text plus updated history
-  async chat(input: string, history: AgentMessage[] = []): Promise<{ text: string; history: AgentMessage[] }> {
-    const messages: AgentMessage[] = [{ role: 'system', content: this.systemInstruction }, ...history, { role: 'user', content: input }]
+  async chat(input: string, history: AgentMessage[] = [], options: AgentChatOptions = {}): Promise<{ text: string; history: AgentMessage[] }> {
+    const languagePrompt = buildLanguageSystemPrompt(options.locale)
+    const system = languagePrompt ? `${this.systemInstruction}\n${languagePrompt}` : this.systemInstruction
+    const messages: AgentMessage[] = [{ role: 'system', content: system }, ...history, { role: 'user', content: input }]
 
     for (let i = 0; i < this.maxToolCalls; i++) {
       const assistant = await this.generate({
@@ -84,7 +91,7 @@ export class AgentBase {
         messages.push({
           role: 'tool',
           tool_call_id: call.id,
-          content: JSON.stringify(await this.tools.safeExecute(call.function.name, args)),
+          content: JSON.stringify(await this.tools.safeExecute(call.function.name, args, { locale: options.locale })),
         })
       }
     }

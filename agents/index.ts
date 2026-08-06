@@ -1,9 +1,9 @@
-import { AgentBase, type AgentMessage } from './base'
+import { AgentBase, type AgentChatOptions, type AgentMessage } from './base'
 import { InterviewAgent } from './modals/interview'
 import { OffTopicAgent } from './modals/offtopic'
 import { PriceAgent } from './modals/price'
 import { RecommendAgent } from './modals/recommend'
-import { FAGTools } from './tools/fag'
+import { BaseTools, FaqTools, LanguageTools, PromotionTools, ServiceTools } from './tools'
 
 import { ROUTER_TOOL_NAME } from '@/constants/tools'
 
@@ -15,8 +15,11 @@ const ROUTER_SYSTEM_PROMPT = (agents: AgentBase[]) =>
 
 const GENERAL_SYSTEM_PROMPT =
   "Bạn là trợ lý ảo của dịch vụ giặt ủi 'Giặt Ủi Siêu Sạch'. " +
-  'Trả lời bằng tiếng Việt, ngắn gọn, thân thiện. Khi khách hỏi về giá dịch vụ, tra cứu đơn hàng, ước tính chi phí ' +
-  'hay thông tin liên hệ, hãy luôn dùng các công cụ có sẵn để lấy dữ liệu chính xác thay vì tự đoán.'
+  'Khi khách hỏi về giá dịch vụ, tra cứu đơn hàng, ước tính chi phí, khuyến mãi hay thông tin liên hệ, ' +
+  'hãy luôn dùng các công cụ có sẵn để lấy dữ liệu chính xác thay vì tự đoán.'
+
+// All tools available to the router (general) agent
+const routerTools = () => BaseTools.compose(new ServiceTools(), new FaqTools(), new PromotionTools(), new LanguageTools())
 
 // Main common agent: analyzes the input and routes it to a specialized agent,
 // falling back to itself (all tools) when no specialized agent matches
@@ -28,21 +31,21 @@ export class RouterAgent extends AgentBase {
       key: 'router',
       description: 'Trả lời các câu hỏi chung hoặc ngoài phạm vi các agent chuyên biệt.',
       systemInstruction: GENERAL_SYSTEM_PROMPT,
-      tools: new FAGTools(),
+      tools: routerTools(),
     })
 
     this.agents = options.agents ?? [new InterviewAgent(), new PriceAgent(), new RecommendAgent(), new OffTopicAgent()]
   }
 
   // Route the input to the best specialized agent and delegate to it
-  async chat(input: string, history: AgentMessage[] = []): Promise<{ text: string; history: AgentMessage[] }> {
+  async chat(input: string, history: AgentMessage[] = [], options: AgentChatOptions = {}): Promise<{ text: string; history: AgentMessage[] }> {
     const target = await this.route(input, history)
 
     if (target === this) {
-      return super.chat(input, history)
+      return super.chat(input, history, options)
     }
 
-    return target.chat(input, history)
+    return target.chat(input, history, options)
   }
 
   // Ask the model to pick one agent via a forced route_to_agent function call

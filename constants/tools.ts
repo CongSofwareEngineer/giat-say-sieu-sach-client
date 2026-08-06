@@ -10,8 +10,8 @@ export const TOOL_NAME = {
   getBranches: 'get_branches',
   // FAQ tool set (small, common questions)
   getFaq: 'get_faq',
-  // Language tool set (always reply in Vietnamese)
-  answerInVietnamese: 'answer_in_vietnamese',
+  // Language tool set (reply in the client's selected language)
+  answerInLanguage: 'answer_in_language',
   // Promotion tool set (current running programs from the API)
   getPromotions: 'get_promotions',
 } as const

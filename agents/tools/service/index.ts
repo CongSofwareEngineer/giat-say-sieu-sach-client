@@ -1,17 +1,12 @@
-import { BaseTools, type ToolDefinition } from '..'
+import { BaseTools, pickTools, type ToolDefinition, type ToolSetOptions } from '../base'
 
 import { INFO_CONTACT, SITE_CONFIG } from '@/constants/app'
-import { TOOL_NAME, type TOOL_NAME as ToolName } from '@/constants/tools'
+import { TOOL_NAME } from '@/constants/tools'
 import BranchService from '@/services/branch'
 import { mockOrders, mockServices } from '@/services/mockData'
 
-export type FAGToolsOptions = {
-  // Only register the given tool names (subset used by a specialized agent)
-  only?: readonly ToolName[]
-}
-
-// Build the full list of laundry business tools
-const buildFAGTools = (): ToolDefinition<any, unknown>[] => [
+// Build the full list of laundry business tools (services, orders, branches, contact)
+const buildServiceTools = (): ToolDefinition<any, unknown>[] => [
   // List all laundry services with their unit price
   {
     name: TOOL_NAME.getServices,
@@ -109,18 +104,12 @@ const buildFAGTools = (): ToolDefinition<any, unknown>[] => [
 ]
 
 // Business-specific tool set for the laundry shop (Giặt Ủi Siêu Sạch)
-export class FAGTools extends BaseTools {
-  constructor(options: FAGToolsOptions = {}) {
+export class ServiceTools extends BaseTools {
+  constructor(options: ToolSetOptions = {}) {
     super()
 
-    const allTools = buildFAGTools()
-    const tools = options.only?.length ? allTools.filter((tool) => (options.only as readonly string[]).includes(tool.name)) : allTools
-
-    this.register(...tools)
+    this.register(...pickTools(buildServiceTools(), options.only))
   }
 }
 
-export default FAGTools
-
-// Singleton for server-side reuse
-export const fagTools = new FAGTools()
+export default ServiceTools

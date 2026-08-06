@@ -14,7 +14,7 @@ import { chat } from '@/zustand/chat'
 import { PATH_LANGUAGE, TYPE_LANGUAGE } from '@/zustand/language'
 
 const FloatingChat = () => {
-  const { translate } = useLanguage()
+  const { translate, lang } = useLanguage()
   const { open, close, isMobile } = useModalDrawer({ maxWidth: 768 })
   const [isOpen, setIsOpen] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -59,7 +59,7 @@ const FloatingChat = () => {
       const response = await fetch('/api/chat-agent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage.text, history }),
+        body: JSON.stringify({ message: userMessage.text, history, locale: lang }),
       })
 
       const data = await response.json()
