@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server'
 import type { AgentMessage } from '@/agents/base'
 
 import { chatAgent } from '@/agents'
+import { LANGUAGE_SUPPORT } from '@/zustand/language'
 
 // Hardcoded allowlist of domains allowed to call this endpoint
 const ALLOWED_ORIGINS = ['https://giatsaysieusach.vercel.app', 'http://localhost:3001'] as const
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     const history = Array.isArray(body?.history) ? (body.history as AgentMessage[]).filter(isHistoryMessage) : []
-    const locale = typeof body?.locale === 'string' && body.locale.trim() ? body.locale.trim() : undefined
+    const locale = typeof body?.locale === 'string' && body.locale.trim() ? body.locale.trim() : LANGUAGE_SUPPORT.VN
     const result = await chatAgent.chat(message, history, { locale })
 
     return Response.json(result)
