@@ -240,8 +240,8 @@ const HomePage = () => {
             {benefits.map((benefit) => (
               <MyCard key={benefit.title} className='group transition-transform duration-300 hover:-translate-y-1'>
                 <MyCardBody className='flex items-start gap-4 p-6'>
-                  <div className='flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-gradient-to-br group-hover:from-primary group-hover:to-secondary group-hover:text-white'>
-                    <benefit.icon className='h-6 w-6' />
+                  <div className='flex h-13 w-13 flex-shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-gradient-to-br group-hover:from-primary group-hover:to-secondary group-hover:text-white'>
+                    <benefit.icon className='h-7 w-7' />
                   </div>
                   <div>
                     <h3 className='font-bold text-text'>{benefit.title}</h3>
@@ -305,8 +305,8 @@ const HomePage = () => {
           <div className='grid grid-cols-1 gap-8 md:grid-cols-3'>
             {commitments.map((commitment) => (
               <div key={commitment.title} className='text-center text-white'>
-                <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15'>
-                  <commitment.icon className='h-8 w-8' />
+                <div className='mx-auto flex h-18 w-18 items-center justify-center rounded-2xl bg-white/15'>
+                  <commitment.icon className='h-10 w-10' />
                 </div>
                 <h3 className='mt-5 text-lg font-bold'>{commitment.title}</h3>
                 <p className='mt-2 text-sm leading-relaxed text-white'>{commitment.description}</p>
