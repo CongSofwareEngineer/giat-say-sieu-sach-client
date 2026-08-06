@@ -21,6 +21,7 @@ interface ChatState {
   setSending: (sending: boolean) => void
   addMessage: (message: ChatMessage) => void
   setHistory: (history: AgentMessage[]) => void
+  clearChat: () => void
 }
 
 export const chat = create<ChatState>()(
@@ -36,6 +37,7 @@ export const chat = create<ChatState>()(
         setSending: (sending) => set({ isSending: sending }),
         addMessage: (message) => set({ messages: [...get().messages, message] }),
         setHistory: (history) => set({ history }),
+        clearChat: () => set({ messages: [], history: [], inputValue: '' }),
       }),
       {
         name: 'chat-zustand',

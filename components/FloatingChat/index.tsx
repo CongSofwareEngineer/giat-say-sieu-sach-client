@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from 'react'
 
 import ChatBubbleIcon from '../Icons/ChatBubble'
+import ChatMarkdown from '../ChatMarkdown'
+import { TrashIcon } from '../Icons/Trash'
 import { CloseIcon } from '../Icons/Functions/Close'
 import SendIcon from '../Icons/Functions/Send'
 
@@ -10,8 +12,14 @@ import useChat from '@/hooks/useChat'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
 import MyButton from '@/components/MyButton'
-import { chat } from '@/zustand/chat'
+import { chat, type ChatMessage } from '@/zustand/chat'
 import { PATH_LANGUAGE, TYPE_LANGUAGE } from '@/zustand/language'
+
+type TranslateFn = (
+  key?: PATH_LANGUAGE<TYPE_LANGUAGE>,
+  variables?: Record<string, string | number | React.ReactNode | ((value: string | number) => React.ReactNode)>,
+  defaultMessage?: string
+) => any
 
 const FloatingChat = () => {
   const { translate, lang } = useLanguage()
@@ -38,6 +46,14 @@ const FloatingChat = () => {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  // Scroll to the latest message when the chat opens (drawer/modal may animate in)
+  useEffect(() => {
+    if (!isOpen) return
+    const timer = setTimeout(scrollToBottom, 350)
+
+    return () => clearTimeout(timer)
+  }, [isOpen])
 
   const handleSend = async () => {
     const { messages, inputValue, isSending, setInputValue, setSending, addMessage, history } = chat.getState()
@@ -94,6 +110,16 @@ const FloatingChat = () => {
     }
   }
 
+  const handleClearChat = () => {
+    chat.getState().clearChat()
+    addMessage({
+      id: 1,
+      text: translate('chat.welcome'),
+      isUser: false,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    })
+  }
+
   const openChat = () => {
     setIsOpen(true)
 
@@ -105,7 +131,15 @@ const FloatingChat = () => {
           container: 'rounded-t-2xl',
         },
         onClose: () => setIsOpen(false),
-        children: <ChatContent handleSend={handleSend} handleKeyDown={handleKeyDown} messagesEndRef={messagesEndRef} translate={translate} />,
+        children: (
+          <ChatContent
+            handleSend={handleSend}
+            handleKeyDown={handleKeyDown}
+            handleClearChat={handleClearChat}
+            messagesEndRef={messagesEndRef}
+            translate={translate}
+          />
+        ),
       })
     }
   }
@@ -129,24 +163,26 @@ const FloatingChat = () => {
               {translate('chat.online')}
             </p>
           </div>
-          <button onClick={closeChat} aria-label='Close' className='cursor-pointer rounded-full p-2 bg-white/15'>
-            <CloseIcon className='w-5 h-5' />
-          </button>
+          <div className='flex items-center gap-1'>
+            <button
+              onClick={handleClearChat}
+              aria-label={translate('chat.clear')}
+              title={translate('chat.clear')}
+              className='cursor-pointer rounded-full p-2 bg-white/15 hover:bg-white/25 transition-colors'
+            >
+              <TrashIcon className='w-5 h-5' />
+            </button>
+            <button
+              onClick={closeChat}
+              aria-label='Close'
+              className='cursor-pointer rounded-full p-2 bg-white/15 hover:bg-white/25 transition-colors'
+            >
+              <CloseIcon className='w-5 h-5' />
+            </button>
+          </div>
         </div>
 
-        <div className='flex-1 overflow-y-auto p-4 space-y-3'>
-          {messages.map((msg) => (
-            <div key={msg.id} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
-              <div
-                className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${msg.isUser ? 'bg-primary text-white rounded-br-md' : 'bg-gray-100 text-text rounded-bl-md'}`}
-              >
-                <p>{msg.text}</p>
-                <p className={`text-[10px] mt-1 ${msg.isUser ? 'text-white/90' : 'text-gray-500'}`}>{msg.time}</p>
-              </div>
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
+        <ChatMessageList messages={messages} messagesEndRef={messagesEndRef} isSending={isSending} translate={translate} />
 
         <div className='p-3 border-t border-border'>
           <textarea
@@ -187,44 +223,86 @@ const FloatingChat = () => {
   )
 }
 
+// Shared message list with typing indicator for desktop popup and mobile drawer
+const ChatMessageList = ({
+  messages,
+  messagesEndRef,
+  isSending,
+  translate,
+}: {
+  messages: ChatMessage[]
+  messagesEndRef: React.RefObject<HTMLDivElement | null>
+  isSending: boolean
+  translate: TranslateFn
+}) => {
+  return (
+    <div className='flex-1 overflow-y-auto p-4 space-y-3'>
+      {messages.map((msg) => (
+        <div key={msg.id} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
+          <div
+            className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${msg.isUser ? 'bg-primary text-white rounded-br-md' : 'bg-gray-100 text-text rounded-bl-md'}`}
+          >
+            {msg.isUser ? <p className='whitespace-pre-wrap'>{msg.text}</p> : <ChatMarkdown>{msg.text}</ChatMarkdown>}
+            <p className={`text-[10px] mt-1 ${msg.isUser ? 'text-white/90' : 'text-gray-500'}`}>{msg.time}</p>
+          </div>
+        </div>
+      ))}
+      {isSending && <TypingIndicator translate={translate} />}
+      <div ref={messagesEndRef} />
+    </div>
+  )
+}
+
+// Small bubble shown while the server is processing the user's message
+const TypingIndicator = ({ translate }: { translate: TranslateFn }) => {
+  return (
+    <div className='flex justify-start'>
+      <div className='flex items-center gap-2 bg-gray-100 text-gray-500 rounded-2xl rounded-bl-md px-3 py-2 text-xs'>
+        <span className='flex gap-1'>
+          <span className='h-1.5 w-1.5 rounded-full bg-gray-400 animate-bounce' />
+          <span className='h-1.5 w-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:150ms]' />
+          <span className='h-1.5 w-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:300ms]' />
+        </span>
+        {translate('chat.typing')}
+      </div>
+    </div>
+  )
+}
+
 // Reusable chat content for both modal and drawer
 const ChatContent = ({
   handleSend,
   handleKeyDown,
+  handleClearChat,
   messagesEndRef,
   translate,
 }: {
   handleSend: () => void
   handleKeyDown: (e: React.KeyboardEvent) => void
+  handleClearChat: () => void
   messagesEndRef: React.RefObject<HTMLDivElement | null>
-  translate: (
-    key?: PATH_LANGUAGE<TYPE_LANGUAGE>,
-    variables?: Record<string, string | number | React.ReactNode | ((value: string | number) => React.ReactNode)>,
-    defaultMessage?: string
-  ) => any
+  translate: TranslateFn
 }) => {
   const { messages, inputValue, isSending, setInputValue } = useChat()
 
   return (
     <div className='flex flex-col h-full'>
-      <div className='flex items-center gap-2 px-4 py-2 bg-gray-50 border-b border-border text-xs text-gray-500'>
-        <span className='w-2 h-2 bg-green-400 rounded-full inline-block' />
-        {translate('chat.online')}
+      <div className='flex items-center justify-between px-4 py-2 bg-gray-50 border-b border-border text-xs text-gray-500'>
+        <div className='flex items-center gap-2'>
+          <span className='w-2 h-2 bg-green-400 rounded-full inline-block' />
+          {translate('chat.online')}
+        </div>
+        <button
+          onClick={handleClearChat}
+          aria-label={translate('chat.clear')}
+          title={translate('chat.clear')}
+          className='cursor-pointer rounded-full p-1.5 hover:bg-black/5 transition-colors'
+        >
+          <TrashIcon className='w-4 h-4' />
+        </button>
       </div>
 
-      <div className='flex-1 overflow-y-auto p-4 space-y-3'>
-        {messages.map((msg) => (
-          <div key={msg.id} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
-            <div
-              className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${msg.isUser ? 'bg-primary text-white rounded-br-md' : 'bg-gray-100 text-text rounded-bl-md'}`}
-            >
-              <p>{msg.text}</p>
-              <p className={`text-[10px] mt-1 ${msg.isUser ? 'text-white/90' : 'text-gray-500'}`}>{msg.time}</p>
-            </div>
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
+      <ChatMessageList messages={messages} messagesEndRef={messagesEndRef} isSending={isSending} translate={translate} />
 
       <div className='p-3 border-t border-border'>
         <textarea

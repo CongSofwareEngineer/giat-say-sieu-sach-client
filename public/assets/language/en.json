@@ -786,7 +786,9 @@
     "error": "Sorry, something went wrong. Please try again later.",
     "offline": "We're currently offline. Please leave a message.",
     "online": "Online",
-    "pressEnterToSend": "Note: press Enter to send"
+    "pressEnterToSend": "Note: press Enter to send",
+    "clear": "Clear chat",
+    "typing": "Staff is typing..."
   },
   "imageCropper": {
     "title": "Crop Image",

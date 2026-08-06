@@ -786,7 +786,9 @@
     "error": "Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại sau.",
     "offline": "Chúng tôi hiện đang offline. Vui lòng để lại tin nhắn.",
     "online": "Đang trực tuyến",
-    "pressEnterToSend": "Ghi chú: nhấn Enter để gửi"
+    "pressEnterToSend": "Ghi chú: nhấn Enter để gửi",
+    "clear": "Xóa hội thoại",
+    "typing": "Nhân viên đang trả lời..."
   },
   "imageCropper": {
     "title": "Cắt ảnh",
