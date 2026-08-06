@@ -26,9 +26,9 @@ export const runtime = 'nodejs'
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin')
 
-  // if (!isAllowedOrigin(origin)) {
-  //   return Response.json({ error: 'Forbidden' }, { status: 403 })
-  // }
+  if (!isAllowedOrigin(origin)) {
+    return Response.json({ error: 'Forbidden' }, { status: 403 })
+  }
 
   try {
     const body = await request.json()

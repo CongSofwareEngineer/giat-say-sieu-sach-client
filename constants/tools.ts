@@ -1,11 +1,19 @@
-// Custom tool names used by FAGTools (sent to the chat API as function tools)
+// Custom tool names sent to the chat API as function tools.
+// Names are grouped by tool set so new tools are easy to add later.
 export const TOOL_NAME = {
+  // Service tool set (prices, orders, branches, contact)
   getServices: 'get_services',
   getService: 'get_service',
   estimateCost: 'estimate_cost',
   trackOrder: 'track_order',
   getContactInfo: 'get_contact_info',
   getBranches: 'get_branches',
+  // FAQ tool set (small, common questions)
+  getFaq: 'get_faq',
+  // Language tool set (always reply in Vietnamese)
+  answerInVietnamese: 'answer_in_vietnamese',
+  // Promotion tool set (current running programs from the API)
+  getPromotions: 'get_promotions',
 } as const
 
 export type TOOL_NAME = (typeof TOOL_NAME)[keyof typeof TOOL_NAME]
