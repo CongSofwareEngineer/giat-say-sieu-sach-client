@@ -26,8 +26,14 @@ const FloatingChat = () => {
   const { translate, lang } = useLanguage()
   const { open, close, isMobile } = useModalDrawer({ maxWidth: 768 })
   const [isOpen, setIsOpen] = useState(false)
+  const isOpenRef = useRef(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const { messages, inputValue, isSending, setInputValue, addMessage } = useChat()
+  const { messages, inputValue, isSending, unreadCount, setInputValue, addMessage } = useChat()
+
+  // Keep an up-to-date open flag so async replies know if the chat was closed mid-request
+  useEffect(() => {
+    isOpenRef.current = isOpen
+  }, [isOpen])
 
   useEffect(() => {
     if (chat.getState().messages.length === 0) {
@@ -91,6 +97,8 @@ const FloatingChat = () => {
             minute: '2-digit',
           }),
         })
+        // Count as unread when the user is not viewing the chat
+        if (!isOpenRef.current) chat.getState().incrementUnread()
         chat.getState().setHistory(newHistory)
       } else {
         throw new Error('Empty agent reply')
@@ -105,6 +113,7 @@ const FloatingChat = () => {
           minute: '2-digit',
         }),
       })
+      if (!isOpenRef.current) chat.getState().incrementUnread()
     } finally {
       setSending(false)
     }
@@ -132,6 +141,8 @@ const FloatingChat = () => {
 
   const openChat = () => {
     setIsOpen(true)
+    // Clear the unread badge once the user opens the chat
+    chat.getState().resetUnread()
 
     if (isMobile) {
       open({
@@ -195,16 +206,16 @@ const FloatingChat = () => {
         <ChatMessageList messages={messages} messagesEndRef={messagesEndRef} isSending={isSending} translate={translate} />
 
         <div className='p-3 border-t border-border'>
-          <textarea
-            rows={2}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={translate('chat.inputPlaceholder')}
-            className='w-full px-3 py-2 text-sm border border-border rounded-2xl focus:outline-none resize-none placeholder:text-gray-500'
-          />
-          <div className='flex items-center justify-end mt-2'>
-            <MyButton onClick={handleSend} disabled={!inputValue.trim() || isSending} className='p-3'>
+          <div className='flex gap-2'>
+            <textarea
+              rows={2}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={translate('chat.inputPlaceholder')}
+              className='flex-1 px-3 py-2 text-sm border border-border rounded-2xl focus:outline-none resize-none placeholder:text-gray-500'
+            />
+            <MyButton onClick={handleSend} disabled={!inputValue.trim() || isSending} className='shrink-0 self-stretch rounded-2xl px-4'>
               {isSending ? (
                 <span className='inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white' />
               ) : (
@@ -223,12 +234,14 @@ const FloatingChat = () => {
 
       <ContactFloatingButtons
         hidden={isOpen}
+        badge={unreadCount}
         extraItems={[
           {
             key: 'chat',
             label: translate('chat.title'),
             icon: <ChatBubbleIcon className='h-5 w-5' />,
             className: 'bg-gradient-to-br from-primary to-secondary',
+            badge: unreadCount,
             onClick: openChat,
           },
         ]}
@@ -319,16 +332,16 @@ const ChatContent = ({
       <ChatMessageList messages={messages} messagesEndRef={messagesEndRef} isSending={isSending} translate={translate} />
 
       <div className='p-3 border-t border-border'>
-        <textarea
-          rows={2}
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={translate('chat.inputPlaceholder')}
-          className='w-full px-3 py-2 text-sm border border-border rounded-2xl focus:outline-none resize-none'
-        />
-        <div className='flex items-center justify-end mt-2'>
-          <MyButton onClick={handleSend} disabled={!inputValue.trim() || isSending} className='p-3'>
+        <div className='flex gap-2'>
+          <textarea
+            rows={2}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={translate('chat.inputPlaceholder')}
+            className='flex-1 px-3 py-2 text-sm border border-border rounded-2xl focus:outline-none resize-none'
+          />
+          <MyButton onClick={handleSend} disabled={!inputValue.trim() || isSending} className='shrink-0 self-stretch rounded-2xl px-4'>
             {isSending ? (
               <span className='inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white' />
             ) : (

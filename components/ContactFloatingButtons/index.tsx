@@ -20,6 +20,7 @@ type ActionItem = {
   href?: string
   target?: string
   rel?: string
+  badge?: number
   onClick?: () => void
 }
 
@@ -27,12 +28,13 @@ type ContactFloatingButtonsProps = {
   className?: string
   hidden?: boolean
   extraItems?: ActionItem[]
+  badge?: number
 }
 
 // Strip dashes so tel:/sms: links are valid
 const contactPhone = INFO_CONTACT.Phone.replace(/[^+\d]/g, '')
 
-const ContactFloatingButtons = ({ className, hidden = false, extraItems = [] }: ContactFloatingButtonsProps) => {
+const ContactFloatingButtons = ({ className, hidden = false, extraItems = [], badge = 0 }: ContactFloatingButtonsProps) => {
   const { translate } = useLanguage()
   const { isMobile } = useModalDrawer({ maxWidth: 768 })
   const [isOpen, setIsOpen] = useState(false)
@@ -123,13 +125,14 @@ const ContactFloatingButtons = ({ className, hidden = false, extraItems = [] }: 
                 title={item.label}
                 onClick={() => setIsOpen(false)}
                 className={cn(
-                  'flex h-11 w-11 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300 hover:scale-110',
+                  'relative flex h-11 w-11 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300 hover:scale-110',
                   item.className,
                   isOpen ? 'translate-y-0 scale-100 opacity-100' : 'pointer-events-none translate-y-4 scale-75 opacity-0'
                 )}
                 style={{ transitionDelay: isOpen ? `${(items.length - 1 - index) * 50}ms` : '0ms' }}
               >
                 {item.icon}
+                {item.badge !== undefined && item.badge > 0 && <ActionBadge count={item.badge} />}
               </a>
             ) : (
               <button
@@ -138,13 +141,14 @@ const ContactFloatingButtons = ({ className, hidden = false, extraItems = [] }: 
                 title={item.label}
                 onClick={() => handleItemClick(item)}
                 className={cn(
-                  'flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-white shadow-lg transition-all duration-300 hover:scale-110',
+                  'relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-white shadow-lg transition-all duration-300 hover:scale-110',
                   item.className,
                   isOpen ? 'translate-y-0 scale-100 opacity-100' : 'pointer-events-none translate-y-4 scale-75 opacity-0'
                 )}
                 style={{ transitionDelay: isOpen ? `${(items.length - 1 - index) * 50}ms` : '0ms' }}
               >
                 {item.icon}
+                {item.badge !== undefined && item.badge > 0 && <ActionBadge count={item.badge} />}
               </button>
             )}
           </div>
@@ -158,9 +162,19 @@ const ContactFloatingButtons = ({ className, hidden = false, extraItems = [] }: 
         className='mt-3 h-11 w-11 p-0'
       >
         {isOpen ? <CloseIcon className='h-5 w-5' /> : <ContactIcon className='h-5 w-5' />}
+        {!isOpen && badge > 0 && <ActionBadge count={badge} />}
       </MyButton>
     </div>
   )
 }
 
 export default ContactFloatingButtons
+
+// Small unread-count badge shown on a floating action button
+const ActionBadge = ({ count }: { count: number }) => {
+  return (
+    <span className='absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white shadow-md'>
+      {count > 99 ? '99+' : count}
+    </span>
+  )
+}

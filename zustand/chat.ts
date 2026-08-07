@@ -17,9 +17,12 @@ interface ChatState {
   history: AgentMessage[]
   inputValue: string
   isSending: boolean
+  unreadCount: number
   setInputValue: (value: string) => void
   setSending: (sending: boolean) => void
   addMessage: (message: ChatMessage) => void
+  incrementUnread: () => void
+  resetUnread: () => void
   setHistory: (history: AgentMessage[]) => void
   clearChat: () => void
 }
@@ -32,12 +35,15 @@ export const chat = create<ChatState>()(
         history: [],
         inputValue: '',
         isSending: false,
+        unreadCount: 0,
 
         setInputValue: (value) => set({ inputValue: value }),
         setSending: (sending) => set({ isSending: sending }),
         addMessage: (message) => set({ messages: [...get().messages, message] }),
+        incrementUnread: () => set({ unreadCount: get().unreadCount + 1 }),
+        resetUnread: () => set({ unreadCount: 0 }),
         setHistory: (history) => set({ history }),
-        clearChat: () => set({ messages: [], history: [], inputValue: '' }),
+        clearChat: () => set({ messages: [], history: [], inputValue: '', unreadCount: 0 }),
       }),
       {
         name: 'chat-zustand',
@@ -45,6 +51,7 @@ export const chat = create<ChatState>()(
           messages: state.messages,
           history: state.history,
           inputValue: state.inputValue,
+          unreadCount: state.unreadCount,
         }),
       }
     ),
