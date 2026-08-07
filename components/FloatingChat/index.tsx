@@ -11,7 +11,6 @@ import ContactFloatingButtons from '@/components/ContactFloatingButtons'
 import useChat from '@/hooks/useChat'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
-import useModal from '@/hooks/useModal'
 import MyButton from '@/components/MyButton'
 import { chatAgent } from '@/agents'
 import { chat, type ChatMessage } from '@/zustand/chat'
@@ -24,16 +23,10 @@ type TranslateFn = (
   defaultMessage?: string
 ) => any
 
-const LAST_ACTIVITY_KEY = 'chatLastActivityTime'
-const INACTIVITY_THRESHOLD = 5 * 60 * 1000 // 5 minutes
-
 const FloatingChat = () => {
   const { translate, lang } = useLanguage()
   const { open: openDrawer, close: closeDrawer, isMobile } = useModalDrawer({ maxWidth: 768 })
-  const { open: openModal, close: closeModal } = useModal()
   const [isOpen, setIsOpen] = useState(false)
-  const [lastActivityTime, setLastActivityTime] = useState(Date.now())
-  const [showInactiveModal, setShowInactiveModal] = useState(false)
   const isOpenRef = useRef(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { messages, inputValue, isSending, unreadCount, setInputValue, addMessage } = useChat()
@@ -42,22 +35,6 @@ const FloatingChat = () => {
   useEffect(() => {
     isOpenRef.current = isOpen
   }, [isOpen])
-
-  // Check for inactivity on mount and update last activity time
-  useEffect(() => {
-    const savedTime = localStorage.getItem(LAST_ACTIVITY_KEY)
-
-    if (savedTime) {
-      const elapsed = Date.now() - parseInt(savedTime)
-
-      if (elapsed > INACTIVITY_THRESHOLD) {
-        // Show modal asking user if they want to continue
-        setShowInactiveModal(true)
-      } else {
-        setLastActivityTime(parseInt(savedTime))
-      }
-    }
-  }, [])
 
   useEffect(() => {
     if (chat.getState().messages.length === 0) {
@@ -73,37 +50,6 @@ const FloatingChat = () => {
       })
     }
   }, [addMessage, translate])
-
-  const updateLastActivity = () => {
-    const now = Date.now()
-
-    setLastActivityTime(now)
-    localStorage.setItem(LAST_ACTIVITY_KEY, now.toString())
-  }
-
-  const resetLastActivity = () => {
-    localStorage.removeItem(LAST_ACTIVITY_KEY)
-  }
-
-  const handleInactiveSession = (continueChat: boolean) => {
-    setShowInactiveModal(false)
-    if (continueChat) {
-      updateLastActivity()
-    } else {
-      chat.getState().clearChat()
-      addMessage({
-        id: 1,
-        text: translate('chat.welcome'),
-        isUser: false,
-        time: new Date().toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
-        isQuickOptions: true,
-      })
-      updateLastActivity()
-    }
-  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -143,7 +89,6 @@ const FloatingChat = () => {
     }
 
     addMessage(userMessage)
-    updateLastActivity()
     setSending(true)
 
     try {
@@ -199,7 +144,6 @@ const FloatingChat = () => {
       }),
       isQuickOptions: true,
     })
-    updateLastActivity()
     setTimeout(() => handleSend(option), 0)
   }
 
@@ -222,14 +166,12 @@ const FloatingChat = () => {
       }),
       isQuickOptions: true,
     })
-    updateLastActivity()
   }
 
   const openChat = () => {
     setIsOpen(true)
     // Clear the unread badge once the user opens the chat
     chat.getState().resetUnread()
-    updateLastActivity()
 
     if (isMobile) {
       openDrawer({
@@ -256,28 +198,6 @@ const FloatingChat = () => {
   const closeChat = () => {
     setIsOpen(false)
     if (isMobile) closeDrawer()
-  }
-
-  // Render inactive session modal
-  const renderInactiveSessionModal = () => {
-    if (!showInactiveModal) return null
-
-    return (
-      <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50'>
-        <div className='bg-white rounded-2xl p-6 max-w-md mx-4 shadow-2xl'>
-          <h3 className='text-lg font-semibold mb-3'>{translate('chat.sessionExpired')}</h3>
-          <p className='text-sm text-gray-600 mb-6'>{translate('chat.sessionExpiredMessage')}</p>
-          <div className='flex gap-3'>
-            <MyButton onClick={() => handleInactiveSession(true)} variant='outline' className='flex-1'>
-              {translate('chat.continue')}
-            </MyButton>
-            <MyButton onClick={() => handleInactiveSession(false)} className='flex-1'>
-              {translate('chat.startNew')}
-            </MyButton>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   // Desktop chat popup
@@ -346,7 +266,6 @@ const FloatingChat = () => {
 
   return (
     <>
-      {renderInactiveSessionModal()}
       {renderDesktopChat()}
 
       <ContactFloatingButtons
