@@ -11,7 +11,7 @@ export const routeToAgentTool: AgentTool = {
     properties: {
       agent: {
         type: 'string',
-        enum: [AGENT_NAME.faq, AGENT_NAME.price, AGENT_NAME.redcommand],
+        enum: [AGENT_NAME.faq, AGENT_NAME.price, AGENT_NAME.recommend],
         description: 'The agent best suited to answer the user message.',
       },
     },

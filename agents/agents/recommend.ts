@@ -5,8 +5,8 @@ import { baseTools, getBranchesTool, getContactInfoTool, trackOrderTool } from '
 import { AGENT_NAME } from '@/constants/tools'
 
 // Handles order/booking commands: tracking, contact info, branches, booking
-export const redcommandAgent: AgentDefinition = {
-  name: AGENT_NAME.redcommand,
+export const recommendAgent: AgentDefinition = {
+  name: AGENT_NAME.recommend,
   description: 'Handles order and booking commands: tracking an order status, contact info, branch locations and placing a new booking.',
   systemPrompt: `You are the order & booking command specialist of the "Giặt Ủi Siêu Sạch" laundry service.
 Use track_order to check an order's status, get_contact_info for contact details and get_branches for branch locations.

@@ -29,7 +29,7 @@ export const AGENT_NAME = {
   router: 'router',
   faq: 'faq',
   price: 'price',
-  redcommand: 'redcommand',
+  recommend: 'recommend',
   fallback: 'fallback',
 } as const
 

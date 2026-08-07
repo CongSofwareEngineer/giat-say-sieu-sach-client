@@ -3,7 +3,7 @@ import type { AgentDefinition } from '../base'
 import { fallbackAgent } from './fallback'
 import { faqAgent } from './faq'
 import { priceAgent } from './price'
-import { redcommandAgent } from './redcommand'
+import { recommendAgent } from './recommend'
 
 import { AGENT_NAME } from '@/constants/tools'
 
@@ -12,7 +12,7 @@ import { AGENT_NAME } from '@/constants/tools'
 export const AGENT_REGISTRY: Record<string, AgentDefinition> = {
   [AGENT_NAME.faq]: faqAgent,
   [AGENT_NAME.price]: priceAgent,
-  [AGENT_NAME.redcommand]: redcommandAgent,
+  [AGENT_NAME.recommend]: recommendAgent,
   [AGENT_NAME.fallback]: fallbackAgent,
 }
 
@@ -20,4 +20,4 @@ export const AGENT_REGISTRY: Record<string, AgentDefinition> = {
 export const getAgent = (name: unknown): AgentDefinition => (typeof name === 'string' && AGENT_REGISTRY[name] ? AGENT_REGISTRY[name] : fallbackAgent)
 
 // Specialized agents the router may dispatch to (excludes fallback)
-export const routableAgents = (): AgentDefinition[] => [AGENT_NAME.faq, AGENT_NAME.price, AGENT_NAME.redcommand].map((name) => AGENT_REGISTRY[name])
+export const routableAgents = (): AgentDefinition[] => [AGENT_NAME.faq, AGENT_NAME.price, AGENT_NAME.recommend].map((name) => AGENT_REGISTRY[name])
