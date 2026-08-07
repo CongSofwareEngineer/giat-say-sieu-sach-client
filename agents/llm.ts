@@ -31,15 +31,22 @@ const buildOpenAiMessages = (system: string | undefined, messages: AgentMessage[
       return
     }
 
-    if (m.role === 'assistant' && m.toolCalls?.length) {
+    // Assistant content must be a plain string; an empty text-part array is
+    // rejected by the provider (vLLM) with "Assistant messages must contain
+    // text, reasoning content, or tool_calls".
+    if (m.role === 'assistant') {
       result.push({
         role: 'assistant',
-        content: m.content ? textParts(m.content) : null,
-        tool_calls: m.toolCalls.map((call) => ({
-          id: call.id,
-          type: 'function',
-          function: { name: call.name, arguments: JSON.stringify(call.arguments ?? {}) },
-        })),
+        content: m.content ?? '',
+        ...(m.toolCalls?.length
+          ? {
+              tool_calls: m.toolCalls.map((call) => ({
+                id: call.id,
+                type: 'function',
+                function: { name: call.name, arguments: JSON.stringify(call.arguments ?? {}) },
+              })),
+            }
+          : {}),
       })
 
       return
