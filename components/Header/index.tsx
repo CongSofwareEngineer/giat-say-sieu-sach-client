@@ -138,7 +138,7 @@ const Header = () => {
                 className='cursor-pointer flex items-center gap-1 px-2 py-2.5 rounded-lg text-sm text-text transition-colors'
                 aria-label={translate('language.select')}
               >
-                <GlobeIcon className='w-4 h-4' />
+                <GlobeIcon className='w-5 h-5' />
                 {!isMobile && <span>{lang === LANGUAGE_SUPPORT.VN ? '🇻🇳' : '🇺🇸'}</span>}
               </button>
               {isLangOpen && (
@@ -244,7 +244,7 @@ const Header = () => {
                 className='lg:hidden p-2.5 rounded-lg text-text'
                 aria-label='Toggle menu'
               >
-                {isMobileMenuOpen ? <CloseIcon className='w-5 h-5' /> : <MenuIcon className='w-5 h-5' />}
+                {isMobileMenuOpen ? <CloseIcon className='w-6 h-6' /> : <MenuIcon className='w-6 h-6' />}
               </button>
             )}
           </div>
