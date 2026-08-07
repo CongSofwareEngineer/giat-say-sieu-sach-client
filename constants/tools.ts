@@ -14,9 +14,23 @@ export const TOOL_NAME = {
   answerInLanguage: 'answer_in_language',
   // Promotion tool set (current running programs from the API)
   getPromotions: 'get_promotions',
+  // Default search tool set (site content + web)
+  search: 'search',
 } as const
 
 export type TOOL_NAME = (typeof TOOL_NAME)[keyof typeof TOOL_NAME]
 
 // Router agent internal tool name used to pick a specialized agent
 export const ROUTER_TOOL_NAME = 'route_to_agent' as const
+
+// Agent names used by the main agent to dispatch a message.
+// New agents are registered here and in agents/agents/index.ts.
+export const AGENT_NAME = {
+  router: 'router',
+  faq: 'faq',
+  price: 'price',
+  redcommand: 'redcommand',
+  fallback: 'fallback',
+} as const
+
+export type AGENT_NAME = (typeof AGENT_NAME)[keyof typeof AGENT_NAME]

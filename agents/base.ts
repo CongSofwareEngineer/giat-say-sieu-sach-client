@@ -1,132 +1,73 @@
-import { BaseTools, buildLanguageSystemPrompt } from './tools'
+// Shared agent types used by the client-side orchestrator, the tool registry
+// and the chat proxy route. Kept free of server-only imports so it runs in
+// the browser as well (the tool loop is executed on the client).
 
-export type OpenAIToolCall = {
+export type AgentRole = 'system' | 'user' | 'assistant' | 'tool'
+
+export interface AgentToolCall {
   id: string
-  type: 'function'
-  function: {
-    name: string
-    arguments: string
-  }
+  name: string
+  arguments: Record<string, unknown>
 }
 
-// Extra per-request options passed from the client (e.g. selected language)
-export type AgentChatOptions = {
-  locale?: string
+// One turn of the conversation as sent to the LLM (and stored as chat history)
+export interface AgentMessage {
+  role: AgentRole
+  content?: string | null
+  // Present on 'tool' turns to match the assistant's tool call
+  toolCallId?: string
+  // Tool name, used on 'tool' turns to build the Gemini functionResponse part
+  name?: string
+  // Present on 'assistant' turns that requested tool calls
+  toolCalls?: AgentToolCall[]
 }
 
-// OpenAI-compatible chat message (chat/completions format)
-export type AgentMessage = {
-  role: 'system' | 'user' | 'assistant' | 'tool'
-  content: string | null
-  tool_calls?: OpenAIToolCall[]
-  tool_call_id?: string
+// Context passed to every tool execution
+export interface AgentContext {
+  locale: string
 }
 
-export type AgentConfig = {
-  key: string
+// JSON-schema-ish description of a tool's arguments
+export interface ToolParameter {
+  type: 'string' | 'number' | 'boolean' | 'object' | 'array'
+  description?: string
+  enum?: string[]
+  properties?: Record<string, ToolParameter>
+  required?: string[]
+  items?: ToolParameter
+}
+
+export interface ToolDefinition {
+  name: string
   description: string
-  systemInstruction: string
-  tools?: BaseTools
-  model?: string
-  apiKey?: string
-  apiUrl?: string
-  maxToolCalls?: number
+  parameters?: ToolParameter
 }
 
-export const DEFAULT_API_URL = 'https://api.tokenrouter.com/v1'
-export const DEFAULT_MODEL = 'moonshotai/kimi-k3-free'
+// A registered tool: metadata sent to the LLM + the client-side executor
+export interface AgentTool extends ToolDefinition {
+  execute: (args: Record<string, unknown>, ctx: AgentContext) => Promise<string>
+}
 
-// Base agent: runs the chat-completions tool loop (tool_calls -> execute -> tool response)
-// until the model produces a final text answer
-export class AgentBase {
-  readonly key: string
-  readonly description: string
-  protected tools: BaseTools
-  protected systemInstruction: string
-  protected model: string
-  protected apiKey: string
-  protected apiUrl: string
-  protected maxToolCalls: number
+// A specialized agent: system prompt + the subset of tools it may call
+export interface AgentDefinition {
+  name: string
+  description: string
+  systemPrompt: string | ((ctx: AgentContext) => string)
+  tools: AgentTool[]
+}
 
-  constructor(config: AgentConfig) {
-    this.key = config.key
-    this.description = config.description
-    this.tools = config.tools ?? new BaseTools()
-    this.systemInstruction = config.systemInstruction
-    this.apiUrl = config.apiUrl ?? process.env.AGENT_API_URL ?? DEFAULT_API_URL
-    this.model = config.model ?? process.env.AGENT_MODEL ?? DEFAULT_MODEL
-    this.apiKey = config.apiKey ?? process.env.AGENT_API_KEY ?? ''
-    this.maxToolCalls = config.maxToolCalls ?? 5
-  }
+export interface ChatResult {
+  text: string
+  history: AgentMessage[]
+}
 
-  // Run a full chat turn with the tool loop and return the final text plus updated history
-  async chat(input: string, history: AgentMessage[] = [], options: AgentChatOptions = {}): Promise<{ text: string; history: AgentMessage[] }> {
-    const languagePrompt = buildLanguageSystemPrompt(options.locale)
-    const system = languagePrompt ? `${this.systemInstruction}\n${languagePrompt}` : this.systemInstruction
-    const messages: AgentMessage[] = [{ role: 'system', content: system }, ...history, { role: 'user', content: input }]
+// Strip stored history down to plain user/assistant turns (drop tool turns
+// and assistant messages that only carried tool calls) then append the new
+// user message. Keeps the router prompt clean and tool-free.
+export const toConversation = (history: AgentMessage[], message: string): AgentMessage[] => {
+  const clean = history.filter(
+    (m) => m.role === 'user' || (m.role === 'assistant' && typeof m.content === 'string' && m.content.length > 0 && !m.toolCalls?.length)
+  )
 
-    for (let i = 0; i < this.maxToolCalls; i++) {
-      const assistant = await this.generate({
-        model: this.model,
-        messages,
-        tools: this.tools.tools(),
-        tool_choice: 'auto',
-      })
-
-      messages.push(assistant)
-
-      if (!assistant.tool_calls || assistant.tool_calls.length === 0) {
-        return { text: assistant.content?.trim() ?? '', history: messages }
-      }
-
-      for (const call of assistant.tool_calls) {
-        let args: Record<string, any> = {}
-
-        try {
-          args = JSON.parse(call.function.arguments || '{}')
-        } catch {
-          args = {}
-        }
-
-        messages.push({
-          role: 'tool',
-          tool_call_id: call.id,
-          content: JSON.stringify(await this.tools.safeExecute(call.function.name, args, { locale: options.locale })),
-        })
-      }
-    }
-
-    throw new Error('Agent exceeded max tool call iterations')
-  }
-
-  // Send one chat/completions request and return the assistant message
-  protected async generate(body: Record<string, unknown>): Promise<AgentMessage> {
-    if (!this.apiKey) {
-      throw new Error('AGENT_API_KEY is not configured')
-    }
-
-    const response = await fetch(`${this.apiUrl}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.apiKey}`,
-      },
-      body: JSON.stringify(body),
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-
-      throw new Error(`Chat API error ${response.status}: ${errorText}`)
-    }
-
-    const data = await response.json()
-    const message = data.choices?.[0]?.message as AgentMessage | undefined
-
-    if (!message) {
-      throw new Error('Chat API returned no message')
-    }
-
-    return message
-  }
+  return [...clean, { role: 'user', content: message }]
 }
