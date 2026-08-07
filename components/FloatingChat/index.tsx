@@ -55,6 +55,7 @@ const FloatingChat = () => {
           })
         }
       },
+      // 5 minutes to reset the chat after inactivity
       5 * 60 * 1000
     )
 
