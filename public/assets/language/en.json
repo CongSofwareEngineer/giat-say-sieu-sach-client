@@ -79,7 +79,8 @@
     "logout": "Logout",
     "profile": "Profile",
     "myOrders": "My Orders",
-    "admin": "Admin"
+    "admin": "Admin",
+    "more": "More"
   },
   "language": {
     "vi": "Tiếng Việt",

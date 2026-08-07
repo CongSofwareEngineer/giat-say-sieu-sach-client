@@ -11,6 +11,7 @@ import { LogOutIcon } from '../Icons/Functions/LogOut'
 import { SettingIcon } from '../Icons/Functions/Setting'
 import { UserCircleIcon } from '../Icons/UserCircle'
 import GlobeIcon from '../Icons/Globe'
+import { ArrowDownIcon } from '../Icons/ArrowDown'
 
 import { cn } from '@/utils/tailwind'
 import { images } from '@/config/images'
@@ -24,6 +25,7 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isLangOpen, setIsLangOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
   const { translate, lang, setLanguage } = useLanguage()
@@ -42,6 +44,7 @@ const Header = () => {
     setIsMobileMenuOpen(false)
     setIsLangOpen(false)
     setIsUserMenuOpen(false)
+    setIsMoreMenuOpen(false)
   }, [pathname])
 
   const handleLogout = () => {
@@ -49,15 +52,17 @@ const Header = () => {
     router.replace('/')
   }
 
-  const navItems = [
+  const mainNavItems = [
     { href: '/', label: translate('menu.home') },
     { href: '/pricing', label: translate('menu.priceList') },
+    { href: '/contact', label: translate('menu.contact') },
+    { href: '/track-order', label: translate('menu.tracking') },
+  ]
+
+  const dropdownNavItems = [
     { href: '/reviews', label: translate('menu.reviews') },
     { href: '/blog', label: translate('menu.blog') },
     { href: '/about', label: translate('menu.about') },
-    { href: '/track-order', label: translate('menu.tracking') },
-    // { href: '/booking', label: translate('menu.booking'), highlight: true },
-    { href: '/contact', label: translate('menu.contact') },
   ]
 
   return (
@@ -77,7 +82,7 @@ const Header = () => {
 
           {!isMobile && (
             <nav className='hidden lg:flex items-center gap-1'>
-              {navItems.map((item) => (
+              {mainNavItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
@@ -89,6 +94,40 @@ const Header = () => {
                   {item.label}
                 </Link>
               ))}
+
+              <div className='relative'>
+                <button
+                  onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
+                  className={cn(
+                    'flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                    pathname === '/reviews' || pathname === '/blog' || pathname === '/about'
+                      ? 'text-primary bg-primary/10'
+                      : 'text-text hover:bg-gray-100'
+                  )}
+                  aria-label={translate('menu.more')}
+                >
+                  {translate('menu.more')}
+                  <ArrowDownIcon className='w-4 h-4' />
+                </button>
+
+                {isMoreMenuOpen && (
+                  <div className='absolute left-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-border z-50 py-1'>
+                    {dropdownNavItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          'block px-4 py-2 text-sm font-medium transition-colors',
+                          pathname === item.href ? 'text-primary bg-primary/10' : 'text-text hover:bg-gray-50'
+                        )}
+                        onClick={() => setIsMoreMenuOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             </nav>
           )}
 
@@ -215,7 +254,7 @@ const Header = () => {
       {isMobile && isMobileMenuOpen && (
         <div className='lg:hidden bg-white border-t border-border shadow-lg'>
           <nav className='max-w-7xl mx-auto px-4 py-4 space-y-1'>
-            {navItems.map((item) => (
+            {mainNavItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -227,6 +266,23 @@ const Header = () => {
                 {item.label}
               </Link>
             ))}
+
+            <div className='pt-2'>
+              <p className='px-4 py-2 text-sm font-semibold text-gray-500 uppercase tracking-wider'>{translate('menu.more')}</p>
+              {dropdownNavItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    'block px-4 py-3 rounded-lg text-base font-medium transition-colors ml-4',
+                    pathname === item.href ? 'text-primary bg-primary/10' : 'text-text'
+                  )}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+
             {hasHydrated && isLogin ? (
               <div className='pt-4 border-t border-border mt-4 space-y-2'>
                 <Link href='/profile' className='flex items-center gap-2 px-4 py-3 rounded-lg text-base font-medium text-text transition-colors'>
