@@ -25,6 +25,16 @@ import { MAX_AVATAR_FILE_SIZE } from '@/constants/app'
 import { UserAddress } from '@/zustand/user'
 import { cn } from '@/utils/tailwind'
 
+// Helper function to convert File to base64 string
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = () => reject(reader.error)
+  })
+}
+
 // Mock provinces data for address selects
 const ADDRESS_DATA: Record<string, Record<string, string[]>> = {
   'TP. Hồ Chí Minh': {
@@ -280,10 +290,12 @@ const ProfilePage = () => {
     try {
       const optimized = await getFileOptimize(file)
       const base64 = await fileToBase64(optimized)
-
       updateUser({ avatar: base64 })
-    } catch {
-      // Ignore failed/cancelled crops
+    } catch (error) {
+      // Only show error if it's not a cancellation
+      if (error?.message !== 'Crop cancelled') {
+        setAvatarError(translate('common.error'))
+      }
     } finally {
       setIsUploadingAvatar(false)
     }
