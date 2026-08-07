@@ -62,12 +62,15 @@ export interface ChatResult {
 }
 
 // Strip stored history down to plain user/assistant turns (drop tool turns
-// and assistant messages that only carried tool calls) then append the new
-// user message. Keeps the router prompt clean and tool-free.
+// and assistant messages that only carried tool calls), keep the most recent
+// MAX_HISTORY_MESSAGES, then append the new user message. Keeps the router
+// prompt clean, tool-free and within a bounded context window.
+const MAX_HISTORY_MESSAGES = 10
+
 export const toConversation = (history: AgentMessage[], message: string): AgentMessage[] => {
   const clean = history.filter(
     (m) => m.role === 'user' || (m.role === 'assistant' && typeof m.content === 'string' && m.content.length > 0 && !m.toolCalls?.length)
   )
 
-  return [...clean, { role: 'user', content: message }]
+  return [...clean.slice(-MAX_HISTORY_MESSAGES), { role: 'user', content: message }]
 }
