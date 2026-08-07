@@ -29,6 +29,7 @@ import { cn } from '@/utils/tailwind'
 const fileToBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
+
     reader.readAsDataURL(file)
     reader.onload = () => resolve(reader.result as string)
     reader.onerror = () => reject(reader.error)
@@ -290,8 +291,9 @@ const ProfilePage = () => {
     try {
       const optimized = await getFileOptimize(file)
       const base64 = await fileToBase64(optimized)
+
       updateUser({ avatar: base64 })
-    } catch (error) {
+    } catch (error: any) {
       // Only show error if it's not a cancellation
       if (error?.message !== 'Crop cancelled') {
         setAvatarError(translate('common.error'))
