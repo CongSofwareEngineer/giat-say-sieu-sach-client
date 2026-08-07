@@ -9,6 +9,8 @@ interface EnvironmentVariables {
   readonly AGENT_API_URL?: string
   readonly AGENT_API_KEY?: string
   readonly AGENT_MODEL?: string
+  // Client-side model name sent by the agent loop (safe to expose)
+  readonly NEXT_PUBLIC_AGENT_MODEL?: string
 }
 
 declare namespace NodeJS {

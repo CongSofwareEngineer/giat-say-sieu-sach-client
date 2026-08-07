@@ -1,98 +1,39 @@
-import { AgentBase, type AgentChatOptions, type AgentMessage } from './base'
-import { InterviewAgent } from './modals/interview'
-import { OffTopicAgent } from './modals/offtopic'
-import { PriceAgent } from './modals/price'
-import { RecommendAgent } from './modals/recommend'
-import { BaseTools, FaqTools, LanguageTools, PromotionTools, ServiceTools } from './tools'
+import type { AgentContext, ChatResult, AgentMessage } from './base'
 
-import { ROUTER_TOOL_NAME } from '@/constants/tools'
+import { toConversation } from './base'
+import { callLlm } from './llm'
+import { runAgent } from './runAgent'
+import { getAgent, routableAgents } from './agents'
+import { buildRouterSystem, routeToAgentTool } from './agents/router'
 
-const ROUTER_SYSTEM_PROMPT = (agents: AgentBase[]) =>
-  "Bạn là bộ định tuyến agent của dịch vụ giặt ủi 'Giặt Ủi Siêu Sạch'. " +
-  'Phân tích câu hỏi của khách rồi chọn đúng một agent phù hợp nhất từ danh sách dưới đây.\n' +
-  agents.map((agent) => `- ${agent.key}: ${agent.description}`).join('\n') +
-  `\nNếu câu hỏi ngoài phạm vi các agent trên hoặc không rõ, hãy chọn "router".`
+import { AGENT_NAME, ROUTER_TOOL_NAME } from '@/constants/tools'
 
-const GENERAL_SYSTEM_PROMPT =
-  "Bạn là trợ lý ảo của dịch vụ giặt ủi 'Giặt Ủi Siêu Sạch'. " +
-  'Khi khách hỏi về giá dịch vụ, tra cứu đơn hàng, ước tính chi phí, khuyến mãi hay thông tin liên hệ, ' +
-  'hãy luôn dùng các công cụ có sẵn để lấy dữ liệu chính xác thay vì tự đoán.'
+// Main agent: routes the message to a specialized agent, then runs that agent
+// with its own tools until a final answer is produced. Runs entirely on the
+// client; the only server call is the LLM proxy (hides the API key).
+export const chatAgent = {
+  async chat(message: string, history: AgentMessage[], ctx: AgentContext): Promise<ChatResult> {
+    const conversation = toConversation(history, message)
 
-// All tools available to the router (general) agent
-const routerTools = () => BaseTools.compose(new ServiceTools(), new FaqTools(), new PromotionTools(), new LanguageTools())
-
-// Main common agent: analyzes the input and routes it to a specialized agent,
-// falling back to itself (all tools) when no specialized agent matches
-export class RouterAgent extends AgentBase {
-  private agents: AgentBase[]
-
-  constructor(options: { agents?: AgentBase[] } = {}) {
-    super({
-      key: 'router',
-      description: 'Trả lời các câu hỏi chung hoặc ngoài phạm vi các agent chuyên biệt.',
-      systemInstruction: GENERAL_SYSTEM_PROMPT,
-      tools: routerTools(),
+    // 1) Main agent decides which specialized agent should handle the message
+    const routerSystem = buildRouterSystem(routableAgents())
+    const routeResult = await callLlm({
+      system: routerSystem,
+      messages: conversation,
+      tools: [routeToAgentTool],
     })
 
-    this.agents = options.agents ?? [new InterviewAgent(), new PriceAgent(), new RecommendAgent(), new OffTopicAgent()]
-  }
+    const routeCall = routeResult.toolCalls.find((tool) => tool.name === ROUTER_TOOL_NAME)
 
-  // Route the input to the best specialized agent and delegate to it
-  async chat(input: string, history: AgentMessage[] = [], options: AgentChatOptions = {}): Promise<{ text: string; history: AgentMessage[] }> {
-    const target = await this.route(input, history)
+    // No dispatch = out of scope -> default to the fallback agent
+    const target = routeCall ? getAgent(routeCall.arguments?.agent) : getAgent(AGENT_NAME.fallback)
 
-    if (target === this) {
-      return super.chat(input, history, options)
+    // 2) Run the selected agent with its own tool set
+    const reply = await runAgent(target, conversation, ctx)
+
+    return {
+      text: reply.content?.trim() || '',
+      history: [...conversation, reply],
     }
-
-    return target.chat(input, history, options)
-  }
-
-  // Ask the model to pick one agent via a forced route_to_agent function call
-  private async route(input: string, history: AgentMessage[]): Promise<AgentBase> {
-    const candidates = [this, ...this.agents]
-
-    const body = {
-      model: this.model,
-      messages: [{ role: 'system', content: ROUTER_SYSTEM_PROMPT(this.agents) }, ...history, { role: 'user', content: input }],
-      tools: [
-        {
-          type: 'function',
-          function: {
-            name: ROUTER_TOOL_NAME,
-            description: 'Chọn agent phù hợp nhất để xử lý câu hỏi của khách.',
-            parameters: {
-              type: 'object',
-              properties: {
-                agent: { type: 'string', enum: candidates.map((agent) => agent.key), description: 'Key của agent được chọn.' },
-              },
-              required: ['agent'],
-            },
-          },
-        },
-      ],
-      tool_choice: { type: 'function', function: { name: ROUTER_TOOL_NAME } },
-    }
-
-    const modelMessage = await this.generate(body)
-    const call = modelMessage.tool_calls?.[0]
-    let agentKey: string | undefined
-
-    if (call?.function?.name === ROUTER_TOOL_NAME) {
-      try {
-        agentKey = JSON.parse(call.function.arguments || '{}').agent as string
-      } catch {
-        agentKey = undefined
-      }
-    }
-
-    return this.agents.find((agent) => agent.key === agentKey) ?? this
-  }
+  },
 }
-
-export default RouterAgent
-
-// Pre-built agent with the laundry specialized agents
-export const chatAgent = new RouterAgent()
-
-export { AgentBase, type AgentMessage, type OpenAIToolCall } from './base'

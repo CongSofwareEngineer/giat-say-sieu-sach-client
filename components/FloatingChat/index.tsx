@@ -12,6 +12,7 @@ import useChat from '@/hooks/useChat'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
 import MyButton from '@/components/MyButton'
+import { chatAgent } from '@/agents'
 import { chat, type ChatMessage } from '@/zustand/chat'
 import { PATH_LANGUAGE, TYPE_LANGUAGE } from '@/zustand/language'
 
@@ -34,7 +35,10 @@ const FloatingChat = () => {
         id: 1,
         text: translate('chat.welcome'),
         isUser: false,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        time: new Date().toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
       })
     }
   }, [addMessage, translate])
@@ -64,7 +68,10 @@ const FloatingChat = () => {
       id: messages.length + 1,
       text: inputValue,
       isUser: true,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      time: new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
     }
 
     addMessage(userMessage)
@@ -72,31 +79,31 @@ const FloatingChat = () => {
     setSending(true)
 
     try {
-      const response = await fetch('/api/chat-agent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage.text, history, locale: lang }),
-      })
+      const { text, history: newHistory } = await chatAgent.chat(userMessage.text, history, { locale: lang })
 
-      const data = await response.json()
-
-      if (response.ok && data.text) {
+      if (text) {
         addMessage({
           id: messages.length + 2,
-          text: data.text,
+          text,
           isUser: false,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          time: new Date().toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
         })
-        chat.getState().setHistory(data.history)
+        chat.getState().setHistory(newHistory)
       } else {
-        throw new Error(data?.error || 'Request failed')
+        throw new Error('Empty agent reply')
       }
     } catch {
       addMessage({
         id: messages.length + 2,
         text: translate('chat.error'),
         isUser: false,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        time: new Date().toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
       })
     } finally {
       setSending(false)
@@ -116,7 +123,10 @@ const FloatingChat = () => {
       id: 1,
       text: translate('chat.welcome'),
       isUser: false,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      time: new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
     })
   }
 

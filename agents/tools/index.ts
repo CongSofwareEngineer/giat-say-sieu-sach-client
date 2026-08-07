@@ -1,6 +1,17 @@
-export * from './base'
+// Tool registry. Import and export every tool here so new tools are easy to
+// add: create the file, export it here, then attach it to the right agents.
 
-export { default as FaqTools, FAQ_ITEMS } from './faq'
-export { default as LanguageTools, LANGUAGE_PROMPTS, LANGUAGE_NAMES, buildLanguageSystemPrompt } from './language'
-export { default as PromotionTools } from './promotion'
-export { default as ServiceTools } from './service'
+export { answerInLanguageTool } from './language'
+export { getFaqTool } from './faq'
+export { estimateCostTool, getServiceTool, getServicesTool } from './price'
+export { getPromotionsTool } from './promotion'
+export { getBranchesTool, getContactInfoTool, trackOrderTool } from './order'
+export { searchTool } from './search'
+
+// Default tool set every agent gets (language + search)
+import type { AgentTool } from '../base'
+
+import { answerInLanguageTool } from './language'
+import { searchTool } from './search'
+
+export const baseTools: AgentTool[] = [answerInLanguageTool, searchTool]
