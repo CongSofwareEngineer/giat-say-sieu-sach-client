@@ -800,6 +800,10 @@
     "pressEnterToSend": "Note: press Enter to send",
     "clear": "Clear chat",
     "typing": "Staff is typing...",
+    "sessionExpired": "Session Expired",
+    "sessionExpiredMessage": "Your chat session has been inactive for a while. Would you like to continue or start a new chat?",
+    "continue": "Continue",
+    "startNew": "Start New",
     "quickOptions": {
       "title": "How can we help you?",
       "priceList": "Pricing",

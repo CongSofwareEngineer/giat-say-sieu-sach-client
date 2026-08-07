@@ -800,6 +800,10 @@
     "pressEnterToSend": "Ghi chú: nhấn Enter để gửi",
     "clear": "Xóa hội thoại",
     "typing": "Nhân viên đang trả lời...",
+    "sessionExpired": "Phiên làm việc đã hết hạn",
+    "sessionExpiredMessage": "Cuộc trò chuyện của bạn đã không hoạt động trong một thời gian. Bạn có muốn tiếp tục hay bắt đầu cuộc trò chuyện mới?",
+    "continue": "Tiếp tục",
+    "startNew": "Bắt đầu mới",
     "quickOptions": {
       "title": "Bạn cần giúp gì?",
       "priceList": "Bảng giá",
