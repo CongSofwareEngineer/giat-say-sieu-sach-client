@@ -10,6 +10,7 @@ export type ChatMessage = {
   text: string
   isUser: boolean
   time: string
+  isQuickOptions?: boolean
 }
 
 interface ChatState {

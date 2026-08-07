@@ -27,6 +27,7 @@ const FloatingChat = () => {
   const { translate, lang } = useLanguage()
   const { open, close, isMobile } = useModalDrawer({ maxWidth: 768 })
   const [isOpen, setIsOpen] = useState(false)
+  const [lastActivityTime, setLastActivityTime] = useState(Date.now())
   const isOpenRef = useRef(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { messages, inputValue, isSending, unreadCount, setInputValue, addMessage } = useChat()
@@ -35,6 +36,30 @@ const FloatingChat = () => {
   useEffect(() => {
     isOpenRef.current = isOpen
   }, [isOpen])
+
+  // Reset chat to initial state after 10 minutes of inactivity
+  useEffect(() => {
+    const timer = setTimeout(
+      () => {
+        if (isOpen) {
+          chat.getState().clearChat()
+          addMessage({
+            id: 1,
+            text: translate('chat.welcome'),
+            isUser: false,
+            time: new Date().toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            }),
+            isQuickOptions: true,
+          })
+        }
+      },
+      5 * 60 * 1000
+    )
+
+    return () => clearTimeout(timer)
+  }, [lastActivityTime, isOpen, addMessage, translate])
 
   useEffect(() => {
     if (chat.getState().messages.length === 0) {
@@ -46,6 +71,7 @@ const FloatingChat = () => {
           hour: '2-digit',
           minute: '2-digit',
         }),
+        isQuickOptions: true,
       })
     }
   }, [addMessage, translate])
@@ -66,14 +92,20 @@ const FloatingChat = () => {
     return () => clearTimeout(timer)
   }, [isOpen])
 
-  const handleSend = async () => {
+  const handleSend = async (messageText?: string) => {
     const { messages, inputValue, isSending, setInputValue, setSending, addMessage, history } = chat.getState()
 
-    if (!inputValue.trim() || isSending) return
+    const textToSend = messageText || inputValue
+
+    if (!textToSend.trim() || isSending) return
+
+    if (!messageText) {
+      setInputValue('')
+    }
 
     const userMessage = {
       id: messages.length + 1,
-      text: inputValue,
+      text: textToSend,
       isUser: true,
       time: new Date().toLocaleTimeString([], {
         hour: '2-digit',
@@ -82,11 +114,11 @@ const FloatingChat = () => {
     }
 
     addMessage(userMessage)
-    setInputValue('')
+    setLastActivityTime(Date.now())
     setSending(true)
 
     try {
-      const { text, history: newHistory } = await chatAgent.chat(userMessage.text, history, { locale: lang })
+      const { text, history: newHistory } = await chatAgent.chat(textToSend, history, { locale: lang })
 
       if (text) {
         addMessage({
@@ -126,6 +158,22 @@ const FloatingChat = () => {
     }
   }
 
+  const handleQuickOptionClick = (option: string) => {
+    chat.getState().clearChat()
+    addMessage({
+      id: 1,
+      text: translate('chat.welcome'),
+      isUser: false,
+      time: new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      isQuickOptions: true,
+    })
+    setLastActivityTime(Date.now())
+    setTimeout(() => handleSend(option), 0)
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -143,6 +191,7 @@ const FloatingChat = () => {
         hour: '2-digit',
         minute: '2-digit',
       }),
+      isQuickOptions: true,
     })
   }
 
@@ -150,6 +199,7 @@ const FloatingChat = () => {
     setIsOpen(true)
     // Clear the unread badge once the user opens the chat
     chat.getState().resetUnread()
+    setLastActivityTime(Date.now())
 
     if (isMobile) {
       open({
@@ -166,6 +216,7 @@ const FloatingChat = () => {
             handleClearChat={handleClearChat}
             messagesEndRef={messagesEndRef}
             translate={translate}
+            onQuickOptionClick={handleQuickOptionClick}
           />
         ),
       })
@@ -210,7 +261,13 @@ const FloatingChat = () => {
           </div>
         </div>
 
-        <ChatMessageList messages={messages} messagesEndRef={messagesEndRef} isSending={isSending} translate={translate} />
+        <ChatMessageList
+          messages={messages}
+          messagesEndRef={messagesEndRef}
+          isSending={isSending}
+          translate={translate}
+          onQuickOptionClick={handleQuickOptionClick}
+        />
 
         <div className='p-3 border-t border-border'>
           <div className='flex gap-2'>
@@ -222,7 +279,7 @@ const FloatingChat = () => {
               placeholder={translate('chat.inputPlaceholder')}
               className='flex-1 px-3 py-2 text-sm border border-border rounded-2xl focus:outline-none resize-none placeholder:text-gray-500'
             />
-            <MyButton onClick={handleSend} disabled={!inputValue.trim() || isSending} className='shrink-0 self-stretch rounded-2xl px-4'>
+            <MyButton onClick={() => handleSend()} disabled={!inputValue.trim() || isSending} className='shrink-0 self-stretch rounded-2xl px-4'>
               {isSending ? (
                 <span className='inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white' />
               ) : (
@@ -257,17 +314,43 @@ const FloatingChat = () => {
   )
 }
 
+// Quick options component for the welcome message
+const QuickOptions = ({ translate, onOptionClick }: { translate: TranslateFn; onOptionClick: (option: string) => void }) => {
+  const options = [
+    { key: 'priceList', label: translate('chat.quickOptions.priceList') },
+    { key: 'address', label: translate('chat.quickOptions.address') },
+    { key: 'promotions', label: translate('chat.quickOptions.promotions') },
+    { key: 'orderInfo', label: translate('chat.quickOptions.orderInfo') },
+  ]
+
+  return (
+    <div className='flex flex-wrap gap-2 mt-2'>
+      {options.map((option) => (
+        <button
+          key={option.key}
+          onClick={() => onOptionClick(option.label)}
+          className='px-3 py-1.5 text-xs bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors whitespace-nowrap'
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 // Shared message list with typing indicator for desktop popup and mobile drawer
 const ChatMessageList = ({
   messages,
   messagesEndRef,
   isSending,
   translate,
+  onQuickOptionClick,
 }: {
   messages: ChatMessage[]
   messagesEndRef: React.RefObject<HTMLDivElement | null>
   isSending: boolean
   translate: TranslateFn
+  onQuickOptionClick: (option: string) => void
 }) => {
   return (
     <div className='flex-1 overflow-y-auto p-4 space-y-3'>
@@ -276,7 +359,16 @@ const ChatMessageList = ({
           <div
             className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${msg.isUser ? 'bg-primary text-white rounded-br-md' : 'bg-gray-100 text-text rounded-bl-md'}`}
           >
-            {msg.isUser ? <p className='whitespace-pre-wrap'>{msg.text}</p> : <ChatMarkdown>{msg.text}</ChatMarkdown>}
+            {msg.isUser ? (
+              <p className='whitespace-pre-wrap'>{msg.text}</p>
+            ) : msg.isQuickOptions ? (
+              <>
+                <p className='whitespace-pre-wrap'>{msg.text}</p>
+                <QuickOptions translate={translate} onOptionClick={onQuickOptionClick} />
+              </>
+            ) : (
+              <ChatMarkdown>{msg.text}</ChatMarkdown>
+            )}
             <p className={`text-[10px] mt-1 ${msg.isUser ? 'text-white/90' : 'text-gray-500'}`}>{msg.time}</p>
           </div>
         </div>
@@ -310,12 +402,14 @@ const ChatContent = ({
   handleClearChat,
   messagesEndRef,
   translate,
+  onQuickOptionClick,
 }: {
   handleSend: () => void
   handleKeyDown: (e: React.KeyboardEvent) => void
   handleClearChat: () => void
   messagesEndRef: React.RefObject<HTMLDivElement | null>
   translate: TranslateFn
+  onQuickOptionClick: (option: string) => void
 }) => {
   const { messages, inputValue, isSending, setInputValue } = useChat()
 
@@ -336,7 +430,13 @@ const ChatContent = ({
         </button>
       </div>
 
-      <ChatMessageList messages={messages} messagesEndRef={messagesEndRef} isSending={isSending} translate={translate} />
+      <ChatMessageList
+        messages={messages}
+        messagesEndRef={messagesEndRef}
+        isSending={isSending}
+        translate={translate}
+        onQuickOptionClick={onQuickOptionClick}
+      />
 
       <div className='p-3 border-t border-border'>
         <div className='flex gap-2'>
@@ -348,7 +448,7 @@ const ChatContent = ({
             placeholder={translate('chat.inputPlaceholder')}
             className='flex-1 px-3 py-2 text-sm border border-border rounded-2xl focus:outline-none resize-none'
           />
-          <MyButton onClick={handleSend} disabled={!inputValue.trim() || isSending} className='shrink-0 self-stretch rounded-2xl px-4'>
+          <MyButton onClick={() => handleSend()} disabled={!inputValue.trim() || isSending} className='shrink-0 self-stretch rounded-2xl px-4'>
             {isSending ? (
               <span className='inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white' />
             ) : (

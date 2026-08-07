@@ -798,7 +798,14 @@
     "online": "Online",
     "pressEnterToSend": "Note: press Enter to send",
     "clear": "Clear chat",
-    "typing": "Staff is typing..."
+    "typing": "Staff is typing...",
+    "quickOptions": {
+      "title": "How can we help you?",
+      "priceList": "Pricing",
+      "address": "Address",
+      "promotions": "Promotions",
+      "orderInfo": "Check order info"
+    }
   },
   "imageCropper": {
     "title": "Crop Image",

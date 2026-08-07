@@ -798,7 +798,14 @@
     "online": "Đang trực tuyến",
     "pressEnterToSend": "Ghi chú: nhấn Enter để gửi",
     "clear": "Xóa hội thoại",
-    "typing": "Nhân viên đang trả lời..."
+    "typing": "Nhân viên đang trả lời...",
+    "quickOptions": {
+      "title": "Bạn cần giúp gì?",
+      "priceList": "Bảng giá",
+      "address": "Địa chỉ",
+      "promotions": "Khuyến mãi",
+      "orderInfo": "Check thông tin đơn hàng"
+    }
   },
   "imageCropper": {
     "title": "Cắt ảnh",
