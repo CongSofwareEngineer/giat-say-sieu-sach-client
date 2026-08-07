@@ -49,8 +49,7 @@ const RegisterPage = () => {
       newErrors.password = translate('common.required')
       isValid = false
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự'
-      isValid = false
+      newErrors.password = translate('auth.register.passwordMin')
     }
 
     if (!formData.confirmPassword) {

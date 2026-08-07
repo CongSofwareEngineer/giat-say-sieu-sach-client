@@ -31,18 +31,18 @@ export const drawer = create<DrawerStore>()(
       },
 
       close: () => {
-        const listDrawers = get().drawers
+        const listDrawers = [...get().drawers]
         const lastDrawer = listDrawers.pop()
 
         if (lastDrawer?.onClose) {
           lastDrawer.onClose()
         }
 
+        set({ drawers: listDrawers })
+
         if (listDrawers.length === 0) {
           document.body.style.removeProperty('overflow')
         }
-
-        set({ drawers: listDrawers.slice(0, -1) })
       },
 
       closeAll: () => {

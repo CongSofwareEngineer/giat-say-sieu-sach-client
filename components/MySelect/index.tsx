@@ -2,6 +2,8 @@
 
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 
+import useLanguage from '@/hooks/useLanguage'
+
 export type MySelectItem = {
   value?: string | number
   label?: ReactNode
@@ -23,7 +25,7 @@ export type MySelectProps = {
 export default function MySelect({
   data,
   value,
-  placeholder = 'Chọn',
+  placeholder,
   className,
   style,
   search = true,
@@ -32,6 +34,7 @@ export default function MySelect({
   onChange,
   onClick,
 }: MySelectProps) {
+  const { translate } = useLanguage()
   const [open, setOpen] = useState(false)
   const [keyword, setKeyword] = useState('')
 
@@ -83,7 +86,7 @@ export default function MySelect({
         disabled={disabled}
         className='cursor-pointer flex w-full items-center justify-between rounded-lg border bg-white px-4 py-2 disabled:cursor-not-allowed disabled:opacity-60'
       >
-        <span>{selected?.label ?? placeholder}</span>
+        <span>{selected?.label ?? placeholder ?? translate('common.select')}</span>
         <span className={`transition-transform ${open ? 'rotate-180' : ''}`}>▼</span>
       </button>
 
@@ -100,14 +103,14 @@ export default function MySelect({
               autoFocus={open}
               value={keyword}
               onChange={(e) => handleSearch(e.target.value)}
-              placeholder='Tìm...'
+              placeholder={translate('common.search')}
               className='w-full rounded border px-3 py-2 outline-none placeholder:text-gray-500'
             />
           </div>
         )}
 
         <ul className='max-h-60 overflow-auto'>
-          {filtered.length === 0 && <li className='px-4 py-3 text-gray-500'>Không tìm thấy</li>}
+          {filtered.length === 0 && <li className='px-4 py-3 text-gray-500'>{translate('common.notFound')}</li>}
 
           {filtered.map((item, index) => (
             <li

@@ -25,6 +25,15 @@ type CommentCardProps = {
   className?: string
 }
 
+// Mask phone for public display, e.g. 0901234567 -> 090•••••67
+const maskPhone = (phone: string): string => {
+  const clean = (phone ?? '').replace(/\s/g, '')
+
+  if (clean.length < 6) return phone
+
+  return `${clean.slice(0, 3)}•••••${clean.slice(-2)}`
+}
+
 // Render a single review card with stars, content, image thumbnails and owner/admin actions
 const CommentCard = ({ comment, className }: CommentCardProps) => {
   const { translate } = useLanguage()
@@ -116,7 +125,7 @@ const CommentCard = ({ comment, className }: CommentCardProps) => {
           </div>
           <div>
             <p className='font-semibold text-text'>{comment.name}</p>
-            <p className='text-xs text-gray-400'>{comment.phone}</p>
+            <p className='text-xs text-gray-400'>{maskPhone(comment.phone)}</p>
           </div>
         </div>
         <div className='flex flex-col items-end gap-1'>

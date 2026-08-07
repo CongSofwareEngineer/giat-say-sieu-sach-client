@@ -61,7 +61,9 @@
     "to": "đến",
     "from": "từ",
     "results": "kết quả",
-    "actions": "Thao tác"
+    "actions": "Thao tác",
+    "select": "Chọn",
+    "notFound": "Không tìm thấy"
   },
   "menu": {
     "home": "Trang chủ",
@@ -559,7 +561,8 @@
       "hasAccount": "Đã có tài khoản?",
       "loginNow": "Đăng nhập ngay",
       "error": "Đăng ký thất bại, vui lòng thử lại",
-      "passwordMismatch": "Mật khẩu không khớp"
+      "passwordMismatch": "Mật khẩu không khớp",
+      "passwordMin": "Mật khẩu phải có ít nhất 6 ký tự"
     }
   },
   "orders": {

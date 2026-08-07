@@ -72,19 +72,18 @@ const MyModal = () => {
         <div
           key={`modal-${index}`}
           className={cn(
-            'fixed flex justify-center items-center flex-col inset-0 w-[100dvw] h-[100dvh] bg-black/20 ',
+            'fixed flex justify-center items-center flex-col inset-0 w-[100dvw] h-[100dvh] bg-primary/25 backdrop-blur-[2px] ',
             modal?.classNames?.backdrop
           )}
           style={{
             zIndex: 100 + index * 2,
-            backdropFilter: 'blur(5px)',
             ...getPosition(modal),
           }}
           onClick={(e) => onClick(e, modal)}
         >
           <div
             className={cn(
-              'md:w-[500px] animation-zoom transition-all duration-500 border border-gray-200 dark:border-gray-600 max-h-[calc(100dvh-100px)] w-[90dvw] relative flex flex-col justify-center items-center bg-white dark:bg-gray-900 rounded-2xl p-5',
+              'md:w-[500px] animation-zoom transition-all duration-500 border border-border max-h-[calc(100dvh-100px)] w-[90dvw] relative flex flex-col justify-center items-center bg-card text-text rounded-2xl p-5 shadow-card-hover',
               modal.classNames?.container
             )}
             style={getPositionBody(modal)}
@@ -100,11 +99,11 @@ const MyModal = () => {
                   }}
                   className={'p-0 min-h-9 h-9 aspect-square rounded-full border-0'}
                 >
-                  <CloseIcon className='cursor-pointer size-6 text-black dark:text-white' />
+                  <CloseIcon className='cursor-pointer size-6 text-text' />
                 </button>
               </div>
             )}
-            {modal.title && <div className='text-medium mb-2 dark:text-white font-bold w-full'>{modal.title}</div>}
+            {modal.title && <div className='font-bold mb-2 w-full'>{modal.title}</div>}
             <div className='flex flex-1 w-full overflow-auto'>{modal.children}</div>
           </div>
         </div>

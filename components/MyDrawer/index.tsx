@@ -114,15 +114,15 @@ function MyDrawerItem({ index = 0, ...drawer }: MyDrawer & { index?: number }) {
       <aside
         style={drawerStyle}
         className={cn(
-          'fixed overflow-hidden bg-white  shadow-olive-500 transition-transform duration-300',
+          'fixed overflow-hidden bg-white shadow-lg transition-transform duration-300',
           placementBase[placement],
           open ? placementFinal[placement] : placementInitial[placement]
         )}
       >
         <div className='absolute top-0 left-0 right-0 z-10 flex h-15 items-center justify-between gap-4 border-b bg-primary p-4 shadow-md'>
-          <div className='min-w-0 flex-1 text-sm font-semibold'>{drawer.title}</div>
-          <button onClick={() => close()} aria-label='Close' className='shrink-0 text-xl'>
-            <div className='text-black'>✕</div>
+          <div className='min-w-0 flex-1 text-sm font-semibold text-white'>{drawer.title}</div>
+          <button onClick={() => close()} aria-label='Close' className='shrink-0 text-xl text-white'>
+            <div className='text-white'>✕</div>
           </button>
         </div>
         <div className='h-full w-full overflow-y-auto overscroll-contain pt-15'>{drawer.children}</div>

@@ -8,7 +8,7 @@ type Props = {} & Omit<ImageProps, 'alt' | 'src'> & {
     src?: string
   }
 
-const MyImage = ({ src, alt = 'thay-hong-toan', loading, priority = false, preload = false, ...props }: Props) => {
+const MyImage = ({ src, alt = '', loading, priority = false, preload = false, ...props }: Props) => {
   const isPreloaded = priority || preload
 
   return (

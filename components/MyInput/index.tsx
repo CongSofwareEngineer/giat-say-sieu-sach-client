@@ -26,9 +26,8 @@ const MyInput = forwardRef<HTMLInputElement, MyInputProps>(({ label, error, requ
         id={inputId}
         className={cn(
           'w-full px-4 py-2.5 rounded-lg border bg-white text-text placeholder-gray-500',
-          'border-primary',
-          'transition-colors',
-          error ? 'border-red-500' : 'border-border',
+          'transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30',
+          error ? 'border-red-500 focus:ring-red-500/30' : 'border-border focus:border-primary',
           className
         )}
         {...props}

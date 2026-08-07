@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 import MyInput from '@/components/MyInput'
 import MyTextarea from '@/components/MyTextarea'
@@ -28,6 +29,7 @@ type BookingErrors = Partial<Record<keyof BookingFormData, string>>
 
 const BookingPage = () => {
   const { translate } = useLanguage()
+  const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [orderCode, setOrderCode] = useState('')
@@ -151,7 +153,7 @@ const BookingPage = () => {
             <p className='text-gray-600 mb-4'>{translate('booking.success.message')}</p>
             <p className='text-2xl font-bold text-primary mb-6'>{orderCode}</p>
             <div className='flex flex-col gap-3'>
-              <MyButton variant='primary' className='w-full'>
+              <MyButton variant='primary' className='w-full' onClick={() => router.push(`/track-order?code=${orderCode}`)}>
                 {translate('booking.success.track')}
               </MyButton>
               <MyButton

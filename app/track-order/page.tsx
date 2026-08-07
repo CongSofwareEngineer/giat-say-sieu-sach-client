@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 import MyInput from '@/components/MyInput'
 import MyButton from '@/components/MyButton'
@@ -22,10 +23,18 @@ type TrackingResult = {
   eta: string
 } | null
 
-const TrackingPage = () => {
+const TrackingPageContent = () => {
   const { translate } = useLanguage()
+  const searchParams = useSearchParams()
   const [phone, setPhone] = useState('')
   const [orderCode, setOrderCode] = useState('')
+
+  // Prefill the order code when arriving from the booking confirmation page
+  useEffect(() => {
+    const code = searchParams.get('code')
+
+    if (code) setOrderCode(code)
+  }, [searchParams])
   const [isSearching, setIsSearching] = useState(false)
   const [result, setResult] = useState<TrackingResult>(null)
   const [error, setError] = useState('')
@@ -208,9 +217,7 @@ const TrackingPage = () => {
                 </div>
                 <div>
                   <p className='text-sm text-gray-500'>{translate('tracking.result.eta')}</p>
-                  <p className='font-semibold text-text'>
-                    {translate('tracking.result.eta')}: {result.eta}
-                  </p>
+                  <p className='font-semibold text-text'>{result.eta}</p>
                 </div>
               </div>
             </MyCardBody>
@@ -218,6 +225,14 @@ const TrackingPage = () => {
         )}
       </div>
     </div>
+  )
+}
+
+const TrackingPage = () => {
+  return (
+    <Suspense fallback={null}>
+      <TrackingPageContent />
+    </Suspense>
   )
 }
 

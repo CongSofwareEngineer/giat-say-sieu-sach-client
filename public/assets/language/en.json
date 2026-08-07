@@ -61,7 +61,9 @@
     "to": "to",
     "from": "from",
     "results": "results",
-    "actions": "Actions"
+    "actions": "Actions",
+    "select": "Select",
+    "notFound": "No results"
   },
   "menu": {
     "home": "Home",
@@ -559,7 +561,8 @@
       "hasAccount": "Already have an account?",
       "loginNow": "Login now",
       "error": "Registration failed, please try again",
-      "passwordMismatch": "Passwords do not match"
+      "passwordMismatch": "Passwords do not match",
+      "passwordMin": "Password must be at least 6 characters"
     }
   },
   "orders": {
