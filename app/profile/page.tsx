@@ -20,6 +20,8 @@ import { UserCircleIcon } from '@/components/Icons/UserCircle'
 import useLanguage from '@/hooks/useLanguage'
 import useUser from '@/hooks/useUser'
 import useModalDrawer from '@/hooks/useModalDrawer'
+import useBase64Img from '@/hooks/useBase64Img'
+import { MAX_AVATAR_FILE_SIZE } from '@/constants/app'
 import { UserAddress } from '@/zustand/user'
 import { cn } from '@/utils/tailwind'
 
@@ -226,12 +228,14 @@ const ProfilePage = () => {
   const router = useRouter()
   const { user, isLogin, hasHydrated, updateUser, addAddress, updateAddress, removeAddress, setDefaultAddress } = useUser()
   const { open, close } = useModalDrawer()
+  const { getFileOptimize } = useBase64Img()
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const editingAddressRef = useRef<UserAddress | null>(null)
 
   const [activeTab, setActiveTab] = useState<'info' | 'addresses'>('info')
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+  const [avatarError, setAvatarError] = useState('')
   const [isSavingInfo, setIsSavingInfo] = useState(false)
   const [isInfoSaved, setIsInfoSaved] = useState(false)
   const [infoForm, setInfoForm] = useState({ name: '', phone: '', email: '' })
@@ -256,24 +260,33 @@ const ProfilePage = () => {
   if (!hasHydrated || !isLogin) return null
 
   // Preview a new avatar locally before persisting
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
+
+    e.target.value = ''
 
     if (!file) return
 
-    setIsUploadingAvatar(true)
+    // Reject files larger than 5MB
+    if (file.size > MAX_AVATAR_FILE_SIZE) {
+      setAvatarError(translate('profile.avatar.maxSize'))
 
-    const reader = new FileReader()
-
-    reader.onload = () => {
-      setTimeout(() => {
-        updateUser({ avatar: reader.result as string })
-        setIsUploadingAvatar(false)
-      }, 800)
+      return
     }
 
-    reader.readAsDataURL(file)
-    e.target.value = ''
+    setAvatarError('')
+    setIsUploadingAvatar(true)
+
+    try {
+      const optimized = await getFileOptimize(file)
+      const base64 = await fileToBase64(optimized)
+
+      updateUser({ avatar: base64 })
+    } catch {
+      // Ignore failed/cancelled crops
+    } finally {
+      setIsUploadingAvatar(false)
+    }
   }
 
   const validateInfo = (): boolean => {

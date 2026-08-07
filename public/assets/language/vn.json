@@ -609,7 +609,8 @@
     },
     "avatar": {
       "change": "Đổi ảnh đại diện",
-      "uploading": "Đang tải ảnh..."
+      "uploading": "Đang tải ảnh...",
+      "maxSize": "Ảnh không được vượt quá 5MB"
     },
     "addresses": {
       "title": "Sổ địa chỉ",

@@ -609,7 +609,8 @@
     },
     "avatar": {
       "change": "Change Avatar",
-      "uploading": "Uploading..."
+      "uploading": "Uploading...",
+      "maxSize": "Image must not exceed 5MB"
     },
     "addresses": {
       "title": "Address Book",

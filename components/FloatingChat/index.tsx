@@ -15,6 +15,7 @@ import MyButton from '@/components/MyButton'
 import { chatAgent } from '@/agents'
 import { chat, type ChatMessage } from '@/zustand/chat'
 import { PATH_LANGUAGE, TYPE_LANGUAGE } from '@/zustand/language'
+import { notifyUnreadMessage } from '@/utils/notification'
 
 type TranslateFn = (
   key?: PATH_LANGUAGE<TYPE_LANGUAGE>,
@@ -98,7 +99,10 @@ const FloatingChat = () => {
           }),
         })
         // Count as unread when the user is not viewing the chat
-        if (!isOpenRef.current) chat.getState().incrementUnread()
+        if (!isOpenRef.current) {
+          chat.getState().incrementUnread()
+          notifyUnreadMessage()
+        }
         chat.getState().setHistory(newHistory)
       } else {
         throw new Error('Empty agent reply')
@@ -113,7 +117,10 @@ const FloatingChat = () => {
           minute: '2-digit',
         }),
       })
-      if (!isOpenRef.current) chat.getState().incrementUnread()
+      if (!isOpenRef.current) {
+        chat.getState().incrementUnread()
+        notifyUnreadMessage()
+      }
     } finally {
       setSending(false)
     }
