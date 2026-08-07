@@ -2,12 +2,12 @@
 
 import { useState, useRef, useEffect } from 'react'
 
-import ChatBubbleIcon from '../Icons/ChatBubble'
-import ChatMarkdown from '../ChatMarkdown'
-import { TrashIcon } from '../Icons/Trash'
-import { CloseIcon } from '../Icons/Functions/Close'
-import SendIcon from '../Icons/Functions/Send'
-
+import ChatBubbleIcon from '@/components/Icons/ChatBubble'
+import ChatMarkdown from '@/components/ChatMarkdown'
+import { TrashIcon } from '@/components/Icons/Trash'
+import { CloseIcon } from '@/components/Icons/Functions/Close'
+import SendIcon from '@/components/Icons/Functions/Send'
+import ContactFloatingButtons from '@/components/ContactFloatingButtons'
 import useChat from '@/hooks/useChat'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
@@ -196,15 +196,14 @@ const FloatingChat = () => {
 
         <div className='p-3 border-t border-border'>
           <textarea
-            rows={1}
+            rows={2}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={translate('chat.inputPlaceholder')}
             className='w-full px-3 py-2 text-sm border border-border rounded-2xl focus:outline-none resize-none placeholder:text-gray-500'
           />
-          <div className='flex items-center justify-between mt-2'>
-            <p className='text-xs text-gray-500'>{translate('chat.pressEnterToSend')}</p>
+          <div className='flex items-center justify-end mt-2'>
             <MyButton onClick={handleSend} disabled={!inputValue.trim() || isSending} className='p-3'>
               {isSending ? (
                 <span className='inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white' />
@@ -222,13 +221,18 @@ const FloatingChat = () => {
     <>
       {renderDesktopChat()}
 
-      <MyButton
-        onClick={isOpen ? closeChat : openChat}
-        aria-label={translate('chat.title')}
-        className={`fixed z-50 p-0 shadow-lg ${isMobile ? 'bottom-5 right-5 h-10 w-10' : 'bottom-6 right-6 h-[58px] w-[58px]'}`}
-      >
-        {isOpen ? <CloseIcon className='w-6 h-6' /> : <ChatBubbleIcon className='w-6 h-6' />}
-      </MyButton>
+      <ContactFloatingButtons
+        hidden={isOpen}
+        extraItems={[
+          {
+            key: 'chat',
+            label: translate('chat.title'),
+            icon: <ChatBubbleIcon className='h-5 w-5' />,
+            className: 'bg-gradient-to-br from-primary to-secondary',
+            onClick: openChat,
+          },
+        ]}
+      />
     </>
   )
 }
@@ -316,15 +320,14 @@ const ChatContent = ({
 
       <div className='p-3 border-t border-border'>
         <textarea
-          rows={1}
+          rows={2}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={translate('chat.inputPlaceholder')}
           className='w-full px-3 py-2 text-sm border border-border rounded-2xl focus:outline-none resize-none'
         />
-        <div className='flex items-center justify-between mt-2'>
-          <p className='text-xs text-gray-500'>{translate('chat.pressEnterToSend')}</p>
+        <div className='flex items-center justify-end mt-2'>
           <MyButton onClick={handleSend} disabled={!inputValue.trim() || isSending} className='p-3'>
             {isSending ? (
               <span className='inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white' />

@@ -508,6 +508,12 @@
       "zalo": "Zalo",
       "workingHours": "Working Hours"
     },
+    "quick": {
+      "title": "Quick contact",
+      "zalo": "Chat on Zalo",
+      "message": "Send SMS",
+      "call": "Call us"
+    },
     "form": {
       "title": "Contact Us",
       "name": "Name",

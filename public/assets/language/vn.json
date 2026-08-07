@@ -508,6 +508,12 @@
       "zalo": "Zalo",
       "workingHours": "Giờ làm việc"
     },
+    "quick": {
+      "title": "Liên hệ nhanh",
+      "zalo": "Chat qua Zalo",
+      "message": "Nhắn tin SMS",
+      "call": "Gọi điện thoại"
+    },
     "form": {
       "title": "Liên hệ với chúng tôi",
       "name": "Họ tên",
