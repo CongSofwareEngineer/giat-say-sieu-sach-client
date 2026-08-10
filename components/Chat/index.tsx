@@ -327,6 +327,7 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
+            maxLength={200}
             placeholder={translate('chat.inputPlaceholder')}
             className='flex-1 px-3 py-2 text-sm border border-border rounded-2xl focus:outline-none resize-none'
           />
@@ -338,6 +339,7 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
             )}
           </MyButton>
         </div>
+        <div className='text-xs text-gray-500 text-right mt-1'>{inputValue.length}/200</div>
       </div>
     </div>
   )

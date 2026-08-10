@@ -6,15 +6,7 @@ import ChatBubbleIcon from '@/components/Icons/ChatBubble'
 import ContactFloatingButtons from '@/components/ContactFloatingButtons'
 import useModalDrawer from '@/hooks/useModalDrawer'
 import useLanguage from '@/hooks/useLanguage'
-import { PATH_LANGUAGE, TYPE_LANGUAGE } from '@/zustand/language'
-
 import Chat from '@/components/Chat'
-
-type TranslateFn = (
-  key?: PATH_LANGUAGE<TYPE_LANGUAGE>,
-  variables?: Record<string, any>,
-  defaultMessage?: string
-) => any
 
 const FloatingChat = () => {
   const { translate } = useLanguage()
@@ -27,8 +19,9 @@ const FloatingChat = () => {
       openDrawer({
         title: translate('chat.title'),
         drawerPlacement: 'bottom',
+        className: '!h-[calc(100dvh-20px)]',
         classNames: {
-          container: 'rounded-t-2xl',
+          container: 'rounded-t-2xl h-[calc(100dvh-20px)]',
         },
         onClose: () => setIsOpen(false),
         children: <Chat isMobile={true} />,
@@ -44,6 +37,7 @@ const FloatingChat = () => {
   // Desktop chat popup
   const renderDesktopChat = () => {
     if (!isOpen || isMobile) return null
+
     return <Chat onClose={closeChat} isMobile={false} />
   }
 
