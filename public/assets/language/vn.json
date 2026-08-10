@@ -809,8 +809,8 @@
       "priceList": "Bảng giá",
       "address": "Địa chỉ",
       "promotions": "Khuyến mãi",
-      "orderInfo": "Check thông tin đơn hàng",
-      "laundry": "Giặt đồ"
+      "orderInfo": "Check đơn hàng",
+      "laundry": "đặt giặt đồ"
     },
     "laundryForm": {
       "title": "Đặt dịch vụ giặt đồ",

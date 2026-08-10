@@ -809,8 +809,8 @@
       "priceList": "Pricing",
       "address": "Address",
       "promotions": "Promotions",
-      "orderInfo": "Check order info",
-      "laundry": "Laundry Service"
+      "orderInfo": "Check order",
+      "laundry": "Order laundry"
     },
     "laundryForm": {
       "title": "Book Laundry Service",

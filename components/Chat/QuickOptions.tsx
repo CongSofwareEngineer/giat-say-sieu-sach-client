@@ -29,7 +29,7 @@ const QuickOptions = ({ onOptionClick, onLaundryClick }: QuickOptionsProps) => {
               onOptionClick(option.label)
             }
           }}
-          className='px-3 py-1.5 text-xs bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors whitespace-nowrap'
+          className='cursor-pointer px-3 py-1.5 text-xs bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors whitespace-nowrap'
         >
           {option.label}
         </button>
