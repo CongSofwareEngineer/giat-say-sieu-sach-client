@@ -25,6 +25,7 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
   const { translate, lang } = useLanguage()
   const {
     isHasHydrated,
+    isOpen,
     incrementUnread,
     setHistory,
     setSending,
@@ -41,7 +42,6 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
 
   const { user } = useUser()
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const isOpenRef = useRef(true)
 
   // Laundry form state
   const [showLaundryForm, setShowLaundryForm] = useState(false)
@@ -53,11 +53,6 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
     weight: '',
   })
   const [laundryFormMessageId, setLaundryFormMessageId] = useState<number | null>(null)
-
-  // Update isOpenRef when chat opens/closes
-  useEffect(() => {
-    isOpenRef.current = true
-  }, [])
 
   // Mark as read when chat opens
   useEffect(() => {
@@ -240,7 +235,8 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
           setShowLaundryForm(true)
         }
 
-        if (!isOpenRef.current) {
+        // Count as unread when the user is not viewing the chat
+        if (!isOpen) {
           incrementUnread()
           notifyUnreadMessage()
         }
@@ -258,7 +254,7 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
           minute: '2-digit',
         }),
       })
-      if (!isOpenRef.current) {
+      if (!isOpen) {
         incrementUnread()
         notifyUnreadMessage()
       }

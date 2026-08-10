@@ -18,10 +18,12 @@ interface ChatState {
   history: AgentMessage[]
   inputValue: string
   isSending: boolean
+  isOpen: boolean
   unreadCount: number
   isHasHydrated: boolean
   setInputValue: (value: string) => void
   setSending: (sending: boolean) => void
+  setOpen: (open: boolean) => void
   addMessage: (message: ChatMessage) => void
   removeMessage: (id: number) => void
   incrementUnread: () => void
@@ -39,10 +41,12 @@ export const chat = create<ChatState>()(
         history: [],
         inputValue: '',
         isSending: false,
+        isOpen: false,
         unreadCount: 0,
         isHasHydrated: false,
         setInputValue: (value) => set({ inputValue: value }),
         setSending: (sending) => set({ isSending: sending }),
+        setOpen: (open) => set({ isOpen: open }),
         addMessage: (message) => set({ messages: [...get().messages, message] }),
         removeMessage: (id) => set({ messages: get().messages.filter((msg) => msg.id !== id) }),
         incrementUnread: () => set({ unreadCount: get().unreadCount + 1 }),

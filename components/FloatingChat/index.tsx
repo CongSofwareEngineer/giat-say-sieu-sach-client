@@ -6,15 +6,20 @@ import ChatBubbleIcon from '@/components/Icons/ChatBubble'
 import ContactFloatingButtons from '@/components/ContactFloatingButtons'
 import useModalDrawer from '@/hooks/useModalDrawer'
 import useLanguage from '@/hooks/useLanguage'
+import useChat from '@/hooks/useChat'
 import Chat from '@/components/Chat'
 
 const FloatingChat = () => {
   const { translate } = useLanguage()
   const { open: openDrawer, close: closeDrawer, isMobile } = useModalDrawer({ maxWidth: 768 })
   const [isOpen, setIsOpen] = useState(false)
+  const { unreadCount, setOpen, resetUnread } = useChat()
 
   const openChat = () => {
     setIsOpen(true)
+    setOpen(true)
+    // Clear the unread badge once the user opens the chat
+    resetUnread()
     if (isMobile) {
       openDrawer({
         title: translate('chat.title'),
@@ -23,13 +28,17 @@ const FloatingChat = () => {
         classNames: {
           container: 'rounded-t-2xl',
         },
-        onClose: () => setIsOpen(false),
+        onClose: () => {
+          setOpen(false)
+          setIsOpen(false)
+        },
         children: <Chat isMobile={true} />,
       })
     }
   }
 
   const closeChat = () => {
+    setOpen(false)
     setIsOpen(false)
     if (isMobile) closeDrawer()
   }
@@ -46,14 +55,14 @@ const FloatingChat = () => {
       {renderDesktopChat()}
       <ContactFloatingButtons
         hidden={isOpen}
-        badge={0}
+        badge={unreadCount}
         extraItems={[
           {
             key: 'chat',
             label: translate('chat.title'),
             icon: <ChatBubbleIcon className='h-5 w-5' />,
             className: 'bg-gradient-to-br from-primary to-secondary',
-            badge: 0,
+            badge: unreadCount,
             onClick: openChat,
           },
         ]}
