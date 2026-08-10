@@ -21,7 +21,7 @@ const FloatingChat = () => {
         drawerPlacement: 'bottom',
         className: '!h-[calc(100dvh-20px)]',
         classNames: {
-          container: 'rounded-t-2xl h-[calc(100dvh-20px)]',
+          container: 'rounded-t-2xl',
         },
         onClose: () => setIsOpen(false),
         children: <Chat isMobile={true} />,

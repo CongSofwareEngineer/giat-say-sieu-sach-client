@@ -1,6 +1,8 @@
 'use client'
 
+import useChat from '@/hooks/useChat'
 import useLanguage from '@/hooks/useLanguage'
+import { cn } from '@/utils/tailwind'
 
 type QuickOptionsProps = {
   onOptionClick: (option: string) => void
@@ -9,6 +11,7 @@ type QuickOptionsProps = {
 
 const QuickOptions = ({ onOptionClick, onLaundryClick }: QuickOptionsProps) => {
   const { translate } = useLanguage()
+  const { isSending } = useChat()
   const options = [
     { key: 'priceList', label: translate('chat.quickOptions.priceList') },
     { key: 'address', label: translate('chat.quickOptions.address') },
@@ -29,7 +32,10 @@ const QuickOptions = ({ onOptionClick, onLaundryClick }: QuickOptionsProps) => {
               onOptionClick(option.label)
             }
           }}
-          className='cursor-pointer px-3 py-1.5 text-xs bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors whitespace-nowrap'
+          className={cn(
+            ' px-3 py-1.5 text-xs bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors whitespace-nowrap',
+            isSending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+          )}
         >
           {option.label}
         </button>
