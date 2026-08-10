@@ -26,6 +26,9 @@ const QuickOptions = ({ onOptionClick, onLaundryClick }: QuickOptionsProps) => {
         <button
           key={option.key}
           onClick={() => {
+            if (isSending) {
+              return
+            }
             if (option.key === 'laundry' && onLaundryClick) {
               onLaundryClick()
             } else {
