@@ -13,6 +13,7 @@ import useChat from '@/hooks/useChat'
 import useLanguage from '@/hooks/useLanguage'
 import useUser from '@/hooks/useUser'
 import { chatAgent } from '@/agents'
+import { LAUNDRY_FORM_MARKER } from '@/agents/tools/laundry'
 import { notifyUnreadMessage } from '@/utils/notification'
 
 type ChatProps = {
@@ -219,15 +220,26 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
       const { text, history: newHistory } = await chatAgent.chat(textToSend, history, { locale: lang })
 
       if (text) {
-        addMessage({
-          id: Date.now(),
-          text,
-          isUser: false,
-          time: new Date().toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
-        })
+        // Agent requested the laundry order form -> strip the marker and show it
+        const wantsLaundryForm = text.includes(LAUNDRY_FORM_MARKER)
+        const cleanText = wantsLaundryForm ? text.replace(LAUNDRY_FORM_MARKER, '').trim() : text
+
+        if (cleanText) {
+          addMessage({
+            id: Date.now(),
+            text: cleanText,
+            isUser: false,
+            time: new Date().toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            }),
+          })
+        }
+
+        if (wantsLaundryForm) {
+          setShowLaundryForm(true)
+        }
+
         if (!isOpenRef.current) {
           incrementUnread()
           notifyUnreadMessage()

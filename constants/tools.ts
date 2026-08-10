@@ -10,6 +10,8 @@ export const TOOL_NAME = {
   getBranches: 'get_branches',
   // FAQ tool set (small, common questions)
   getFaq: 'get_faq',
+  // Laundry tool set (booking/pickup intent -> open the order form)
+  laundry: 'open_laundry_form',
   // Language tool set (reply in the client's selected language)
   answerInLanguage: 'answer_in_language',
   // Promotion tool set (current running programs from the API)

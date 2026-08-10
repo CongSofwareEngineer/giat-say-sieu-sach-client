@@ -6,6 +6,7 @@ export { getFaqTool } from './faq'
 export { estimateCostTool, getServiceTool, getServicesTool } from './price'
 export { getPromotionsTool } from './promotion'
 export { getBranchesTool, getContactInfoTool, trackOrderTool } from './order'
+export { openLaundryFormTool } from './laundry'
 export { searchTool } from './search'
 
 // Default tool set every agent gets (language + search)
