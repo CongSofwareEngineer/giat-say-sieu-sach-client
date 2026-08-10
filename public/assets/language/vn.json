@@ -809,7 +809,27 @@
       "priceList": "Bảng giá",
       "address": "Địa chỉ",
       "promotions": "Khuyến mãi",
-      "orderInfo": "Check thông tin đơn hàng"
+      "orderInfo": "Check thông tin đơn hàng",
+      "laundry": "Giặt đồ"
+    },
+    "laundryForm": {
+      "title": "Đặt dịch vụ giặt đồ",
+      "namePlaceholder": "Nhập họ tên",
+      "phonePlaceholder": "Nhập số điện thoại",
+      "addressPlaceholder": "Nhập địa chỉ",
+      "serviceType": "Loại dịch vụ",
+      "weight": "Khối lượng (kg)",
+      "weightPlaceholder": "Nhập số kg",
+      "estimatedPrice": "Giá ước tính",
+      "submit": "Đặt lịch",
+      "orderConfirmed": "Cảm ơn bạn đã đặt dịch vụ! Chúng tôi sẽ liên hệ xác nhận sớm nhất.",
+      "serviceOptions": {
+        "clothes": "Quần áo thường",
+        "bedding": "Chăn mền",
+        "dryClean": "Vest/Áo dài (giặt khô)",
+        "express": "Giặt nhanh",
+        "washIron": "Giặt + Ủi"
+      }
     }
   },
   "imageCropper": {

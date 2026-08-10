@@ -809,7 +809,27 @@
       "priceList": "Pricing",
       "address": "Address",
       "promotions": "Promotions",
-      "orderInfo": "Check order info"
+      "orderInfo": "Check order info",
+      "laundry": "Laundry Service"
+    },
+    "laundryForm": {
+      "title": "Book Laundry Service",
+      "namePlaceholder": "Enter your name",
+      "phonePlaceholder": "Enter your phone",
+      "addressPlaceholder": "Enter your address",
+      "serviceType": "Service Type",
+      "weight": "Weight (kg)",
+      "weightPlaceholder": "Enter weight in kg",
+      "estimatedPrice": "Estimated Price",
+      "submit": "Book Now",
+      "orderConfirmed": "Thank you for booking! We will contact you soon to confirm.",
+      "serviceOptions": {
+        "clothes": "Regular Clothes",
+        "bedding": "Bedding",
+        "dryClean": "Suit/Dress (Dry Clean)",
+        "express": "Express Wash",
+        "washIron": "Wash + Iron"
+      }
     }
   },
   "imageCropper": {

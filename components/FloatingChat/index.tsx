@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 
 import ChatBubbleIcon from '@/components/Icons/ChatBubble'
 import ChatMarkdown from '@/components/ChatMarkdown'
@@ -11,6 +11,7 @@ import ContactFloatingButtons from '@/components/ContactFloatingButtons'
 import useChat from '@/hooks/useChat'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
+import useUser from '@/hooks/useUser'
 import MyButton from '@/components/MyButton'
 import { chatAgent } from '@/agents'
 import { chat, type ChatMessage } from '@/zustand/chat'
@@ -23,6 +24,31 @@ type TranslateFn = (
   defaultMessage?: string
 ) => any
 
+type LaundryFormData = {
+  name: string
+  phone: string
+  address: string
+  serviceType: string
+  weight: string
+}
+
+// Pricing configuration for laundry services
+const LAUNDRY_PRICES: Record<string, number> = {
+  'quan-ao': 25000, // Giặt thường 25k/kg
+  'chan-mem': 80000, // Giặt chăn ga 80k/bộ
+  'vest-ao-dai': 80000, // Giặt khô 80k/kg
+  'giat-nhanh': 40000, // Giặt nhanh 40k/kg
+  'giat-ui': 50000, // Giặt + ủi 50k/kg
+}
+
+const LAUNDRY_SERVICE_NAMES: Record<string, string> = {
+  'quan-ao': 'Quần áo thường',
+  'chan-mem': 'Chăn mền',
+  'vest-ao-dai': 'Vest/Áo dài (giặt khô)',
+  'giat-nhanh': 'Giặt nhanh',
+  'giat-ui': 'Giặt + Ủi',
+}
+
 const FloatingChat = () => {
   const { translate, lang } = useLanguage()
   const { open: openDrawer, close: closeDrawer, isMobile } = useModalDrawer({ maxWidth: 768 })
@@ -30,6 +56,17 @@ const FloatingChat = () => {
   const isOpenRef = useRef(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { messages, inputValue, isSending, unreadCount, setInputValue, addMessage } = useChat()
+
+  // Laundry form state
+  const { user } = useUser()
+  const [showLaundryForm, setShowLaundryForm] = useState(false)
+  const [laundryFormData, setLaundryFormData] = useState<LaundryFormData>({
+    name: user?.name || '',
+    phone: user?.phone || '',
+    address: user?.addresses?.[0]?.detail || '',
+    serviceType: 'quan-ao',
+    weight: '',
+  })
 
   // Keep an up-to-date open flag so async replies know if the chat was closed mid-request
   useEffect(() => {
@@ -66,6 +103,92 @@ const FloatingChat = () => {
 
     return () => clearTimeout(timer)
   }, [isOpen])
+
+  // Calculate estimated price
+  const calculateEstimatedPrice = useCallback(() => {
+    const weight = parseFloat(laundryFormData.weight)
+
+    if (isNaN(weight) || weight <= 0) return 0
+
+    const pricePerKg = LAUNDRY_PRICES[laundryFormData.serviceType] || 25000
+
+    return Math.round(pricePerKg * weight)
+  }, [laundryFormData.weight, laundryFormData.serviceType])
+
+  const estimatedPrice = calculateEstimatedPrice()
+
+  // Handle laundry option click
+  const handleLaundryOptionClick = useCallback(() => {
+    setShowLaundryForm(true)
+    setInputValue('')
+    addMessage({
+      id: messages.length + 1,
+      text: translate('chat.laundryForm.title') || 'Đặt dịch vụ giặt đồ',
+      isUser: false,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    })
+  }, [messages.length, translate, addMessage, setInputValue])
+
+  // Handle laundry form input change
+  const handleLaundryFormChange = useCallback((field: string, value: string) => {
+    setLaundryFormData((prev) => ({ ...prev, [field]: value }))
+  }, [])
+
+  // Handle submit laundry order
+  const handleSubmitLaundry = useCallback(() => {
+    if (!laundryFormData.name.trim() || !laundryFormData.phone.trim() || !laundryFormData.address.trim() || !laundryFormData.weight.trim()) {
+      return
+    }
+
+    const orderMessage =
+      `Đặt dịch vụ giặt đồ:\n\n` +
+      `• Họ tên: ${laundryFormData.name}\n` +
+      `• SĐT: ${laundryFormData.phone}\n` +
+      `• Địa chỉ: ${laundryFormData.address}\n` +
+      `• Loại: ${LAUNDRY_SERVICE_NAMES[laundryFormData.serviceType]}\n` +
+      `• Khối lượng: ${laundryFormData.weight} kg\n` +
+      `• Giá ước tính: ${estimatedPrice.toLocaleString()}đ`
+
+    // Add user message to chat
+    addMessage({
+      id: messages.length + 1,
+      text: orderMessage,
+      isUser: true,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    })
+
+    // Reset form
+    setShowLaundryForm(false)
+    setLaundryFormData({
+      name: user?.name || '',
+      phone: user?.phone || '',
+      address: user?.addresses?.[0]?.detail || '',
+      serviceType: 'quan-ao',
+      weight: '',
+    })
+
+    // Show confirmation
+    setTimeout(() => {
+      addMessage({
+        id: messages.length + 2,
+        text: translate('chat.laundryForm.orderConfirmed') || 'Cảm ơn bạn đã đặt dịch vụ! Chúng tôi sẽ liên hệ xác nhận sớm nhất.',
+        isUser: false,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      })
+    }, 500)
+  }, [laundryFormData, estimatedPrice, user, messages.length, translate, addMessage])
+
+  // Handle cancel laundry form
+  const handleCancelLaundry = useCallback(() => {
+    setShowLaundryForm(false)
+    setLaundryFormData({
+      name: user?.name || '',
+      phone: user?.phone || '',
+      address: user?.addresses?.[0]?.detail || '',
+      serviceType: 'quan-ao',
+      weight: '',
+    })
+  }, [user])
 
   const handleSend = async (messageText?: string) => {
     const { messages, inputValue, isSending, setInputValue, setSending, addMessage, history } = chat.getState()
@@ -189,6 +312,17 @@ const FloatingChat = () => {
             messagesEndRef={messagesEndRef}
             translate={translate}
             onQuickOptionClick={handleQuickOptionClick}
+            onLaundryClick={handleLaundryOptionClick}
+            showLaundryForm={showLaundryForm}
+            laundryFormData={laundryFormData}
+            estimatedPrice={estimatedPrice}
+            onLaundryFormChange={handleLaundryFormChange}
+            onSubmitLaundry={handleSubmitLaundry}
+            onCancelLaundry={handleCancelLaundry}
+            messages={messages}
+            inputValue={inputValue}
+            isSending={isSending}
+            setInputValue={setInputValue}
           />
         ),
       })
@@ -239,6 +373,13 @@ const FloatingChat = () => {
           isSending={isSending}
           translate={translate}
           onQuickOptionClick={handleQuickOptionClick}
+          onLaundryClick={handleLaundryOptionClick}
+          showLaundryForm={showLaundryForm}
+          laundryFormData={laundryFormData}
+          estimatedPrice={estimatedPrice}
+          onLaundryFormChange={handleLaundryFormChange}
+          onSubmitLaundry={handleSubmitLaundry}
+          onCancelLaundry={handleCancelLaundry}
         />
 
         <div className='p-3 border-t border-border'>
@@ -287,12 +428,21 @@ const FloatingChat = () => {
 }
 
 // Quick options component for the welcome message
-const QuickOptions = ({ translate, onOptionClick }: { translate: TranslateFn; onOptionClick: (option: string) => void }) => {
+const QuickOptions = ({
+  translate,
+  onOptionClick,
+  onLaundryClick,
+}: {
+  translate: TranslateFn
+  onOptionClick: (option: string) => void
+  onLaundryClick?: () => void
+}) => {
   const options = [
     { key: 'priceList', label: translate('chat.quickOptions.priceList') },
     { key: 'address', label: translate('chat.quickOptions.address') },
     { key: 'promotions', label: translate('chat.quickOptions.promotions') },
     { key: 'orderInfo', label: translate('chat.quickOptions.orderInfo') },
+    { key: 'laundry', label: translate('chat.quickOptions.laundry') },
   ]
 
   return (
@@ -300,12 +450,134 @@ const QuickOptions = ({ translate, onOptionClick }: { translate: TranslateFn; on
       {options.map((option) => (
         <button
           key={option.key}
-          onClick={() => onOptionClick(option.label)}
+          onClick={() => {
+            if (option.key === 'laundry' && onLaundryClick) {
+              onLaundryClick()
+            } else {
+              onOptionClick(option.label)
+            }
+          }}
           className='px-3 py-1.5 text-xs bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors whitespace-nowrap'
         >
           {option.label}
         </button>
       ))}
+    </div>
+  )
+}
+
+// Laundry Form component
+const LaundryForm = ({
+  formData,
+  estimatedPrice,
+  onChange,
+  onSubmit,
+  onCancel,
+  translate,
+}: {
+  formData: LaundryFormData
+  estimatedPrice: number
+  onChange: (field: string, value: string) => void
+  onSubmit: () => void
+  onCancel: () => void
+  translate: TranslateFn
+}) => {
+  const serviceOptions = [
+    { key: 'quan-ao', label: translate('chat.laundryForm.serviceOptions.clothes') || 'Quần áo thường' },
+    { key: 'chan-mem', label: translate('chat.laundryForm.serviceOptions.bedding') || 'Chăn mền' },
+    { key: 'vest-ao-dai', label: translate('chat.laundryForm.serviceOptions.dryClean') || 'Vest/Áo dài (giặt khô)' },
+    { key: 'giat-nhanh', label: translate('chat.laundryForm.serviceOptions.express') || 'Giặt nhanh' },
+    { key: 'giat-ui', label: translate('chat.laundryForm.serviceOptions.washIron') || 'Giặt + Ủi' },
+  ]
+
+  const isFormValid =
+    formData.name.trim() && formData.phone.trim() && formData.address.trim() && formData.weight.trim() && parseFloat(formData.weight) > 0
+
+  return (
+    <div className='bg-white border border-border w-full rounded-xl p-4 space-y-4'>
+      <h3 className='font-semibold text-primary'>{translate('chat.laundryForm.title') || 'Đặt dịch vụ giặt đồ'}</h3>
+
+      <div className='space-y-3'>
+        <div>
+          <label className='block text-xs font-medium text-gray-700 mb-1'>{translate('common.name') || 'Họ tên'}</label>
+          <input
+            type='text'
+            value={formData.name}
+            onChange={(e) => onChange('name', e.target.value)}
+            placeholder={translate('chat.laundryForm.namePlaceholder') || 'Nhập họ tên'}
+            className='w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20'
+          />
+        </div>
+
+        <div>
+          <label className='block text-xs font-medium text-gray-700 mb-1'>{translate('common.phone') || 'Số điện thoại'}</label>
+          <input
+            type='tel'
+            value={formData.phone}
+            onChange={(e) => onChange('phone', e.target.value)}
+            placeholder={translate('chat.laundryForm.phonePlaceholder') || 'Nhập số điện thoại'}
+            className='w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20'
+          />
+        </div>
+
+        <div>
+          <label className='block text-xs font-medium text-gray-700 mb-1'>{translate('common.address') || 'Địa chỉ'}</label>
+          <input
+            type='text'
+            value={formData.address}
+            onChange={(e) => onChange('address', e.target.value)}
+            placeholder={translate('chat.laundryForm.addressPlaceholder') || 'Nhập địa chỉ'}
+            className='w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20'
+          />
+        </div>
+
+        <div>
+          <label className='block text-xs font-medium text-gray-700 mb-1'>{translate('chat.laundryForm.serviceType') || 'Loại dịch vụ'}</label>
+          <select
+            value={formData.serviceType}
+            onChange={(e) => onChange('serviceType', e.target.value)}
+            className='w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 bg-white'
+          >
+            {serviceOptions.map((option) => (
+              <option key={option.key} value={option.key}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className='block text-xs font-medium text-gray-700 mb-1'>{translate('chat.laundryForm.weight') || 'Khối lượng (kg)'}</label>
+          <input
+            type='number'
+            value={formData.weight}
+            onChange={(e) => onChange('weight', e.target.value)}
+            placeholder={translate('chat.laundryForm.weightPlaceholder') || 'Nhập số kg'}
+            min='1'
+            step='0.1'
+            className='w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20'
+          />
+        </div>
+
+        {/* Estimated price display */}
+        {estimatedPrice > 0 && (
+          <div className='p-3 bg-primary/5 border border-primary/20 rounded-lg'>
+            <p className='text-sm text-primary font-medium'>
+              {translate('chat.laundryForm.estimatedPrice') || 'Giá ước tính'}:
+              <span className='font-bold text-primary ml-1'>{estimatedPrice.toLocaleString()}đ</span>
+            </p>
+          </div>
+        )}
+
+        <div className='flex gap-2 pt-2'>
+          <MyButton onClick={onCancel} variant='outline' className='flex-1 py-2 text-sm'>
+            {translate('common.cancel') || 'Hủy'}
+          </MyButton>
+          <MyButton onClick={onSubmit} disabled={!isFormValid} className='flex-1 py-2 text-sm'>
+            {translate('chat.laundryForm.submit') || 'Đặt lịch'}
+          </MyButton>
+        </div>
+      </div>
     </div>
   )
 }
@@ -317,12 +589,26 @@ const ChatMessageList = ({
   isSending,
   translate,
   onQuickOptionClick,
+  onLaundryClick,
+  showLaundryForm,
+  laundryFormData,
+  estimatedPrice,
+  onLaundryFormChange,
+  onSubmitLaundry,
+  onCancelLaundry,
 }: {
   messages: ChatMessage[]
   messagesEndRef: React.RefObject<HTMLDivElement | null>
   isSending: boolean
   translate: TranslateFn
   onQuickOptionClick: (option: string) => void
+  onLaundryClick?: () => void
+  showLaundryForm?: boolean
+  laundryFormData?: LaundryFormData
+  estimatedPrice?: number
+  onLaundryFormChange?: (field: string, value: string) => void
+  onSubmitLaundry?: () => void
+  onCancelLaundry?: () => void
 }) => {
   return (
     <div className='flex-1 overflow-y-auto p-4 space-y-3'>
@@ -336,7 +622,7 @@ const ChatMessageList = ({
             ) : msg.isQuickOptions ? (
               <>
                 <p className='whitespace-pre-wrap'>{msg.text}</p>
-                <QuickOptions translate={translate} onOptionClick={onQuickOptionClick} />
+                <QuickOptions translate={translate} onOptionClick={onQuickOptionClick} onLaundryClick={onLaundryClick} />
               </>
             ) : (
               <ChatMarkdown>{msg.text}</ChatMarkdown>
@@ -345,6 +631,23 @@ const ChatMessageList = ({
           </div>
         </div>
       ))}
+
+      {/* Laundry Form Display */}
+      {showLaundryForm && laundryFormData && onLaundryFormChange && onSubmitLaundry && onCancelLaundry && (
+        <div className='flex justify-start'>
+          <div className='w-full'>
+            <LaundryForm
+              formData={laundryFormData}
+              estimatedPrice={estimatedPrice || 0}
+              onChange={onLaundryFormChange}
+              onSubmit={onSubmitLaundry}
+              onCancel={onCancelLaundry}
+              translate={translate}
+            />
+          </div>
+        </div>
+      )}
+
       {isSending && <TypingIndicator translate={translate} />}
       <div ref={messagesEndRef} />
     </div>
@@ -375,6 +678,17 @@ const ChatContent = ({
   messagesEndRef,
   translate,
   onQuickOptionClick,
+  onLaundryClick,
+  showLaundryForm,
+  laundryFormData,
+  estimatedPrice,
+  onLaundryFormChange,
+  onSubmitLaundry,
+  onCancelLaundry,
+  messages,
+  inputValue,
+  isSending,
+  setInputValue,
 }: {
   handleSend: () => void
   handleKeyDown: (e: React.KeyboardEvent) => void
@@ -382,9 +696,18 @@ const ChatContent = ({
   messagesEndRef: React.RefObject<HTMLDivElement | null>
   translate: TranslateFn
   onQuickOptionClick: (option: string) => void
+  onLaundryClick?: () => void
+  showLaundryForm?: boolean
+  laundryFormData?: LaundryFormData
+  estimatedPrice?: number
+  onLaundryFormChange?: (field: string, value: string) => void
+  onSubmitLaundry?: () => void
+  onCancelLaundry?: () => void
+  messages: ChatMessage[]
+  inputValue: string
+  isSending: boolean
+  setInputValue: (value: string) => void
 }) => {
-  const { messages, inputValue, isSending, setInputValue } = useChat()
-
   return (
     <div className='flex flex-col h-full'>
       <div className='flex items-center justify-between px-4 py-2 bg-gray-50 border-b border-border text-xs text-gray-500'>
@@ -408,6 +731,13 @@ const ChatContent = ({
         isSending={isSending}
         translate={translate}
         onQuickOptionClick={onQuickOptionClick}
+        onLaundryClick={onLaundryClick}
+        showLaundryForm={showLaundryForm}
+        laundryFormData={laundryFormData}
+        estimatedPrice={estimatedPrice}
+        onLaundryFormChange={onLaundryFormChange}
+        onSubmitLaundry={onSubmitLaundry}
+        onCancelLaundry={onCancelLaundry}
       />
 
       <div className='p-3 border-t border-border'>

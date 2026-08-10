@@ -116,7 +116,8 @@ function MyDrawerItem({ index = 0, ...drawer }: MyDrawer & { index?: number }) {
         className={cn(
           'fixed overflow-hidden bg-white shadow-lg transition-transform duration-300',
           placementBase[placement],
-          open ? placementFinal[placement] : placementInitial[placement]
+          open ? placementFinal[placement] : placementInitial[placement],
+          drawer.className
         )}
       >
         <div className='absolute top-0 left-0 right-0 z-10 flex h-15 items-center justify-between gap-4 border-b bg-primary p-4 shadow-md'>
