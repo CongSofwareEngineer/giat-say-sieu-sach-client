@@ -15,17 +15,18 @@ import useUser from '@/hooks/useUser'
 import { chatAgent } from '@/agents'
 import { LAUNDRY_FORM_MARKER } from '@/agents/tools/laundry'
 import { notifyUnreadMessage } from '@/utils/notification'
+import { chat } from '@/zustand/chat'
 
 type ChatProps = {
   onClose?: () => void
   isMobile?: boolean
+  isOpenChatRef?: boolean
 }
 
 const Chat = ({ onClose, isMobile = false }: ChatProps) => {
   const { translate, lang } = useLanguage()
   const {
     isHasHydrated,
-    isOpen,
     incrementUnread,
     setHistory,
     setSending,
@@ -236,7 +237,7 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
         }
 
         // Count as unread when the user is not viewing the chat
-        if (!isOpen) {
+        if (!chat.getState().isOpen) {
           incrementUnread()
           notifyUnreadMessage()
         }
@@ -254,7 +255,7 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
           minute: '2-digit',
         }),
       })
-      if (!isOpen) {
+      if (!chat.getState().isOpen) {
         incrementUnread()
         notifyUnreadMessage()
       }
