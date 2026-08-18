@@ -11,6 +11,7 @@ import { EyeIcon } from '@/components/Icons/Eye'
 import { EyeSlashIcon } from '@/components/Icons/EyeSlash'
 import useLanguage from '@/hooks/useLanguage'
 import useUser from '@/hooks/useUser'
+import UserService from '@/services/users'
 
 const LoginPage = () => {
   const { translate } = useLanguage()
@@ -26,10 +27,11 @@ const LoginPage = () => {
   const [errors, setErrors] = useState({
     phone: '',
     password: '',
+    general: '',
   })
 
   const validate = (): boolean => {
-    const newErrors = { phone: '', password: '' }
+    const newErrors = { phone: '', password: '', general: '' }
     let isValid = true
 
     if (!formData.phone.trim()) {
@@ -56,21 +58,15 @@ const LoginPage = () => {
     if (!validate()) return
 
     setIsSubmitting(true)
+    setErrors((prev) => ({ ...prev, general: '' }))
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      const response = await UserService.login(formData.phone, formData.password)
 
-      // Mock login result for testing
-      login({
-        id: '1',
-        name: 'Admin',
-        phone: formData.phone,
-        isAdmin: true,
-      })
-      router.replace('/admin')
-    } catch {
-      // Handle error
+      login(response)
+      router.replace(response.isAdmin ? '/admin' : '/')
+    } catch (error) {
+      setErrors((prev) => ({ ...prev, general: translate('auth.login.error') }))
     } finally {
       setIsSubmitting(false)
     }
@@ -108,6 +104,8 @@ const LoginPage = () => {
                 {showPassword ? <EyeSlashIcon className='w-5 h-5' /> : <EyeIcon className='w-5 h-5' />}
               </button>
             </div>
+
+            {errors.general && <p className='text-sm text-red-500'>{errors.general}</p>}
 
             <div className='flex items-center justify-between'>
               <label className='flex items-center gap-2 cursor-pointer'>
