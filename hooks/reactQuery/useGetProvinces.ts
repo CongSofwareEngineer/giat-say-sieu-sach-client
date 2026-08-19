@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 
 import { QUERY_KEYS } from '@/constants/reactQuery'
 import LocationService from '@/services/location'
-import Province from '@/services/location/type'
+import { Province } from '@/services/location/type'
 
 const CACHE_KEY = 'location_provinces_cache'
 const CACHE_DURATION = 24 * 60 * 60 * 1000
