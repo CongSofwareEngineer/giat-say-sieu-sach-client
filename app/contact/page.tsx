@@ -15,11 +15,13 @@ import { INFO_CONTACT } from '@/constants/app'
 import SeoJsonLd from '@/components/SeoJsonLd'
 import useLanguage from '@/hooks/useLanguage'
 import { breadcrumbSchema, contactPageSchema, localBusinessSchema } from '@/config/seo'
+import ContactService from '@/services/contact'
 
 const ContactPage = () => {
   const { translate } = useLanguage()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+  const [error, setError] = useState('')
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -35,14 +37,20 @@ const ContactPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+    setError('')
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      await ContactService.createContact({
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email || undefined,
+        subject: formData.subject,
+        message: formData.message,
+      })
       setIsSuccess(true)
       setFormData({ name: '', email: '', phone: '', subject: '', message: '' })
     } catch {
-      // Handle error
+      setError(translate('contact.form.error'))
     } finally {
       setIsSubmitting(false)
     }
@@ -170,6 +178,7 @@ const ContactPage = () => {
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className='space-y-4'>
+                    {error && <div className='rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600'>{error}</div>}
                     <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                       <MyInput
                         label={translate('contact.form.name')}
@@ -182,7 +191,6 @@ const ContactPage = () => {
                         label={translate('contact.form.email')}
                         placeholder={translate('contact.form.emailPlaceholder')}
                         type='email'
-                        required
                         value={formData.email}
                         onChange={(e) => handleChange('email', e.target.value)}
                       />
@@ -192,6 +200,7 @@ const ContactPage = () => {
                         label={translate('contact.form.phone')}
                         placeholder={translate('contact.form.phonePlaceholder')}
                         type='tel'
+                        required
                         value={formData.phone}
                         onChange={(e) => handleChange('phone', e.target.value)}
                       />

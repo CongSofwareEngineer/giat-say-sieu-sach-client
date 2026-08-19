@@ -770,6 +770,19 @@
         "deleteConfirm": "Bạn có chắc chắn muốn xóa đánh giá này?",
         "reply": "Phản hồi đánh giá"
       },
+      "contacts": {
+        "title": "Quản lý liên hệ",
+        "list": "Danh sách liên hệ",
+        "delete": "Xóa liên hệ",
+        "deleteConfirm": "Bạn có chắc chắn muốn xóa liên hệ này?",
+        "filterByStatus": "Lọc theo trạng thái",
+        "statuses": {
+          "PENDING": "Chờ xử lý",
+          "IN_PROGRESS": "Đang xử lý",
+          "RESOLVED": "Đã giải quyết",
+          "CLOSED": "Đã đóng"
+        }
+      },
     "sidebar": {
       "dashboard": "Dashboard",
       "orders": "Đơn hàng",
@@ -778,6 +791,7 @@
       "banner": "Banner",
       "prices": "Bảng giá",
       "comments": "Đánh giá",
+      "contacts": "Liên hệ",
       "revenue": "Doanh thu",
       "logoutAdmin": "Thoát Admin"
     },

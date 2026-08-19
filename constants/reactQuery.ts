@@ -4,4 +4,5 @@ export const QUERY_KEYS = {
   getListCategory: 'getListCategory',
   getListOrder: 'getListOrder',
   getListComments: 'getListComments',
+  getListContacts: 'getListContacts',
 }

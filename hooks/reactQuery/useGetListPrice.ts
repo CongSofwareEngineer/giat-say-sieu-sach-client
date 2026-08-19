@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { QUERY_KEYS } from '@/constants/reactQuery'
-import { fetchPrices, PriceItem } from '@/services/price'
+import PricingService, { PricingPlan } from '@/services/pricing'
 
 const useGetListPrice = () => {
-  const { data, isLoading, isError, error, refetch } = useQuery<PriceItem[]>({
+  const { data, isLoading, isError, error, refetch } = useQuery<PricingPlan[]>({
     queryKey: [QUERY_KEYS.getListPrice],
-    queryFn: fetchPrices,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    queryFn: () => PricingService.getPlans(),
+    staleTime: 5 * 60 * 1000,
   })
 
   return {

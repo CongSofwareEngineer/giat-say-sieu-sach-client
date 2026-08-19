@@ -15,6 +15,7 @@ import { CameraIcon } from '@/components/Icons/Camera'
 import { PaymentIcon } from '@/components/Icons/Payment'
 import ChatBubbleIcon from '@/components/Icons/ChatBubble'
 import DataBaseIcon from '@/components/Icons/Home/Database'
+import { ContactIcon } from '@/components/Icons/Contact'
 import MyImage from '@/components/MyImage'
 import { images } from '@/config/images'
 import useLanguage from '@/hooks/useLanguage'
@@ -53,6 +54,7 @@ const AdminShell = ({ children }: { children: React.ReactNode }) => {
     { href: '/admin/banners', label: translate('admin.sidebar.banner'), icon: CameraIcon },
     { href: '/admin/pricing', label: translate('admin.sidebar.prices'), icon: PaymentIcon },
     { href: '/admin/comments', label: translate('admin.sidebar.comments'), icon: ChatBubbleIcon },
+    { href: '/admin/contact', label: translate('admin.sidebar.contacts'), icon: ContactIcon },
     { href: '/admin/revenue', label: translate('admin.sidebar.revenue'), icon: DataBaseIcon },
   ]
 

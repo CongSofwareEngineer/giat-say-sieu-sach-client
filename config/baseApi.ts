@@ -180,6 +180,19 @@ class BaseAPI {
     })
   }
 
+  async patch<T>(url: string, body: any, options?: RequestOptions): Promise<T> {
+    return this.request<T>(url, {
+      ...options,
+      isUseAuth: options?.isUseAuth ?? true,
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...((options?.headers as Record<string, string>) || {}),
+      },
+      body: JSON.stringify(body),
+    })
+  }
+
   async delete<T>(url: string, options?: RequestOptions): Promise<T> {
     return this.request<T>(url, { ...options, isUseAuth: options?.isUseAuth ?? true, method: 'DELETE' })
   }

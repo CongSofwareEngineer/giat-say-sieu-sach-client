@@ -9,7 +9,7 @@ import { IS_PRODUCTION } from '@/constants/app'
 export enum LANGUAGE_SUPPORT {
   EN = 'en',
 
-  VN = 'VN',
+  VN = 'vn',
 }
 
 export type TYPE_LANGUAGE = typeof MessageEN
