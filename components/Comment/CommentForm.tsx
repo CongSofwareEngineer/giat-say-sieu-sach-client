@@ -71,7 +71,10 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
   const [isSuccess, setIsSuccess] = useState(false)
   const [submitError, setSubmitError] = useState('')
 
-  const serviceOptions = COMMENT_SERVICES.map((s) => ({ value: s.id, label: s.name }))
+  const serviceOptions = COMMENT_SERVICES.map((s) => ({
+    value: s.id,
+    label: s.name,
+  }))
   const canAddImage = images.length < MAX_COMMENT_IMAGES
   // Name/phone come from the account when logged in, or from the existing review when editing
   const identityLocked = isEditing || isLogin
@@ -112,7 +115,7 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
     if (!formData.phone.trim()) newErrors.phone = translate('reviews.validation.phoneRequired')
     else if (!/^(0[0-9]{9})$/.test(formData.phone.replace(/\s/g, ''))) newErrors.phone = translate('reviews.validation.phoneInvalid')
     if (!formData.serviceId) newErrors.serviceId = translate('reviews.validation.serviceRequired')
-    if (formData.rating < 1) newErrors.rating = translate('reviews.validation.ratingRequired')
+    if (isLogin && formData.rating < 1) newErrors.rating = translate('reviews.validation.ratingRequired')
     if (!formData.title.trim()) newErrors.title = translate('reviews.validation.titleRequired')
     if (!formData.content.trim()) newErrors.content = translate('reviews.validation.contentRequired')
 
@@ -133,7 +136,12 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
       if (isEditing && editingComment) {
         await updateComment({
           id: editingComment.id,
-          payload: { title: formData.title.trim(), content: formData.content.trim(), images, rating: formData.rating },
+          payload: {
+            title: formData.title.trim(),
+            content: formData.content.trim(),
+            images,
+            ...(isLogin ? { rating: formData.rating } : {}),
+          },
         })
       } else {
         await createComment({
@@ -143,7 +151,7 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
           title: formData.title.trim(),
           content: formData.content.trim(),
           images,
-          rating: formData.rating,
+          ...(isLogin ? { rating: formData.rating } : {}),
         })
       }
 
@@ -211,7 +219,8 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
           {translate('reviews.form.rating')}
           <span className='ml-1 text-red-600'>*</span>
         </label>
-        <RatingInput value={formData.rating} onChange={(value) => handleChange('rating', value)} />
+        <RatingInput value={formData.rating} onChange={(value) => handleChange('rating', value)} disabled={!isLogin} />
+        {!isLogin && <p className='mt-1 text-xs text-gray-400'>{translate('reviews.loginToRate')}</p>}
         {errors.rating && <p className='mt-1 text-sm text-red-600'>{errors.rating}</p>}
       </div>
 

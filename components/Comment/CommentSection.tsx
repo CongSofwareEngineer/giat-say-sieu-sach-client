@@ -12,7 +12,7 @@ import StarRating from '@/components/Comment/StarRating'
 import CommentCard from '@/components/Comment/CommentCard'
 import CommentForm from '@/components/Comment/CommentForm'
 import { PlusIcon } from '@/components/Icons/Plus'
-import { COMMENT_SERVICES } from '@/services/comment'
+import { COMMENT_SERVICES, filterVisibleComments } from '@/services/comment'
 import useGetListComments from '@/hooks/reactQuery/useGetListComments'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
@@ -47,19 +47,21 @@ const CommentSection = ({ serviceId, onServiceChange, tag, title, subtitle, head
 
   const { comments, isLoading } = useGetListComments(filterServiceId)
 
+  const visibleComments = useMemo(() => filterVisibleComments(comments), [comments])
+
   const serviceOptions = useMemo(
     () => [{ value: 'all', label: translate('reviews.allServices') }, ...COMMENT_SERVICES.map((s) => ({ value: s.id, label: s.name }))],
     [translate]
   )
 
   const averageRating = useMemo(() => {
-    if (comments.length === 0) return 0
+    if (visibleComments.length === 0) return 0
 
-    return comments.reduce((sum, item) => sum + item.rating, 0) / comments.length
-  }, [comments])
+    return visibleComments.reduce((sum, item) => sum + (item.rating ?? 0), 0) / visibleComments.length
+  }, [visibleComments])
 
-  const totalPages = Math.max(1, Math.ceil(comments.length / PAGE_SIZE))
-  const pageComments = comments.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const totalPages = Math.max(1, Math.ceil(visibleComments.length / PAGE_SIZE))
+  const pageComments = visibleComments.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   const handleServiceChange = (value: string) => {
     if (onServiceChange) onServiceChange(value)
@@ -118,7 +120,11 @@ const CommentSection = ({ serviceId, onServiceChange, tag, title, subtitle, head
                   <p className='text-3xl font-extrabold text-text'>{averageRating.toFixed(1)}</p>
                   <StarRating value={averageRating} className='mt-1 justify-center' />
                 </div>
-                <div className='text-sm text-gray-500'>{translate('reviews.summary.count', { count: comments.length })}</div>
+                <div className='text-sm text-gray-500'>
+                  {translate('reviews.summary.count', {
+                    count: comments.length,
+                  })}
+                </div>
               </div>
             )}
           </div>
@@ -127,7 +133,7 @@ const CommentSection = ({ serviceId, onServiceChange, tag, title, subtitle, head
           <div className='mt-5'>
             {isLoading ? (
               <MyLoading />
-            ) : pageComments.length === 0 ? (
+            ) : visibleComments.length === 0 ? (
               <MyEmpty
                 message={translate('reviews.empty')}
                 action={
@@ -145,7 +151,7 @@ const CommentSection = ({ serviceId, onServiceChange, tag, title, subtitle, head
             )}
           </div>
 
-          {comments.length > PAGE_SIZE && <MyPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} className='mt-6' />}
+          {visibleComments.length > PAGE_SIZE && <MyPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} className='mt-6' />}
         </MyCardBody>
       </MyCard>
     </div>

@@ -1,12 +1,12 @@
 import React from 'react'
 
-import { LANGUAGE_SUPPORT, language as languageZustand, PATH_LANGUAGE, TYPE_LANGUAGE } from '@/zustand/language'
+import { LANGUAGE_SUPPORT, language as languageZustand } from '@/zustand/language'
 
 const useLanguage = () => {
   const { language, setLanguage } = languageZustand((state) => state)
 
   const translate = (
-    key?: PATH_LANGUAGE<TYPE_LANGUAGE>,
+    key?: string,
     variables?: Record<string, string | number | React.ReactNode | ((value: string | number) => React.ReactNode)>,
     defaultMessage: string = ''
   ): any => {

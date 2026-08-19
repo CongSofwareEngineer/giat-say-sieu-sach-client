@@ -63,7 +63,8 @@
     "results": "kết quả",
     "actions": "Thao tác",
     "select": "Chọn",
-    "notFound": "Không tìm thấy"
+    "notFound": "Không tìm thấy",
+    "refresh": "Làm mới"
   },
   "menu": {
     "home": "Trang chủ",
@@ -352,7 +353,8 @@
       "ratingRequired": "Vui lòng chọn số sao",
       "titleRequired": "Vui lòng nhập tiêu đề",
       "contentRequired": "Vui lòng nhập nội dung",
-      "replyRequired": "Vui lòng nhập nội dung phản hồi"
+      "replyRequired": "Vui lòng nhập nội dung phản hồi",
+      "loginToRate": "Vui lòng đăng nhập để đánh giá"
     }
   },
   "tracking": {
@@ -768,7 +770,14 @@
         "list": "Danh sách đánh giá",
         "delete": "Xóa đánh giá",
         "deleteConfirm": "Bạn có chắc chắn muốn xóa đánh giá này?",
-        "reply": "Phản hồi đánh giá"
+        "reply": "Phản hồi đánh giá",
+        "filterByStatus": "Lọc theo trạng thái",
+        "statuses": {
+          "visible": "Đang hiển thị",
+          "hidden": "Đã ẩn"
+        },
+        "hide": "Ẩn",
+        "show": "Hiện"
       },
       "contacts": {
         "title": "Quản lý liên hệ",

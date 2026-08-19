@@ -1,27 +1,46 @@
+import { useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { QUERY_KEYS } from '@/constants/reactQuery'
-import CommentService, { CommentItem, CreateCommentPayload, UpdateCommentPayload } from '@/services/comment'
+import CommentService, { CommentItem, CreateCommentPayload, UpdateCommentPayload, buildCommentReplies } from '@/services/comment'
 import useUser from '@/hooks/useUser'
 
-const useGetListComments = (serviceId?: string) => {
+const useGetListComments = (serviceId?: string, categoryId?: string) => {
   const queryClient = useQueryClient()
   const { isLogin, user } = useUser()
 
   const { data, isLoading, isError, error, refetch } = useQuery<CommentItem[]>({
-    queryKey: [QUERY_KEYS.getListComments, serviceId ?? ''],
-    queryFn: () => CommentService.getComments(serviceId ? { serviceId } : undefined),
+    queryKey: [QUERY_KEYS.getListComments, serviceId ?? '', categoryId ?? ''],
+    queryFn: () => CommentService.getComments(serviceId ? { serviceId } : categoryId ? { categoryId } : undefined),
   })
 
-  // Invalidate both the filtered and the full list after any mutation
+  // Transform flat parentComment structure into nested replies for UI
+  const comments: CommentItem[] = useMemo(() => {
+    if (!data) return []
+
+    return buildCommentReplies(data)
+  }, [data])
+
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.getListComments] })
   }
 
   const { mutateAsync: createComment, isPending: isCreating } = useMutation({
-    // Logged-in users create reviews tied to their account; guests post anonymously
-    mutationFn: (payload: CreateCommentPayload) =>
-      CommentService.createComment(isLogin ? { ...payload, userId: user?.id } : payload, { isUseAuth: isLogin }),
+    mutationFn: (
+      payload: Omit<CreateCommentPayload, 'userId'> & {
+        serviceId?: string
+        categoryId?: string
+      }
+    ) =>
+      CommentService.createComment(
+        {
+          ...payload,
+          userId: isLogin ? (user?.id ?? '') : '',
+          name: user?.name,
+          phone: user?.phone,
+        },
+        { isUseAuth: isLogin }
+      ),
     onSuccess: refresh,
   })
 
@@ -40,8 +59,14 @@ const useGetListComments = (serviceId?: string) => {
     onSuccess: refresh,
   })
 
+  const { mutateAsync: toggleVisibility, isPending: isTogglingVisibility } = useMutation({
+    mutationFn: ({ id, isVisible }: { id: string; isVisible: boolean }) => CommentService.toggleVisibility(id, isVisible),
+    onSuccess: refresh,
+  })
+
   return {
-    comments: data ?? [],
+    comments,
+    rawComments: data ?? [],
     isLoading,
     isError,
     error,
@@ -50,10 +75,12 @@ const useGetListComments = (serviceId?: string) => {
     updateComment,
     replyComment,
     deleteComment,
+    toggleVisibility,
     isCreating,
     isUpdating,
     isReplying,
     isDeleting,
+    isTogglingVisibility,
   }
 }
 

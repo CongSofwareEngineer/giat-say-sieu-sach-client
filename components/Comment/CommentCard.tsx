@@ -121,15 +121,15 @@ const CommentCard = ({ comment, className }: CommentCardProps) => {
       <div className='flex items-start justify-between gap-3'>
         <div className='flex items-center gap-3'>
           <div className='flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary font-bold text-white'>
-            {comment.name?.charAt(0)?.toUpperCase()}
+            {comment.name?.charAt(0)?.toUpperCase() || '?'}
           </div>
           <div>
             <p className='font-semibold text-text'>{comment.name}</p>
-            <p className='text-xs text-gray-400'>{maskPhone(comment.phone)}</p>
+            <p className='text-xs text-gray-400'>{maskPhone(comment.phone ?? '')}</p>
           </div>
         </div>
         <div className='flex flex-col items-end gap-1'>
-          <StarRating value={comment.rating} />
+          <StarRating value={comment.rating ?? 0} />
           <p className='text-xs text-gray-400'>{dayjs(comment.createdAt).format('DD/MM/YYYY HH:mm')}</p>
         </div>
       </div>

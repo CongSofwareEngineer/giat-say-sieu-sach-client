@@ -63,7 +63,8 @@
     "results": "results",
     "actions": "Actions",
     "select": "Select",
-    "notFound": "No results"
+    "notFound": "No results",
+    "refresh": "Refresh"
   },
   "menu": {
     "home": "Home",
@@ -352,7 +353,8 @@
       "ratingRequired": "Please select a star rating",
       "titleRequired": "Please enter a title",
       "contentRequired": "Please enter content",
-      "replyRequired": "Please enter your reply"
+      "replyRequired": "Please enter your reply",
+      "loginToRate": "Please login to rate"
     }
   },
   "tracking": {
@@ -768,7 +770,14 @@
         "list": "Review List",
         "delete": "Delete Review",
         "deleteConfirm": "Are you sure you want to delete this review?",
-        "reply": "Reply to Review"
+        "reply": "Reply to Review",
+        "filterByStatus": "Filter by status",
+        "statuses": {
+          "visible": "Visible",
+          "hidden": "Hidden"
+        },
+        "hide": "Hide",
+        "show": "Show"
       },
       "contacts": {
         "title": "Contact Management",
