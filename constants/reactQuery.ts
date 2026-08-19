@@ -5,6 +5,8 @@ export const QUERY_KEYS = {
   getListOrder: 'getListOrder',
   getListComments: 'getListComments',
   getListContacts: 'getListContacts',
+  getListAddresses: 'getListAddresses',
+  getProvinces: 'getProvinces',
 }
 
 export type QUERY_PAGINATION = {

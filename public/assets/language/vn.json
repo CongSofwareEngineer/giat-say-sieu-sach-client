@@ -64,7 +64,8 @@
     "actions": "Thao tác",
     "select": "Chọn",
     "notFound": "Không tìm thấy",
-    "refresh": "Làm mới"
+    "refresh": "Làm mới",
+    "retry": "Thử lại"
   },
   "menu": {
     "home": "Trang chủ",
@@ -626,6 +627,8 @@
       "setDefault": "Đặt làm mặc định",
       "default": "Mặc định",
       "form": {
+        "label": "Nhãn địa chỉ",
+        "labelPlaceholder": "VD: Nhà riêng, Công ty",
         "name": "Tên người nhận",
         "namePlaceholder": "Nhập tên người nhận",
         "phone": "Số điện thoại",
@@ -640,6 +643,7 @@
         "submitting": "Đang lưu..."
       },
       "validation": {
+        "labelRequired": "Vui lòng nhập nhãn địa chỉ",
         "nameRequired": "Vui lòng nhập tên người nhận",
         "phoneRequired": "Vui lòng nhập số điện thoại",
         "phoneInvalid": "Số điện thoại không hợp lệ",
@@ -647,6 +651,12 @@
         "cityRequired": "Vui lòng chọn tỉnh/thành phố",
         "districtRequired": "Vui lòng chọn quận/huyện",
         "wardRequired": "Vui lòng chọn phường/xã"
+      },
+      "errors": {
+        "load": "Không tải được sổ địa chỉ",
+        "save": "Không lưu được địa chỉ, vui lòng thử lại",
+        "delete": "Không xóa được địa chỉ, vui lòng thử lại",
+        "setDefault": "Không đặt được địa chỉ mặc định, vui lòng thử lại"
       }
     }
   },

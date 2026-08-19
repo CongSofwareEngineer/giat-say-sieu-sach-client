@@ -12,11 +12,12 @@ import MyButton from '@/components/MyButton'
 import useChat from '@/hooks/useChat'
 import useLanguage from '@/hooks/useLanguage'
 import useUser from '@/hooks/useUser'
+import useGetListAddress from '@/hooks/reactQuery/useGetListAddress'
 import { chatAgent } from '@/agents'
 import { LAUNDRY_FORM_MARKER } from '@/agents/tools/laundry'
 import { notifyUnreadMessage } from '@/utils/notification'
+import { formatAddress } from '@/services/address'
 import { chat } from '@/zustand/chat'
-import { address } from '@/zustand/address'
 
 type ChatProps = {
   onClose?: () => void
@@ -43,19 +44,28 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
   } = useChat()
 
   const { user } = useUser()
-  const { addresses } = address()
+  const { defaultAddress } = useGetListAddress()
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const defaultAddressText = formatAddress(defaultAddress)
 
   // Laundry form state
   const [showLaundryForm, setShowLaundryForm] = useState(false)
   const [laundryFormData, setLaundryFormData] = useState<LaundryFormData>({
     name: user?.name || '',
     phone: user?.phone || '',
-    address: addresses[0]?.detail || '',
+    address: defaultAddressText,
     serviceType: 'quan-ao',
     weight: '',
   })
   const [laundryFormMessageId, setLaundryFormMessageId] = useState<number | null>(null)
+
+  // Prefill the pickup address once the default address is loaded from the server
+  useEffect(() => {
+    if (!defaultAddressText) return
+
+    setLaundryFormData((prev) => (prev.address ? prev : { ...prev, address: defaultAddressText }))
+  }, [defaultAddressText])
 
   // Mark as read when chat opens
   useEffect(() => {
@@ -145,7 +155,7 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
     setLaundryFormData({
       name: user?.name || '',
       phone: user?.phone || '',
-      address: addresses[0]?.detail || '',
+      address: defaultAddressText,
       serviceType: 'quan-ao',
       weight: '',
     })
@@ -159,7 +169,7 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       })
     }, 500)
-  }, [laundryFormData, estimatedPrice, user, translate, addMessage, removeMessage, laundryFormMessageId, addresses])
+  }, [laundryFormData, estimatedPrice, user, translate, addMessage, removeMessage, laundryFormMessageId, defaultAddressText])
 
   const handleCancelLaundry = useCallback(() => {
     // Remove the laundry form message if it exists
@@ -171,11 +181,11 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
     setLaundryFormData({
       name: user?.name || '',
       phone: user?.phone || '',
-      address: addresses[0]?.detail || '',
+      address: defaultAddressText,
       serviceType: 'quan-ao',
       weight: '',
     })
-  }, [user, laundryFormMessageId, removeMessage, addresses])
+  }, [user, laundryFormMessageId, removeMessage, defaultAddressText])
 
   // Handle laundry option click
   const handleLaundryOptionClick = useCallback(() => {

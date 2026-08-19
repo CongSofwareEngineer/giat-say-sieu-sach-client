@@ -15,6 +15,23 @@ interface RequestOptions extends RequestInit {
 let isRefreshing = false
 let refreshPromise: Promise<TokenResponse | null> | null = null
 
+// Read the `exp` (seconds) claim from a JWT without verifying the signature.
+// The access token cookie is httpOnly, so we cannot rely on its max-age to know if it expired.
+const getTokenExpiry = (token: string): number | null => {
+  try {
+    const payload = token.split('.')[1]
+
+    if (!payload) return null
+
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/')
+    const decoded = JSON.parse(atob(normalized))
+
+    return typeof decoded.exp === 'number' ? decoded.exp : null
+  } catch {
+    return null
+  }
+}
+
 class BaseAPI {
   private baseUrl: string = process.env.NEXT_PUBLIC_API_APP || 'http://localhost:3000'
   private endpoint: string
@@ -36,8 +53,14 @@ class BaseAPI {
   async getAuthToken(): Promise<string | null> {
     const accessToken = await getCookie(COOKIES_KEY.accessToken)
 
+    // The access token exists and is still valid (refresh slightly before it expires)
     if (accessToken) {
-      return accessToken
+      const expiry = getTokenExpiry(accessToken)
+      const isExpired = expiry !== null && expiry * 1000 <= Date.now() + 5000
+
+      if (!isExpired) {
+        return accessToken
+      }
     }
 
     const refreshToken = await getCookie(COOKIES_KEY.refreshToken)
@@ -121,6 +144,8 @@ class BaseAPI {
     })
 
     if (response.status === 401) {
+      // The proactive refresh in getAuthToken may have missed an already-expired token
+      // (e.g. clock drift or concurrent requests). Fall back to a refresh + retry once.
       const refreshToken = await getCookie(COOKIES_KEY.refreshToken)
 
       if (refreshToken) {
@@ -150,7 +175,8 @@ class BaseAPI {
     return response.json() as Promise<T>
   }
 
-  async get<T>(url: string, options?: RequestInit): Promise<T> {
+  // Public by default, pass isUseAuth to send the bearer token
+  async get<T>(url: string, options?: RequestOptions): Promise<T> {
     return this.request<T>(url, { ...options, method: 'GET' })
   }
 

@@ -64,7 +64,8 @@
     "actions": "Actions",
     "select": "Select",
     "notFound": "No results",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "retry": "Try again"
   },
   "menu": {
     "home": "Home",
@@ -626,6 +627,8 @@
       "setDefault": "Set as default",
       "default": "Default",
       "form": {
+        "label": "Address Label",
+        "labelPlaceholder": "e.g. Home, Office",
         "name": "Recipient Name",
         "namePlaceholder": "Enter recipient name",
         "phone": "Phone Number",
@@ -640,6 +643,7 @@
         "submitting": "Saving..."
       },
       "validation": {
+        "labelRequired": "Please enter an address label",
         "nameRequired": "Please enter recipient name",
         "phoneRequired": "Please enter phone number",
         "phoneInvalid": "Invalid phone number",
@@ -647,6 +651,12 @@
         "cityRequired": "Please select province/city",
         "districtRequired": "Please select district",
         "wardRequired": "Please select ward"
+      },
+      "errors": {
+        "load": "Could not load your address book",
+        "save": "Could not save the address, please try again",
+        "delete": "Could not delete the address, please try again",
+        "setDefault": "Could not set the default address, please try again"
       }
     }
   },
