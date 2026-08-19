@@ -22,7 +22,7 @@ import useUser from '@/hooks/useUser'
 import useModalDrawer from '@/hooks/useModalDrawer'
 import useBase64Img from '@/hooks/useBase64Img'
 import { MAX_AVATAR_FILE_SIZE } from '@/constants/app'
-import { UserAddress } from '@/zustand/user'
+import { UserAddress, address } from '@/zustand/address'
 import { cn } from '@/utils/tailwind'
 
 // Helper function to convert File to base64 string
@@ -237,7 +237,7 @@ const AddressForm = ({ address, onSubmit }: AddressFormProps) => {
 const ProfilePage = () => {
   const { translate } = useLanguage()
   const router = useRouter()
-  const { user, isLogin, hasHydrated, updateUser, addAddress, updateAddress, removeAddress, setDefaultAddress } = useUser()
+  const { user, isLogin, hasHydrated, updateUser } = useUser()
   const { open, close } = useModalDrawer()
   const { getFileOptimize } = useBase64Img()
 
@@ -252,7 +252,7 @@ const ProfilePage = () => {
   const [infoForm, setInfoForm] = useState({ name: '', phone: '', email: '' })
   const [infoErrors, setInfoErrors] = useState<{ name?: string; phone?: string; email?: string }>({})
 
-  const addresses = user?.addresses ?? []
+  const { addresses, addAddress, updateAddress, removeAddress, setDefaultAddress } = address()
 
   // Redirect to login when not authenticated
   useEffect(() => {

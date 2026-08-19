@@ -4,6 +4,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
+import { loginAction } from './actions'
+
 import MyInput from '@/components/MyInput'
 import MyButton from '@/components/MyButton'
 import MyCard, { MyCardBody } from '@/components/MyCard'
@@ -11,7 +13,6 @@ import { EyeIcon } from '@/components/Icons/Eye'
 import { EyeSlashIcon } from '@/components/Icons/EyeSlash'
 import useLanguage from '@/hooks/useLanguage'
 import useUser from '@/hooks/useUser'
-import UserService from '@/services/users'
 
 const LoginPage = () => {
   const { translate } = useLanguage()
@@ -61,11 +62,11 @@ const LoginPage = () => {
     setErrors((prev) => ({ ...prev, general: '' }))
 
     try {
-      const response = await UserService.login(formData.phone, formData.password)
+      const response = await loginAction(formData.phone, formData.password)
 
-      login(response)
-      router.replace(response.isAdmin ? '/admin' : '/')
-    } catch (error) {
+      login(response.user)
+      router.replace(response.user.role === 'ADMIN' ? '/admin' : '/')
+    } catch {
       setErrors((prev) => ({ ...prev, general: translate('auth.login.error') }))
     } finally {
       setIsSubmitting(false)

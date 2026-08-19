@@ -16,6 +16,7 @@ import { chatAgent } from '@/agents'
 import { LAUNDRY_FORM_MARKER } from '@/agents/tools/laundry'
 import { notifyUnreadMessage } from '@/utils/notification'
 import { chat } from '@/zustand/chat'
+import { address } from '@/zustand/address'
 
 type ChatProps = {
   onClose?: () => void
@@ -42,6 +43,7 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
   } = useChat()
 
   const { user } = useUser()
+  const { addresses } = address()
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Laundry form state
@@ -49,7 +51,7 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
   const [laundryFormData, setLaundryFormData] = useState<LaundryFormData>({
     name: user?.name || '',
     phone: user?.phone || '',
-    address: user?.addresses?.[0]?.detail || '',
+    address: addresses[0]?.detail || '',
     serviceType: 'quan-ao',
     weight: '',
   })
@@ -143,7 +145,7 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
     setLaundryFormData({
       name: user?.name || '',
       phone: user?.phone || '',
-      address: user?.addresses?.[0]?.detail || '',
+      address: addresses[0]?.detail || '',
       serviceType: 'quan-ao',
       weight: '',
     })
@@ -157,7 +159,7 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       })
     }, 500)
-  }, [laundryFormData, estimatedPrice, user, translate, addMessage, removeMessage, laundryFormMessageId])
+  }, [laundryFormData, estimatedPrice, user, translate, addMessage, removeMessage, laundryFormMessageId, addresses])
 
   const handleCancelLaundry = useCallback(() => {
     // Remove the laundry form message if it exists
@@ -169,11 +171,11 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
     setLaundryFormData({
       name: user?.name || '',
       phone: user?.phone || '',
-      address: user?.addresses?.[0]?.detail || '',
+      address: addresses[0]?.detail || '',
       serviceType: 'quan-ao',
       weight: '',
     })
-  }, [user, laundryFormMessageId, removeMessage])
+  }, [user, laundryFormMessageId, removeMessage, addresses])
 
   // Handle laundry option click
   const handleLaundryOptionClick = useCallback(() => {

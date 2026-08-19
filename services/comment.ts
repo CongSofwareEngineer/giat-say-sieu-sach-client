@@ -62,7 +62,15 @@ export type UpdateCommentPayload = {
   serviceId?: string
 }
 
-type ListResponse = { data: CommentItem[] }
+type ListResponse = {
+  data: CommentItem[]
+  meta: {
+    page: number | null
+    limit: number | null
+    total: number
+    totalPages: number | null
+  }
+}
 
 // Recursively filter out hidden comments and their replies
 export const filterVisibleComments = (comments: CommentItem[]): CommentItem[] => {
@@ -101,15 +109,17 @@ export const buildCommentReplies = (comments: CommentItem[]): CommentItem[] => {
 }
 
 class CommentApi extends BaseAPI {
-  async getComments(params?: { serviceId?: string; categoryId?: string }): Promise<CommentItem[]> {
+  async getComments(params?: { serviceId?: string; categoryId?: string; page?: number; limit?: number }): Promise<{ data: CommentItem[]; meta: ListResponse['meta'] }> {
     const query = new URLSearchParams()
 
     if (params?.serviceId) query.set('serviceId', params.serviceId)
     if (params?.categoryId) query.set('categoryId', params.categoryId)
+    if (params?.page) query.set('page', String(params.page))
+    if (params?.limit) query.set('limit', String(params.limit))
 
     const response = await this.get<ListResponse>(query.toString() ? `?${query.toString()}` : '')
 
-    return response.data
+    return { data: response.data, meta: response.meta }
   }
 
   async createComment(payload: CreateCommentPayload, options?: { isUseAuth?: boolean }): Promise<CommentItem> {

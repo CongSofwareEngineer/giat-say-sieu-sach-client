@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query'
 
 import { QUERY_KEYS } from '@/constants/reactQuery'
 import CommentService, { CommentItem, CreateCommentPayload, UpdateCommentPayload, buildCommentReplies } from '@/services/comment'
@@ -9,17 +9,28 @@ const useGetListComments = (serviceId?: string, categoryId?: string) => {
   const queryClient = useQueryClient()
   const { isLogin, user } = useUser()
 
-  const { data, isLoading, isError, error, refetch } = useQuery<CommentItem[]>({
+  const { data, isLoading, isError, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: [QUERY_KEYS.getListComments, serviceId ?? '', categoryId ?? ''],
-    queryFn: () => CommentService.getComments(serviceId ? { serviceId } : categoryId ? { categoryId } : undefined),
+    queryFn: ({ pageParam }) =>
+      CommentService.getComments(serviceId ? { serviceId, page: pageParam as number } : categoryId ? { categoryId, page: pageParam as number } : { page: pageParam as number }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.meta?.page != null && lastPage.meta?.totalPages != null && lastPage.meta.page < lastPage.meta.totalPages) {
+        return lastPage.meta.page + 1
+      }
+
+      return undefined
+    },
   })
 
-  // Transform flat parentComment structure into nested replies for UI
-  const comments: CommentItem[] = useMemo(() => {
-    if (!data) return []
+  const pages = data?.pages ?? []
+  const meta = pages[pages.length - 1]?.meta
 
-    return buildCommentReplies(data)
-  }, [data])
+  const allComments = useMemo(() => pages.flatMap((page) => page.data), [pages])
+
+  const comments: CommentItem[] = useMemo(() => {
+    return buildCommentReplies(allComments)
+  }, [allComments])
 
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.getListComments] })
@@ -66,11 +77,15 @@ const useGetListComments = (serviceId?: string, categoryId?: string) => {
 
   return {
     comments,
-    rawComments: data ?? [],
+    rawComments: allComments,
     isLoading,
     isError,
     error,
     refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    meta,
     createComment,
     updateComment,
     replyComment,

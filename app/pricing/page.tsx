@@ -28,14 +28,9 @@ const Tag = ({ children }: TagProps) => (
   </span>
 )
 
-type Extra = {
-  name: string
-  price: string
-}
-
 const PriceListPage = () => {
   const { translate, lang } = useLanguage()
-  const [reviewServiceId, setReviewServiceId] = useState('all')
+  const [reviewServiceId, setReviewServiceId] = useState('')
   const reviewRef = useRef<HTMLDivElement>(null)
   const { prices: plans, isLoading } = useGetListPrice()
 
@@ -134,16 +129,17 @@ const PriceListPage = () => {
 
         <p className='mt-10 text-center text-sm text-gray-500'>{translate('pricing.note')}</p>
       </div>
-
-      <div ref={reviewRef} className='mx-auto mt-20 max-w-7xl scroll-mt-24 px-4 sm:px-6 lg:px-8'>
-        <CommentSection
-          tag={translate('reviews.tag')}
-          title={translate('reviews.title')}
-          subtitle={translate('reviews.subtitle')}
-          serviceId={reviewServiceId}
-          onServiceChange={setReviewServiceId}
-        />
-      </div>
+      {reviewServiceId && (
+        <div ref={reviewRef} className='mx-auto mt-20 max-w-7xl scroll-mt-24 px-4 sm:px-6 lg:px-8'>
+          <CommentSection
+            tag={translate('reviews.tag')}
+            title={translate('reviews.title')}
+            subtitle={translate('reviews.subtitle')}
+            serviceId={reviewServiceId}
+            onServiceChange={setReviewServiceId}
+          />
+        </div>
+      )}
     </div>
   )
 }
