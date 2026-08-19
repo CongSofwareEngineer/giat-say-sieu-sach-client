@@ -125,7 +125,7 @@ class CommentApi extends BaseAPI {
   }
 
   async replyComment(id: string, content: string): Promise<CommentItem> {
-    const response = await this.post<{ data: CommentItem }>(`/${id}/replies`, { content })
+    const response = await this.post<{ data: CommentItem }>(`/${id}/reply`, { content })
 
     return response.data
   }
