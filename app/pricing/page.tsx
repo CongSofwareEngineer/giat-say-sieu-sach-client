@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react'
 import type { PricingPlan } from '@/services/pricing'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 
 import MyCard, { MyCardBody } from '@/components/MyCard'
@@ -16,6 +16,7 @@ import useLanguage from '@/hooks/useLanguage'
 import { breadcrumbSchema, localBusinessSchema, serviceSchema, SERVICE_OFFERS } from '@/config/seo'
 import { cn } from '@/utils/tailwind'
 import useGetListPrice from '@/hooks/reactQuery/useGetListPrice'
+import { convertPriceToCurrent } from '@/utils/functions'
 
 type TagProps = {
   children: ReactNode
@@ -26,16 +27,6 @@ const Tag = ({ children }: TagProps) => (
     {children}
   </span>
 )
-
-type Plan = {
-  id?: string
-  name: string
-  price: string
-  unit: string
-  description: string
-  popular?: boolean
-  features: string[]
-}
 
 type Extra = {
   name: string
@@ -48,16 +39,11 @@ const PriceListPage = () => {
   const reviewRef = useRef<HTMLDivElement>(null)
   const { prices: plans, isLoading } = useGetListPrice()
 
-  const mappedPlans: Plan[] = plans.map((plan: PricingPlan) => ({
-    id: plan.id,
-    name: plan.name,
-    price: plan.price.toLocaleString('vi-VN') + 'đ',
-    unit: '/' + plan.unit,
-    description: plan.description,
-    features: plan.features[lang] || plan.features.vn,
-  }))
-
-  const extras = (translate('pricing.extras') || []) as Extra[]
+  useEffect(() => {
+    if (plans.length > 0) {
+      setReviewServiceId(plans[0].id)
+    }
+  }, [plans])
 
   const scrollToReviews = (serviceId: string) => {
     setReviewServiceId(serviceId)
@@ -85,7 +71,7 @@ const PriceListPage = () => {
           <div className='text-center text-gray-500'>{translate('common.loading')}</div>
         ) : (
           <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
-            {mappedPlans.map((plan) => (
+            {plans?.map((plan) => (
               <MyCard
                 key={plan.name}
                 className={cn(
@@ -101,13 +87,12 @@ const PriceListPage = () => {
                   )}
                   <h3 className='text-lg font-bold text-text'>{plan.name}</h3>
                   <div className='mt-2 text-3xl font-extrabold text-primary'>
-                    {plan.price}
-                    <span className='text-sm font-normal text-gray-500'>{plan.unit}</span>
+                    {convertPriceToCurrent(plan.price)}/<span className='text-sm font-normal text-gray-500'>{plan.unit}</span>
                   </div>
                   <p className='mt-2 text-sm leading-relaxed text-gray-500'>{plan.description}</p>
 
                   <ul className='mt-5 flex-1 space-y-2.5'>
-                    {plan.features.map((feature) => (
+                    {plan.features?.[lang]?.map((feature) => (
                       <li key={feature} className='flex items-start gap-2 text-sm text-gray-600'>
                         <CheckBadgeIcon className='mt-0.5 h-4 w-4 flex-shrink-0 text-secondary' />
                         <span>{feature}</span>
@@ -133,7 +118,7 @@ const PriceListPage = () => {
           </div>
         )}
 
-        <MyCard className='mt-14'>
+        {/* <MyCard className='mt-14'>
           <MyCardBody className='p-6 lg:p-8'>
             <h2 className='text-xl font-bold text-text lg:text-2xl'>{translate('pricing.extraTitle')}</h2>
             <div className='mt-6 grid grid-cols-1 gap-x-10 gap-y-4 sm:grid-cols-2 lg:grid-cols-3'>
@@ -145,7 +130,7 @@ const PriceListPage = () => {
               ))}
             </div>
           </MyCardBody>
-        </MyCard>
+        </MyCard> */}
 
         <p className='mt-10 text-center text-sm text-gray-500'>{translate('pricing.note')}</p>
       </div>

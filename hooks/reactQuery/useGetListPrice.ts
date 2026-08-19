@@ -8,10 +8,11 @@ const useGetListPrice = () => {
     queryKey: [QUERY_KEYS.getListPrice],
     queryFn: () => PricingService.getPlans(),
     staleTime: 5 * 60 * 1000,
+    initialData: [],
   })
 
   return {
-    prices: data ?? [],
+    prices: data,
     isLoading,
     isError,
     error,

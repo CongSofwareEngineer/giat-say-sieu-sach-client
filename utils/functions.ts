@@ -107,3 +107,11 @@ export const getBase64 = (file: File) => {
     }
   })
 }
+
+export const convertPriceToCurrent = (price?: number | string) => {
+  if (price) {
+    return price?.toLocaleString('vi-VN') + 'đ'
+  }
+
+  return null
+}

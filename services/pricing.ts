@@ -11,18 +11,17 @@ export type PricingPlan = {
   isActive: boolean
   createdAt: string
   updatedAt: string
+  popular?: boolean
 }
-
-type ListResponse = { data: PricingPlan[] }
 
 class PricingApi extends BaseAPI {
   async getPlans(): Promise<PricingPlan[]> {
-    const response = await this.get<ListResponse>('')
+    const response = await this.get<{ data: PricingPlan[] }>('')
 
-    return response.data
+    return response?.data
   }
 }
 
-const PricingService = new PricingApi('pricing')
+const PricingService = new PricingApi('laundry-categories')
 
 export default PricingService

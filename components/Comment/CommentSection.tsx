@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import MyCard, { MyCardBody } from '@/components/MyCard'
 import MyButton from '@/components/MyButton'
-import MySelect from '@/components/MySelect'
+import MySelect, { MySelectItem } from '@/components/MySelect'
 import MyLoading from '@/components/MyLoading'
 import MyEmpty from '@/components/MyEmpty'
 import MyPagination from '@/components/MyPagination'
@@ -17,6 +17,7 @@ import useGetListComments from '@/hooks/reactQuery/useGetListComments'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
 import { cn } from '@/utils/tailwind'
+import useGetListPrice from '@/hooks/reactQuery/useGetListPrice'
 
 const PAGE_SIZE = 6
 
@@ -37,6 +38,8 @@ const CommentSection = ({ serviceId, onServiceChange, tag, title, subtitle, head
   const [internalServiceId, setInternalServiceId] = useState('all')
   const [page, setPage] = useState(1)
 
+  const { prices: plans } = useGetListPrice()
+
   const selectedServiceId = serviceId ?? internalServiceId
   const filterServiceId = selectedServiceId === 'all' ? undefined : selectedServiceId
 
@@ -49,10 +52,16 @@ const CommentSection = ({ serviceId, onServiceChange, tag, title, subtitle, head
 
   const visibleComments = useMemo(() => filterVisibleComments(comments), [comments])
 
-  const serviceOptions = useMemo(
-    () => [{ value: 'all', label: translate('reviews.allServices') }, ...COMMENT_SERVICES.map((s) => ({ value: s.id, label: s.name }))],
-    [translate]
-  )
+  const serviceOptions = useMemo(() => {
+    return plans.map((e) => {
+      const item: MySelectItem = {
+        label: e.name,
+        value: e.id,
+      }
+
+      return item
+    })
+  }, [plans])
 
   const averageRating = useMemo(() => {
     if (visibleComments.length === 0) return 0
