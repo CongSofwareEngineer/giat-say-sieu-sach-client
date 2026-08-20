@@ -6,26 +6,20 @@ import { mockBranches, mockOrders } from '@/services/mockData'
 
 const statusLabel = (status: string): string => {
   switch (status) {
-    case ORDER_STATUS.CREATED:
-      return 'Đã tạo đơn'
-    case ORDER_STATUS.CONFIRMED:
-      return 'Đã xác nhận'
-    case ORDER_STATUS.PICKED_UP:
+    case ORDER_STATUS.PENDING:
+      return 'Chờ xác nhận'
+    case ORDER_STATUS.RECEIVED:
       return 'Đã nhận đồ'
     case ORDER_STATUS.WASHING:
       return 'Đang giặt'
     case ORDER_STATUS.DRYING:
       return 'Đang sấy'
-    case ORDER_STATUS.IRONING:
-      return 'Đang ủi'
-    case ORDER_STATUS.FOLDING:
-      return 'Đang gấp'
-    case ORDER_STATUS.PACKAGING:
-      return 'Đang đóng gói'
-    case ORDER_STATUS.DELIVERING:
-      return 'Đang giao hàng'
+    case ORDER_STATUS.READY:
+      return 'Đã sẵn sàng'
     case ORDER_STATUS.COMPLETED:
       return 'Đã hoàn thành'
+    case ORDER_STATUS.CANCELLED:
+      return 'Đã hủy'
     default:
       return status
   }

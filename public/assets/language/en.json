@@ -383,16 +383,13 @@
       "notFound": "Order not found"
     },
     "status": {
-      "CREATED": "Created",
-      "CONFIRMED": "Confirmed",
-      "PICKED_UP": "Picked Up",
+      "PENDING": "Pending",
+      "RECEIVED": "Received",
       "WASHING": "Washing",
       "DRYING": "Drying",
-      "IRONING": "Ironing",
-      "FOLDING": "Folding",
-      "PACKAGING": "Packaging",
-      "DELIVERING": "Delivering",
-      "COMPLETED": "Completed"
+      "READY": "Ready",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
     }
   },
   "blog": {
@@ -771,14 +768,22 @@
       "delete": "Delete Banner",
       "deleteConfirm": "Are you sure you want to delete this banner?"
     },
-    "prices": {
-      "title": "Price Management",
-      "list": "Service List",
-      "create": "Add Service",
-      "edit": "Edit Service",
-      "delete": "Delete Service",
-      "deleteConfirm": "Are you sure you want to delete this service?"
-    },
+      "prices": {
+        "title": "Price Management",
+        "list": "Service List",
+        "create": "Add Service",
+        "edit": "Edit Service",
+        "delete": "Delete Service",
+        "deleteConfirm": "Are you sure you want to delete this service?",
+        "name": "Service Name",
+        "description": "Description",
+        "descriptionPlaceholder": "Brief description of the service",
+        "price": "Unit Price",
+        "unit": "Unit",
+        "unitPlaceholder": "e.g. VND/kg",
+        "active": "Active",
+        "popular": "Popular"
+      },
       "comments": {
         "title": "Review Management",
         "list": "Review List",

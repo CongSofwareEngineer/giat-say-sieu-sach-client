@@ -78,6 +78,16 @@ const useGetListComments = (serviceId?: string, categoryId?: string) => {
     onSuccess: refresh,
   })
 
+  const { mutateAsync: adminDeleteComment, isPending: isAdminDeleting } = useMutation({
+    mutationFn: (id: string) => CommentService.adminDeleteComment(id),
+    onSuccess: refresh,
+  })
+
+   const { mutateAsync: adminUpdateComment, isPending: isAdminUpdating } = useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateCommentPayload }) => CommentService.adminUpdateComment(id, payload),
+    onSuccess: refresh,
+  })
+
   const { mutateAsync: toggleVisibility, isPending: isTogglingVisibility } = useMutation({
     mutationFn: ({ id, isVisible }: { id: string; isVisible: boolean }) => CommentService.toggleVisibility(id, isVisible),
     onSuccess: refresh,
@@ -98,11 +108,15 @@ const useGetListComments = (serviceId?: string, categoryId?: string) => {
     updateComment,
     replyComment,
     deleteComment,
+     adminDeleteComment,
+    adminUpdateComment,
     toggleVisibility,
     isCreating,
     isUpdating,
     isReplying,
     isDeleting,
+     isAdminDeleting,
+    isAdminUpdating,
     isTogglingVisibility,
   }
 }

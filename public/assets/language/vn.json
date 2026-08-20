@@ -383,16 +383,13 @@
       "notFound": "Không tìm thấy đơn hàng"
     },
     "status": {
-      "CREATED": "Đã tạo",
-      "CONFIRMED": "Đã xác nhận",
-      "PICKED_UP": "Đã nhận đồ",
+      "PENDING": "Chờ xác nhận",
+      "RECEIVED": "Đã nhận đồ",
       "WASHING": "Đang giặt",
       "DRYING": "Đang sấy",
-      "IRONING": "Đang ủi",
-      "FOLDING": "Đang gấp",
-      "PACKAGING": "Đang đóng gói",
-      "DELIVERING": "Đang giao",
-      "COMPLETED": "Hoàn thành"
+      "READY": "Đã sẵn sàng",
+      "COMPLETED": "Hoàn thành",
+      "CANCELLED": "Đã hủy"
     }
   },
   "blog": {
@@ -771,14 +768,22 @@
       "delete": "Xóa banner",
       "deleteConfirm": "Bạn có chắc chắn muốn xóa banner này?"
     },
-    "prices": {
-      "title": "Quản lý bảng giá",
-      "list": "Danh sách dịch vụ",
-      "create": "Thêm dịch vụ",
-      "edit": "Sửa dịch vụ",
-      "delete": "Xóa dịch vụ",
-      "deleteConfirm": "Bạn có chắc chắn muốn xóa dịch vụ này?"
-    },
+      "prices": {
+        "title": "Quản lý bảng giá",
+        "list": "Danh sách dịch vụ",
+        "create": "Thêm dịch vụ",
+        "edit": "Sửa dịch vụ",
+        "delete": "Xóa dịch vụ",
+        "deleteConfirm": "Bạn có chắc chắn muốn xóa dịch vụ này?",
+        "name": "Tên dịch vụ",
+        "description": "Mô tả",
+        "descriptionPlaceholder": "Mô tả ngắn gọn về dịch vụ",
+        "price": "Đơn giá",
+        "unit": "Đơn vị",
+        "unitPlaceholder": "Ví dụ: VNĐ/kg",
+        "active": "Đang hoạt động",
+        "popular": "Phổ biến"
+      },
       "comments": {
         "title": "Quản lý đánh giá",
         "list": "Danh sách đánh giá",

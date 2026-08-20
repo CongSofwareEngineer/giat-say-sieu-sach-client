@@ -154,6 +154,16 @@ class CommentApi extends BaseAPI {
     await this.delete<{ data: null }>(`/me/${id}`, { isUseAuth: true })
   }
 
+  async adminDeleteComment(id: string): Promise<void> {
+    await this.delete<{ data: null }>(`/${id}`, { isUseAuth: true })
+  }
+
+  async adminUpdateComment(id: string, payload: UpdateCommentPayload): Promise<CommentItem> {
+    const response = await this.patch<{ data: CommentItem }>(`/${id}`, payload, { isUseAuth: true })
+
+    return response.data
+  }
+
   async toggleVisibility(id: string, isVisible: boolean): Promise<CommentItem> {
     const path = isVisible ? `/${id}/show` : `/${id}/hide`
     const response = await this.patch<{ data: CommentItem }>(path, {}, { isUseAuth: true })

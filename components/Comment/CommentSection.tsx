@@ -35,33 +35,33 @@ type CommentSectionProps = {
 const CommentSection = ({ serviceId, onServiceChange, tag, title, subtitle, headingLevel = 'h2', className }: CommentSectionProps) => {
   const { translate } = useLanguage()
   const { open } = useModalDrawer()
-  const [internalServiceId, setInternalServiceId] = useState('all')
+  const [internalServiceId, setInternalServiceId] = useState('')
   const [page, setPage] = useState(1)
 
   const { prices: plans } = useGetListPrice()
 
   const selectedServiceId = serviceId ?? internalServiceId
-  const filterServiceId = selectedServiceId === 'all' ? undefined : selectedServiceId
+  const activeServiceId = selectedServiceId === 'all' || !selectedServiceId ? plans[0]?.id : selectedServiceId
 
   // Reset pagination whenever the active service changes (internal or external)
   useEffect(() => {
     setPage(1)
-  }, [selectedServiceId])
+  }, [selectedServiceId, plans])
 
-  const { comments, isLoading } = useGetListComments(filterServiceId)
+  const { comments, isLoading } = useGetListComments(activeServiceId)
 
   const visibleComments = useMemo(() => filterVisibleComments(comments), [comments])
 
   const serviceOptions = useMemo(() => {
-    return plans.map((e) => {
-      const item: MySelectItem = {
-        label: e.name,
-        value: e.id,
-      }
+    const allOption: MySelectItem = {
+      label: translate('reviews.allServices'),
+      value: 'all',
+    }
 
-      return item
-    })
-  }, [plans])
+    return [allOption, ...plans.map((e) => ({ label: e.name, value: e.id } as MySelectItem))]
+  }, [plans, translate])
+
+  const displayValue = selectedServiceId === 'all' || !selectedServiceId ? 'all' : selectedServiceId
 
   const averageRating = useMemo(() => {
     if (visibleComments.length === 0) return 0
@@ -74,14 +74,14 @@ const CommentSection = ({ serviceId, onServiceChange, tag, title, subtitle, head
 
   const handleServiceChange = (value: string) => {
     if (onServiceChange) onServiceChange(value)
-    else setInternalServiceId(value)
+    else setInternalServiceId(value === 'all' ? '' : value)
   }
 
   const openCommentForm = () => {
     open({
       title: translate('reviews.form.heading'),
       classNames: { container: 'md:w-[560px]' },
-      children: <CommentForm defaultServiceId={filterServiceId ?? ''} />,
+      children: <CommentForm defaultServiceId={activeServiceId ?? ''} />,
     })
   }
 
@@ -115,7 +115,7 @@ const CommentSection = ({ serviceId, onServiceChange, tag, title, subtitle, head
               <label className='mb-1.5 block text-sm font-medium text-text'>{translate('reviews.service')}</label>
               <MySelect
                 data={serviceOptions}
-                value={selectedServiceId}
+                value={displayValue}
                 placeholder={translate('reviews.allServices')}
                 search={false}
                 onChange={(item) => handleServiceChange(item.value as string)}

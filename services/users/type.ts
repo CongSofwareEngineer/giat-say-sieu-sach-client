@@ -13,4 +13,6 @@ export type User = {
   isActive: boolean
   email?: string
   fcmToken?: string
+  createdAt?: string
+  updatedAt?: string
 }

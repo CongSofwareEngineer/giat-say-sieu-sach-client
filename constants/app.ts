@@ -29,18 +29,15 @@ export const COLORS = {
   footer: '#0F172A',
 }
 
-// Order statuses
+// Order statuses (must match server OrderStatus enum)
 export enum ORDER_STATUS {
-  CREATED = 'CREATED',
-  CONFIRMED = 'CONFIRMED',
-  PICKED_UP = 'PICKED_UP',
+  PENDING = 'PENDING',
+  RECEIVED = 'RECEIVED',
   WASHING = 'WASHING',
   DRYING = 'DRYING',
-  IRONING = 'IRONING',
-  FOLDING = 'FOLDING',
-  PACKAGING = 'PACKAGING',
-  DELIVERING = 'DELIVERING',
+  READY = 'READY',
   COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
 }
 
 export const MAX_PIXEL_REDUCE = 300 as number

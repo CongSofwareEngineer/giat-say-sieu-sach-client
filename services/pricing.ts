@@ -14,11 +14,31 @@ export type PricingPlan = {
   popular?: boolean
 }
 
+export type UpdatePricingPlanPayload = {
+  name?: string
+  description?: string
+  price?: number
+  unit?: string
+  isActive?: boolean
+  features?: Record<LANGUAGE_SUPPORT, string[]>
+  popular?: boolean
+}
+
 class PricingApi extends BaseAPI {
   async getPlans(): Promise<PricingPlan[]> {
     const response = await this.get<{ data: PricingPlan[] }>('')
 
     return response?.data
+  }
+
+  async updatePlan(id: string, payload: UpdatePricingPlanPayload): Promise<PricingPlan> {
+    const response = await this.patch<{ data: PricingPlan }>(`/${id}`, payload, { isUseAuth: true })
+
+    return response.data
+  }
+
+  async deletePlan(id: string): Promise<void> {
+    await this.delete<{ data: null }>(`/${id}`, { isUseAuth: true })
   }
 }
 

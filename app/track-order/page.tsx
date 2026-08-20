@@ -40,15 +40,11 @@ const TrackingPageContent = () => {
   const [error, setError] = useState('')
 
   const statusSteps: ORDER_STATUS[] = [
-    ORDER_STATUS.CREATED,
-    ORDER_STATUS.CONFIRMED,
-    ORDER_STATUS.PICKED_UP,
+    ORDER_STATUS.PENDING,
+    ORDER_STATUS.RECEIVED,
     ORDER_STATUS.WASHING,
     ORDER_STATUS.DRYING,
-    ORDER_STATUS.IRONING,
-    ORDER_STATUS.FOLDING,
-    ORDER_STATUS.PACKAGING,
-    ORDER_STATUS.DELIVERING,
+    ORDER_STATUS.READY,
     ORDER_STATUS.COMPLETED,
   ]
 
@@ -62,13 +58,12 @@ const TrackingPageContent = () => {
     switch (status) {
       case ORDER_STATUS.COMPLETED:
         return 'success'
-      case ORDER_STATUS.DELIVERING:
       case ORDER_STATUS.WASHING:
       case ORDER_STATUS.DRYING:
-      case ORDER_STATUS.IRONING:
-      case ORDER_STATUS.FOLDING:
-      case ORDER_STATUS.PACKAGING:
+      case ORDER_STATUS.READY:
         return 'warning'
+      case ORDER_STATUS.CANCELLED:
+        return 'error'
       default:
         return 'info'
     }

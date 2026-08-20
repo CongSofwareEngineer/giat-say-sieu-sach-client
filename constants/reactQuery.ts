@@ -3,6 +3,7 @@ export const QUERY_KEYS = {
   getListProduct: 'getListProduct',
   getListCategory: 'getListCategory',
   getListOrder: 'getListOrder',
+  getListUsers: 'getListUsers',
   getListComments: 'getListComments',
   getListContacts: 'getListContacts',
   getListAddresses: 'getListAddresses',

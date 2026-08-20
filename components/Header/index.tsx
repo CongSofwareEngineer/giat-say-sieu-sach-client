@@ -174,7 +174,7 @@ const Header = () => {
             </div>
 
             {!isMobile && hasHydrated && isLogin && (
-              <div className='relative hidden lg:block'>
+              <div className='relative hidden md:block'>
                 <button
                   type='button'
                   onClick={() => setIsUserMenuOpen((prev) => !prev)}
