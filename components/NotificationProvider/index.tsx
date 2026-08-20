@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 
 import useNotifications from '@/hooks/useNotifications'
 import useUser from '@/hooks/useUser'
@@ -60,12 +61,17 @@ const NotificationProvider = () => {
     const unsubscribe = onMessage((payload) => {
       const { title, body } = payload.notification || {}
 
-      if (title && body && 'Notification' in window && Notification.permission === 'granted') {
-        new Notification(title, {
-          body,
-          icon: '/favicon.ico',
-          badge: '/favicon.ico',
-        })
+      if (title || body) {
+        toast(
+          <div>
+            {title && <p className='font-semibold text-sm'>{title}</p>}
+            {body && <p className='text-xs text-gray-600'>{body}</p>}
+          </div>,
+          {
+            duration: 5000,
+            icon: '🔔',
+          }
+        )
       }
     })
 
