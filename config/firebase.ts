@@ -1,5 +1,6 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app'
 import { getMessaging, type Messaging } from 'firebase/messaging'
+import { getAuth, type Auth } from 'firebase/auth'
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -13,6 +14,24 @@ const firebaseConfig = {
 
 let app: FirebaseApp | null = null
 let messaging: Messaging | null = null
+let auth: Auth | null = null
+
+// Lazy-init Firebase Auth (client only). Required for phone-number verification.
+export const getFirebaseAuth = (): Auth | null => {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  if (!auth) {
+    try {
+      auth = getAuth(getFirebaseApp())
+    } catch {
+      return null
+    }
+  }
+
+  return auth
+}
 
 export const getFirebaseApp = (): FirebaseApp => {
   if (!app) {

@@ -572,7 +572,11 @@
       "loginNow": "Login now",
       "error": "Registration failed, please try again",
       "passwordMismatch": "Passwords do not match",
-      "passwordMin": "Password must be at least 6 characters"
+      "passwordMin": "Password must be at least 6 characters",
+      "otpHint": "We will send an OTP via SMS to verify your phone number",
+      "successTitle": "Registration successful!",
+      "successDesc": "Your account has been created. Welcome to Super Clean Laundry!",
+      "goToLogin": "Go to login"
     }
   },
   "orders": {
@@ -887,5 +891,25 @@
     },
     "tokenReceived": "Notifications activated",
     "tokenError": "Could not activate notifications"
+  },
+  "otp": {
+    "title": "Verify phone number",
+    "subtitle": "Enter the {length}-digit OTP sent to {phone}",
+    "verify": "Verify",
+    "verifying": "Verifying...",
+    "sending": "Sending code...",
+    "resend": "Resend code",
+    "resendIn": "Resend in {seconds}s",
+    "changePhone": "Change phone number",
+    "error": {
+      "invalidPhone": "Invalid phone number",
+      "notSent": "Please send the code first",
+      "invalidCode": "Incorrect OTP, please try again",
+      "expired": "OTP expired, please request a new one",
+      "tooManyRequests": "Too many requests, please try again later",
+      "quotaExceeded": "Service temporarily overloaded, please try again later",
+      "authUnavailable": "Verification service is unavailable",
+      "sendFailed": "Could not send the code, please try again"
+    }
   }
 }

@@ -572,7 +572,11 @@
       "loginNow": "Đăng nhập ngay",
       "error": "Đăng ký thất bại, vui lòng thử lại",
       "passwordMismatch": "Mật khẩu không khớp",
-      "passwordMin": "Mật khẩu phải có ít nhất 6 ký tự"
+      "passwordMin": "Mật khẩu phải có ít nhất 6 ký tự",
+      "otpHint": "Chúng tôi sẽ gửi mã OTP qua SMS để xác thực số điện thoại của bạn",
+      "successTitle": "Đăng ký thành công!",
+      "successDesc": "Tài khoản của bạn đã được tạo. Chào mừng bạn đến với Giặt Ủi Siêu Sạch!",
+      "goToLogin": "Đến trang đăng nhập"
     }
   },
   "orders": {
@@ -887,5 +891,25 @@
     },
     "tokenReceived": "Đã kích hoạt thông báo",
     "tokenError": "Không thể kích hoạt thông báo"
+  },
+  "otp": {
+    "title": "Xác thực số điện thoại",
+    "subtitle": "Nhập mã OTP gồm {length} chữ số đã gửi đến {phone}",
+    "verify": "Xác nhận",
+    "verifying": "Đang xác thực...",
+    "sending": "Đang gửi mã...",
+    "resend": "Gửi lại mã",
+    "resendIn": "Gửi lại sau {seconds}s",
+    "changePhone": "Đổi số điện thoại",
+    "error": {
+      "invalidPhone": "Số điện thoại không hợp lệ",
+      "notSent": "Vui lòng gửi mã xác thực trước",
+      "invalidCode": "Mã OTP không đúng, vui lòng thử lại",
+      "expired": "Mã OTP đã hết hạn, vui lòng gửi lại",
+      "tooManyRequests": "Quá nhiều yêu cầu, vui lòng thử lại sau",
+      "quotaExceeded": "Hệ thống tạm quá tải, vui lòng thử lại sau",
+      "authUnavailable": "Dịch vụ xác thực chưa sẵn sàng",
+      "sendFailed": "Không thể gửi mã, vui lòng thử lại"
+    }
   }
 }
