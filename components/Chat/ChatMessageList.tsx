@@ -40,7 +40,7 @@ const ChatMessageList = ({
   const sortedMessages = [...messages].sort((a, b) => a.id - b.id)
 
   return (
-    <div className='flex-1 overflow-y-auto p-4 space-y-3'>
+    <div className='flex-1 overflow-y-auto py-4 space-y-3'>
       {sortedMessages.map((msg) => (
         <div key={msg.id} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
           <div

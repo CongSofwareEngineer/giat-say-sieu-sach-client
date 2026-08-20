@@ -81,7 +81,7 @@ const Header = () => {
           </Link>
 
           {!isMobile && (
-            <nav className='hidden lg:flex items-center gap-1'>
+            <nav className='hidden md:flex items-center gap-1'>
               {mainNavItems.map((item) => (
                 <Link
                   key={item.href}
