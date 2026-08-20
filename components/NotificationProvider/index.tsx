@@ -64,7 +64,7 @@ const NotificationProvider = () => {
       if (title || body) {
         toastStore.getState().addToast({
           message: [title, body].filter(Boolean).join('\n'),
-          type: 'info',
+          type: 'default',
           duration: 5000,
         })
       }
@@ -134,3 +134,24 @@ const NotificationProvider = () => {
 }
 
 export default NotificationProvider
+
+export const showToast = {
+  default: (message: string) =>
+    toastStore.getState().addToast({
+      message,
+      type: 'default',
+      duration: 4000,
+    }),
+  warning: (message: string) =>
+    toastStore.getState().addToast({
+      message,
+      type: 'warning',
+      duration: 5000,
+    }),
+  error: (message: string) =>
+    toastStore.getState().addToast({
+      message,
+      type: 'error',
+      duration: 6000,
+    }),
+}
