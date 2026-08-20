@@ -2,13 +2,13 @@ importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js'
 importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js')
 
 const firebaseConfig = {
-  apiKey: '${NEXT_PUBLIC_FIREBASE_API_KEY}',
-  authDomain: '${NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN}',
-  projectId: '${NEXT_PUBLIC_FIREBASE_PROJECT_ID}',
-  storageBucket: '${NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET}',
-  messagingSenderId: '${NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID}',
-  appId: '${NEXT_PUBLIC_FIREBASE_APP_ID}',
-  measurementId: '${NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID}',
+  apiKey: 'AIzaSyBwplEBaz1E7APmjM8w1r9MbpDUyZ7yU84',
+  authDomain: 'giat-say-sieu-sach.firebaseapp.com',
+  projectId: 'giat-say-sieu-sach',
+  storageBucket: 'giat-say-sieu-sach.firebasestorage.app',
+  messagingSenderId: '1040820161906',
+  appId: '1:1040820161906:web:f0d3169fb0cb1b02f5e1eb',
+  measurementId: 'G-QYD8TPDN7Z',
 }
 
 firebase.initializeApp(firebaseConfig)

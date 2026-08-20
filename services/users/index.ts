@@ -35,6 +35,12 @@ class UserApi extends BaseAPI {
 
     return response.data
   }
+
+  async updateFcmToken(fcmToken: string): Promise<any> {
+    const response = await this.put<{ data: any }>('/profile/fcm-token', { fcmToken }, { isUseAuth: true })
+
+    return response.data
+  }
 }
 
 const UserService = new UserApi('users')

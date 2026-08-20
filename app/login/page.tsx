@@ -53,6 +53,26 @@ const LoginPage = () => {
     return isValid
   }
 
+  const syncFcmToken = async () => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const storedToken = localStorage.getItem('fcm_token')
+
+    if (!storedToken) {
+      return
+    }
+
+    try {
+      const UserService = (await import('@/services/users')).default
+
+      await UserService.updateFcmToken(storedToken)
+    } catch {
+      // Silent fail for FCM token sync
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -65,6 +85,7 @@ const LoginPage = () => {
       const response = await loginAction(formData.phone, formData.password)
 
       login(response.user)
+      await syncFcmToken()
       router.replace(response.user.role === 'ADMIN' ? '/admin' : '/')
     } catch {
       setErrors((prev) => ({ ...prev, general: translate('auth.login.error') }))

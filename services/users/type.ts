@@ -12,4 +12,5 @@ export type User = {
   loyaltyPoints: number
   isActive: boolean
   email?: string
+  fcmToken?: string
 }
