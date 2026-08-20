@@ -8,11 +8,19 @@ import useUser from '@/hooks/useUser'
 const useGetListComments = (serviceId?: string, categoryId?: string) => {
   const queryClient = useQueryClient()
   const { isLogin, user } = useUser()
+  const isAdmin = isLogin && user?.role === 'ADMIN'
+
+  const effectiveCategoryId = categoryId || serviceId
 
   const { data, isLoading, isError, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: [QUERY_KEYS.getListComments, serviceId ?? '', categoryId ?? ''],
-    queryFn: ({ pageParam }) =>
-      CommentService.getComments(serviceId ? { serviceId, page: pageParam as number } : categoryId ? { categoryId, page: pageParam as number } : { page: pageParam as number }),
+    queryFn: ({ pageParam }) => {
+      if (!effectiveCategoryId && !isAdmin) {
+        return Promise.resolve({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } })
+      }
+
+      return CommentService.getComments(effectiveCategoryId, { page: pageParam as number })
+    },
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
       if (lastPage.meta?.page != null && lastPage.meta?.totalPages != null && lastPage.meta.page < lastPage.meta.totalPages) {
@@ -44,11 +52,11 @@ const useGetListComments = (serviceId?: string, categoryId?: string) => {
       }
     ) =>
       CommentService.createComment(
+        payload.categoryId || payload.serviceId || '',
         {
-          ...payload,
-          userId: isLogin ? (user?.id ?? '') : '',
-          name: user?.name,
-          phone: user?.phone,
+          rating: payload.rating ?? 0,
+          content: payload.content,
+          images: payload.images,
         },
         { isUseAuth: isLogin }
       ),

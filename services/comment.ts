@@ -1,6 +1,5 @@
 import BaseAPI from '@/config/baseApi'
 
-// Canonical service list used to group reviews (matches pricing plans ids)
 export const COMMENT_SERVICES = [
   { id: 'giat-thuong', name: 'Giặt Thường' },
   { id: 'giat-nhanh', name: 'Giặt Nhanh' },
@@ -72,7 +71,6 @@ type ListResponse = {
   }
 }
 
-// Recursively filter out hidden comments and their replies
 export const filterVisibleComments = (comments: CommentItem[]): CommentItem[] => {
   return comments
     .filter((comment) => comment.isVisible !== false)
@@ -82,7 +80,6 @@ export const filterVisibleComments = (comments: CommentItem[]): CommentItem[] =>
     }))
 }
 
-// Build nested replies from flat parentComment structure
 export const buildCommentReplies = (comments: CommentItem[]): CommentItem[] => {
   const map = new Map<string, CommentItem>()
   const roots: CommentItem[] = []
@@ -109,27 +106,40 @@ export const buildCommentReplies = (comments: CommentItem[]): CommentItem[] => {
 }
 
 class CommentApi extends BaseAPI {
-  async getComments(params?: { serviceId?: string; categoryId?: string; page?: number; limit?: number }): Promise<{ data: CommentItem[]; meta: ListResponse['meta'] }> {
-    const query = new URLSearchParams()
+  async getComments(categoryId?: string, params?: { page?: number; limit?: number }): Promise<{ data: CommentItem[]; meta: ListResponse['meta'] }> {
+    let url = ''
+    let options: { isUseAuth?: boolean } = {}
 
-    if (params?.serviceId) query.set('serviceId', params.serviceId)
-    if (params?.categoryId) query.set('categoryId', params.categoryId)
-    if (params?.page) query.set('page', String(params.page))
-    if (params?.limit) query.set('limit', String(params.limit))
+    if (categoryId) {
+      const query = new URLSearchParams()
 
-    const response = await this.get<ListResponse>(query.toString() ? `?${query.toString()}` : '')
+      if (params?.page) query.set('page', String(params.page))
+      if (params?.limit) query.set('limit', String(params.limit))
+
+      url = `/laundry-categories/${categoryId}${query.toString() ? `?${query.toString()}` : ''}`
+    } else {
+      const query = new URLSearchParams()
+
+      if (params?.page) query.set('page', String(params.page))
+      if (params?.limit) query.set('limit', String(params.limit))
+
+      url = query.toString() ? `?${query.toString()}` : ''
+      options = { isUseAuth: true }
+    }
+
+    const response = await this.get<ListResponse>(url, options)
 
     return { data: response.data, meta: response.meta }
   }
 
-  async createComment(payload: CreateCommentPayload, options?: { isUseAuth?: boolean }): Promise<CommentItem> {
-    const response = await this.post<{ data: CommentItem }>('', payload, { isUseAuth: options?.isUseAuth ?? false })
+  async createComment(categoryId: string, payload: { rating?: number; content: string; images: string[] }, options?: { isUseAuth?: boolean }): Promise<CommentItem> {
+    const response = await this.post<{ data: CommentItem }>(`/laundry-categories/${categoryId}`, payload, { isUseAuth: options?.isUseAuth ?? false })
 
     return response.data
   }
 
   async updateComment(id: string, payload: UpdateCommentPayload): Promise<CommentItem> {
-    const response = await this.put<{ data: CommentItem }>(`/${id}`, payload, { isUseAuth: true })
+    const response = await this.patch<{ data: CommentItem }>(`/me/${id}`, payload, { isUseAuth: true })
 
     return response.data
   }
@@ -141,16 +151,17 @@ class CommentApi extends BaseAPI {
   }
 
   async deleteComment(id: string): Promise<void> {
-    await this.delete<{ data: null }>(`/${id}`, { isUseAuth: true })
+    await this.delete<{ data: null }>(`/me/${id}`, { isUseAuth: true })
   }
 
   async toggleVisibility(id: string, isVisible: boolean): Promise<CommentItem> {
-    const response = await this.patch<{ data: CommentItem }>(`/${id}/visibility`, { isVisible }, { isUseAuth: true })
+    const path = isVisible ? `/${id}/show` : `/${id}/hide`
+    const response = await this.patch<{ data: CommentItem }>(path, {}, { isUseAuth: true })
 
     return response.data
   }
 }
 
-const CommentService = new CommentApi('comments/laundry-categories')
+const CommentService = new CommentApi('comments')
 
 export default CommentService

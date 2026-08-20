@@ -1,26 +1,14 @@
 import BaseAPI from '@/config/baseApi'
 
 class UserApi extends BaseAPI {
-  async login(sdt: string, password: string): Promise<any> {
-    const response = await this.post<{ data: any }>('/login', { sdt, password }, { isUseAuth: false })
-
-    return response.data
-  }
-
-  async register(sdt: string, password: string): Promise<any> {
-    const response = await this.post<{ data: any }>('/register', { sdt, password }, { isUseAuth: false })
-
-    return response.data
-  }
-
   async updateProfile(profileData: Record<string, unknown>): Promise<any> {
-    const response = await this.put<{ data: any }>('/profile', profileData, { isUseAuth: true })
+    const response = await this.patch<{ data: any }>('/me', profileData, { isUseAuth: true })
 
     return response.data
   }
 
   async updateAvatar(avatarData: FormData): Promise<any> {
-    const response = await this.put<{ data: any }>('/profile/avatar', avatarData, {
+    const response = await this.patch<{ data: any }>('/me', avatarData, {
       isUseAuth: true,
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -31,13 +19,13 @@ class UserApi extends BaseAPI {
   }
 
   async getProfile(): Promise<any> {
-    const response = await this.get<{ data: any }>('/profile', { isUseAuth: true })
+    const response = await this.get<{ data: any }>('/me', { isUseAuth: true })
 
     return response.data
   }
 
   async updateFcmToken(fcmToken: string): Promise<any> {
-    const response = await this.put<{ data: any }>('/profile/fcm-token', { fcmToken }, { isUseAuth: true })
+    const response = await this.patch<{ data: any }>('/me', { fcmToken }, { isUseAuth: true })
 
     return response.data
   }
