@@ -6,7 +6,7 @@ import Header from '../components/Header'
 import Footer from '../components/Footer'
 import FloatingChat from '../components/FloatingChat'
 import NotificationProvider from '../components/NotificationProvider/index'
-import { Toaster } from 'react-hot-toast'
+import Toast from '../components/Toast'
 
 import { INFO_CONTACT, IS_PRODUCTION, SITE_CONFIG } from '@/constants/app'
 import { organizationSchema, toJsonLd, webSiteSchema } from '@/config/seo'
@@ -103,7 +103,7 @@ export default function RootLayout({
             <MyDrawer />
             <FloatingChat />
             <NotificationProvider />
-            <Toaster position='top-center' />
+            <Toast />
           </ClientRender>
         </ReactQuery>
       </body>

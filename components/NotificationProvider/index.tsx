@@ -1,13 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
 
 import useNotifications from '@/hooks/useNotifications'
 import useUser from '@/hooks/useUser'
 import useLanguage from '@/hooks/useLanguage'
 import UserService from '@/services/users'
 import MyButton from '@/components/MyButton'
+import { toast as toastStore } from '@/zustand/toast'
 
 const NotificationProvider = () => {
   const { translate } = useLanguage()
@@ -62,16 +62,11 @@ const NotificationProvider = () => {
       const { title, body } = payload.notification || {}
 
       if (title || body) {
-        toast(
-          <div>
-            {title && <p className='font-semibold text-sm'>{title}</p>}
-            {body && <p className='text-xs text-gray-600'>{body}</p>}
-          </div>,
-          {
-            duration: 5000,
-            icon: '🔔',
-          }
-        )
+        toastStore.getState().addToast({
+          message: [title, body].filter(Boolean).join('\n'),
+          type: 'info',
+          duration: 5000,
+        })
       }
     })
 
