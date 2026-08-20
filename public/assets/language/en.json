@@ -871,5 +871,21 @@
     "zoom": "Zoom",
     "confirm": "Crop & Optimize",
     "processing": "Processing..."
+  },
+  "notification": {
+    "permission": {
+      "granted": "Notifications enabled",
+      "denied": "Notifications blocked",
+      "default": "Notifications not enabled"
+    },
+    "requestPermission": {
+      "title": "Enable notifications",
+      "message": "Receive notifications about order status and promotions",
+      "allowButton": "Allow",
+      "denyButton": "Deny",
+      "error": "Notification permission is required to receive notifications"
+    },
+    "tokenReceived": "Notifications activated",
+    "tokenError": "Could not activate notifications"
   }
 }

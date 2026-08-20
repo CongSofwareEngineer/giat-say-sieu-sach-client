@@ -871,5 +871,21 @@
     "zoom": "Phóng to",
     "confirm": "Cắt & Tối ưu",
     "processing": "Đang xử lý..."
+  },
+  "notification": {
+    "permission": {
+      "granted": "Đã cấp quyền thông báo",
+      "denied": "Đã từ chối quyền thông báo",
+      "default": "Chưa cấp quyền thông báo"
+    },
+    "requestPermission": {
+      "title": "Bật thông báo",
+      "message": "Nhận thông báo về trạng thái đơn hàng và khuyến mãi",
+      "allowButton": "Cho phép",
+      "denyButton": "Từ chối",
+      "error": "Cần cấp quyền thông báo để nhận thông báo"
+    },
+    "tokenReceived": "Đã kích hoạt thông báo",
+    "tokenError": "Không thể kích hoạt thông báo"
   }
 }

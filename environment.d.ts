@@ -11,6 +11,15 @@ interface EnvironmentVariables {
   readonly AGENT_MODEL?: string
   // Client-side model name sent by the agent loop (safe to expose)
   readonly NEXT_PUBLIC_AGENT_MODEL?: string
+  // Firebase
+  readonly NEXT_PUBLIC_FIREBASE_API_KEY?: string
+  readonly NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN?: string
+  readonly NEXT_PUBLIC_FIREBASE_PROJECT_ID?: string
+  readonly NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET?: string
+  readonly NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID?: string
+  readonly NEXT_PUBLIC_FIREBASE_APP_ID?: string
+  readonly NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID?: string
+  readonly NEXT_PUBLIC_FIREBASE_VAPID_KEY?: string
 }
 
 declare namespace NodeJS {

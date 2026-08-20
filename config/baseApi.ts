@@ -182,6 +182,7 @@ class BaseAPI {
 
   async post<T>(url: string, body: any, options: RequestOptions): Promise<T> {
     return this.request<T>(url, {
+      isUseAuth: true,
       ...options,
       method: 'POST',
       headers: {
@@ -194,6 +195,7 @@ class BaseAPI {
 
   async put<T>(url: string, body: any, options: RequestOptions): Promise<T> {
     return this.request<T>(url, {
+      isUseAuth: true,
       ...options,
       method: 'PUT',
       headers: {
@@ -206,6 +208,7 @@ class BaseAPI {
 
   async patch<T>(url: string, body: any, options: RequestOptions): Promise<T> {
     return this.request<T>(url, {
+      isUseAuth: true,
       ...options,
       method: 'PATCH',
       headers: {
@@ -217,7 +220,11 @@ class BaseAPI {
   }
 
   async delete<T>(url: string, options: RequestOptions): Promise<T> {
-    return this.request<T>(url, { ...options, method: 'DELETE' })
+    return this.request<T>(url, {
+      isUseAuth: true,
+      ...options,
+      method: 'DELETE',
+    })
   }
 }
 

@@ -5,6 +5,7 @@ import MyDrawer from '../components/MyDrawer/index'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import FloatingChat from '../components/FloatingChat'
+import NotificationProvider from '../components/NotificationProvider/index'
 
 import { INFO_CONTACT, IS_PRODUCTION, SITE_CONFIG } from '@/constants/app'
 import { organizationSchema, toJsonLd, webSiteSchema } from '@/config/seo'
@@ -100,6 +101,7 @@ export default function RootLayout({
             <MyModal />
             <MyDrawer />
             <FloatingChat />
+            <NotificationProvider />
           </ClientRender>
         </ReactQuery>
       </body>
