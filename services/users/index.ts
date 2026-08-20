@@ -14,13 +14,14 @@ class UserApi extends BaseAPI {
   }
 
   async updateProfile(profileData: Record<string, unknown>): Promise<any> {
-    const response = await this.put<{ data: any }>('/profile', profileData)
+    const response = await this.put<{ data: any }>('/profile', profileData, { isUseAuth: true })
 
     return response.data
   }
 
   async updateAvatar(avatarData: FormData): Promise<any> {
     const response = await this.put<{ data: any }>('/profile/avatar', avatarData, {
+      isUseAuth: true,
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -30,7 +31,7 @@ class UserApi extends BaseAPI {
   }
 
   async getProfile(): Promise<any> {
-    const response = await this.get<{ data: any }>('/profile')
+    const response = await this.get<{ data: any }>('/profile', { isUseAuth: true })
 
     return response.data
   }

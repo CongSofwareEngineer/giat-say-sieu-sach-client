@@ -45,17 +45,17 @@ class ContactApi extends BaseAPI {
     if (params?.limit) query.set('limit', String(params.limit))
     if (params?.status) query.set('status', params.status)
 
-    const response = await this.get<ListResponse>(query.toString() ? `?${query.toString()}` : '')
+    const response = await this.get<ListResponse>(query.toString() ? `?${query.toString()}` : '', { isUseAuth: true })
 
     return response
   }
 
   async deleteContact(id: string): Promise<void> {
-    await this.delete<{ data: null }>(`/${id}`)
+    await this.delete<{ data: null }>(`/${id}`, { isUseAuth: true })
   }
 
   async updateContactStatus(id: string, status: string): Promise<ContactItem> {
-    const response = await this.patch<{ data: ContactItem }>(`/${id}/status?status=${status}`, {})
+    const response = await this.patch<{ data: ContactItem }>(`/${id}/status?status=${status}`, {}, { isUseAuth: true })
 
     return response.data
   }

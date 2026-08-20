@@ -175,15 +175,14 @@ class BaseAPI {
     return response.json() as Promise<T>
   }
 
-  // Public by default, pass isUseAuth to send the bearer token
+  // Pass isUseAuth to send the bearer token
   async get<T>(url: string, options?: RequestOptions): Promise<T> {
     return this.request<T>(url, { ...options, method: 'GET' })
   }
 
-  async post<T>(url: string, body: any, options?: RequestOptions): Promise<T> {
+  async post<T>(url: string, body: any, options: RequestOptions): Promise<T> {
     return this.request<T>(url, {
       ...options,
-      isUseAuth: options?.isUseAuth ?? true,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -193,10 +192,9 @@ class BaseAPI {
     })
   }
 
-  async put<T>(url: string, body: any, options?: RequestOptions): Promise<T> {
+  async put<T>(url: string, body: any, options: RequestOptions): Promise<T> {
     return this.request<T>(url, {
       ...options,
-      isUseAuth: options?.isUseAuth ?? true,
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -206,10 +204,9 @@ class BaseAPI {
     })
   }
 
-  async patch<T>(url: string, body: any, options?: RequestOptions): Promise<T> {
+  async patch<T>(url: string, body: any, options: RequestOptions): Promise<T> {
     return this.request<T>(url, {
       ...options,
-      isUseAuth: options?.isUseAuth ?? true,
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -219,8 +216,8 @@ class BaseAPI {
     })
   }
 
-  async delete<T>(url: string, options?: RequestOptions): Promise<T> {
-    return this.request<T>(url, { ...options, isUseAuth: options?.isUseAuth ?? true, method: 'DELETE' })
+  async delete<T>(url: string, options: RequestOptions): Promise<T> {
+    return this.request<T>(url, { ...options, method: 'DELETE' })
   }
 }
 

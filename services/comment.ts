@@ -129,23 +129,23 @@ class CommentApi extends BaseAPI {
   }
 
   async updateComment(id: string, payload: UpdateCommentPayload): Promise<CommentItem> {
-    const response = await this.put<{ data: CommentItem }>(`/${id}`, payload)
+    const response = await this.put<{ data: CommentItem }>(`/${id}`, payload, { isUseAuth: true })
 
     return response.data
   }
 
   async replyComment(id: string, content: string): Promise<CommentItem> {
-    const response = await this.post<{ data: CommentItem }>(`/${id}/reply`, { content })
+    const response = await this.post<{ data: CommentItem }>(`/${id}/reply`, { content }, { isUseAuth: true })
 
     return response.data
   }
 
   async deleteComment(id: string): Promise<void> {
-    await this.delete<{ data: null }>(`/${id}`)
+    await this.delete<{ data: null }>(`/${id}`, { isUseAuth: true })
   }
 
   async toggleVisibility(id: string, isVisible: boolean): Promise<CommentItem> {
-    const response = await this.patch<{ data: CommentItem }>(`/${id}/visibility`, { isVisible })
+    const response = await this.patch<{ data: CommentItem }>(`/${id}/visibility`, { isVisible }, { isUseAuth: true })
 
     return response.data
   }

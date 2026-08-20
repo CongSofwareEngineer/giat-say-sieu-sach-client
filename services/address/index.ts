@@ -19,26 +19,26 @@ class AddressApi extends BaseAPI {
 
   // POST /addresses/me
   async createAddress(payload: CreateAddressPayload): Promise<AddressItem> {
-    const response = await this.post<{ data: AddressItem }>('/me', payload)
+    const response = await this.post<{ data: AddressItem }>('/me', payload, { isUseAuth: true })
 
     return response.data
   }
 
   // PATCH /addresses/me/:id
   async updateAddress(id: string, payload: UpdateAddressPayload): Promise<AddressItem> {
-    const response = await this.patch<{ data: AddressItem }>(`/me/${id}`, payload)
+    const response = await this.patch<{ data: AddressItem }>(`/me/${id}`, payload, { isUseAuth: true })
 
     return response.data
   }
 
   // DELETE /addresses/me/:id
   async deleteAddress(id: string): Promise<void> {
-    await this.delete<{ data: { message: string } }>(`/me/${id}`)
+    await this.delete<{ data: { message: string } }>(`/me/${id}`, { isUseAuth: true })
   }
 
   // PATCH /addresses/me/:id/default
   async setDefaultAddress(id: string): Promise<AddressItem> {
-    const response = await this.patch<{ data: AddressItem }>(`/me/${id}/default`, {})
+    const response = await this.patch<{ data: AddressItem }>(`/me/${id}/default`, {}, { isUseAuth: true })
 
     return response.data
   }
