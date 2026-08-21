@@ -34,19 +34,12 @@ export const runAgent = async (agent: AgentDefinition, history: AgentMessage[], 
         } catch (error) {
           output = translate(
             'agent.run.toolError',
-            {
-              message: error instanceof Error ? error.message : 'Unknown error',
-            },
+            { message: error instanceof Error ? error.message : 'Unknown error' },
             `Tool error: ${error instanceof Error ? error.message : 'Unknown error'}`
           )
         }
 
-        messages.push({
-          role: 'tool',
-          name: call.name,
-          toolCallId: call.id,
-          content: output,
-        })
+        messages.push({ role: 'tool', name: call.name, toolCallId: call.id, content: output })
       }
 
       continue

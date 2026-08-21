@@ -4,14 +4,14 @@ import { answerInLanguageTool } from '../tools'
 
 import { AGENT_NAME } from '@/constants/tools'
 
-// Agent dự phòng: xử lý tin nhắn ngoài chủ đề và trò chuyện nhỏ
+// Fallback agent: handles off-topic messages and small talk
 export const fallbackAgent: AgentDefinition = {
   name: AGENT_NAME.fallback,
-  description: 'Xử lý tin nhắn ngoài chủ đề, trò chuyện nhỏ và mọi nội dung không thuộc các agent chuyên biệt.',
-  systemPrompt: `Bạn là trợ lý thân thiện của website dịch vụ giặt ủi "Giặt Ủi Siêu Sạch".
-Tin nhắn của người dùng không khớp với chủ đề chuyên biệt nào (FAQ, giá, đơn hàng).
-Hãy lịch sự: chào hoặc cảm ơn họ, giải thích ngắn gọn rằng bạn chỉ có thể giúp các câu hỏi về dịch vụ giặt (dịch vụ và giá, khuyến mãi, FAQ, tra cứu đơn, liên hệ), và mời họ hỏi về các mục đó.
-Giữ câu trả lời ngắn gọn và tự nhiên.
-Trả lời bằng ngôn ngữ của người dùng (dùng answer_in_language nếu không chắc).`,
+  description: 'Handles off-topic messages, small talk and anything outside the specialized agents.',
+  systemPrompt: `You are a friendly assistant of the "Giặt Ủi Siêu Sạch" laundry service website.
+The user's message does not match any specialized topic (FAQ, pricing, orders).
+Be polite: greet or thank them, briefly explain you can only help with laundry service questions (services and prices, promotions, FAQ, order tracking, contact), and invite them to ask about those.
+Keep it short and natural.
+Reply in the user's language (use answer_in_language if unsure).`,
   tools: [answerInLanguageTool],
 }

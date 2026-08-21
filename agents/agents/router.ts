@@ -2,38 +2,38 @@ import type { AgentDefinition, AgentTool } from '../base'
 
 import { AGENT_NAME, ROUTER_TOOL_NAME } from '@/constants/tools'
 
-// Router tool chính mà agent chính dùng để chọn agent chuyên biệt
+// Special router tool the main agent uses to pick a specialized agent
 export const routeToAgentTool: AgentTool = {
   name: ROUTER_TOOL_NAME,
-  description: 'Chuyển tin nhắn hiện tại của người dùng đến agent chuyên biệt phù hợp để xử lý.',
+  description: 'Dispatch the current user message to the specialized agent that should handle it.',
   parameters: {
     type: 'object',
     properties: {
       agent: {
         type: 'string',
-        enum: [AGENT_NAME.faq, AGENT_NAME.price, AGENT_NAME.recommend, AGENT_NAME.booking],
-        description: 'Agent phù hợp nhất để trả lời tin nhắn người dùng.',
+        enum: [AGENT_NAME.faq, AGENT_NAME.price, AGENT_NAME.recommend],
+        description: 'The agent best suited to answer the user message.',
       },
     },
     required: ['agent'],
   },
-  execute: async (args) => `Đang chuyển đến agent "${args?.agent}".`,
+  execute: async (args) => `Dispatching to agent "${args?.agent}".`,
 }
 
-// Router system prompt, được xây từ registry để các agent mới tự động xuất hiện
-// ở đây mà không cần sửa file này.
+// Router system prompt, built from the registry so new agents appear here
+// automatically without editing this file.
 export const buildRouterSystem = (agents: AgentDefinition[]): string => {
   const list = agents.map((agent) => `- "${agent.name}": ${agent.description}`).join('\n')
 
   return [
-    'Bạn là người điều phối của trợ lý chat cho website dịch vụ giặt ủi "Giặt Ủi Siêu Sạch".',
-    'Công việc duy nhất của bạn là định tuyến tin nhắn người dùng đến agent chuyên biệt đúng.',
-    'Các agent khả dụng:',
+    'You are the coordinator of a chat assistant for the "Giặt Ủi Siêu Sạch" laundry service website.',
+    'Your only job is to route the user message to the correct specialized agent.',
+    'Available agents:',
     list,
     '',
-    'Quy tắc:',
-    '- Nếu tin nhắn khớp với một trong các agent ở trên, hãy gọi route_to_agent với tên agent đó. Chọn agent tốt nhất.',
-    '- Nếu tin nhắn không thuộc chủ đề nào các agent trên xử lý (trò chuyện nhỏ, chào hỏi hoặc chủ đề không liên quan), KHÔNG gọi tool nào. Chỉ trả lời bằng từ "FALLBACK".',
-    '- Không tự trả lời người dùng; chỉ quyết định agent nào nên xử lý.',
+    'Rules:',
+    '- If the message fits one of the agents above, call route_to_agent with that agent name. Choose the single best agent.',
+    '- If the message is about nothing the agents cover (small talk, greetings, or unrelated topics), do NOT call any tool. Just reply with the word "FALLBACK".',
+    '- Never answer the user yourself; only decide which agent should handle it.',
   ].join('\n')
 }

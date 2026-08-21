@@ -5,10 +5,10 @@ import PricingService from '@/services/pricing'
 
 const formatPrice = (price: number, unit?: string): string => `${price.toLocaleString('vi-VN')}đ/${unit || 'kg'}`
 
-// Liệt kê tất cả dịch vụ giặt đang hoạt động với giá mỗi đơn vị
+// List all active laundry services with their price per unit
 export const getServicesTool: AgentTool = {
   name: TOOL_NAME.getServices,
-  description: 'Liệt kê tất cả dịch vụ giặt đang hoạt động và giá mỗi đơn vị.',
+  description: 'List all active laundry services and their price per unit.',
   parameters: {
     type: 'object',
     properties: {},
@@ -23,16 +23,16 @@ export const getServicesTool: AgentTool = {
   },
 }
 
-// Tra cứu giá một dịch vụ theo tên hoặc id
+// Look up a single service price by name or id
 export const getServiceTool: AgentTool = {
   name: TOOL_NAME.getService,
-  description: 'Lấy giá của một dịch vụ giặt theo tên hoặc id.',
+  description: 'Get the price of one laundry service by its name or id.',
   parameters: {
     type: 'object',
     properties: {
       key: {
         type: 'string',
-        description: 'Tên hoặc id dịch vụ, ví dụ: "Giặt sấy".',
+        description: 'Service name or id, e.g. "Giặt sấy".',
       },
     },
     required: ['key'],
@@ -48,10 +48,10 @@ export const getServiceTool: AgentTool = {
   },
 }
 
-// Ước tính chi phí = giá đơn vị x khối lượng ước tính
+// Estimate cost = unit price x estimated weight
 export const estimateCostTool: AgentTool = {
   name: TOOL_NAME.estimateCost,
-  description: 'Ước tính chi phí đơn giặt từ tên dịch vụ và khối lượng ước tính.',
+  description: 'Estimate the cost of a laundry order from service name and approximate weight.',
   parameters: {
     type: 'object',
     properties: {
@@ -61,7 +61,7 @@ export const estimateCostTool: AgentTool = {
       },
       weightKg: {
         type: 'number',
-        description: 'Khối lượng ước tính tính bằng kilogram.',
+        description: 'Approximate weight in kilograms.',
       },
     },
     required: ['serviceName', 'weightKg'],

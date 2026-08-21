@@ -26,11 +26,7 @@ const buildOpenAiMessages = (system: string | undefined, messages: AgentMessage[
 
   messages.forEach((m) => {
     if (m.role === 'tool') {
-      result.push({
-        role: 'tool',
-        tool_call_id: m.toolCallId,
-        content: m.content ?? '',
-      })
+      result.push({ role: 'tool', tool_call_id: m.toolCallId, content: m.content ?? '' })
 
       return
     }
@@ -47,10 +43,7 @@ const buildOpenAiMessages = (system: string | undefined, messages: AgentMessage[
               tool_calls: m.toolCalls.map((call) => ({
                 id: call.id,
                 type: 'function',
-                function: {
-                  name: call.name,
-                  arguments: JSON.stringify(call.arguments ?? {}),
-                },
+                function: { name: call.name, arguments: JSON.stringify(call.arguments ?? {}) },
               })),
             }
           : {}),
@@ -69,11 +62,7 @@ const buildOpenAiMessages = (system: string | undefined, messages: AgentMessage[
 const buildOpenAiTools = (tools: ToolDefinition[]) =>
   tools.map((tool) => ({
     type: 'function',
-    function: {
-      name: tool.name,
-      description: tool.description,
-      parameters: tool.parameters,
-    },
+    function: { name: tool.name, description: tool.description, parameters: tool.parameters },
   }))
 
 const safeParse = (value: unknown): Record<string, unknown> => {

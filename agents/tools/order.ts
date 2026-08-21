@@ -23,7 +23,7 @@ const statusLabel = (status: string): string => {
 // Look up an order by its code or phone and summarize its progress
 export const trackOrderTool: AgentTool = {
   name: TOOL_NAME.trackOrder,
-  description: 'Tra cứu đơn hàng giặt theo mã đơn hàng hoặc số điện thoại.',
+  description: 'Track a laundry order by its order code or phone number.',
   parameters: {
     type: 'object',
     properties: {
@@ -90,7 +90,7 @@ export const trackOrderTool: AgentTool = {
 // Contact details of the shop
 export const getContactInfoTool: AgentTool = {
   name: TOOL_NAME.getContactInfo,
-  description: 'Lấy thông tin liên hệ của cửa hàng (số điện thoại, email, địa chỉ, mạng xã hội).',
+  description: 'Get the shop contact information (phone, email, address, social links).',
   parameters: {
     type: 'object',
     properties: {},
@@ -122,7 +122,7 @@ export const getContactInfoTool: AgentTool = {
 // List laundry branches
 export const getBranchesTool: AgentTool = {
   name: TOOL_NAME.getBranches,
-  description: 'Liệt kê các chi nhánh giặt với địa chỉ và giờ làm việc.',
+  description: 'List the laundry branches with address and working hours.',
   parameters: {
     type: 'object',
     properties: {},
