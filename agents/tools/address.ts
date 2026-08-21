@@ -7,7 +7,7 @@ import { translate } from '@/utils/language'
 // Get the user saved delivery addresses from their profile
 export const getMyAddressesTool: AgentTool = {
   name: TOOL_NAME.getMyAddresses,
-  description: 'Get the user saved delivery addresses from their profile.',
+  description: 'Lấy danh sách địa chỉ giao hàng đã lưu trong hồ sơ người dùng.',
   parameters: {
     type: 'object',
     properties: {},

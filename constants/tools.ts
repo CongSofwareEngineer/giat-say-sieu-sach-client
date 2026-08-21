@@ -33,6 +33,7 @@ export const AGENT_NAME = {
   faq: 'faq',
   price: 'price',
   recommend: 'recommend',
+  booking: 'booking',
   fallback: 'fallback',
 } as const
 

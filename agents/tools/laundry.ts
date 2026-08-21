@@ -11,12 +11,12 @@ export const LAUNDRY_FORM_MARKER = '[LAUNDRY_FORM]'
 export const openLaundryFormTool: AgentTool = {
   name: TOOL_NAME.laundry,
   description:
-    'Use when the user wants to book or order a laundry pickup/order (e.g. "gỡ đồ", "đặt giặt đồ", "tôi muốn giặt đồ", "đặt lịch giặt"). Triggers the order form on the client.',
+    'Dùng khi người dùng muốn đặt giặt hoặc đặt lịch gọi đồ (ví dụ: "gỡ đồ", "đặt giặt đồ", "tôi muốn giặt đồ", "đặt lịch giặt"). Hiển thị form đặt hàng trên client.',
   parameters: {
     type: 'object',
     properties: {},
   },
   execute: async () =>
-    'The user wants to book laundry. Confirm briefly that you are opening the laundry order form, ' +
-    `then end your reply with the exact marker ${LAUNDRY_FORM_MARKER} on its own line so the client shows the form.`,
+    'Người dùng muốn đặt giặt. Xác nhận ngắn gọn rằng bạn đang mở form đặt giặt, ' +
+    `sau đó kết thúc câu trả lời bằng marker chính xác ${LAUNDRY_FORM_MARKER} trên một dòng riêng để client hiển thị form.`,
 }

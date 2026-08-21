@@ -3,10 +3,10 @@ import type { AgentTool } from '../base'
 import { TOOL_NAME } from '@/constants/tools'
 import PromotionService from '@/services/promotion'
 
-// Fetch promotions from the real API
+// Lấy khuyến mãi từ API thật
 export const getPromotionsTool: AgentTool = {
   name: TOOL_NAME.getPromotions,
-  description: 'Get the latest running promotions and discount programs.',
+  description: 'Lấy các chương trình khuyến mãi và giảm giá mới nhất đang chạy.',
   parameters: {
     type: 'object',
     properties: {},

@@ -12,7 +12,7 @@ const searchFaqs = (query: string, faqs: FaqItem[]): FaqItem[] => {
   return faqs.filter((faq) => faq.question.toLowerCase().includes(q) || faq.answer.toLowerCase().includes(q) || faq.category?.includes(q))
 }
 
-// Keyword match against FAQ + blog content
+// Khớp từ khóa với nội dung FAQ + blog
 const searchSite = async (query: string): Promise<string> => {
   const q = query.toLowerCase().trim()
   const faqs = await FaqService.getFaqs()
@@ -31,13 +31,13 @@ const searchSite = async (query: string): Promise<string> => {
 
   const parts: string[] = []
 
-  if (faqHits) parts.push(`FAQ results:\n${faqHits}`)
-  if (blogHits) parts.push(`Blog results:\n${blogHits}`)
+  if (faqHits) parts.push(`Kết quả FAQ:\n${faqHits}`)
+  if (blogHits) parts.push(`Kết quả Blog:\n${blogHits}`)
 
   return parts.join('\n\n')
 }
 
-// Free, key-less web search used when nothing relevant is found on the site
+// Tìm kiếm web miễn phí, không cần key, dùng khi không tìm thấy nội dung liên quan trên site
 const searchWeb = async (query: string): Promise<string> => {
   try {
     const url = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`
@@ -58,16 +58,16 @@ const searchWeb = async (query: string): Promise<string> => {
       if (topic && typeof topic.Text === 'string') parts.push(topic.Text)
     })
 
-    return parts.length ? `Web results:\n${parts.join('\n')}` : ''
+    return parts.length ? `Kết quả web:\n${parts.join('\n')}` : ''
   } catch {
     return ''
   }
 }
 
-// Default search tool: site content first, then the web for fresh information
+// Tool tìm kiếm mặc định: nội dung site trước, rồi web để lấy thông tin mới nhất
 export const searchTool: AgentTool = {
   name: TOOL_NAME.search,
-  description: 'Search site content (FAQ, blog) and the web for up-to-date information about anything the user asks.',
+  description: 'Tìm kiếm nội dung site (FAQ, blog) và web để lấy thông tin mới nhất về bất kỳ thứ gì người dùng hỏi.',
   parameters: {
     type: 'object',
     properties: {
@@ -81,7 +81,7 @@ export const searchTool: AgentTool = {
   execute: async (args) => {
     const query = String(args?.query ?? '').trim()
 
-    if (!query) return 'Please provide a query to search.'
+    if (!query) return 'Vui lòng cung cấp truy vấn để tìm kiếm.'
 
     const local = await searchSite(query)
 
@@ -89,6 +89,6 @@ export const searchTool: AgentTool = {
 
     const web = await searchWeb(query)
 
-    return web || `No results found for "${query}".`
+    return web || `Không tìm thấy kết quả cho "${query}".`
   },
 }
