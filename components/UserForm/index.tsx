@@ -8,6 +8,7 @@ import { User, UserRole } from '@/services/users/type'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
 import useAdminCustomers from '@/hooks/admin/useAdminCustomers'
+import { toast } from '@/utils/toast'
 
 type UserFormProps = {
   user?: User
@@ -51,6 +52,7 @@ const UserForm = ({ user }: UserFormProps) => {
         }
         await createCustomer({ phone, name, password, role, isActive })
       }
+      toast({ message: translate('common.success'), type: 'default' })
       close()
     } catch {
       setError(translate('common.error'))

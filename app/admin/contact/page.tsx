@@ -21,7 +21,7 @@ import useModalDrawer from '@/hooks/useModalDrawer'
 const AdminContactPage = () => {
   const { translate } = useLanguage()
   const { open, close } = useModalDrawer()
-  const { contacts, meta, isLoading, updateContact, updateContactStatus, deleteContact, isUpdating, isDeleting } = useAdminContacts()
+  const { contacts, meta, isLoading, updateContactStatus, deleteContact, isUpdatingStatus, isDeleting } = useAdminContacts()
 
   const [keyword, setKeyword] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
@@ -175,7 +175,7 @@ const AdminContactPage = () => {
                             <select
                               value={contact.status}
                               onChange={(e) => updateContactStatus({ id: contact.id, status: e.target.value })}
-                              disabled={isUpdating}
+                              disabled={isUpdatingStatus}
                               className='rounded-lg border border-border px-2 py-1 text-xs'
                             >
                               {statusOptions

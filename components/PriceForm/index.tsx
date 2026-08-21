@@ -9,6 +9,7 @@ import { PricingPlan, UpdatePricingPlanPayload } from '@/services/pricing'
 import useAdminPricing from '@/hooks/admin/useAdminPricing'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
+import { toast } from '@/utils/toast'
 
 type PriceFormProps = {
   plan?: PricingPlan
@@ -84,12 +85,17 @@ const PriceForm = ({ plan }: PriceFormProps) => {
       features,
     }
 
-    if (isEdit && plan) {
-      await updatePlan({ id: plan.id, payload })
-    } else {
-      await createPlan(payload as any)
+    try {
+      if (isEdit && plan) {
+        await updatePlan({ id: plan.id, payload })
+      } else {
+        await createPlan(payload as any)
+      }
+      toast({ message: translate('common.success'), type: 'default' })
+      close()
+    } catch {
+      toast({ message: translate('common.error'), type: 'error' })
     }
-    close()
   }
 
   return (

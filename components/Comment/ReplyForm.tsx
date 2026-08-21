@@ -10,6 +10,7 @@ import SendIcon from '@/components/Icons/Functions/Send'
 import useGetListComments from '@/hooks/reactQuery/useGetListComments'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
+import { toast } from '@/utils/toast'
 
 type ReplyFormProps = {
   comment: CommentItem
@@ -32,6 +33,7 @@ const ReplyForm = ({ comment }: ReplyFormProps) => {
 
     try {
       await replyComment({ id: comment.id, content: content.trim() })
+      toast({ message: translate('common.success'), type: 'default' })
       close()
     } catch {
       setError(translate('reviews.error'))

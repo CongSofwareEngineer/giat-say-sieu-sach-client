@@ -3,9 +3,7 @@
 import { useMemo, useState } from 'react'
 
 import MyInput from '@/components/MyInput'
-import MyButton from '@/components/MyButton'
-import MyCard, { MyCardBody, MyCardHeader } from '@/components/MyCard'
-import MyBadge from '@/components/MyBadge'
+import MyCard, { MyCardBody } from '@/components/MyCard'
 import MyPagination from '@/components/MyPagination'
 import MyLoading from '@/components/MyLoading'
 import MyEmpty from '@/components/MyEmpty'
@@ -14,6 +12,7 @@ import { OrderItem } from '@/services/order'
 import useAdminOrders from '@/hooks/admin/useAdminOrders'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
+import { toast } from '@/utils/toast'
 import { ORDER_STATUS } from '@/constants/app'
 
 const statusConfig: Record<ORDER_STATUS, { label: string; variant: 'success' | 'warning' | 'info' | 'error' }> = {
@@ -28,7 +27,7 @@ const statusConfig: Record<ORDER_STATUS, { label: string; variant: 'success' | '
 
 const AdminOrdersPage = () => {
   const { translate } = useLanguage()
-  const { open, close } = useModalDrawer()
+  const { open } = useModalDrawer()
   const { orders, meta, isLoading, updateOrderStatus, isUpdatingStatus, deleteOrder, isDeleting } = useAdminOrders()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -55,8 +54,13 @@ const AdminOrdersPage = () => {
     return filteredOrders.slice(start, start + pageSize)
   }, [filteredOrders, currentPage])
 
-  const handleStatusChange = (orderId: string, newStatus: ORDER_STATUS) => {
-    updateOrderStatus({ id: orderId, status: newStatus })
+  const handleStatusChange = async (orderId: string, newStatus: ORDER_STATUS) => {
+    try {
+      await updateOrderStatus({ id: orderId, status: newStatus })
+      toast({ message: translate('admin.orders.statusUpdated', {}, 'Cập nhật trạng thái thành công'), type: 'default' })
+    } catch {
+      toast({ message: translate('common.error'), type: 'error' })
+    }
   }
 
   const getServiceName = (order: OrderItem): string => {

@@ -23,12 +23,12 @@ import { PAGE_SIZE } from '@/constants/app'
 import useAdminComments from '@/hooks/admin/useAdminComments'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
+import { toast } from '@/utils/toast'
 
 const AdminCommentsPage = () => {
   const { translate } = useLanguage()
   const { open, close } = useModalDrawer()
-  const { comments, meta, isLoading, refetch, toggleVisibility, isTogglingVisibility, adminDeleteComment, isDeleting, replyToComment, isReplying } =
-    useAdminComments()
+  const { comments, meta, isLoading, refetch, toggleVisibility, isTogglingVisibility, adminDeleteComment, isDeleting } = useAdminComments()
 
   const [keyword, setKeyword] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'visible' | 'hidden'>('all')
@@ -95,7 +95,12 @@ const AdminCommentsPage = () => {
   }
 
   const handleToggleVisibility = async (comment: CommentItem) => {
-    await toggleVisibility({ id: comment.id, isVisible: !comment.isVisible })
+    try {
+      await toggleVisibility({ id: comment.id, isVisible: !comment.isVisible })
+      toast({ message: translate('admin.comments.toggled', {}, 'Cập nhật trạng thái đánh giá thành công'), type: 'default' })
+    } catch {
+      toast({ message: translate('common.error'), type: 'error' })
+    }
   }
 
   return (

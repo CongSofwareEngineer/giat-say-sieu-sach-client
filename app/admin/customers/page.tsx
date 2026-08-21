@@ -7,7 +7,7 @@ import { useMemo, useState } from 'react'
 import { UserRole } from '@/services/users/type'
 import MyInput from '@/components/MyInput'
 import MyButton from '@/components/MyButton'
-import MyCard, { MyCardBody, MyCardHeader } from '@/components/MyCard'
+import MyCard, { MyCardBody } from '@/components/MyCard'
 import MyPagination from '@/components/MyPagination'
 import MyLoading from '@/components/MyLoading'
 import MyEmpty from '@/components/MyEmpty'
@@ -21,8 +21,8 @@ import useModalDrawer from '@/hooks/useModalDrawer'
 
 const AdminCustomersPage = () => {
   const { translate } = useLanguage()
-  const { open, close } = useModalDrawer()
-  const { customers, meta, isLoading, createCustomer, updateCustomer, deleteCustomer, isCreating, isUpdating, isDeleting } = useAdminCustomers()
+  const { open } = useModalDrawer()
+  const { customers, meta, isLoading, deleteCustomer, isDeleting } = useAdminCustomers()
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState<string>('all')
   const [currentPage, setCurrentPage] = useState(1)

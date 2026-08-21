@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { QUERY_KEYS } from '@/constants/reactQuery'
 import CommentService, { CommentItem, UpdateCommentPayload } from '@/services/comment'
+import useLanguage from '@/hooks/useLanguage'
+import { toast } from '@/utils/toast'
 
 type AdminCommentsParams = {
   page?: number
@@ -11,6 +13,7 @@ type AdminCommentsParams = {
 
 const useAdminComments = (params?: AdminCommentsParams) => {
   const queryClient = useQueryClient()
+  const { translate } = useLanguage()
 
   const { data, isLoading, isError, error, refetch } = useQuery<{ data: CommentItem[]; meta: any }>({
     queryKey: [QUERY_KEYS.getListComments, params ?? {}],
@@ -24,22 +27,46 @@ const useAdminComments = (params?: AdminCommentsParams) => {
 
   const { mutateAsync: toggleVisibility, isPending: isTogglingVisibility } = useMutation({
     mutationFn: ({ id, isVisible }: { id: string; isVisible: boolean }) => CommentService.toggleVisibility(id, isVisible),
-    onSuccess: refresh,
+    onSuccess: () => {
+      refresh()
+      toast({ message: translate('admin.comments.toggled', {}, 'Cập nhật trạng thái đánh giá thành công'), type: 'default' })
+    },
+    onError: () => {
+      toast({ message: translate('common.error'), type: 'error' })
+    },
   })
 
   const { mutateAsync: replyToComment, isPending: isReplying } = useMutation({
     mutationFn: ({ id, content }: { id: string; content: string }) => CommentService.replyComment(id, content),
-    onSuccess: refresh,
+    onSuccess: () => {
+      refresh()
+      toast({ message: translate('admin.comments.replied', {}, 'Phản hồi đánh giá thành công'), type: 'default' })
+    },
+    onError: () => {
+      toast({ message: translate('common.error'), type: 'error' })
+    },
   })
 
   const { mutateAsync: adminUpdateComment, isPending: isUpdating } = useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: UpdateCommentPayload }) => CommentService.adminUpdateComment(id, payload),
-    onSuccess: refresh,
+    onSuccess: () => {
+      refresh()
+      toast({ message: translate('admin.comments.updated', {}, 'Cập nhật đánh giá thành công'), type: 'default' })
+    },
+    onError: () => {
+      toast({ message: translate('common.error'), type: 'error' })
+    },
   })
 
   const { mutateAsync: adminDeleteComment, isPending: isDeleting } = useMutation({
     mutationFn: (id: string) => CommentService.adminDeleteComment(id),
-    onSuccess: refresh,
+    onSuccess: () => {
+      refresh()
+      toast({ message: translate('admin.comments.deleted', {}, 'Xóa đánh giá thành công'), type: 'default' })
+    },
+    onError: () => {
+      toast({ message: translate('common.error'), type: 'error' })
+    },
   })
 
   return {

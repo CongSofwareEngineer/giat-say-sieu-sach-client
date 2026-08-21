@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 
 import MyButton from '@/components/MyButton'
-import MyCard, { MyCardBody, MyCardHeader } from '@/components/MyCard'
+import MyCard, { MyCardBody } from '@/components/MyCard'
 import MyLoading from '@/components/MyLoading'
 import MyEmpty from '@/components/MyEmpty'
 import MyPagination from '@/components/MyPagination'
@@ -17,8 +17,8 @@ import useModalDrawer from '@/hooks/useModalDrawer'
 
 const AdminPricesPage = () => {
   const { translate } = useLanguage()
-  const { open, close } = useModalDrawer()
-  const { plans, isLoading, createPlan, updatePlan, deletePlan, isCreating, isUpdating, isDeleting } = useAdminPricing()
+  const { open } = useModalDrawer()
+  const { plans, isLoading, deletePlan, isDeleting } = useAdminPricing()
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 10

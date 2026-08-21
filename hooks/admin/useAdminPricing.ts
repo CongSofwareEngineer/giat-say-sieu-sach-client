@@ -3,6 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { QUERY_KEYS } from '@/constants/reactQuery'
 import { LANGUAGE_SUPPORT } from '@/zustand/language'
 import PricingService, { PricingPlan } from '@/services/pricing'
+import useLanguage from '@/hooks/useLanguage'
+import { toast } from '@/utils/toast'
 
 type AdminPricingParams = {
   page?: number
@@ -33,6 +35,7 @@ type UpdatePricingPayload = {
 
 const useAdminPricing = (params?: AdminPricingParams) => {
   const queryClient = useQueryClient()
+  const { translate } = useLanguage()
 
   const { data, isLoading, isError, error, refetch } = useQuery<PricingPlan[]>({
     queryKey: [QUERY_KEYS.getListPrice, params ?? {}],
@@ -58,17 +61,35 @@ const useAdminPricing = (params?: AdminPricingParams) => {
 
   const { mutateAsync: createPlan, isPending: isCreating } = useMutation({
     mutationFn: (payload: CreatePricingPayload) => PricingService.createPlan(payload),
-    onSuccess: refresh,
+    onSuccess: () => {
+      refresh()
+      toast({ message: translate('admin.prices.created', {}, 'Thêm dịch vụ thành công'), type: 'default' })
+    },
+    onError: () => {
+      toast({ message: translate('common.error'), type: 'error' })
+    },
   })
 
   const { mutateAsync: updatePlan, isPending: isUpdating } = useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: UpdatePricingPayload }) => PricingService.updatePlan(id, payload),
-    onSuccess: refresh,
+    onSuccess: () => {
+      refresh()
+      toast({ message: translate('admin.prices.updated', {}, 'Cập nhật dịch vụ thành công'), type: 'default' })
+    },
+    onError: () => {
+      toast({ message: translate('common.error'), type: 'error' })
+    },
   })
 
   const { mutateAsync: deletePlan, isPending: isDeleting } = useMutation({
     mutationFn: (id: string) => PricingService.deletePlan(id),
-    onSuccess: refresh,
+    onSuccess: () => {
+      refresh()
+      toast({ message: translate('admin.prices.deleted', {}, 'Xóa dịch vụ thành công'), type: 'default' })
+    },
+    onError: () => {
+      toast({ message: translate('common.error'), type: 'error' })
+    },
   })
 
   return {
