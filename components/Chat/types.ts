@@ -5,21 +5,13 @@ export type { ChatMessage }
 export type LaundryFormData = {
   name: string
   phone: string
+  addressId: string
   address: string
   serviceType: string
   weight: string
 }
 
 export type TranslateFn = (key?: string, variables?: Record<string, any>, defaultMessage?: string) => any
-
-// Pricing configuration for laundry services
-export const LAUNDRY_PRICES: Record<string, number> = {
-  'quan-ao': 25000,
-  'chan-mem': 80000,
-  'vest-ao-dai': 80000,
-  'giat-nhanh': 40000,
-  'giat-ui': 50000,
-}
 
 // Service names for display
 export const LAUNDRY_SERVICE_NAMES: Record<string, string> = {

@@ -884,8 +884,13 @@
       "orderInfo": "Check đơn hàng",
       "laundry": "đặt giặt đồ"
     },
+    "serviceTypeLabel": "Đặt qua chat: {serviceType}",
+    "serviceNotFound": "Không tìm thấy dịch vụ phù hợp, vui lòng thử lại.",
+    "orderSuccess": "Bạn đã đặt thành công, chúng tôi sẽ liên hệ bạn",
+    "orderConfirmation": "Đặt dịch vụ giặt đồ:\n\n• Họ tên: {name}\n• SĐT: {phone}\n• Địa chỉ: {address}\n• Loại: {service}\n• Khối lượng: {weight} kg\n• Giá ước tính: {price}đ",
     "laundryForm": {
       "title": "Đặt dịch vụ giặt đồ",
+      "chatAddress": "Địa chỉ chat",
       "namePlaceholder": "Nhập họ tên",
       "phonePlaceholder": "Nhập số điện thoại",
       "addressPlaceholder": "Nhập địa chỉ",
@@ -902,6 +907,46 @@
         "express": "Giặt nhanh",
         "washIron": "Giặt + Ủi"
       }
+    }
+  },
+  "agent": {
+    "order": {
+      "status": {
+        "PENDING": "Chờ xác nhận",
+        "RECEIVED": "Đã nhận đồ",
+        "WASHING": "Đang giặt",
+        "DRYING": "Đang sấy",
+        "READY": "Đã sẵn sàng",
+        "COMPLETED": "Đã hoàn thành",
+        "CANCELLED": "Đã hủy"
+      },
+      "track": {
+        "noCode": "Vui lòng cung cấp mã đơn hàng để tra cứu. Mã đơn hàng có dạng GSxxxxxx.",
+        "notFound": "Không tìm thấy đơn hàng nào cho \"{code}\".",
+        "summary": "Đơn #{code}: {status}\nDịch vụ: {services}\nTổng tiền: {price}đ\nNgày tạo: {date}"
+      },
+      "contact": {
+        "phone": "Điện thoại: {phone}",
+        "email": "Email: {email}",
+        "address": "Địa chỉ: {address}",
+        "facebook": "Facebook: {facebook}",
+        "zalo": "Zalo: {zalo}",
+        "summary": "Điện thoại: {phone}\nEmail: {email}\nĐịa chỉ: {address}\nFacebook: {facebook}\nZalo: {zalo}"
+      },
+      "branch": {
+        "noHours": "Không có giờ"
+      }
+    },
+    "address": {
+      "empty": "Bạn chưa có địa chỉ nào được lưu trong hồ sơ.",
+      "item": "{index}. {label}: {address} ({name}, {phone})"
+    },
+    "fallback": {
+      "message": "I could not finish that request. Please try again."
+    },
+    "run": {
+      "toolNotAvailable": "Công cụ không khả dụng.",
+      "toolError": "Lỗi công cụ: {message}"
     }
   },
   "imageCropper": {

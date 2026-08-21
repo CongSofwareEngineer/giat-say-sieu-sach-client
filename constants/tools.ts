@@ -8,6 +8,7 @@ export const TOOL_NAME = {
   trackOrder: 'track_order',
   getContactInfo: 'get_contact_info',
   getBranches: 'get_branches',
+  getMyAddresses: 'get_my_addresses',
   // FAQ tool set (small, common questions)
   getFaq: 'get_faq',
   // Laundry tool set (booking/pickup intent -> open the order form)

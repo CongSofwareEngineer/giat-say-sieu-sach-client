@@ -1,31 +1,23 @@
 import type { AgentTool } from '../base'
 
 import { TOOL_NAME } from '@/constants/tools'
-import { mockServices } from '@/services/mockData'
+import PricingService from '@/services/pricing'
 
-const formatPrice = (price: number): string => `${price.toLocaleString('vi-VN')}đ`
+const formatPrice = (price: number, unit?: string): string => `${price.toLocaleString('vi-VN')}đ/${unit || 'kg'}`
 
-const findService = (key?: string) => {
-  const q = String(key ?? '')
-    .toLowerCase()
-    .trim()
-
-  if (!q) return undefined
-
-  return mockServices.find((s) => s.name.toLowerCase().includes(q) || s.id.toLowerCase().includes(q))
-}
-
-// List all laundry services with their price per kg
+// List all active laundry services with their price per unit
 export const getServicesTool: AgentTool = {
   name: TOOL_NAME.getServices,
-  description: 'List all laundry services and their price (per kg).',
+  description: 'List all active laundry services and their price per unit.',
   parameters: {
     type: 'object',
     properties: {},
     required: [],
   },
   execute: async () => {
-    const list = mockServices.map((s) => `- ${s.name}: ${formatPrice(s.price)}/kg`).join('\n')
+    const plans = await PricingService.getPlans()
+    const active = plans.filter((p) => p.isActive)
+    const list = active.map((s) => `- ${s.name}: ${formatPrice(s.price, s.unit)}`).join('\n')
 
     return `Bảng giá dịch vụ:\n${list}`
   },
@@ -46,18 +38,20 @@ export const getServiceTool: AgentTool = {
     required: ['key'],
   },
   execute: async (args) => {
-    const service = findService(String(args?.key ?? ''))
+    const q = String(args?.key ?? '').trim()
+    const plans = await PricingService.getPlans()
+    const service = plans.find((p) => p.isActive && (p.name.toLowerCase().includes(q.toLowerCase()) || p.id === q))
 
     if (!service) return `Không tìm thấy dịch vụ "${args?.key}".`
 
-    return `${service.name}: ${formatPrice(service.price)}/kg`
+    return `${service.name}: ${formatPrice(service.price, service.unit)}`
   },
 }
 
-// Estimate cost = unit price per kg x estimated weight
+// Estimate cost = unit price x estimated weight
 export const estimateCostTool: AgentTool = {
   name: TOOL_NAME.estimateCost,
-  description: 'Estimate the cost of a laundry order from service name and approximate weight in kg.',
+  description: 'Estimate the cost of a laundry order from service name and approximate weight.',
   parameters: {
     type: 'object',
     properties: {
@@ -73,14 +67,16 @@ export const estimateCostTool: AgentTool = {
     required: ['serviceName', 'weightKg'],
   },
   execute: async (args) => {
-    const service = findService(String(args?.serviceName ?? ''))
+    const serviceName = String(args?.serviceName ?? '').trim()
     const weight = Number(args?.weightKg)
+    const plans = await PricingService.getPlans()
+    const service = plans.find((p) => p.isActive && p.name.toLowerCase().includes(serviceName.toLowerCase()))
 
     if (!service) return `Không tìm thấy dịch vụ "${args?.serviceName}".`
-    if (!Number.isFinite(weight) || weight <= 0) return 'Please provide a valid weight in kg.'
+    if (!Number.isFinite(weight) || weight <= 0) return 'Vui lòng cung cấp khối lượng hợp lệ (kg).'
 
     const total = service.price * weight
 
-    return `Ước tính cho "${service.name}" với ${weight}kg là ${formatPrice(total)}.`
+    return `Ước tính cho "${service.name}" với ${weight}kg là ${total.toLocaleString('vi-VN')}đ.`
   },
 }

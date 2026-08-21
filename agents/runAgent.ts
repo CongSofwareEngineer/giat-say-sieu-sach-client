@@ -2,6 +2,8 @@ import type { AgentContext, AgentDefinition, AgentMessage } from './base'
 
 import { callLlm } from './llm'
 
+import { translate } from '@/utils/language'
+
 // Safety cap so a chatty agent cannot loop forever
 const MAX_TOOL_ROUNDS = 6
 
@@ -28,9 +30,13 @@ export const runAgent = async (agent: AgentDefinition, history: AgentMessage[], 
         let output: string
 
         try {
-          output = tool ? await tool.execute(call.arguments, ctx) : `Tool "${call.name}" is not available.`
+          output = tool ? await tool.execute(call.arguments, ctx) : translate('agent.run.toolNotAvailable', {}, 'Tool is not available.')
         } catch (error) {
-          output = `Tool error: ${error instanceof Error ? error.message : 'Unknown error'}`
+          output = translate(
+            'agent.run.toolError',
+            { message: error instanceof Error ? error.message : 'Unknown error' },
+            `Tool error: ${error instanceof Error ? error.message : 'Unknown error'}`
+          )
         }
 
         messages.push({ role: 'tool', name: call.name, toolCallId: call.id, content: output })
@@ -44,6 +50,6 @@ export const runAgent = async (agent: AgentDefinition, history: AgentMessage[], 
 
   return {
     role: 'assistant',
-    content: 'I could not finish that request. Please try again.',
+    content: translate('agent.fallback.message', {}, 'I could not finish that request. Please try again.'),
   }
 }

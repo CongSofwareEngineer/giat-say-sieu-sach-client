@@ -25,6 +25,12 @@ export type OrderItemDetail = {
   subtotal: number
 }
 
+export type CreateOrderPayload = {
+  addressId: string
+  items: { categoryId: string; quantity: number }[]
+  notes?: string
+}
+
 type ListResponse = {
   data: OrderItem[]
   meta?: {
@@ -72,6 +78,12 @@ class OrderApi extends BaseAPI {
 
   async deleteOrder(id: string): Promise<void> {
     await this.delete<{ data: null }>(`/${id}`, { isUseAuth: true })
+  }
+
+  async createOrder(payload: CreateOrderPayload): Promise<OrderItem> {
+    const response = await this.post<{ data: OrderItem }>('/', payload, { isUseAuth: true })
+
+    return response.data
   }
 }
 

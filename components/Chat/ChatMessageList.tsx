@@ -1,6 +1,8 @@
 'use client'
 
 import type { ChatMessage } from '@/zustand/chat'
+import type { AddressItem } from '@/services/address/type'
+import type { PricingPlan } from '@/services/pricing'
 
 import LaundryForm from './LaundryForm'
 import QuickOptions from './QuickOptions'
@@ -17,6 +19,8 @@ type ChatMessageListProps = {
   onLaundryClick?: () => void
   showLaundryForm?: boolean
   laundryFormData?: LaundryFormData
+  addresses?: AddressItem[]
+  plans?: PricingPlan[]
   estimatedPrice?: number
   onLaundryFormChange?: (field: string, value: string) => void
   onSubmitLaundry?: () => void
@@ -31,6 +35,8 @@ const ChatMessageList = ({
   onLaundryClick,
   showLaundryForm,
   laundryFormData,
+  addresses,
+  plans,
   estimatedPrice,
   onLaundryFormChange,
   onSubmitLaundry,
@@ -67,6 +73,8 @@ const ChatMessageList = ({
           <div className='w-full'>
             <LaundryForm
               formData={laundryFormData}
+              addresses={addresses ?? []}
+              plans={plans ?? []}
               estimatedPrice={estimatedPrice || 0}
               onChange={onLaundryFormChange}
               onSubmit={onSubmitLaundry}

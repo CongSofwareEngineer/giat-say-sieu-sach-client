@@ -884,8 +884,13 @@
       "orderInfo": "Check order",
       "laundry": "Order laundry"
     },
+    "serviceTypeLabel": "Booked via chat: {serviceType}",
+    "serviceNotFound": "No matching service found, please try again.",
+    "orderSuccess": "Your order has been placed successfully, we will contact you",
+    "orderConfirmation": "Book laundry service:\n\n• Name: {name}\n• Phone: {phone}\n• Address: {address}\n• Type: {service}\n• Weight: {weight} kg\n• Estimated price: {price}đ",
     "laundryForm": {
       "title": "Book Laundry Service",
+      "chatAddress": "Chat address",
       "namePlaceholder": "Enter your name",
       "phonePlaceholder": "Enter your phone",
       "addressPlaceholder": "Enter your address",
@@ -902,6 +907,46 @@
         "express": "Express Wash",
         "washIron": "Wash + Iron"
       }
+    }
+  },
+  "agent": {
+    "order": {
+      "status": {
+        "PENDING": "Pending",
+        "RECEIVED": "Received",
+        "WASHING": "Washing",
+        "DRYING": "Drying",
+        "READY": "Ready",
+        "COMPLETED": "Completed",
+        "CANCELLED": "Cancelled"
+      },
+      "track": {
+        "noCode": "Please provide an order code to track. Order codes look like GSxxxxxx.",
+        "notFound": "No order found for \"{code}\".",
+        "summary": "Order #{code}: {status}\nService: {services}\nTotal: {price}\nCreated: {date}"
+      },
+      "contact": {
+        "phone": "Phone: {phone}",
+        "email": "Email: {email}",
+        "address": "Address: {address}",
+        "facebook": "Facebook: {facebook}",
+        "zalo": "Zalo: {zalo}",
+        "summary": "Phone: {phone}\nEmail: {email}\nAddress: {address}\nFacebook: {facebook}\nZalo: {zalo}"
+      },
+      "branch": {
+        "noHours": "No hours"
+      }
+    },
+    "address": {
+      "empty": "You have no saved addresses in your profile.",
+      "item": "{index}. {label}: {address} ({name}, {phone})"
+    },
+    "fallback": {
+      "message": "I could not finish that request. Please try again."
+    },
+    "run": {
+      "toolNotAvailable": "Tool is not available.",
+      "toolError": "Tool error: {message}"
     }
   },
   "imageCropper": {

@@ -25,6 +25,7 @@ export interface AgentMessage {
 // Context passed to every tool execution
 export interface AgentContext {
   locale: string
+  userId?: string
 }
 
 // JSON-schema-ish description of a tool's arguments
