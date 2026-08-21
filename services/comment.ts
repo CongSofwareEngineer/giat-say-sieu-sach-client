@@ -106,7 +106,10 @@ export const buildCommentReplies = (comments: CommentItem[]): CommentItem[] => {
 }
 
 class CommentApi extends BaseAPI {
-  async getComments(categoryId?: string, params?: { page?: number; limit?: number }): Promise<{ data: CommentItem[]; meta: ListResponse['meta'] }> {
+  async getComments(
+    categoryId?: string,
+    params?: { page?: number; limit?: number; isVisible?: boolean }
+  ): Promise<{ data: CommentItem[]; meta: ListResponse['meta'] }> {
     let url = ''
     let options: { isUseAuth?: boolean } = {}
 
@@ -122,6 +125,7 @@ class CommentApi extends BaseAPI {
 
       if (params?.page) query.set('page', String(params.page))
       if (params?.limit) query.set('limit', String(params.limit))
+      if (params?.isVisible !== undefined) query.set('isVisible', String(params.isVisible))
 
       url = query.toString() ? `?${query.toString()}` : ''
       options = { isUseAuth: true }
@@ -132,7 +136,11 @@ class CommentApi extends BaseAPI {
     return { data: response.data, meta: response.meta }
   }
 
-  async createComment(categoryId: string, payload: { rating?: number; content: string; images: string[] }, options?: { isUseAuth?: boolean }): Promise<CommentItem> {
+  async createComment(
+    categoryId: string,
+    payload: { rating?: number; content: string; images: string[] },
+    options?: { isUseAuth?: boolean }
+  ): Promise<CommentItem> {
     const response = await this.post<{ data: CommentItem }>(`/laundry-categories/${categoryId}`, payload, { isUseAuth: options?.isUseAuth ?? false })
 
     return response.data

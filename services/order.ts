@@ -1,5 +1,4 @@
 import BaseAPI from '@/config/baseApi'
-
 import { ORDER_STATUS } from '@/constants/app'
 
 export type OrderItem = {
@@ -37,7 +36,14 @@ type ListResponse = {
 }
 
 class OrderApi extends BaseAPI {
-  async getOrders(params?: { page?: number; limit?: number; status?: ORDER_STATUS; userId?: string; fromDate?: string; toDate?: string }): Promise<ListResponse> {
+  async getOrders(params?: {
+    page?: number
+    limit?: number
+    status?: ORDER_STATUS
+    userId?: string
+    fromDate?: string
+    toDate?: string
+  }): Promise<ListResponse> {
     const query = new URLSearchParams()
 
     if (params?.page) query.set('page', String(params.page))
@@ -56,6 +62,16 @@ class OrderApi extends BaseAPI {
     const response = await this.patch<{ data: OrderItem }>(`/${id}/status?status=${status}`, {}, { isUseAuth: true })
 
     return response.data
+  }
+
+  async updateOrder(id: string, payload: { status?: ORDER_STATUS; notes?: string }): Promise<OrderItem> {
+    const response = await this.patch<{ data: OrderItem }>(`/${id}`, payload, { isUseAuth: true })
+
+    return response.data
+  }
+
+  async deleteOrder(id: string): Promise<void> {
+    await this.delete<{ data: null }>(`/${id}`, { isUseAuth: true })
   }
 }
 

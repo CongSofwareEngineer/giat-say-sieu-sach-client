@@ -12,31 +12,32 @@ import MySelect from '@/components/MySelect'
 import MyLoading from '@/components/MyLoading'
 import MyEmpty from '@/components/MyEmpty'
 import MyBadge from '@/components/MyBadge'
+import MyPagination from '@/components/MyPagination'
 import { TrashIcon } from '@/components/Icons/Trash'
-import useGetListContact from '@/hooks/reactQuery/useGetListContact'
+import useAdminContacts from '@/hooks/admin/useAdminContacts'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
-
-const STATUS_OPTIONS = [
-  { value: '', label: 'All' },
-  { value: 'PENDING', labelKey: 'admin.contacts.statuses.PENDING' },
-  { value: 'IN_PROGRESS', labelKey: 'admin.contacts.statuses.IN_PROGRESS' },
-  { value: 'RESOLVED', labelKey: 'admin.contacts.statuses.RESOLVED' },
-  { value: 'CLOSED', labelKey: 'admin.contacts.statuses.CLOSED' },
-]
 
 const AdminContactPage = () => {
   const { translate } = useLanguage()
   const { open, close } = useModalDrawer()
-  const { contacts, isLoading, deleteContact, updateContactStatus, isDeleting, isUpdatingStatus } = useGetListContact()
-
-  const getStatusLabel = (status: string) => {
-    const option = STATUS_OPTIONS.find((s) => s.value === status)
-    return option?.labelKey ? translate(option.labelKey as any) : status
-  }
+  const { contacts, meta, isLoading, updateContact, updateContactStatus, deleteContact, isUpdating, isDeleting } = useAdminContacts()
 
   const [keyword, setKeyword] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const pageSize = 10
+
+  const statusOptions = useMemo(
+    () => [
+      { value: '', label: translate('common.all') },
+      { value: 'PENDING', label: translate('admin.contacts.statuses.PENDING', {}, 'Chờ xử lý') },
+      { value: 'IN_PROGRESS', label: translate('admin.contacts.statuses.IN_PROGRESS', {}, 'Đang xử lý') },
+      { value: 'RESOLVED', label: translate('admin.contacts.statuses.RESOLVED', {}, 'Đã giải quyết') },
+      { value: 'CLOSED', label: translate('admin.contacts.statuses.CLOSED', {}, 'Đã đóng') },
+    ],
+    [translate]
+  )
 
   const filteredContacts = useMemo(() => {
     const kw = keyword.trim().toLowerCase()
@@ -50,8 +51,16 @@ const AdminContactPage = () => {
     })
   }, [contacts, keyword, statusFilter])
 
+  const totalPages = meta?.totalPages || Math.max(1, Math.ceil(filteredContacts.length / pageSize))
+  const paginatedContacts = useMemo(() => {
+    const start = (currentPage - 1) * pageSize
+
+    return filteredContacts.slice(start, start + pageSize)
+  }, [filteredContacts, currentPage])
+
   const confirmDelete = (contact: ContactItem) => {
     open({
+      mode: 'modal',
       title: translate('admin.contacts.delete'),
       children: (
         <div className='w-full'>
@@ -102,13 +111,24 @@ const AdminContactPage = () => {
           <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
             <h2 className='text-lg font-bold text-text'>{translate('admin.contacts.list')}</h2>
             <div className='flex flex-col gap-3 sm:flex-row'>
-              <MyInput placeholder={translate('common.search')} value={keyword} onChange={(e) => setKeyword(e.target.value)} className='sm:w-64' />
+              <MyInput
+                placeholder={translate('common.search')}
+                value={keyword}
+                onChange={(e) => {
+                  setKeyword(e.target.value)
+                  setCurrentPage(1)
+                }}
+                className='sm:w-64'
+              />
               <MySelect
-                data={STATUS_OPTIONS.map((s) => ({ value: s.value, label: s.value ? getStatusLabel(s.value) : translate('common.all') }))}
+                data={statusOptions.map((s) => ({ value: s.value, label: s.label }))}
                 value={statusFilter}
                 placeholder={translate('admin.contacts.filterByStatus')}
                 search={false}
-                onChange={(item) => setStatusFilter(item.value as string)}
+                onChange={(item) => {
+                  setStatusFilter(item.value as string)
+                  setCurrentPage(1)
+                }}
               />
             </div>
           </div>
@@ -116,66 +136,76 @@ const AdminContactPage = () => {
         <MyCardBody>
           {isLoading ? (
             <MyLoading />
-          ) : filteredContacts.length === 0 ? (
+          ) : paginatedContacts.length === 0 ? (
             <MyEmpty message={translate('common.noData')} />
           ) : (
-            <div className='overflow-x-auto'>
-              <table className='w-full text-sm'>
-                <thead>
-                  <tr className='border-b border-border'>
-                    <th className='text-left py-3 px-4 font-medium text-gray-500'>{translate('common.name')}</th>
-                    <th className='text-left py-3 px-4 font-medium text-gray-500'>{translate('common.phone')}</th>
-                    <th className='text-left py-3 px-4 font-medium text-gray-500'>{translate('common.email')}</th>
-                    <th className='text-left py-3 px-4 font-medium text-gray-500'>{translate('common.title')}</th>
-                    <th className='text-left py-3 px-4 font-medium text-gray-500'>{translate('common.content')}</th>
-                    <th className='text-center py-3 px-4 font-medium text-gray-500'>{translate('common.status')}</th>
-                    <th className='text-center py-3 px-4 font-medium text-gray-500'>{translate('common.time')}</th>
-                    <th className='text-center py-3 px-4 font-medium text-gray-500'>{translate('common.actions')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredContacts.map((contact) => (
-                    <tr key={contact.id} className='border-b border-border align-middle'>
-                      <td className='py-3 px-4 font-medium'>{contact.name}</td>
-                      <td className='py-3 px-4'>{contact.phone}</td>
-                      <td className='py-3 px-4'>{contact.email || '—'}</td>
-                      <td className='py-3 px-4'>
-                        <p className='max-w-[180px] truncate font-medium'>{contact.subject}</p>
-                      </td>
-                      <td className='py-3 px-4'>
-                        <p className='max-w-[220px] truncate text-gray-500'>{contact.message}</p>
-                      </td>
-                      <td className='py-3 px-4 text-center'>
-                        <MyBadge variant={getStatusVariant(contact.status)}>{contact.status}</MyBadge>
-                      </td>
-                      <td className='py-3 px-4 whitespace-nowrap text-gray-500'>{dayjs(contact.createdAt).format('DD/MM/YYYY HH:mm')}</td>
-                      <td className='py-3 px-4'>
-                        <div className='flex items-center justify-center gap-2'>
-                          <select
-                            value={contact.status}
-                            onChange={(e) => updateContactStatus({ id: contact.id, status: e.target.value })}
-                            disabled={isUpdatingStatus}
-                            className='rounded-lg border border-border px-2 py-1 text-xs'
-                          >
-                            <option value='PENDING'>Pending</option>
-                            <option value='IN_PROGRESS'>In Progress</option>
-                            <option value='RESOLVED'>Resolved</option>
-                            <option value='CLOSED'>Closed</option>
-                          </select>
-                          <button
-                            type='button'
-                            onClick={() => confirmDelete(contact)}
-                            className='rounded-lg p-2 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600'
-                          >
-                            <TrashIcon className='h-5 w-5' />
-                          </button>
-                        </div>
-                      </td>
+            <>
+              <div className='overflow-x-auto'>
+                <table className='w-full text-sm'>
+                  <thead>
+                    <tr className='border-b border-border'>
+                      <th className='text-left py-3 px-4 font-medium text-gray-500'>{translate('common.name')}</th>
+                      <th className='text-left py-3 px-4 font-medium text-gray-500'>{translate('common.phone')}</th>
+                      <th className='text-left py-3 px-4 font-medium text-gray-500'>{translate('common.email')}</th>
+                      <th className='text-left py-3 px-4 font-medium text-gray-500'>{translate('common.title')}</th>
+                      <th className='text-left py-3 px-4 font-medium text-gray-500'>{translate('common.content')}</th>
+                      <th className='text-center py-3 px-4 font-medium text-gray-500'>{translate('common.status')}</th>
+                      <th className='text-center py-3 px-4 font-medium text-gray-500'>{translate('common.time')}</th>
+                      <th className='text-center py-3 px-4 font-medium text-gray-500'>{translate('common.actions')}</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {paginatedContacts.map((contact) => (
+                      <tr key={contact.id} className='border-b border-border align-middle'>
+                        <td className='py-3 px-4 font-medium'>{contact.name}</td>
+                        <td className='py-3 px-4'>{contact.phone}</td>
+                        <td className='py-3 px-4'>{contact.email || '—'}</td>
+                        <td className='py-3 px-4'>
+                          <p className='max-w-[180px] truncate font-medium'>{contact.subject}</p>
+                        </td>
+                        <td className='py-3 px-4'>
+                          <p className='max-w-[220px] truncate text-gray-500'>{contact.message}</p>
+                        </td>
+                        <td className='py-3 px-4 text-center'>
+                          <MyBadge variant={getStatusVariant(contact.status)}>{contact.status}</MyBadge>
+                        </td>
+                        <td className='py-3 px-4 whitespace-nowrap text-gray-500'>{dayjs(contact.createdAt).format('DD/MM/YYYY HH:mm')}</td>
+                        <td className='py-3 px-4'>
+                          <div className='flex items-center justify-center gap-2'>
+                            <select
+                              value={contact.status}
+                              onChange={(e) => updateContactStatus({ id: contact.id, status: e.target.value })}
+                              disabled={isUpdating}
+                              className='rounded-lg border border-border px-2 py-1 text-xs'
+                            >
+                              {statusOptions
+                                .filter((s) => s.value)
+                                .map((option) => (
+                                  <option key={option.value} value={option.value}>
+                                    {option.label}
+                                  </option>
+                                ))}
+                            </select>
+                            <button
+                              type='button'
+                              onClick={() => confirmDelete(contact)}
+                              className='rounded-lg p-2 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600'
+                            >
+                              <TrashIcon className='h-5 w-5' />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {totalPages > 1 && (
+                <div className='mt-4 flex justify-center'>
+                  <MyPagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                </div>
+              )}
+            </>
           )}
         </MyCardBody>
       </MyCard>

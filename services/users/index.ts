@@ -1,6 +1,6 @@
-import BaseAPI from '@/config/baseApi'
-
 import { User } from './type'
+
+import BaseAPI from '@/config/baseApi'
 
 export type { User }
 
@@ -51,6 +51,12 @@ class UserApi extends BaseAPI {
 
   async updateUser(id: string, payload: Partial<User>): Promise<User> {
     const response = await this.patch<{ data: User }>(`/${id}`, payload, { isUseAuth: true })
+
+    return response.data
+  }
+
+  async createUser(payload: { phone: string; name: string; password: string; role?: string; avatar?: string; isActive?: boolean }): Promise<User> {
+    const response = await this.post<{ data: User }>('/', payload, { isUseAuth: true })
 
     return response.data
   }

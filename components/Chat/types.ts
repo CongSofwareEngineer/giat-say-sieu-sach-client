@@ -10,11 +10,7 @@ export type LaundryFormData = {
   weight: string
 }
 
-export type TranslateFn = (
-  key?: string,
-  variables?: Record<string, any>,
-  defaultMessage?: string
-) => any
+export type TranslateFn = (key?: string, variables?: Record<string, any>, defaultMessage?: string) => any
 
 // Pricing configuration for laundry services
 export const LAUNDRY_PRICES: Record<string, number> = {

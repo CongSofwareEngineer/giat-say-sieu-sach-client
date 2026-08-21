@@ -1,17 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import MyInput from '@/components/MyInput'
 import MyButton from '@/components/MyButton'
 import { LANGUAGE_SUPPORT } from '@/zustand/language'
 import { PricingPlan, UpdatePricingPlanPayload } from '@/services/pricing'
-import useAdminListPrice from '@/hooks/reactQuery/useAdminListPrice'
+import useAdminPricing from '@/hooks/admin/useAdminPricing'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
 
 type PriceFormProps = {
-  plan: PricingPlan
+  plan?: PricingPlan
 }
 
 const LANGUAGES: { key: LANGUAGE_SUPPORT; label: string }[] = [
@@ -22,18 +22,34 @@ const LANGUAGES: { key: LANGUAGE_SUPPORT; label: string }[] = [
 const PriceForm = ({ plan }: PriceFormProps) => {
   const { translate } = useLanguage()
   const { close } = useModalDrawer()
-  const { updatePlan, isUpdating } = useAdminListPrice()
+  const { createPlan, updatePlan, isCreating, isUpdating } = useAdminPricing()
 
-  const [name, setName] = useState(plan.name)
-  const [price, setPrice] = useState(String(plan.price))
-  const [unit, setUnit] = useState(plan.unit)
-  const [isActive, setIsActive] = useState(plan.isActive)
-  const [popular, setPopular] = useState(plan.popular ?? false)
+  const isEdit = !!plan
+
+  const [name, setName] = useState(plan?.name || '')
+  const [price, setPrice] = useState(plan ? String(plan.price) : '')
+  const [unit, setUnit] = useState(plan?.unit || 'kg')
+  const [isActive, setIsActive] = useState(plan?.isActive ?? true)
+  const [popular, setPopular] = useState(plan?.popular ?? false)
 
   const [features, setFeatures] = useState<Record<LANGUAGE_SUPPORT, string[]>>({
-    [LANGUAGE_SUPPORT.VN]: plan.features?.[LANGUAGE_SUPPORT.VN] ?? [],
-    [LANGUAGE_SUPPORT.EN]: plan.features?.[LANGUAGE_SUPPORT.EN] ?? [],
+    [LANGUAGE_SUPPORT.VN]: plan?.features?.[LANGUAGE_SUPPORT.VN] ?? [],
+    [LANGUAGE_SUPPORT.EN]: plan?.features?.[LANGUAGE_SUPPORT.EN] ?? [],
   })
+
+  useEffect(() => {
+    if (plan) {
+      setName(plan.name)
+      setPrice(String(plan.price))
+      setUnit(plan.unit)
+      setIsActive(plan.isActive)
+      setPopular(plan.popular ?? false)
+      setFeatures({
+        [LANGUAGE_SUPPORT.VN]: plan.features?.[LANGUAGE_SUPPORT.VN] ?? [],
+        [LANGUAGE_SUPPORT.EN]: plan.features?.[LANGUAGE_SUPPORT.EN] ?? [],
+      })
+    }
+  }, [plan])
 
   const handleFeatureChange = (lang: LANGUAGE_SUPPORT, index: number, value: string) => {
     setFeatures((prev) => ({
@@ -59,7 +75,7 @@ const PriceForm = ({ plan }: PriceFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-     const payload: UpdatePricingPlanPayload = {
+    const payload: UpdatePricingPlanPayload = {
       name,
       price: Number(price),
       unit,
@@ -68,18 +84,17 @@ const PriceForm = ({ plan }: PriceFormProps) => {
       features,
     }
 
-    await updatePlan({ id: plan.id, payload })
+    if (isEdit && plan) {
+      await updatePlan({ id: plan.id, payload })
+    } else {
+      await createPlan(payload as any)
+    }
     close()
   }
 
   return (
     <form onSubmit={handleSubmit} className='w-full space-y-4'>
-      <MyInput
-        label={translate('admin.prices.name', {}, 'Tên dịch vụ')}
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        required
-      />
+      <MyInput label={translate('admin.prices.name', {}, 'Tên dịch vụ')} value={name} onChange={(e) => setName(e.target.value)} required />
 
       <div className='space-y-4'>
         <p className='text-sm font-medium text-text'>Đặc điểm dịch vụ (Features)</p>
@@ -91,26 +106,18 @@ const PriceForm = ({ plan }: PriceFormProps) => {
                 <MyInput
                   value={feature}
                   onChange={(e) => handleFeatureChange(key, index, e.target.value)}
-                  placeholder={`Đặc điệm ${index + 1}`}
+                  placeholder={`Đặc điểm ${index + 1}`}
                   className='flex-1 py-1 text-sm'
                 />
-                <button
-                  type='button'
-                  onClick={() => removeFeature(key, index)}
-                  className='rounded-lg p-1 text-red-500 hover:bg-red-50'
-                >
+                <button type='button' onClick={() => removeFeature(key, index)} className='rounded-lg p-1 text-red-500 hover:bg-red-50'>
                   <svg className='h-4 w-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                     <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
                   </svg>
                 </button>
               </div>
             ))}
-            <button
-              type='button'
-              onClick={() => addFeature(key)}
-              className='text-xs text-primary hover:underline'
-            >
-              + Thêm đặc điệm
+            <button type='button' onClick={() => addFeature(key)} className='text-xs text-primary hover:underline'>
+              + Thêm đặc điểm
             </button>
           </div>
         ))}
@@ -143,7 +150,7 @@ const PriceForm = ({ plan }: PriceFormProps) => {
         <MyButton variant='outline' size='small' className='mr-2' onClick={() => close()}>
           {translate('common.cancel')}
         </MyButton>
-        <MyButton type='submit' variant='primary' size='small' loading={isUpdating}>
+        <MyButton type='submit' variant='primary' size='small' loading={isCreating || isUpdating}>
           {translate('common.save')}
         </MyButton>
       </div>

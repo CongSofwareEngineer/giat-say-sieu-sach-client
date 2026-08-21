@@ -10,11 +10,8 @@ import { HomeIcon } from '@/components/Icons/Functions/Home'
 import { LogOutIcon } from '@/components/Icons/Functions/LogOut'
 import InboxIcon from '@/components/Icons/Inbox'
 import { UserCircleIcon } from '@/components/Icons/UserCircle'
-import { ClassIcon } from '@/components/Icons/Class'
-import { CameraIcon } from '@/components/Icons/Camera'
 import { PaymentIcon } from '@/components/Icons/Payment'
 import ChatBubbleIcon from '@/components/Icons/ChatBubble'
-import DataBaseIcon from '@/components/Icons/Home/Database'
 import { ContactIcon } from '@/components/Icons/Contact'
 import MyImage from '@/components/MyImage'
 import { images } from '@/config/images'
@@ -50,12 +47,9 @@ const AdminShell = ({ children }: { children: React.ReactNode }) => {
     { href: '/admin', label: translate('admin.sidebar.dashboard'), icon: HomeIcon },
     { href: '/admin/orders', label: translate('admin.sidebar.orders'), icon: InboxIcon },
     { href: '/admin/customers', label: translate('admin.sidebar.customers'), icon: UserCircleIcon },
-    { href: '/admin/blog', label: translate('admin.sidebar.blog'), icon: ClassIcon },
-    { href: '/admin/banners', label: translate('admin.sidebar.banner'), icon: CameraIcon },
     { href: '/admin/pricing', label: translate('admin.sidebar.prices'), icon: PaymentIcon },
     { href: '/admin/comments', label: translate('admin.sidebar.comments'), icon: ChatBubbleIcon },
     { href: '/admin/contact', label: translate('admin.sidebar.contacts'), icon: ContactIcon },
-    { href: '/admin/revenue', label: translate('admin.sidebar.revenue'), icon: DataBaseIcon },
   ]
 
   const isActive = (href: string) => (href === '/admin' ? pathname === '/admin' : pathname.startsWith(href))

@@ -83,7 +83,7 @@ const useGetListComments = (serviceId?: string, categoryId?: string) => {
     onSuccess: refresh,
   })
 
-   const { mutateAsync: adminUpdateComment, isPending: isAdminUpdating } = useMutation({
+  const { mutateAsync: adminUpdateComment, isPending: isAdminUpdating } = useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: UpdateCommentPayload }) => CommentService.adminUpdateComment(id, payload),
     onSuccess: refresh,
   })
@@ -108,14 +108,14 @@ const useGetListComments = (serviceId?: string, categoryId?: string) => {
     updateComment,
     replyComment,
     deleteComment,
-     adminDeleteComment,
+    adminDeleteComment,
     adminUpdateComment,
     toggleVisibility,
     isCreating,
     isUpdating,
     isReplying,
     isDeleting,
-     isAdminDeleting,
+    isAdminDeleting,
     isAdminUpdating,
     isTogglingVisibility,
   }

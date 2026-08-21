@@ -58,7 +58,7 @@ const CommentSection = ({ serviceId, onServiceChange, tag, title, subtitle, head
       value: 'all',
     }
 
-    return [allOption, ...plans.map((e) => ({ label: e.name, value: e.id } as MySelectItem))]
+    return [allOption, ...plans.map((e) => ({ label: e.name, value: e.id }) as MySelectItem)]
   }, [plans, translate])
 
   const displayValue = selectedServiceId === 'all' || !selectedServiceId ? 'all' : selectedServiceId

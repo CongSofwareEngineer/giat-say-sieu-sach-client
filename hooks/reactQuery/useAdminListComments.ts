@@ -11,8 +11,19 @@ const useAdminListComments = () => {
   const [statusFilter, setStatusFilter] = useState<'all' | 'visible' | 'hidden'>('all')
   const [page, setPage] = useState(1)
 
-  const { rawComments, isLoading, refetch, toggleVisibility, isTogglingVisibility, deleteComment, isDeleting, replyComment, isReplying, adminDeleteComment, isAdminDeleting } =
-    useGetListComments()
+  const {
+    rawComments,
+    isLoading,
+    refetch,
+    toggleVisibility,
+    isTogglingVisibility,
+    deleteComment,
+    isDeleting,
+    replyComment,
+    isReplying,
+    adminDeleteComment,
+    isAdminDeleting,
+  } = useGetListComments()
 
   const isAdmin = isLogin && !!user?.isAdmin
 

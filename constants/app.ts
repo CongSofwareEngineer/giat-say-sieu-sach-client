@@ -42,5 +42,5 @@ export enum ORDER_STATUS {
 
 export const MAX_PIXEL_REDUCE = 300 as number
 export const MAX_COMMENT_IMAGES = 5 as number
-export const MAX_AVATAR_FILE_SIZE = 5 * 1024 * 1024 as number
+export const MAX_AVATAR_FILE_SIZE = (5 * 1024 * 1024) as number
 export const PAGE_SIZE = 10 as number

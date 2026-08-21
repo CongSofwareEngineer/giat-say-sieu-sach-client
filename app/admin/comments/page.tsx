@@ -2,7 +2,7 @@
 
 import type { CommentItem } from '@/services/comment'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import dayjs from 'dayjs'
 
 import MyInput from '@/components/MyInput'
@@ -20,49 +20,47 @@ import { EyeSlashIcon } from '@/components/Icons/EyeSlash'
 import { TrashIcon } from '@/components/Icons/Trash'
 import ChatBubbleIcon from '@/components/Icons/ChatBubble'
 import { PAGE_SIZE } from '@/constants/app'
-import useAdminListComments from '@/hooks/reactQuery/useAdminListComments'
+import useAdminComments from '@/hooks/admin/useAdminComments'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
 
 const AdminCommentsPage = () => {
   const { translate } = useLanguage()
   const { open, close } = useModalDrawer()
-  const {
-    comments,
-    totalComments,
-    isLoading,
-    refetch,
-    keyword,
-    setKeyword,
-    statusFilter,
-    setStatusFilter,
-    page,
-    setPage,
-    totalPages,
-    resetPage,
-    toggleVisibility,
-    isTogglingVisibility,
-    deleteComment,
-    isDeleting,
-  } = useAdminListComments()
+  const { comments, meta, isLoading, refetch, toggleVisibility, isTogglingVisibility, adminDeleteComment, isDeleting, replyToComment, isReplying } =
+    useAdminComments()
 
-  const statusOptions = useMemo(
-    () => [
-      { value: 'all', label: translate('common.all') },
-      {
-        value: 'visible',
-        label: translate('admin.comments.statuses.visible', {}, 'Đang hiển thị'),
-      },
-      {
-        value: 'hidden',
-        label: translate('admin.comments.statuses.hidden', {}, 'Đã ẩn'),
-      },
-    ],
-    [translate]
-  )
+  const [keyword, setKeyword] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'visible' | 'hidden'>('all')
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const filteredComments = useMemo(() => {
+    const kw = keyword.trim().toLowerCase()
+
+    return comments.filter((comment) => {
+      const matchKeyword =
+        !kw ||
+        comment.content?.toLowerCase().includes(kw) ||
+        comment.name?.toLowerCase().includes(kw) ||
+        comment.phone?.includes(kw) ||
+        comment.id?.toLowerCase().includes(kw)
+
+      const matchStatus = statusFilter === 'all' || (statusFilter === 'visible' ? comment.isVisible : !comment.isVisible)
+
+      return matchKeyword && matchStatus
+    })
+  }, [comments, keyword, statusFilter])
+
+  const totalPages = meta?.totalPages || Math.max(1, Math.ceil(filteredComments.length / PAGE_SIZE))
+  const paginatedComments = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE
+
+    return filteredComments.slice(start, start + PAGE_SIZE)
+  }, [filteredComments, currentPage])
 
   const openReply = (comment: CommentItem) => {
     open({
+      mode: 'modal',
       title: translate('admin.comments.reply'),
       classNames: { container: 'md:w-[560px]' },
       children: <ReplyForm comment={comment} />,
@@ -71,6 +69,7 @@ const AdminCommentsPage = () => {
 
   const confirmDelete = (comment: CommentItem) => {
     open({
+      mode: 'modal',
       title: translate('admin.comments.delete'),
       children: (
         <div className='w-full'>
@@ -83,7 +82,7 @@ const AdminCommentsPage = () => {
               variant='error'
               loading={isDeleting}
               onClick={async () => {
-                await deleteComment(comment.id)
+                await adminDeleteComment(comment.id)
                 close()
               }}
             >
@@ -118,18 +117,28 @@ const AdminCommentsPage = () => {
                 value={keyword}
                 onChange={(e) => {
                   setKeyword(e.target.value)
-                  resetPage()
+                  setCurrentPage(1)
                 }}
                 className='sm:w-64'
               />
               <MySelect
-                data={statusOptions}
+                data={[
+                  { value: 'all', label: translate('common.all') },
+                  {
+                    value: 'visible',
+                    label: translate('admin.comments.statuses.visible', {}, 'Đang hiển thị'),
+                  },
+                  {
+                    value: 'hidden',
+                    label: translate('admin.comments.statuses.hidden', {}, 'Đã ẩn'),
+                  },
+                ]}
                 value={statusFilter}
                 placeholder={translate('admin.comments.filterByStatus', {}, 'Lọc theo trạng thái')}
                 search={false}
                 onChange={(item) => {
                   setStatusFilter(item.value as 'all' | 'visible' | 'hidden')
-                  resetPage()
+                  setCurrentPage(1)
                 }}
               />
             </div>
@@ -138,13 +147,14 @@ const AdminCommentsPage = () => {
         <MyCardBody>
           {isLoading ? (
             <MyLoading />
-          ) : comments.length === 0 ? (
+          ) : paginatedComments.length === 0 ? (
             <MyEmpty message={translate('common.noData')} />
           ) : (
             <>
               <div className='mb-4 text-sm text-gray-500'>
-                {translate('common.showing')} {(page - 1) * PAGE_SIZE + 1} {translate('common.to')} {Math.min(page * PAGE_SIZE, totalComments)}{' '}
-                {translate('common.from')} {totalComments} {translate('common.results')}
+                {translate('common.showing')} {(currentPage - 1) * PAGE_SIZE + 1} {translate('common.to')}{' '}
+                {Math.min(currentPage * PAGE_SIZE, filteredComments.length)} {translate('common.from')} {filteredComments.length}{' '}
+                {translate('common.results')}
               </div>
               <div className='overflow-x-auto'>
                 <table className='w-full text-sm'>
@@ -158,7 +168,7 @@ const AdminCommentsPage = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {comments.map((comment) => (
+                    {paginatedComments.map((comment) => (
                       <tr key={comment.id} className='border-b border-border align-middle'>
                         <td className='py-3 px-4'>
                           <div className='flex items-center gap-3'>
@@ -168,15 +178,6 @@ const AdminCommentsPage = () => {
                             <div className='min-w-0'>
                               <p className='font-medium text-text'>{comment.name}</p>
                               <p className='text-xs text-gray-400'>{comment.phone}</p>
-                              {comment.replies && comment.replies.length > 0 && (
-                                <p className='mt-0.5 inline-flex items-center gap-1 text-xs font-medium text-primary'>
-                                  <ChatBubbleIcon className='h-3 w-3' />
-                                  {comment.replies.length}{' '}
-                                  {translate('reviews.summary.replyCount', {
-                                    count: comment.replies.length,
-                                  })}
-                                </p>
-                              )}
                             </div>
                           </div>
                         </td>
@@ -187,8 +188,7 @@ const AdminCommentsPage = () => {
                           </div>
                         </td>
                         <td className='py-3 px-4'>
-                          <p className='max-w-[300px] truncate font-medium text-text'>{comment.title}</p>
-                          <p className='max-w-[300px] truncate text-xs text-gray-400'>{comment.content}</p>
+                          <p className='max-w-[300px] truncate font-medium text-text'>{comment.content}</p>
                           <p className='mt-1 text-xs text-gray-400'>{dayjs(comment.createdAt).format('DD/MM/YYYY HH:mm')}</p>
                         </td>
                         <td className='py-3 px-4 text-center'>
@@ -236,7 +236,7 @@ const AdminCommentsPage = () => {
               </div>
               {totalPages > 1 && (
                 <div className='mt-6 flex justify-center'>
-                  <MyPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+                  <MyPagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
                 </div>
               )}
             </>

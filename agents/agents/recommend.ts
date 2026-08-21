@@ -7,7 +7,8 @@ import { AGENT_NAME } from '@/constants/tools'
 // Handles order/booking commands: tracking, contact info, branches, booking
 export const recommendAgent: AgentDefinition = {
   name: AGENT_NAME.recommend,
-  description: 'Handles order and booking commands: tracking an order status, contact info, branch locations and placing a new booking (including laundry pickup orders).',
+  description:
+    'Handles order and booking commands: tracking an order status, contact info, branch locations and placing a new booking (including laundry pickup orders).',
   systemPrompt: `You are the order & booking command specialist of the "Giặt Ủi Siêu Sạch" laundry service.
 Use track_order to check an order's status, get_contact_info for contact details and get_branches for branch locations.
 If the user wants to place a new laundry booking ("gỡ đồ", "đặt giặt đồ", "tôi muốn giặt đồ"...), call open_laundry_form so the client shows the order form.

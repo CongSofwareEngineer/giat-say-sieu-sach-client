@@ -82,7 +82,11 @@
     "profile": "Hồ sơ",
     "myOrders": "Đơn hàng của tôi",
     "admin": "Quản trị",
-    "more": "Thêm"
+    "more": "Thêm",
+    "confirmDelete": "Bạn có chắc chắn muốn xóa",
+    "confirmDeleteDefault": "Bạn có chắc chắn muốn xóa mục này?",
+    "passwordRequired": "Vui lòng nhập mật khẩu",
+    "actions": "Thao tác"
   },
   "language": {
     "vi": "Tiếng Việt",
@@ -750,7 +754,15 @@
       "create": "Thêm khách hàng",
       "edit": "Sửa khách hàng",
       "delete": "Xóa khách hàng",
-      "deleteConfirm": "Bạn có chắc chắn muốn xóa khách hàng này?"
+      "deleteConfirm": "Bạn có chắc chắn muốn xóa khách hàng này?",
+      "phone": "Số điện thoại",
+      "name": "Họ tên",
+      "active": "Đang hoạt động",
+      "roleCustomer": "Khách hàng",
+      "roleAdmin": "Admin",
+      "status": "Trạng thái",
+      "createdAt": "Ngày tạo",
+      "filterByRole": "Lọc theo vai trò"
     },
     "blog": {
       "title": "Quản lý blog",
@@ -782,6 +794,7 @@
         "unit": "Đơn vị",
         "unitPlaceholder": "Ví dụ: VNĐ/kg",
         "active": "Đang hoạt động",
+        "inactive": "Không hoạt động",
         "popular": "Phổ biến"
       },
       "comments": {

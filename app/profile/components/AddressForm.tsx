@@ -73,6 +73,7 @@ const AddressForm = ({ address, onSubmit }: AddressFormProps) => {
     const loadDistricts = async () => {
       if (!formData.city) {
         setDistricts([])
+
         return
       }
 
@@ -102,13 +103,10 @@ const AddressForm = ({ address, onSubmit }: AddressFormProps) => {
     }
   }, [formData.city, provinces])
 
-  const cityOptions = useMemo(
-    () => provinces.map((province) => ({ value: province.name, label: province.full_name || province.name })),
-    [provinces],
-  )
+  const cityOptions = useMemo(() => provinces.map((province) => ({ value: province.name, label: province.full_name || province.name })), [provinces])
   const districtOptions = useMemo(
     () => districts.map((district) => ({ value: district.name, label: district.full_name || district.name })),
-    [districts],
+    [districts]
   )
 
   const handleChange = (field: keyof CreateAddressPayload, value: string) => {

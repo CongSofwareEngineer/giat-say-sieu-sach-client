@@ -59,6 +59,15 @@ class ContactApi extends BaseAPI {
 
     return response.data
   }
+
+  async updateContact(
+    id: string,
+    payload: { name?: string; phone?: string; email?: string; subject?: string; message?: string; status?: string }
+  ): Promise<ContactItem> {
+    const response = await this.patch<{ data: ContactItem }>(`/${id}`, payload, { isUseAuth: true })
+
+    return response.data
+  }
 }
 
 const ContactService = new ContactApi('contacts')
