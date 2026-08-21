@@ -1,7 +1,15 @@
 import type { AgentTool } from '../base'
 
 import { TOOL_NAME } from '@/constants/tools'
-import { searchFaqs } from '@/services/faq'
+import FaqService, { FaqItem } from '@/services/faq'
+
+export const searchFaqs = (query: string, faqs: FaqItem[]): FaqItem[] => {
+  const q = query.toLowerCase().trim()
+
+  if (!q) return faqs
+
+  return faqs.filter((faq) => faq.question.toLowerCase().includes(q) || faq.answer.toLowerCase().includes(q) || faq.category?.includes(q))
+}
 
 // Answers common questions straight from the FAQ list
 export const getFaqTool: AgentTool = {
@@ -19,11 +27,12 @@ export const getFaqTool: AgentTool = {
   },
   execute: async (args) => {
     const query = String(args?.query ?? '').trim()
-    const faqs = searchFaqs(query)
+    const faqs = await FaqService.getFaqs()
+    const matched = searchFaqs(query, faqs)
 
-    if (faqs.length === 0) return `No FAQ found for "${query}".`
+    if (matched.length === 0) return `No FAQ found for "${query}".`
 
-    return faqs
+    return matched
       .slice(0, 5)
       .map((f) => `Q: ${f.question}\nA: ${f.answer}`)
       .join('\n\n')

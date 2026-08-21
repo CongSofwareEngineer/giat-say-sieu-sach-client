@@ -128,30 +128,6 @@ export const mockBanners = [
   { id: '2', title: 'Combo tiết kiệm', subtitle: 'Tiết kiệm đến 30%', image: '/thumbnail.png' },
 ]
 
-export const mockBranches = [
-  {
-    id: '1',
-    name: 'Chi nhánh Tân Bình',
-    address: 'Số 123 Nguyễn Hữu Thọ, Tân Bình, TP.HCM',
-    phone: '0392225405',
-    workingHours: '08:00 - 20:00',
-  },
-  {
-    id: '2',
-    name: 'Chi nhánh Gò Vấp',
-    address: 'Số 456 Phan Văn Trị, Gò Vấp, TP.HCM',
-    phone: '0392225405',
-    workingHours: '08:00 - 20:00',
-  },
-  {
-    id: '3',
-    name: 'Chi nhánh Thủ Đức',
-    address: 'Số 789 Võ Văn Ngân, Thủ Đức, TP.HCM',
-    phone: '0392225405',
-    workingHours: '08:00 - 19:00',
-  },
-]
-
 export const mockServices = [
   { id: '1', name: 'Giặt thường', price: 8000 },
   { id: '2', name: 'Giặt sấy', price: 12000 },

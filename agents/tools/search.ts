@@ -1,15 +1,24 @@
 import type { AgentTool } from '../base'
 
 import { TOOL_NAME } from '@/constants/tools'
-import { searchFaqs } from '@/services/faq'
+import FaqService, { FaqItem } from '@/services/faq'
 import { mockBlogPosts } from '@/services/mockData'
 
-// Keyword match against FAQ + blog content
-const searchSite = (query: string): string => {
+const searchFaqs = (query: string, faqs: FaqItem[]): FaqItem[] => {
   const q = query.toLowerCase().trim()
-  const faqs = searchFaqs(query)
 
-  const faqHits = faqs
+  if (!q) return faqs
+
+  return faqs.filter((faq) => faq.question.toLowerCase().includes(q) || faq.answer.toLowerCase().includes(q) || faq.category?.includes(q))
+}
+
+// Keyword match against FAQ + blog content
+const searchSite = async (query: string): Promise<string> => {
+  const q = query.toLowerCase().trim()
+  const faqs = await FaqService.getFaqs()
+  const matched = searchFaqs(query, faqs)
+
+  const faqHits = matched
     .slice(0, 5)
     .map((f) => `- ${f.question}: ${f.answer}`)
     .join('\n')
@@ -74,7 +83,7 @@ export const searchTool: AgentTool = {
 
     if (!query) return 'Please provide a query to search.'
 
-    const local = searchSite(query)
+    const local = await searchSite(query)
 
     if (local) return local
 

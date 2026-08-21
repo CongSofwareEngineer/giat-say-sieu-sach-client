@@ -217,30 +217,6 @@ export const faqSchema = (items: FaqItem[]): JsonLd => ({
   })),
 })
 
-// Common FAQ used on the home page
-export const SEO_FAQS: FaqItem[] = [
-  {
-    question: 'Thời gian xử lý đơn bao lâu?',
-    answer: 'Đơn giặt thường được xử lý và giao lại trong vòng 24 giờ. Với dịch vụ giặt nhanh, bạn sẽ nhận lại đồ chỉ trong 4 giờ.',
-  },
-  {
-    question: 'Có lấy đồ tận nhà không?',
-    answer: 'Có. Nhân viên của chúng tôi sẽ đến tận nhà lấy đồ và giao lại đúng địa chỉ bạn yêu cầu, hoàn toàn miễn phí.',
-  },
-  {
-    question: 'Nếu đồ bị hỏng thì sao?',
-    answer: 'Chúng tôi cam kết bồi thường 100% giá trị nếu đồ bị hư hỏng do lỗi của chúng tôi trong quá trình giặt ủi.',
-  },
-  {
-    question: 'Có hỗ trợ giặt đồ cao cấp không?',
-    answer: 'Có. Chúng tôi có dịch vụ giặt khô chuyên dụng cho vest, áo dài và các loại vải cao cấp nhạy cảm.',
-  },
-  {
-    question: 'Cách thanh toán?',
-    answer: 'Bạn có thể thanh toán tiền mặt khi nhận đồ hoặc chuyển khoản qua ngân hàng. Chúng tôi luôn minh bạch về chi phí.',
-  },
-]
-
 // Service schema with pricing for the price list page
 export const serviceSchema = (): JsonLd => ({
   '@context': 'https://schema.org',

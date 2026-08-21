@@ -18,7 +18,8 @@ import ChatBubbleIcon from '@/components/Icons/ChatBubble'
 import AwardIcon from '@/components/Icons/Home/Award'
 import SeoJsonLd from '@/components/SeoJsonLd'
 import useLanguage from '@/hooks/useLanguage'
-import { breadcrumbSchema, faqSchema, localBusinessSchema, SEO_FAQS, SERVICE_OFFERS } from '@/config/seo'
+import useGetListFaqs from '@/hooks/reactQuery/useGetListFaqs'
+import { breadcrumbSchema, faqSchema, localBusinessSchema, SERVICE_OFFERS } from '@/config/seo'
 import { cn } from '@/utils/tailwind'
 
 type TagProps = {
@@ -50,6 +51,7 @@ const SectionHeader = ({ tag, title, subtitle }: SectionHeaderProps) => (
 const HomePage = () => {
   const { translate } = useLanguage()
   const [openFaq, setOpenFaq] = useState(0)
+  const { faqs, isLoading: faqLoading } = useGetListFaqs()
 
   const heroStats = [
     { value: translate('home.hero.statsCustomersValue'), label: translate('home.hero.statsCustomersLabel') },
@@ -112,18 +114,10 @@ const HomePage = () => {
     { comment: translate('home.feedback.item3Comment'), name: translate('home.feedback.item3Name'), role: translate('home.feedback.item3Role') },
   ]
 
-  const faqs = [
-    { question: translate('home.faq.q1'), answer: translate('home.faq.a1') },
-    { question: translate('home.faq.q2'), answer: translate('home.faq.a2') },
-    { question: translate('home.faq.q3'), answer: translate('home.faq.a3') },
-    { question: translate('home.faq.q4'), answer: translate('home.faq.a4') },
-    { question: translate('home.faq.q5'), answer: translate('home.faq.a5') },
-  ]
-
   return (
     <div>
       <SeoJsonLd data={localBusinessSchema(SERVICE_OFFERS)} />
-      <SeoJsonLd data={faqSchema(SEO_FAQS)} />
+      <SeoJsonLd data={faqSchema(faqs)} />
       <SeoJsonLd data={breadcrumbSchema([{ name: 'Trang chủ', path: '/' }])} />
       {/* Hero Section */}
       <section className='relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-secondary/5'>
@@ -350,34 +344,38 @@ const HomePage = () => {
       <section className='bg-white py-16 lg:py-24'>
         <div className='mx-auto max-w-3xl px-4 sm:px-6 lg:px-8'>
           <SectionHeader title={translate('home.faq.title')} />
-          <div className='space-y-4'>
-            {faqs.map((faq, index) => {
-              const isOpen = openFaq === index
+          {faqLoading ? (
+            <div className='text-center text-gray-500'>{translate('home.faq.loading', {}, 'Đang tải...')}</div>
+          ) : (
+            <div className='space-y-4'>
+              {faqs.map((faq, index) => {
+                const isOpen = openFaq === index
 
-              return (
-                <MyCard key={faq.question} className='overflow-hidden'>
-                  <button
-                    type='button'
-                    onClick={() => setOpenFaq(isOpen ? -1 : index)}
-                    className='flex w-full items-center justify-between gap-4 p-5 text-left lg:p-6'
-                    aria-expanded={isOpen}
-                  >
-                    <span className='font-semibold text-text'>{faq.question}</span>
-                    {isOpen ? (
-                      <ArrowUpIcon className='h-5 w-5 flex-shrink-0 text-primary' />
-                    ) : (
-                      <ArrowDownIcon className='h-5 w-5 flex-shrink-0 text-gray-500' />
-                    )}
-                  </button>
-                  <div className={cn('grid transition-all duration-300', isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0')}>
-                    <div className='overflow-hidden'>
-                      <p className='px-5 pb-5 text-sm leading-relaxed text-gray-500 lg:px-6 lg:pb-6'>{faq.answer}</p>
+                return (
+                  <MyCard key={faq.id} className='overflow-hidden'>
+                    <button
+                      type='button'
+                      onClick={() => setOpenFaq(isOpen ? -1 : index)}
+                      className='flex w-full items-center justify-between gap-4 p-5 text-left lg:p-6'
+                      aria-expanded={isOpen}
+                    >
+                      <span className='font-semibold text-text'>{faq.question}</span>
+                      {isOpen ? (
+                        <ArrowUpIcon className='h-5 w-5 flex-shrink-0 text-primary' />
+                      ) : (
+                        <ArrowDownIcon className='h-5 w-5 flex-shrink-0 text-gray-500' />
+                      )}
+                    </button>
+                    <div className={cn('grid transition-all duration-300', isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0')}>
+                      <div className='overflow-hidden'>
+                        <p className='px-5 pb-5 text-sm leading-relaxed text-gray-500 lg:px-6 lg:pb-6'>{faq.answer}</p>
+                      </div>
                     </div>
-                  </div>
-                </MyCard>
-              )
-            })}
-          </div>
+                  </MyCard>
+                )
+              })}
+            </div>
+          )}
         </div>
       </section>
 

@@ -7,6 +7,8 @@ export const QUERY_KEYS = {
   getListComments: 'getListComments',
   getListContacts: 'getListContacts',
   getListAddresses: 'getListAddresses',
+  getListBranches: 'getListBranches',
+  getListFaqs: 'getListFaqs',
   getProvinces: 'getProvinces',
 }
 
@@ -15,4 +17,4 @@ export type QUERY_PAGINATION = {
   limit?: number
 }
 
-export const LIMIT_ITEM = 20
+export const PAGE_SIZE = 20
