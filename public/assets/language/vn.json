@@ -575,6 +575,9 @@
       "passwordMismatch": "Mật khẩu không khớp",
       "passwordMin": "Mật khẩu phải có ít nhất 6 ký tự",
       "otpHint": "Chúng tôi sẽ gửi mã OTP qua SMS để xác thực số điện thoại của bạn",
+      "captchaLabel": "Tôi không phải robot",
+      "captchaRequired": "Vui lòng xác nhận bạn không phải robot",
+      "captchaVerified": "Đã xác thực",
       "successTitle": "Đăng ký thành công!",
       "successDesc": "Tài khoản của bạn đã được tạo. Chào mừng bạn đến với Giặt Ủi Siêu Sạch!",
       "goToLogin": "Đến trang đăng nhập"
