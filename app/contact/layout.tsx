@@ -5,7 +5,7 @@ import { buildMetadata } from '@/config/seo'
 export const metadata: Metadata = buildMetadata({
   title: 'Liên hệ',
   description:
-    'Liên hệ Giặt Ủi Siêu Sạch qua hotline 0392 225 405, email contact@giatsaysieusach.com. Tư vấn miễn phí, đặt lịch lấy đồ tận nhà nhanh chóng.',
+    'Liên hệ Giặt Ủi Siêu Sạch qua hotline 0392 225 405, email hodiencong2000@gmail.com. Tư vấn miễn phí, đặt lịch lấy đồ tận nhà nhanh chóng.',
   path: '/contact',
   keywords: ['liên hệ', 'hotline giặt ủi', 'tư vấn giặt ủi', 'email liên hệ'],
 })

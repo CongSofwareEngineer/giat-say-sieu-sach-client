@@ -96,7 +96,7 @@ const ContactPage = () => {
                 <div>
                   <p className='font-semibold text-text mb-1'>{translate('contact.info.email')}</p>
                   <a href={INFO_CONTACT.Mail} className='text-gray-600 transition-colors'>
-                    contact@giatsaysieusach.com
+                    hodiencong2000@gmail.com
                   </a>
                 </div>
               </div>

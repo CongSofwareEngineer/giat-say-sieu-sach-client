@@ -12,7 +12,7 @@ export const GG_TAG = {
 }
 
 export enum INFO_CONTACT {
-  Mail = 'mailto:contact@giatsaysieusach.com',
+  Mail = 'mailto:hodiencong2000@gmail.com',
   Phone = '+84-392-225-405',
   Address = 'Tân Bình, Sài Gòn, Việt Nam',
   Facebook = 'https://facebook.com/giatsaysieusach',
