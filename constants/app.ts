@@ -9,6 +9,7 @@ export const SITE_CONFIG = {
 
 export const GG_TAG = {
   googleSiteVerification: 'oA6Bz4KcCgiCa-HsdXlGp6OCFFxqAtXRelfbiNrSvwY',
+  gmt: 'GTM-K4HQXFDS',
 }
 
 export enum INFO_CONTACT {

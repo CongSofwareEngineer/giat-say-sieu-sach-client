@@ -173,6 +173,7 @@ export default defineConfig([
       "jsx-a11y/no-static-element-interactions": "off",
       "jsx-a11y/no-autofocus": "off",
       "jsx-a11y/no-noninteractive-element-interactions": "off",
+      "@next/next/next-script-for-ga":"off",
       "prettier/prettier": [
         "warn",
         {
