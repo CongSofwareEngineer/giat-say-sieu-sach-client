@@ -8,7 +8,7 @@ export const SITE_CONFIG = {
 }
 
 export const GG_TAG = {
-  googleSiteVerification: 'google-site-verification=oA6Bz4KcCgiCa-HsdXlGp6OCFFxqAtXRelfbiNrSvwY',
+  googleSiteVerification: 'oA6Bz4KcCgiCa-HsdXlGp6OCFFxqAtXRelfbiNrSvwY',
 }
 
 export enum INFO_CONTACT {
