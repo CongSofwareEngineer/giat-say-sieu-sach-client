@@ -245,20 +245,14 @@ const Header = () => {
               </div>
             )}
 
-            {isMobile && (
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className='lg:hidden p-2.5 rounded-lg text-text'
-                aria-label='Toggle menu'
-              >
-                {isMobileMenuOpen ? <CloseIcon className='w-6 h-6' /> : <MenuIcon className='w-6 h-6' />}
-              </button>
-            )}
+            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className='lg:hidden p-2.5 rounded-lg text-text' aria-label='Toggle menu'>
+              {isMobileMenuOpen ? <CloseIcon className='w-6 h-6' /> : <MenuIcon className='w-6 h-6' />}
+            </button>
           </div>
         </div>
       </div>
 
-      {isMobile && isMobileMenuOpen && (
+      {isMobileMenuOpen && (
         <div className='lg:hidden bg-white border-t border-border shadow-lg'>
           <nav className='max-w-7xl mx-auto px-4 py-4 space-y-1'>
             {mainNavItems.map((item) => (
