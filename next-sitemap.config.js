@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: 'https://giatsaysieusach.vercel.app',
+  siteUrl: 'https://giatuisieusach.vercel.app',
   generateRobotsTxt: true,
   sitemapSize: 7000,
   exclude: ['/admin/*', '/api/*'],

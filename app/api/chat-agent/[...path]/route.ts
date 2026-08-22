@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server'
 
-const ALLOWED_ORIGINS = ['https://giatsaysieusach.vercel.app', 'http://localhost:3000', 'http://localhost:3001'] as const
+const ALLOWED_ORIGINS = ['https://giatuisieusach.vercel.app', 'http://localhost:3000', 'http://localhost:3001'] as const
 
 const isAllowedOrigin = (origin: string | null): boolean => {
   if (!origin) return false

@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Host
-Host: https://giatsaysieusach.vercel.app
+Host: https://giatuisieusach.vercel.app
 
 # Sitemaps
 Sitemap: https://giatuisieusach.vercel.app/sitemap.xml
