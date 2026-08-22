@@ -6,4 +6,4 @@ Allow: /
 Host: https://giatsaysieusach.vercel.app
 
 # Sitemaps
-Sitemap: https://giatsaysieusach.vercel.app/sitemap.xml
+Sitemap: https://giatuisieusach.vercel.app/sitemap.xml
