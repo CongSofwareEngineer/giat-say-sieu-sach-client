@@ -19,6 +19,7 @@ import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
 import useUser from '@/hooks/useUser'
 import { LANGUAGE_SUPPORT } from '@/zustand/language'
+import { SITE_CONFIG } from '@/constants/app'
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -74,11 +75,17 @@ const Header = () => {
     >
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='flex items-center justify-between h-16 lg:h-20'>
-          <Link href='/' className='flex-shrink-0'>
-            <div className='relative w-10 h-10 lg:w-12 lg:h-12'>
-              <MyImage src={images.favicon} alt='Giặt Ủi Siêu Sạch' fill className='object-contain' sizes='48px' priority />
+          <div className='flex items-center gap-2'>
+            <Link href='/' className='flex-shrink-0'>
+              <div className='relative w-10 overflow-hidden rounded-[6px] h-10 lg:w-12 lg:h-12'>
+                <MyImage src={images.favicon} alt='Giặt Ủi Siêu Sạch' fill className='object-contain' sizes='48px' priority />
+              </div>
+            </Link>
+            <div>
+              <div className='font-bold text-[14px]'>Giặt Ủi</div>
+              <div className='font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent'>Siêu Sạch</div>
             </div>
-          </Link>
+          </div>
 
           {!isMobile && (
             <nav className='hidden md:flex items-center gap-1'>

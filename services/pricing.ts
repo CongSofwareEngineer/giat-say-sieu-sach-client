@@ -14,6 +14,16 @@ export type PricingPlan = {
   popular?: boolean
 }
 
+export type CreatePricingPlanPayload = {
+  name: string
+  description?: string
+  price: number
+  unit?: string
+  isActive?: boolean
+  features?: Record<LANGUAGE_SUPPORT, string[]>
+  popular?: boolean
+}
+
 export type UpdatePricingPlanPayload = {
   name?: string
   description?: string
@@ -29,6 +39,12 @@ class PricingApi extends BaseAPI {
     const response = await this.get<{ data: PricingPlan[] }>('')
 
     return response?.data
+  }
+
+  async createPlan(payload: CreatePricingPlanPayload): Promise<PricingPlan> {
+    const response = await this.post<{ data: PricingPlan }>('', payload, { isUseAuth: true })
+
+    return response.data
   }
 
   async updatePlan(id: string, payload: UpdatePricingPlanPayload): Promise<PricingPlan> {

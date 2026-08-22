@@ -1,5 +1,5 @@
 export const images = {
-  favicon: '/favicon.png',
+  favicon: '/logo.png',
   icons: {
     avatarDefault: '/favicon.png',
   },
