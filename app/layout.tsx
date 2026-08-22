@@ -8,7 +8,7 @@ import FloatingChat from '../components/FloatingChat'
 import NotificationProvider from '../components/NotificationProvider/index'
 import Toast from '../components/Toast'
 
-import { INFO_CONTACT, IS_PRODUCTION, SITE_CONFIG } from '@/constants/app'
+import { GG_TAG, INFO_CONTACT, IS_PRODUCTION, SITE_CONFIG } from '@/constants/app'
 import { organizationSchema, toJsonLd, webSiteSchema } from '@/config/seo'
 import ReactQuery from '@/components/ReactQuery'
 import MyModal from '@/components/MyModal'
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
     capable: true,
   },
   verification: {
-    google: IS_PRODUCTION ? '-SD7kSWHZKEXxbtkWRvn1r5wtOy8o6Gv0wDuA_ituHk' : '',
+    google: IS_PRODUCTION ? GG_TAG.googleSiteVerification : '',
   },
 }
 

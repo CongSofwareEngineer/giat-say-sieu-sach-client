@@ -7,6 +7,10 @@ export const SITE_CONFIG = {
   keywords: ['giặt ủi', 'giặt ủi siêu sạch', 'giặt đồ', 'ủi đồ', 'giao nhận tận nơi', 'dịch vụ giặt ủi'],
 }
 
+export const GG_TAG = {
+  googleSiteVerification: 'google-site-verification=oA6Bz4KcCgiCa-HsdXlGp6OCFFxqAtXRelfbiNrSvwY',
+}
+
 export enum INFO_CONTACT {
   Mail = 'mailto:contact@giatsaysieusach.com',
   Phone = '+84-392-225-405',
