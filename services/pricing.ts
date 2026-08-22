@@ -56,19 +56,6 @@ class PricingApi extends BaseAPI {
   async deletePlan(id: string): Promise<void> {
     await this.delete<{ data: null }>(`/${id}`, { isUseAuth: true })
   }
-
-  async createPlan(payload: {
-    name: string
-    description?: string
-    features?: Record<string, string[]>
-    unit?: string
-    price: number
-    popular?: boolean
-  }): Promise<PricingPlan> {
-    const response = await this.post<{ data: PricingPlan }>('/', payload, { isUseAuth: true })
-
-    return response.data
-  }
 }
 
 const PricingService = new PricingApi('laundry-categories')
