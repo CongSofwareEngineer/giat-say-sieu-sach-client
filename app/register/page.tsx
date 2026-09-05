@@ -14,12 +14,10 @@ import { EyeSlashIcon } from '@/components/Icons/EyeSlash'
 import HumanVerification from '@/components/HumanVerification'
 import { formatPhoneToE164 } from '@/utils/phone'
 import useLanguage from '@/hooks/useLanguage'
-import useUser from '@/hooks/useUser'
 
 const RegisterPage = () => {
   const { translate } = useLanguage()
   const router = useRouter()
-  const { login } = useUser()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isHumanVerified, setIsHumanVerified] = useState(false)
   const [captchaToken, setCaptchaToken] = useState<string | undefined>(undefined)
@@ -91,10 +89,9 @@ const RegisterPage = () => {
     setErrors((prev) => ({ ...prev, general: '' }))
 
     try {
-      const response = await registerAction(formData.name, formData.phone, formData.password, captchaToken)
+      await registerAction(formData.name, formData.phone, formData.password, captchaToken)
 
-      login(response.user)
-      router.replace('/')
+      router.replace('/login')
     } catch {
       setErrors((prev) => ({ ...prev, general: translate('auth.register.error') }))
     } finally {
