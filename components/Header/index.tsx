@@ -20,6 +20,8 @@ import useModalDrawer from '@/hooks/useModalDrawer'
 import useUser from '@/hooks/useUser'
 import { LANGUAGE_SUPPORT } from '@/zustand/language'
 import { SITE_CONFIG } from '@/constants/app'
+import { removeCookie } from '@/utils/cookie'
+import { COOKIES_KEY } from '@/constants/cookies'
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -49,6 +51,8 @@ const Header = () => {
   }, [pathname])
 
   const handleLogout = () => {
+    removeCookie(COOKIES_KEY.accessToken)
+    removeCookie(COOKIES_KEY.refreshToken)
     logout()
     router.replace('/')
   }
