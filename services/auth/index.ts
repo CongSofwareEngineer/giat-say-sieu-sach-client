@@ -10,6 +10,12 @@ class AuthApi extends BaseAPI {
 
     return response.data
   }
+
+  async register(name: string, phone: string, password: string, captchaToken?: string): Promise<Auth & { user: User }> {
+    const response = await this.post<{ data: Auth & { user: User } }>('/register', { name, phone, password, captchaToken }, { isUseAuth: false })
+
+    return response.data
+  }
 }
 
 const AuthService = new AuthApi('auth')

@@ -8,12 +8,13 @@ import { getFirebaseAuth } from '@/config/firebase'
 import useLanguage from '@/hooks/useLanguage'
 
 export type HumanVerificationProps = {
-  onVerified: (verified: boolean) => void
+  onVerified: (verified: boolean, token?: string) => void
 }
 
 const HumanVerification = ({ onVerified }: HumanVerificationProps) => {
   const { translate } = useLanguage()
   const [isVerified, setIsVerified] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState<string | undefined>(undefined)
   const containerRef = useRef<HTMLDivElement>(null)
   const verifierRef = useRef<RecaptchaVerifier | null>(null)
 
@@ -21,13 +22,27 @@ const HumanVerification = ({ onVerified }: HumanVerificationProps) => {
     const auth = getFirebaseAuth()
 
     if (!auth || !containerRef.current) return
+    // 1. Ép ngôn ngữ Firebase Auth
+    auth.languageCode = 'vi'
+
+    // 2. Xóa script reCAPTCHA cũ đã bị inject vào <head> (nếu có)
+    const existingScript = document.querySelector('script[src*="recaptcha/api.js"]')
+
+    if (existingScript) {
+      existingScript.remove()
+    }
+    containerRef.current.innerHTML = ''
 
     const verifier = new RecaptchaVerifier(auth, containerRef.current, {
       size: 'normal',
-      callback: () => {
+      callback: async () => {
+        const token = await verifier.verify()
+
+        setCaptchaToken(token)
         setIsVerified(true)
       },
       'expired-callback': () => {
+        setCaptchaToken(undefined)
         setIsVerified(false)
       },
     })
@@ -46,8 +61,8 @@ const HumanVerification = ({ onVerified }: HumanVerificationProps) => {
   }, [])
 
   useEffect(() => {
-    onVerified(isVerified)
-  }, [isVerified, onVerified])
+    onVerified(isVerified, captchaToken)
+  }, [isVerified, captchaToken, onVerified])
 
   return (
     <div className='flex flex-col gap-2'>

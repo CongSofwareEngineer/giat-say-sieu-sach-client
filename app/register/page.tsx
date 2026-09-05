@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+
+import { registerAction } from './actions'
 
 import MyInput from '@/components/MyInput'
 import MyButton from '@/components/MyButton'
@@ -11,11 +14,15 @@ import { EyeSlashIcon } from '@/components/Icons/EyeSlash'
 import HumanVerification from '@/components/HumanVerification'
 import { formatPhoneToE164 } from '@/utils/phone'
 import useLanguage from '@/hooks/useLanguage'
+import useUser from '@/hooks/useUser'
 
 const RegisterPage = () => {
   const { translate } = useLanguage()
+  const router = useRouter()
+  const { login } = useUser()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isHumanVerified, setIsHumanVerified] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState<string | undefined>(undefined)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [formData, setFormData] = useState({
@@ -30,10 +37,11 @@ const RegisterPage = () => {
     password: '',
     confirmPassword: '',
     captcha: '',
+    general: '',
   })
 
   const validate = (): boolean => {
-    const newErrors = { name: '', phone: '', password: '', confirmPassword: '', captcha: '' }
+    const newErrors = { name: '', phone: '', password: '', confirmPassword: '', captcha: '', general: '' }
     let isValid = true
 
     if (!formData.name.trim()) {
@@ -80,15 +88,15 @@ const RegisterPage = () => {
     if (!validate()) return
 
     setIsSubmitting(true)
+    setErrors((prev) => ({ ...prev, general: '' }))
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      setFormData({ name: '', phone: '', password: '', confirmPassword: '' })
-      setErrors({ name: '', phone: '', password: '', confirmPassword: '', captcha: '' })
-      setIsHumanVerified(false)
-      window.location.href = '/login'
+      const response = await registerAction(formData.name, formData.phone, formData.password, captchaToken)
+
+      login(response.user)
+      router.replace('/')
     } catch {
-      // Handle error
+      setErrors((prev) => ({ ...prev, general: translate('auth.register.error') }))
     } finally {
       setIsSubmitting(false)
     }
@@ -153,8 +161,15 @@ const RegisterPage = () => {
               </button>
             </div>
 
+            {errors.general && <p className='text-sm text-red-500'>{errors.general}</p>}
+
             <div className='pt-1'>
-              <HumanVerification onVerified={setIsHumanVerified} />
+              <HumanVerification
+                onVerified={(verified, token) => {
+                  setIsHumanVerified(verified)
+                  setCaptchaToken(token)
+                }}
+              />
               {errors.captcha && <p className='mt-1 text-sm text-red-600'>{errors.captcha}</p>}
             </div>
 
