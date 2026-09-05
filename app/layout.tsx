@@ -103,7 +103,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 })(window,document,'script','dataLayer','${GG_TAG.gmt}');`,
               }}
             />
-            <script src='https://www.google.com/recaptcha/enterprise.js?render=6LdaOI8tAAAAAJrN7Pp-nArg4nfj6G-ybRuYcJtz' />
+            {/* <script src='https://www.google.com/recaptcha/enterprise.js?render=6LdaOI8tAAAAAJrN7Pp-nArg4nfj6G-ybRuYcJtz' /> */}
           </>
         )}
       </head>
