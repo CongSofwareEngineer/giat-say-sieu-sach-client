@@ -82,7 +82,7 @@ const LaundryForm = ({ formData, addresses, plans, estimatedPrice, onChange, onS
 
                 if (addr) {
                   onChange('addressId', addr.id)
-                  onChange('address', [addr.address, addr.ward, addr.district, addr.city].filter(Boolean).join(', '))
+                  onChange('address', [addr.address, addr.district, addr.city].filter(Boolean).join(', '))
                 }
               }}
               className='w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 bg-white mb-2'
@@ -90,7 +90,7 @@ const LaundryForm = ({ formData, addresses, plans, estimatedPrice, onChange, onS
               <option value=''>-- Chọn địa chỉ đã lưu --</option>
               {addresses.map((addr) => (
                 <option key={addr.id} value={addr.id}>
-                  {addr.label || 'Địa chỉ'} - {addr.recipientName} - {[addr.address, addr.ward, addr.district, addr.city].filter(Boolean).join(', ')}
+                  {addr.label || 'Địa chỉ'} - {addr.recipientName} - {[addr.address, addr.district, addr.city].filter(Boolean).join(', ')}
                 </option>
               ))}
             </select>

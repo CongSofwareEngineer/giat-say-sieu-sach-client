@@ -168,7 +168,6 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
             recipientName: laundryFormData.name,
             phone: laundryFormData.phone,
             address: laundryFormData.address,
-            ward: '',
             district: '',
             city: '',
           })

@@ -48,7 +48,7 @@ class AddressApi extends BaseAPI {
 export const formatAddress = (item?: AddressItem | null): string => {
   if (!item) return ''
 
-  return [item.address, item.ward, item.district, item.city].filter(Boolean).join(', ')
+  return [item.address, item.district, item.city].filter(Boolean).join(', ')
 }
 
 // The server sorts by isDefault first, keep a safe fallback for the UI

@@ -26,13 +26,12 @@ const AddressForm = ({ address, onSubmit }: AddressFormProps) => {
   const [submitError, setSubmitError] = useState('')
 
   const [formData, setFormData] = useState({
-    label: address?.label ?? '',
+    label: address?.label ?? user?.name ?? '',
     recipientName: address?.recipientName ?? '',
     phone: address?.phone ?? user?.phone ?? '',
     address: address?.address ?? '',
     city: address?.city ?? '',
     district: address?.district ?? '',
-    ward: address?.ward ?? '',
     isDefault: address?.isDefault ?? false,
   })
   const [errors, setErrors] = useState<FormErrors>({})
@@ -150,7 +149,6 @@ const AddressForm = ({ address, onSubmit }: AddressFormProps) => {
         recipientName: formData.recipientName.trim(),
         phone: formData.phone.replace(/\s/g, ''),
         address: formData.address.trim(),
-        ward: '',
         district: formData.district,
         city: formData.city,
         isDefault: formData.isDefault,

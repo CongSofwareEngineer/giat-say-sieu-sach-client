@@ -6,7 +6,6 @@ export type AddressItem = {
   recipientName: string
   phone: string
   address: string
-  ward: string
   district: string
   city: string
   isDefault: boolean
@@ -20,7 +19,6 @@ export type CreateAddressPayload = {
   recipientName: string
   phone: string
   address: string
-  ward: string
   district: string
   city: string
   isDefault?: boolean
