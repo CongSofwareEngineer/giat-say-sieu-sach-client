@@ -26,10 +26,7 @@ const AddressCard = ({ address, isSettingDefault = false, onEdit, onDelete, onSe
         <MapPinIcon className='mt-1 h-5 w-5 shrink-0 text-primary' />
         <div>
           <div className='flex flex-wrap items-center gap-2'>
-            <p className='font-medium text-text'>
-              {address.recipientName} · {address.phone}
-            </p>
-            {address.label && <MyBadge variant='info'>{address.label}</MyBadge>}
+            <p className='font-medium text-text'>{address.phone}</p>
             {address.isDefault && (
               <MyBadge variant='primary'>
                 <CheckBadgeIcon className='h-3 w-3 mr-1' />

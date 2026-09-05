@@ -6,7 +6,7 @@ import MyButton from '@/components/MyButton'
 import MyInput from '@/components/MyInput'
 import MySelect from '@/components/MySelect'
 import useLanguage from '@/hooks/useLanguage'
-import { PHONE_REGEX } from '@/constants/address'
+import { isValidVnPhone } from '@/utils/phone'
 import { AddressItem, CreateAddressPayload } from '@/services/address/type'
 import LocationService from '@/services/location'
 import { Province, District } from '@/services/location/type'
@@ -26,8 +26,6 @@ const AddressForm = ({ address, onSubmit }: AddressFormProps) => {
   const [submitError, setSubmitError] = useState('')
 
   const [formData, setFormData] = useState({
-    label: address?.label ?? user?.name ?? '',
-    recipientName: address?.recipientName ?? '',
     phone: address?.phone ?? user?.phone ?? '',
     address: address?.address ?? '',
     city: address?.city ?? '',
@@ -122,10 +120,8 @@ const AddressForm = ({ address, onSubmit }: AddressFormProps) => {
   const validate = (): boolean => {
     const newErrors: FormErrors = {}
 
-    if (!formData.label.trim()) newErrors.label = translate('profile.addresses.validation.labelRequired')
-    if (!formData.recipientName.trim()) newErrors.recipientName = translate('profile.addresses.validation.nameRequired')
     if (!formData.phone.trim()) newErrors.phone = translate('profile.addresses.validation.phoneRequired')
-    else if (!PHONE_REGEX.test(formData.phone.replace(/\s/g, ''))) newErrors.phone = translate('profile.addresses.validation.phoneInvalid')
+    else if (!isValidVnPhone(formData.phone)) newErrors.phone = translate('profile.addresses.validation.phoneInvalid')
     if (!formData.address.trim()) newErrors.address = translate('profile.addresses.validation.detailRequired')
     if (!formData.city) newErrors.city = translate('profile.addresses.validation.cityRequired')
     if (!formData.district) newErrors.district = translate('profile.addresses.validation.districtRequired')
@@ -145,8 +141,6 @@ const AddressForm = ({ address, onSubmit }: AddressFormProps) => {
 
     try {
       await onSubmit({
-        label: formData.label.trim(),
-        recipientName: formData.recipientName.trim(),
         phone: formData.phone.replace(/\s/g, ''),
         address: formData.address.trim(),
         district: formData.district,
@@ -162,24 +156,6 @@ const AddressForm = ({ address, onSubmit }: AddressFormProps) => {
 
   return (
     <form onSubmit={handleSubmit} className='w-full space-y-4'>
-      <MyInput
-        label={translate('profile.addresses.form.label')}
-        placeholder={translate('profile.addresses.form.labelPlaceholder')}
-        required
-        value={formData.label}
-        onChange={(e) => handleChange('label', e.target.value)}
-        error={errors.label}
-      />
-
-      <MyInput
-        label={translate('profile.addresses.form.name')}
-        placeholder={translate('profile.addresses.form.namePlaceholder')}
-        required
-        value={formData.recipientName}
-        onChange={(e) => handleChange('recipientName', e.target.value)}
-        error={errors.recipientName}
-      />
-
       <MyInput
         label={translate('profile.addresses.form.phone')}
         placeholder={translate('profile.addresses.form.phonePlaceholder')}

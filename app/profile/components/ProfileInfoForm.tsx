@@ -7,7 +7,7 @@ import MyCard, { MyCardBody, MyCardHeader } from '@/components/MyCard'
 import MyInput from '@/components/MyInput'
 import useLanguage from '@/hooks/useLanguage'
 import useUser from '@/hooks/useUser'
-import { PHONE_REGEX } from '@/constants/address'
+import { isValidVnPhone } from '@/utils/phone'
 
 type InfoErrors = { name?: string; phone?: string; email?: string }
 
@@ -32,7 +32,7 @@ const ProfileInfoForm = () => {
 
     if (!infoForm.name.trim()) newErrors.name = translate('common.required')
     if (!infoForm.phone.trim()) newErrors.phone = translate('booking.validation.phoneRequired')
-    else if (!PHONE_REGEX.test(infoForm.phone.replace(/\s/g, ''))) newErrors.phone = translate('booking.validation.phoneInvalid')
+    else if (!isValidVnPhone(infoForm.phone)) newErrors.phone = translate('booking.validation.phoneInvalid')
 
     setErrors(newErrors)
 

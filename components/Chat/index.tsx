@@ -164,8 +164,6 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
           addressId = matched.id
         } else {
           const newAddr = await AddressService.createAddress({
-            label: translate('chat.laundryForm.chatAddress'),
-            recipientName: laundryFormData.name,
             phone: laundryFormData.phone,
             address: laundryFormData.address,
             district: '',

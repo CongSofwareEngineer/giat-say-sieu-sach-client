@@ -90,7 +90,7 @@ const LaundryForm = ({ formData, addresses, plans, estimatedPrice, onChange, onS
               <option value=''>-- Chọn địa chỉ đã lưu --</option>
               {addresses.map((addr) => (
                 <option key={addr.id} value={addr.id}>
-                  {addr.label || 'Địa chỉ'} - {addr.recipientName} - {[addr.address, addr.district, addr.city].filter(Boolean).join(', ')}
+                  {[addr.address, addr.district, addr.city].filter(Boolean).join(', ')}
                 </option>
               ))}
             </select>

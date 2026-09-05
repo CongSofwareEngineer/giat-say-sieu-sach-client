@@ -37,7 +37,7 @@ const DeleteAddressConfirm = ({ address, onCancel, onConfirm }: DeleteAddressCon
     <div className='w-full'>
       <p className='mb-2 text-sm text-gray-600'>{translate('profile.addresses.deleteConfirm')}</p>
       <p className='mb-6 text-sm font-medium text-text'>
-        {address.recipientName} · {formatAddress(address)}
+        {address.phone} · {formatAddress(address)}
       </p>
       {deleteError && <p className='mb-4 text-sm text-red-600'>{deleteError}</p>}
       <div className='flex justify-end gap-3'>

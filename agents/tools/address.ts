@@ -24,12 +24,10 @@ export const getMyAddressesTool: AgentTool = {
           'agent.address.item',
           {
             index: i + 1,
-            label: a.label || translate('common.address', {}, 'Địa chỉ'),
             address: formatAddress(a),
-            name: a.recipientName,
             phone: a.phone,
           },
-          `${i + 1}. ${a.label || 'Địa chỉ'}: ${formatAddress(a)} (${a.recipientName}, ${a.phone})`
+          `${i + 1}. ${formatAddress(a)} (${a.phone})`
         )
       )
       .join('\n')

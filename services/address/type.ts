@@ -2,8 +2,6 @@
 export type AddressItem = {
   id: string
   userId?: string
-  label: string
-  recipientName: string
   phone: string
   address: string
   district: string
@@ -15,8 +13,6 @@ export type AddressItem = {
 
 // Mirrors CreateAddressDto of the server
 export type CreateAddressPayload = {
-  label: string
-  recipientName: string
   phone: string
   address: string
   district: string
