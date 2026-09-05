@@ -126,7 +126,7 @@ function MyDrawerItem({ index = 0, ...drawer }: MyDrawer & { index?: number }) {
             <div className='text-white'>✕</div>
           </button>
         </div>
-        <div className='h-full px-5 w-full overflow-y-auto overscroll-contain pt-15'>{drawer.children}</div>
+        <div className='h-full md:px-5 w-full overflow-y-auto overscroll-contain pt-15'>{drawer.children}</div>
       </aside>
     </>
   )
