@@ -1,5 +1,3 @@
-'use server'
-
 import AuthService from '@/services/auth'
 import { setCookie } from '@/utils/cookie'
 import { COOKIES_KEY } from '@/constants/cookies'
