@@ -93,15 +93,18 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: toJsonLd(organizationSchema()) }} type='application/ld+json' />
         <script dangerouslySetInnerHTML={{ __html: toJsonLd(webSiteSchema()) }} type='application/ld+json' />
         {IS_PRODUCTION && (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+          <>
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','${GG_TAG.gmt}');`,
-            }}
-          />
+              }}
+            />
+            <script src='https://www.google.com/recaptcha/enterprise.js?render=6LdaOI8tAAAAAJrN7Pp-nArg4nfj6G-ybRuYcJtz' />
+          </>
         )}
       </head>
       <body className='min-h-full flex flex-col bg-background text-text'>
