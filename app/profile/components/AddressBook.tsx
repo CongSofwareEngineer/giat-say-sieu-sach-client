@@ -15,9 +15,11 @@ import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
 import useGetListAddress from '@/hooks/reactQuery/useGetListAddress'
 import { AddressItem, CreateAddressPayload } from '@/services/address/type'
+import useUser from '@/hooks/useUser'
 
 const AddressBook = () => {
   const { translate } = useLanguage()
+  const { user } = useUser()
   const { open, close } = useModalDrawer()
   const { addresses, isLoading, isError, refetch, createAddress, updateAddress, deleteAddress, setDefaultAddress } = useGetListAddress()
 

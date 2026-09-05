@@ -10,6 +10,7 @@ import { PHONE_REGEX } from '@/constants/address'
 import { AddressItem, CreateAddressPayload } from '@/services/address/type'
 import LocationService from '@/services/location'
 import { Province, District } from '@/services/location/type'
+import useUser from '@/hooks/useUser'
 
 export type AddressFormProps = {
   address?: AddressItem
@@ -20,12 +21,14 @@ type FormErrors = Partial<Record<keyof CreateAddressPayload, string>>
 
 const AddressForm = ({ address, onSubmit }: AddressFormProps) => {
   const { translate } = useLanguage()
+  const { user } = useUser()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
+
   const [formData, setFormData] = useState({
     label: address?.label ?? '',
     recipientName: address?.recipientName ?? '',
-    phone: address?.phone ?? '',
+    phone: address?.phone ?? user?.phone ?? '',
     address: address?.address ?? '',
     city: address?.city ?? '',
     district: address?.district ?? '',
