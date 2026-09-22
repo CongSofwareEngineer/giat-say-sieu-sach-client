@@ -20,6 +20,10 @@ interface EnvironmentVariables {
   readonly NEXT_PUBLIC_FIREBASE_APP_ID?: string
   readonly NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID?: string
   readonly NEXT_PUBLIC_FIREBASE_VAPID_KEY?: string
+
+  // System One
+  readonly SYSTEM_ONE_API_URL: string
+  readonly SYSTEM_ONE_API_KEY: string
 }
 
 declare namespace NodeJS {
