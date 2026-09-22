@@ -12,7 +12,7 @@ export const runtime = 'nodejs'
 
 const MAX_BODY_BYTES = 1024 * 1024
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin')
 
   if (!isAllowedOrigin(origin)) {
