@@ -12,6 +12,7 @@ export type BlogPost = {
   publishedAt: string | null
   createdAt: string
   updatedAt: string
+  author?: string | null
 }
 
 class BlogApi extends BaseAPI {

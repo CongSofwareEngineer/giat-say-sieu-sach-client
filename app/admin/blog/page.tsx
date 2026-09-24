@@ -97,25 +97,23 @@ const AdminBlogPage = () => {
               }}
             />
             <MySelect
-              label={translate('blog.category')}
-              options={categories.map((c) => ({ value: c, label: c }))}
+              data={categories.map((c) => ({ value: c, label: c }))}
               value={categoryFilter}
-              onChange={(value) => {
-                setCategoryFilter(value)
+              onChange={(item) => {
+                setCategoryFilter(String(item.value ?? ''))
                 setCurrentPage(1)
               }}
               placeholder={translate('common.all')}
             />
             <MySelect
-              label={translate('common.status')}
-              options={[
+              data={[
                 { value: '', label: translate('common.all') },
                 { value: 'published', label: translate('admin.blog.published', {}, 'Đã xuất bản') },
                 { value: 'draft', label: translate('admin.blog.draft', {}, 'Nháp') },
               ]}
               value={statusFilter}
-              onChange={(value) => {
-                setStatusFilter(value)
+              onChange={(item) => {
+                setStatusFilter(String(item.value ?? ''))
                 setCurrentPage(1)
               }}
               placeholder={translate('common.all')}

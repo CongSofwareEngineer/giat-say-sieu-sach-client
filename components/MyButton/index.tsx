@@ -4,13 +4,14 @@ import { ButtonHTMLAttributes, ReactNode } from 'react'
 
 import { cn } from '@/utils/tailwind'
 
-export type MyButtonVariant = 'default' | 'primary' | 'warning' | 'error' | 'outline'
-export type MyButtonSize = 'default' | 'small' | 'large'
+export type MyButtonVariant = 'default' | 'primary' | 'warning' | 'error' | 'outline' | 'ghost'
+export type MyButtonSize = 'default' | 'small' | 'large' | 'sm'
 
 export type MyButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: MyButtonVariant
   size?: MyButtonSize
   loading?: boolean
+  isActive?: boolean
   children?: ReactNode
 }
 
@@ -20,22 +21,26 @@ const variantStyles: Record<MyButtonVariant, string> = {
   warning: 'bg-yellow-400 text-gray-900',
   error: 'bg-red-600 text-white',
   outline: 'bg-transparent border border-bright-cyan text-bright-cyan ',
+  ghost: 'bg-transparent text-text hover:bg-primary/10',
 }
 
 const sizeStyles: Record<MyButtonSize, string> = {
   default: 'px-4 py-2.5 text-sm',
   small: 'px-2 py-1 text-xs',
+  sm: 'px-2 py-1 text-sm',
   large: 'px-6 py-3 text-base',
 }
 
-export default function MyButton({ variant = 'default', size = 'default', loading = false, disabled, className, children, ...rest }: MyButtonProps) {
+export default function MyButton({ variant = 'default', size = 'default', loading = false, isActive = false, disabled, className, children, ...rest }: MyButtonProps) {
   return (
     <button
       disabled={disabled || loading}
+      aria-pressed={isActive || undefined}
       className={cn(
         'relative inline-flex cursor-pointer items-center justify-center rounded-full transition-[transform] duration-[250ms] disabled:cursor-not-allowed disabled:opacity-60',
         variantStyles[variant],
         sizeStyles[size],
+        isActive && 'bg-primary/20 text-primary ring-2 ring-primary/40',
         className
       )}
       {...rest}

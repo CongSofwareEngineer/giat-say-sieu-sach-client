@@ -17,6 +17,7 @@ type Post = {
   category: string
   title: string
   excerpt: string
+  content: string
   slug: string
   thumbnail: string
   createdAt: string

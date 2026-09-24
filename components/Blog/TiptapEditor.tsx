@@ -7,22 +7,22 @@ import Link from '@tiptap/extension-link'
 import Image from '@tiptap/extension-image'
 import Underline from '@tiptap/extension-underline'
 import TextAlign from '@tiptap/extension-text-align'
-import TextStyle from '@tiptap/extension-text-style'
+import { TextStyle } from '@tiptap/extension-text-style'
 import Color from '@tiptap/extension-color'
 import Highlight from '@tiptap/extension-highlight'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
-import Table from '@tiptap/extension-table'
+import { Table } from '@tiptap/extension-table'
 import TableRow from '@tiptap/extension-table-row'
 import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
 import Youtube from '@tiptap/extension-youtube'
 import { useState, useCallback } from 'react'
 import useLanguage from '@/hooks/useLanguage'
+import useModalDrawer from '@/hooks/useModalDrawer'
 import { cn } from '@/utils/tailwind'
 import MyButton from '@/components/MyButton'
 import MyInput from '@/components/MyInput'
-import MyModal from '@/components/MyModal'
 import MyImage from '@/components/MyImage'
 
 const extensions = [
@@ -56,10 +56,9 @@ type EditorProps = {
 
 export default function TiptapEditor({ value, onChange, placeholder, readOnly = false, className }: EditorProps) {
   const { translate } = useLanguage()
+  const { open, close } = useModalDrawer()
   const [imageUrl, setImageUrl] = useState('')
   const [videoUrl, setVideoUrl] = useState('')
-  const [showImageModal, setShowImageModal] = useState(false)
-  const [showVideoModal, setShowVideoModal] = useState(false)
 
   const editor = useEditor({
     extensions,
@@ -79,9 +78,9 @@ export default function TiptapEditor({ value, onChange, placeholder, readOnly = 
     if (imageUrl && editor) {
       editor.chain().focus().setImage({ src: imageUrl }).run()
       setImageUrl('')
-      setShowImageModal(false)
+      close()
     }
-  }, [editor, imageUrl])
+  }, [editor, imageUrl, close])
 
   const addVideo = useCallback(() => {
     if (videoUrl && editor) {
@@ -92,9 +91,69 @@ export default function TiptapEditor({ value, onChange, placeholder, readOnly = 
         editor.chain().focus().setYoutubeVideo({ src: videoUrl }).run()
       }
       setVideoUrl('')
-      setShowVideoModal(false)
+      close()
     }
-  }, [editor, videoUrl])
+  }, [editor, videoUrl, close])
+
+  // Open image insert modal via useModalDrawer
+  const openImageModal = () => {
+    open({
+      mode: 'modal',
+      title: translate('blog.editor.addImage', {}, 'Thêm hình ảnh'),
+      classNames: { container: 'max-w-md' },
+      children: (
+        <div className='space-y-4'>
+          <MyInput
+            label={translate('blog.editor.imageUrl', {}, 'URL hình ảnh')}
+            placeholder='https://example.com/image.jpg'
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+          />
+          {imageUrl && (
+            <div className='relative aspect-video rounded-lg overflow-hidden'>
+              <MyImage src={imageUrl} alt='Preview' fill className='object-cover' />
+            </div>
+          )}
+          <div className='flex justify-end gap-2'>
+            <MyButton variant='outline' onClick={close}>
+              {translate('common.cancel')}
+            </MyButton>
+            <MyButton variant='primary' onClick={addImage} disabled={!imageUrl}>
+              {translate('common.add')}
+            </MyButton>
+          </div>
+        </div>
+      ),
+    })
+  }
+
+  // Open video insert modal via useModalDrawer
+  const openVideoModal = () => {
+    open({
+      mode: 'modal',
+      title: translate('blog.editor.addVideo', {}, 'Thêm video (YouTube)'),
+      classNames: { container: 'max-w-md' },
+      children: (
+        <div className='space-y-4'>
+          <MyInput
+            label={translate('blog.editor.videoUrl', {}, 'URL video YouTube')}
+            placeholder='https://youtube.com/watch?v=...'
+            value={videoUrl}
+            onChange={(e) => setVideoUrl(e.target.value)}
+          />
+          <p className='text-sm text-gray-500'>{translate('blog.editor.videoHint', {}, 'Hỗ trợ link YouTube: youtube.com/watch?v=... hoặc youtu.be/...')}</p>
+          <div className='flex justify-end gap-2'>
+            <MyButton variant='outline' onClick={close}>
+              {translate('common.cancel')}
+            </MyButton>
+            <MyButton variant='primary' onClick={addVideo} disabled={!videoUrl}>
+              {translate('common.add')}
+            </MyButton>
+          </div>
+        </div>
+      ),
+    })
+  }
 
   if (!editor) {
     return <div className={cn('min-h-[300px] border border-border rounded-lg', className)}>Loading editor...</div>
@@ -281,7 +340,7 @@ export default function TiptapEditor({ value, onChange, placeholder, readOnly = 
           type='button'
           variant='ghost'
           size='sm'
-          onClick={() => setShowImageModal(true)}
+          onClick={openImageModal}
           disabled={readOnly}
           aria-label='Add image'
         >
@@ -291,7 +350,7 @@ export default function TiptapEditor({ value, onChange, placeholder, readOnly = 
           type='button'
           variant='ghost'
           size='sm'
-          onClick={() => setShowVideoModal(true)}
+          onClick={openVideoModal}
           disabled={readOnly}
           aria-label='Add video'
         >
@@ -323,7 +382,7 @@ export default function TiptapEditor({ value, onChange, placeholder, readOnly = 
           type='button'
           variant='ghost'
           size='sm'
-          onClick={() => editor.chain().focus().addTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+          onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
           disabled={readOnly}
           aria-label='Add table'
         >
@@ -332,64 +391,6 @@ export default function TiptapEditor({ value, onChange, placeholder, readOnly = 
       </div>
 
       <EditorContent editor={editor} className='p-4 min-h-[300px]' />
-
-      {showImageModal && (
-        <MyModal
-          isOpen={showImageModal}
-          onClose={() => setShowImageModal(false)}
-          title={translate('blog.editor.addImage', {}, 'Thêm hình ảnh')}
-          classNames={{ container: 'max-w-md' }}
-        >
-          <div className='space-y-4'>
-            <MyInput
-              label={translate('blog.editor.imageUrl', {}, 'URL hình ảnh')}
-              placeholder='https://example.com/image.jpg'
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-            />
-            {imageUrl && (
-              <div className='relative aspect-video rounded-lg overflow-hidden'>
-                <MyImage src={imageUrl} alt='Preview' fill className='object-cover' />
-              </div>
-            )}
-            <div className='flex justify-end gap-2'>
-              <MyButton variant='outline' onClick={() => setShowImageModal(false)}>
-                {translate('common.cancel')}
-              </MyButton>
-              <MyButton variant='primary' onClick={addImage} disabled={!imageUrl}>
-                {translate('common.add')}
-              </MyButton>
-            </div>
-          </div>
-        </MyModal>
-      )}
-
-      {showVideoModal && (
-        <MyModal
-          isOpen={showVideoModal}
-          onClose={() => setShowVideoModal(false)}
-          title={translate('blog.editor.addVideo', {}, 'Thêm video (YouTube)')}
-          classNames={{ container: 'max-w-md' }}
-        >
-          <div className='space-y-4'>
-            <MyInput
-              label={translate('blog.editor.videoUrl', {}, 'URL video YouTube')}
-              placeholder='https://youtube.com/watch?v=...'
-              value={videoUrl}
-              onChange={(e) => setVideoUrl(e.target.value)}
-            />
-            <p className='text-sm text-gray-500'>{translate('blog.editor.videoHint', {}, 'Hỗ trợ link YouTube: youtube.com/watch?v=... hoặc youtu.be/...')}</p>
-            <div className='flex justify-end gap-2'>
-              <MyButton variant='outline' onClick={() => setShowVideoModal(false)}>
-                {translate('common.cancel')}
-              </MyButton>
-              <MyButton variant='primary' onClick={addVideo} disabled={!videoUrl}>
-                {translate('common.add')}
-              </MyButton>
-            </div>
-          </div>
-        </MyModal>
-      )}
     </div>
   )
 }
