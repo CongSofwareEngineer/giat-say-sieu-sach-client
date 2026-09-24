@@ -1,101 +1,134 @@
 'use client'
 
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
 
-import MyCard, { MyCardBody } from '@/components/MyCard'
 import SeoJsonLd from '@/components/SeoJsonLd'
+import { EditIcon } from '@/components/Icons/Functions/Edit'
 import useLanguage from '@/hooks/useLanguage'
+import useUser from '@/hooks/useUser'
+import { useBlogPost } from '@/hooks/reactQuery/useBlog'
 import { articleSchema, breadcrumbSchema } from '@/config/seo'
-
-// Mock data
-const mockPost = {
-  id: 1,
-  title: 'Cách giặt đồ trắng đúng cách',
-  slug: 'cach-giat-do-trang-dung-cach',
-  thumbnail: '/thumbnail.png',
-  excerpt: 'Hướng dẫn chi tiết cách giặt đồ trắng đúng cách: phân loại vải, chọn nước giặt, nhiệt độ phù hợp và phơi đồ để luôn trắng sáng như mới.',
-  content: `
-    <p>Đồ trắng là items không thể thiếu trong tủ đồ của mỗi người. Tuy nhiên, việc giữ cho đồ trắng luôn sạch sẽ và mới mẻ không phải là điều dễ dàng. Dưới đây là hướng dẫn chi tiết cách giặt đồ trắng đúng cách.</p>
-    
-    <h2>1. Phân loại đồ trước khi giặt</h2>
-    <p>Trước khi giặt, bạn cần phân loại đồ trắng theo chất liệu vải và mức độ bẩn. Điều này giúp bạn chọn_program appropriate wash cycle and detergent.</p>
-    
-    <h2>2. Sử dụng nước giặt phù hợp</h2>
-    <p>Đối với đồ trắng, bạn nên sử dụng nước giặt có tính tẩy nhẹ để giữ cho đồ luôn trắng sáng. Tránh sử dụng nước giặt có màu vì có thể làm đồ bị ố vàng.</p>
-    
-    <h2>3. Nhiệt độ nước giặt</h2>
-    <p>Nhiệt độ nước giặt cũng rất quan trọng. Đối với đồ trắng, bạn nên giặt ở nhiệt độ 40-60 độ C để loại bỏ vết bẩn hiệu quả.</p>
-    
-    <h2>4. Phơi đồ đúng cách</h2>
-    <p>Sau khi giặt, bạn nên phơi đồ ở nơi có ánh sáng tự nhiên nhưng tránh ánh nắng trực tiếp quá lâu để đồ không bị khô cứng.</p>
-  `,
-  createdAt: '2024-01-15',
-  author: 'Admin',
-}
+import { formatDate } from '@/utils/date'
 
 const BlogDetailPage = () => {
+  const params = useParams()
+  const slug = params.slug as string
   const { translate } = useLanguage()
+  const { user, hasHydrated } = useUser()
+  const isAdmin = hasHydrated && user?.isAdmin
+
+  const { data: post, isLoading, error } = useBlogPost(slug)
+
+  if (isLoading) {
+    return (
+      <div className='py-12 px-4'>
+        <div className='max-w-3xl mx-auto animate-pulse'>
+          <div className='h-8 bg-gray-200 rounded w-3/4 mb-4' />
+          <div className='h-4 bg-gray-200 rounded w-1/2 mb-8' />
+          <div className='aspect-video bg-gray-200 rounded-2xl mb-8' />
+          <div className='space-y-4'>
+            <div className='h-4 bg-gray-200 rounded' />
+            <div className='h-4 bg-gray-200 rounded' />
+            <div className='h-4 bg-gray-200 rounded' />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !post) {
+    return (
+      <div className='py-12 px-4'>
+        <div className='max-w-3xl mx-auto text-center'>
+          <h1 className='text-2xl font-bold text-text mb-4'>{translate('blog.notFound', {}, 'Bài viết không tồn tại')}</h1>
+          <Link href='/blog' className='text-primary hover:underline'>
+            ← {translate('blog.backToList')}
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  const readTime = Math.ceil(post.content.replace(/<[^>]*>/g, '').length / 200 / 60) || 1
 
   return (
     <div className='py-12 px-4'>
       <SeoJsonLd
         data={articleSchema({
-          slug: mockPost.slug,
-          title: mockPost.title,
-          excerpt: mockPost.excerpt,
-          publishedTime: mockPost.createdAt,
+          slug: post.slug,
+          title: post.title,
+          excerpt: post.excerpt,
+          publishedTime: post.publishedAt || post.createdAt,
         })}
       />
       <SeoJsonLd
         data={breadcrumbSchema([
           { name: 'Trang chủ', path: '/' },
           { name: 'Blog', path: '/blog' },
-          { name: mockPost.title, path: `/blog/${mockPost.slug}` },
+          { name: post.title, path: `/blog/${post.slug}` },
         ])}
       />
       <div className='max-w-3xl mx-auto'>
-        <Link href='/blog' className='inline-flex items-center text-primary mb-6'>
-          ← {translate('blog.backToList')}
-        </Link>
+        <div className='flex items-center justify-between mb-6'>
+          <Link href='/blog' className='inline-flex items-center text-primary'>
+            ← {translate('blog.backToList')}
+          </Link>
+          {isAdmin && (
+            <Link
+              href={`/admin/blog/edit/${post.id}`}
+              className='inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors'
+            >
+              <EditIcon className='h-4 w-4' />
+              {translate('common.edit')}
+            </Link>
+          )}
+        </div>
 
         <article>
-          <h1 className='text-3xl font-bold text-text mb-4'>{mockPost.title}</h1>
+          <div className='mb-4'>
+            <span className='inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700'>{post.category}</span>
+            <span className='ml-2 text-sm text-gray-500'>{translate('blog.readTime', { minutes: readTime })}</span>
+          </div>
+
+          <h1 className='text-3xl font-bold text-text mb-4'>{post.title}</h1>
           <div className='flex items-center gap-4 text-sm text-gray-500 mb-6'>
-            <span>{mockPost.createdAt}</span>
+            <span>{formatDate(post.publishedAt || post.createdAt)}</span>
             <span>•</span>
-            <span>{mockPost.author}</span>
+            <span>{post.author || 'Admin'}</span>
           </div>
 
-          <div className='relative aspect-video mb-8 rounded-2xl overflow-hidden'>
-            <img src={mockPost.thumbnail} alt={mockPost.title} className='w-full h-full object-cover' />
-          </div>
+          {post.thumbnail && (
+            <div className='relative aspect-video mb-8 rounded-2xl overflow-hidden'>
+              <img src={post.thumbnail} alt={post.title} className='w-full h-full object-cover' />
+            </div>
+          )}
 
-          <div className='prose prose-lg max-w-none text-text' dangerouslySetInnerHTML={{ __html: mockPost.content }} />
+          <div className='prose prose-lg max-w-none text-text' dangerouslySetInnerHTML={{ __html: post.content }} />
         </article>
 
         <div className='mt-12 pt-8 border-t border-border'>
           <h2 className='text-xl font-bold text-text mb-4'>{translate('blog.share')}</h2>
           <div className='flex gap-3'>
-            <button className='px-5 py-3 bg-blue-500 text-white rounded-lg transition-colors'>Facebook</button>
-            <button className='px-5 py-3 bg-green-500 text-white rounded-lg transition-colors'>Zalo</button>
-          </div>
-        </div>
-
-        <div className='mt-12'>
-          <h2 className='text-xl font-bold text-text mb-4'>{translate('blog.relatedPosts')}</h2>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            <MyCard>
-              <MyCardBody>
-                <h3 className='font-semibold text-text mb-2'>Mẹo ủi đồ phẳng lì</h3>
-                <p className='text-sm text-gray-600'>Những mẹo nhỏ giúp bạn ủi đồ phẳng lì...</p>
-              </MyCardBody>
-            </MyCard>
-            <MyCard>
-              <MyCardBody>
-                <h3 className='font-semibold text-text mb-2'>Lựa chọn hóa chất giặt ủi an toàn</h3>
-                <p className='text-sm text-gray-600'>Tìm hiểu về các loại hóa chất giặt ủi...</p>
-              </MyCardBody>
-            </MyCard>
+            <button
+              onClick={() => {
+                if (navigator.share) {
+                  navigator.share({ title: post.title, url: window.location.href })
+                } else {
+                  navigator.clipboard.writeText(window.location.href)
+                  alert(translate('blog.copied', {}, 'Đã sao chép liên kết!'))
+                }
+              }}
+              className='px-5 py-3 bg-blue-500 text-white rounded-lg transition-colors'
+            >
+              Facebook
+            </button>
+            <button
+              onClick={() => navigator.clipboard.writeText(window.location.href)}
+              className='px-5 py-3 bg-green-500 text-white rounded-lg transition-colors'
+            >
+              Zalo
+            </button>
           </div>
         </div>
       </div>

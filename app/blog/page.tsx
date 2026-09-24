@@ -8,15 +8,18 @@ import MyEmpty from '@/components/MyEmpty'
 import MyImage from '@/components/MyImage'
 import SeoJsonLd from '@/components/SeoJsonLd'
 import useLanguage from '@/hooks/useLanguage'
+import { useBlogPosts } from '@/hooks/reactQuery/useBlog'
 import { blogSchema, breadcrumbSchema } from '@/config/seo'
 import { cn } from '@/utils/tailwind'
 
 type Post = {
+  id: string
   category: string
-  minutes: number
   title: string
   excerpt: string
   slug: string
+  thumbnail: string
+  createdAt: string
 }
 
 const categoryPalette = [
@@ -30,16 +33,19 @@ const BlogPage = () => {
   const { translate } = useLanguage()
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
 
-  const categories = (translate('blog.categories') || []) as string[]
-  const posts = (translate('blog.posts') || []) as Post[]
+  const { data: posts, isLoading, error } = useBlogPosts()
 
-  const filteredPosts = activeCategory ? posts.filter((post) => post.category === activeCategory) : posts
+  const categories = (translate('blog.categories') || []) as string[]
+
+  const filteredPosts = activeCategory ? (posts?.filter((post) => post.category === activeCategory) ?? []) : (posts ?? [])
 
   const categoryColor = (category: string) => {
     const index = categories.indexOf(category)
 
     return categoryPalette[Math.max(index, 0) % categoryPalette.length]
   }
+
+  const readTime = (content: string) => Math.ceil(content.replace(/<[^>]*>/g, '').length / 200 / 60) || 1
 
   return (
     <div className='py-16 lg:py-24'>
@@ -87,16 +93,32 @@ const BlogPage = () => {
         </div>
 
         {/* Posts */}
-        {filteredPosts.length === 0 ? (
+        {isLoading ? (
+          <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <MyCard key={i} className='animate-pulse'>
+                <div className='aspect-video bg-gray-200' />
+                <MyCardBody>
+                  <div className='h-4 bg-gray-200 rounded w-1/4 mb-4' />
+                  <div className='h-6 bg-gray-200 rounded w-3/4 mb-2' />
+                  <div className='h-4 bg-gray-200 rounded w-1/2' />
+                  <div className='h-4 bg-gray-200 rounded w-1/3 mt-2' />
+                </MyCardBody>
+              </MyCard>
+            ))}
+          </div>
+        ) : error ? (
+          <MyEmpty message={translate('common.error')} />
+        ) : filteredPosts.length === 0 ? (
           <MyEmpty message={translate('blog.noPosts')} />
         ) : (
           <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
-            {filteredPosts.map((post) => (
-              <Link key={post.slug} href={`/blog/${post.slug}`} className='group block h-full'>
+            {filteredPosts.map((post: Post) => (
+              <Link key={post.id} href={`/blog/${post.slug}`} className='group block h-full'>
                 <MyCard className='flex h-full flex-col overflow-hidden transition-transform duration-300 group-hover:-translate-y-1'>
                   <div className='relative aspect-video flex-shrink-0 overflow-hidden'>
                     <MyImage
-                      src='/thumbnail.png'
+                      src={post.thumbnail || '/thumbnail.png'}
                       alt={post.title}
                       fill
                       sizes='(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw'
@@ -106,7 +128,7 @@ const BlogPage = () => {
                   <MyCardBody className='flex flex-1 flex-col p-5 lg:p-6'>
                     <div className='flex items-center gap-3'>
                       <span className={cn('rounded-full px-3 py-1 text-xs font-bold', categoryColor(post.category))}>{post.category}</span>
-                      <span className='text-xs text-gray-500'>{translate('blog.readTime', { minutes: post.minutes })}</span>
+                      <span className='text-xs text-gray-500'>{translate('blog.readTime', { minutes: readTime(post.content) })}</span>
                     </div>
                     <h2 className='mt-4 line-clamp-2 text-lg font-bold leading-snug text-text transition-colors group-hover:text-primary'>
                       {post.title}

@@ -65,7 +65,8 @@
     "select": "Select",
     "notFound": "No results",
     "refresh": "Refresh",
-    "retry": "Try again"
+    "retry": "Try again",
+    "saving": "Saving..."
   },
   "menu": {
     "home": "Home",
@@ -396,62 +397,72 @@
       "CANCELLED": "Cancelled"
     }
   },
-  "blog": {
-    "title": "Blog & News",
-    "subtitle": "Laundry tips, clothing care and much more",
-    "all": "All",
-    "categories": ["Tips", "Knowledge", "Care", "Environment"],
-    "readTime": "{minutes} min read",
-    "readMore": "Read More",
-    "noPosts": "No posts yet",
-    "relatedPosts": "Related Posts",
-    "share": "Share",
-    "backToList": "Back to list",
-    "posts": [
-      {
-        "category": "Tips",
-        "minutes": 5,
-        "title": "10 Laundry Tips to Wash Clothes Properly and Keep Colors Fading",
-        "excerpt": "Washing clothes seems simple, but without the right know-how your clothes will fade quickly and get damaged. Let's find out the expert secrets.",
-        "slug": "10-meo-giat-quan-ao-dung-cach-de-ben-mau"
-      },
-      {
-        "category": "Knowledge",
-        "minutes": 7,
-        "title": "What Is Dry Cleaning? When Should You Use It?",
-        "excerpt": "Dry cleaning is not washing without water. It's a specialized process for premium fabrics. Find out more!",
-        "slug": "giat-kho-la-gi-khi-nao-nen-dung"
-      },
-      {
-        "category": "Care",
-        "minutes": 6,
-        "title": "How to Properly Care for Suits and Blazers",
-        "excerpt": "Suits are expensive items that need careful maintenance. This article will guide you on how to wash, iron and store suits to keep them like new.",
-        "slug": "cach-bao-quan-ao-vest-va-comple"
-      },
-      {
-        "category": "Tips",
-        "minutes": 4,
-        "title": "5 Signs Your Washing Machine Is About to Break",
-        "excerpt": "Washing machines also show warning signs before fully breaking down. Detecting them early saves you from costly repairs.",
-        "slug": "5-dau-hieu-may-giat-cua-ban-dang-bi-hong"
-      },
-      {
-        "category": "Environment",
-        "minutes": 5,
-        "title": "Water-Saving Laundry: Green Habits for Your Family",
-        "excerpt": "A few small changes in your washing habits can save thousands of liters of water every year. Find out how!",
-        "slug": "giat-giu-tiet-kiem-nuoc-thoi-quen-xanh"
-      },
-      {
-        "category": "Knowledge",
-        "minutes": 8,
-        "title": "Decoding the Washing Symbols on Your Clothes",
-        "excerpt": "Those tiny symbols on clothing labels are actually your guide to protecting your garments. Let's decode them together.",
-        "slug": "giai-ma-cac-ky-hieu-giat-la-tren-quan-ao"
+"blog": {
+      "title": "Blog & News",
+      "subtitle": "Laundry tips, clothing care and much more",
+      "all": "All",
+      "categories": ["Tips", "Knowledge", "Care", "Environment"],
+      "readTime": "{minutes} min read",
+      "readMore": "Read More",
+      "noPosts": "No posts yet",
+      "relatedPosts": "Related Posts",
+      "share": "Share",
+      "backToList": "Back to list",
+      "copied": "Link copied!",
+      "notFound": "Post not found",
+      "posts": [
+        {
+          "category": "Tips",
+          "minutes": 5,
+          "title": "10 Laundry Tips to Wash Clothes Properly and Keep Colors Fading",
+          "excerpt": "Washing clothes seems simple, but without the right know-how your clothes will fade quickly and get damaged. Let's find out the expert secrets.",
+          "slug": "10-meo-giat-quan-ao-dung-cach-de-ben-mau"
+        },
+        {
+          "category": "Knowledge",
+          "minutes": 7,
+          "title": "What Is Dry Cleaning? When Should You Use It?",
+          "excerpt": "Dry cleaning is not washing without water. It's a specialized process for premium fabrics. Find out more!",
+          "slug": "giat-kho-la-gi-khi-nao-nen-dung"
+        },
+        {
+          "category": "Care",
+          "minutes": 6,
+          "title": "How to Properly Care for Suits and Blazers",
+          "excerpt": "Suits are expensive items that need careful maintenance. This article will guide you on how to wash, iron and store suits to keep them like new.",
+          "slug": "cach-bao-quan-ao-vest-va-comple"
+        },
+        {
+          "category": "Tips",
+          "minutes": 4,
+          "title": "5 Signs Your Washing Machine Is About to Break",
+          "excerpt": "Washing machines also show warning signs before fully breaking down. Detecting them early saves you from costly repairs.",
+          "slug": "5-dau-hieu-may-giat-cua-ban-dang-bi-hong"
+        },
+        {
+          "category": "Environment",
+          "minutes": 5,
+          "title": "Water-Saving Laundry: Green Habits for Your Family",
+          "excerpt": "A few small changes in your washing habits can save thousands of liters of water every year. Find out how!",
+          "slug": "giat-giu-tiet-kiem-nuoc-thoi-quen-xanh"
+        },
+        {
+          "category": "Knowledge",
+          "minutes": 8,
+          "title": "Decoding the Washing Symbols on Your Clothes",
+          "excerpt": "Those tiny symbols on clothing labels are actually your guide to protecting your garments. Let's decode them together.",
+          "slug": "giai-ma-cac-ky-hieu-giat-la-tren-quan-ao"
+        }
+      ],
+      "editor": {
+        "placeholder": "Write your blog content...",
+        "addImage": "Add Image",
+        "addVideo": "Add Video (YouTube)",
+        "imageUrl": "Image URL",
+        "videoUrl": "YouTube Video URL",
+        "videoHint": "Supports YouTube links: youtube.com/watch?v=... or youtu.be/..."
       }
-    ]
-  },
+    },
   "about": {
     "tag": "About us",
     "title": "Our Story",
@@ -774,14 +785,20 @@
       "createdAt": "Created At",
       "filterByRole": "Filter by role"
     },
-    "blog": {
-      "title": "Blog Management",
-      "list": "Post List",
-      "create": "Add Post",
-      "edit": "Edit Post",
-      "delete": "Delete Post",
-      "deleteConfirm": "Are you sure you want to delete this post?"
-    },
+"blog": {
+        "title": "Blog Management",
+        "list": "Post List",
+        "create": "Add Post",
+        "edit": "Edit Post",
+        "delete": "Delete Post",
+        "deleteConfirm": "Are you sure you want to delete this post?",
+        "created": "Post added successfully",
+        "updated": "Post updated successfully",
+        "deleted": "Post deleted successfully",
+        "published": "Published",
+        "draft": "Draft",
+        "publish": "Publish now"
+      },
     "banner": {
       "title": "Banner Management",
       "list": "Banner List",

@@ -65,7 +65,8 @@
     "select": "Chọn",
     "notFound": "Không tìm thấy",
     "refresh": "Làm mới",
-    "retry": "Thử lại"
+    "retry": "Thử lại",
+    "saving": "Đang lưu..."
   },
   "menu": {
     "home": "Trang chủ",
@@ -396,62 +397,72 @@
       "CANCELLED": "Đã hủy"
     }
   },
-  "blog": {
-    "title": "Blog & Tin Tức",
-    "subtitle": "Mẹo giặt giũ, chăm sóc quần áo và nhiều hơn nữa",
-    "all": "Tất cả",
-    "categories": ["Mẹo hay", "Kiến thức", "Bảo quản", "Môi trường"],
-    "readTime": "{minutes} phút đọc",
-    "readMore": "Đọc thêm",
-    "noPosts": "Chưa có bài viết nào",
-    "relatedPosts": "Bài viết liên quan",
-    "share": "Chia sẻ",
-    "backToList": "Quay lại danh sách",
-    "posts": [
-      {
-        "category": "Mẹo hay",
-        "minutes": 5,
-        "title": "10 Mẹo Giặt Quần Áo Đúng Cách Để Bền Màu",
-        "excerpt": "Giặt quần áo tưởng chừng đơn giản nhưng nếu không biết cách, quần áo của bạn sẽ nhanh phai màu và hỏng vải. Hãy cùng tìm hiểu những bí quyết từ chuyên gia.",
-        "slug": "10-meo-giat-quan-ao-dung-cach-de-ben-mau"
-      },
-      {
-        "category": "Kiến thức",
-        "minutes": 7,
-        "title": "Giặt Khô Là Gì? Khi Nào Nên Dùng Dịch Vụ Giặt Khô?",
-        "excerpt": "Giặt khô không phải là giặt bằng... không có nước. Đây là quy trình xử lý chuyên biệt cho các loại vải cao cấp. Tìm hiểu ngay!",
-        "slug": "giat-kho-la-gi-khi-nao-nen-dung"
-      },
-      {
-        "category": "Bảo quản",
-        "minutes": 6,
-        "title": "Cách Bảo Quản Áo Vest và Comple Đúng Cách",
-        "excerpt": "Áo vest là item đắt tiền cần được bảo quản kỹ. Bài viết này sẽ hướng dẫn bạn cách giặt, ủi và cất giữ áo vest để luôn như mới.",
-        "slug": "cach-bao-quan-ao-vest-va-comple"
-      },
-      {
-        "category": "Mẹo hay",
-        "minutes": 4,
-        "title": "5 Dấu Hiệu Cho Thấy Máy Giặt Của Bạn Đang Bị Hỏng",
-        "excerpt": "Máy giặt cũng có những dấu hiệu cảnh báo trước khi hỏng hẳn. Nếu nhận biết sớm, bạn sẽ tránh được những sự cố tốn kém.",
-        "slug": "5-dau-hieu-may-giat-cua-ban-dang-bi-hong"
-      },
-      {
-        "category": "Môi trường",
-        "minutes": 5,
-        "title": "Giặt Giũ Tiết Kiệm Nước: Thói Quen Xanh Cho Gia Đình",
-        "excerpt": "Một vài thay đổi nhỏ trong thói quen giặt giũ có thể giúp bạn tiết kiệm hàng nghìn lít nước mỗi năm. Tìm hiểu ngay!",
-        "slug": "giat-giu-tiet-kiem-nuoc-thoi-quen-xanh"
-      },
-      {
-        "category": "Kiến thức",
-        "minutes": 8,
-        "title": "Giải Mã Các Ký Hiệu Giặt Là Trên Quần Áo",
-        "excerpt": "Những ký hiệu nhỏ xíu trên nhãn mác quần áo thực ra là 'kim chỉ nam' giúp bạn bảo vệ trang phục. Hãy cùng giải mã chúng.",
-        "slug": "giai-ma-cac-ky-hieu-giat-la-tren-quan-ao"
+"blog": {
+      "title": "Blog & Tin Tức",
+      "subtitle": "Mẹo giặt giũ, chăm sóc quần áo và nhiều hơn nữa",
+      "all": "Tất cả",
+      "categories": ["Mẹo hay", "Kiến thức", "Bảo quản", "Môi trường"],
+      "readTime": "{minutes} phút đọc",
+      "readMore": "Đọc thêm",
+      "noPosts": "Chưa có bài viết nào",
+      "relatedPosts": "Bài viết liên quan",
+      "share": "Chia sẻ",
+      "backToList": "Quay lại danh sách",
+      "copied": "Đã sao chép liên kết!",
+      "notFound": "Bài viết không tồn tại",
+      "posts": [
+        {
+          "category": "Mẹo hay",
+          "minutes": 5,
+          "title": "10 Mẹo Giặt Quần Áo Đúng Cách Để Bền Màu",
+          "excerpt": "Giặt quần áo tưởng chừng đơn giản nhưng nếu không biết cách, quần áo của bạn sẽ nhanh phai màu và hỏng vải. Hãy cùng tìm hiểu những bí quyết từ chuyên gia.",
+          "slug": "10-meo-giat-quan-ao-dung-cach-de-ben-mau"
+        },
+        {
+          "category": "Kiến thức",
+          "minutes": 7,
+          "title": "Giặt Khô Là Gì? Khi Nào Nên Dùng Dịch Vụ Giặt Khô?",
+          "excerpt": "Giặt khô không phải là giặt bằng... không có nước. Đây là quy trình xử lý chuyên biệt cho các loại vải cao cấp. Tìm hiểu ngay!",
+          "slug": "giat-kho-la-gi-khi-nao-nen-dung"
+        },
+        {
+          "category": "Bảo quản",
+          "minutes": 6,
+          "title": "Cách Bảo Quản Áo Vest và Comple Đúng Cách",
+          "excerpt": "Áo vest là item đắt tiền cần được bảo quản kỹ. Bài viết này sẽ hướng dẫn bạn cách giặt, ủi và cất giữ áo vest để luôn như mới.",
+          "slug": "cach-bao-quan-ao-vest-va-comple"
+        },
+        {
+          "category": "Mẹo hay",
+          "minutes": 4,
+          "title": "5 Dấu Hiệu Cho Thấy Máy Giặt Của Bạn Đang Bị Hỏng",
+          "excerpt": "Máy giặt cũng có những dấu hiệu cảnh báo trước khi hỏng hẳn. Nếu nhận biết sớm, bạn sẽ tránh được những sự cố tốn kém.",
+          "slug": "5-dau-hieu-may-giat-cua-ban-dang-bi-hong"
+        },
+        {
+          "category": "Môi trường",
+          "minutes": 5,
+          "title": "Giặt Giũ Tiết Kiệm Nước: Thói Quen Xanh Cho Gia Đình",
+          "excerpt": "Một vài thay đổi nhỏ trong thói quen giặt giũ có thể giúp bạn tiết kiệm hàng nghìn lít nước mỗi năm. Tìm hiểu ngay!",
+          "slug": "giat-giu-tiet-kiem-nuoc-thoi-quen-xanh"
+        },
+        {
+          "category": "Kiến thức",
+          "minutes": 8,
+          "title": "Giải Mã Các Ký Hiệu Giặt Là Trên Quần Áo",
+          "excerpt": "Những ký hiệu nhỏ xíu trên nhãn mác quần áo thực ra là 'kim chỉ nam' giúp bạn bảo vệ trang phục. Hãy cùng giải mã chúng.",
+          "slug": "giai-ma-cac-ky-hieu-giat-la-tren-quan-ao"
+        }
+      ],
+      "editor": {
+        "placeholder": "Viết nội dung bài viết...",
+        "addImage": "Thêm hình ảnh",
+        "addVideo": "Thêm video (YouTube)",
+        "imageUrl": "URL hình ảnh",
+        "videoUrl": "URL video YouTube",
+        "videoHint": "Hỗ trợ link YouTube: youtube.com/watch?v=... hoặc youtu.be/..."
       }
-    ]
-  },
+    },
   "about": {
     "tag": "Về chúng tôi",
     "title": "Câu Chuyện Của Chúng Tôi",
@@ -780,7 +791,13 @@
       "create": "Thêm bài viết",
       "edit": "Sửa bài viết",
       "delete": "Xóa bài viết",
-      "deleteConfirm": "Bạn có chắc chắn muốn xóa bài viết này?"
+      "deleteConfirm": "Bạn có chắc chắn muốn xóa bài viết này?",
+      "created": "Thêm bài viết thành công",
+      "updated": "Cập nhật bài viết thành công",
+      "deleted": "Xóa bài viết thành công",
+      "published": "Đã xuất bản",
+      "draft": "Nháp",
+      "publish": "Xuất bản ngay"
     },
     "banner": {
       "title": "Quản lý banner",
