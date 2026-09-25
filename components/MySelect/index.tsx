@@ -12,27 +12,35 @@ export type MySelectItem = {
 export type MySelectProps = {
   data: MySelectItem[]
   value?: string | number
+  label?: string
   placeholder?: string
+  error?: string
   className?: string
   style?: React.CSSProperties
   search?: boolean
   disabled?: boolean
+  autoFocus?: boolean
   onSearch?: (keyword: string) => void
   onChange?: (item: MySelectItem) => void
   onClick?: () => void
+  onBlur?: () => void
 }
 
 export default function MySelect({
   data,
   value,
+  label,
   placeholder,
+  error,
   className,
   style,
   search = true,
   disabled = false,
+  autoFocus = false,
   onSearch,
   onChange,
   onClick,
+  onBlur,
 }: MySelectProps) {
   const { translate } = useLanguage()
   const [open, setOpen] = useState(false)
@@ -44,13 +52,14 @@ export default function MySelect({
     const handleClickOutside = (e: MouseEvent) => {
       if (!wrapperRef.current?.contains(e.target as Node)) {
         setOpen(false)
+        onBlur?.()
       }
     }
 
     document.addEventListener('mousedown', handleClickOutside)
 
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+  }, [onBlur])
 
   const selected = useMemo(() => {
     return data.find((x) => x.value === value) ?? null
@@ -84,6 +93,7 @@ export default function MySelect({
         type='button'
         onClick={handleToggle}
         disabled={disabled}
+        autoFocus={autoFocus}
         className='cursor-pointer flex w-full items-center justify-between rounded-lg border bg-white px-4 py-2 disabled:cursor-not-allowed disabled:opacity-60'
       >
         <span>{selected?.label ?? placeholder ?? translate('common.select')}</span>
