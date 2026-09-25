@@ -16,8 +16,11 @@ import { Table } from '@tiptap/extension-table'
 import TableRow from '@tiptap/extension-table-row'
 import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
+import HorizontalRule from '@tiptap/extension-horizontal-rule'
 import Youtube from '@tiptap/extension-youtube'
-import { useState, useCallback } from 'react'
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
+import { createLowlight } from 'lowlight'
+import { useCallback, useState } from 'react'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
 import { cn } from '@/utils/tailwind'
@@ -25,17 +28,30 @@ import MyButton from '@/components/MyButton'
 import MyInput from '@/components/MyInput'
 import MyImage from '@/components/MyImage'
 
+// Syntax highlighting languages
+import html from 'highlight.js/lib/languages/xml'
+import js from 'highlight.js/lib/languages/javascript'
+import ts from 'highlight.js/lib/languages/typescript'
+import css from 'highlight.js/lib/languages/css'
+
+const lowlight = createLowlight()
+lowlight.register('html', html)
+lowlight.register('js', js)
+lowlight.register('ts', ts)
+lowlight.register('css', css)
+
 const extensions = [
   StarterKit.configure({
-    heading: { levels: [1, 2, 3] },
+    heading: { levels: [1, 2, 3, 4, 5, 6] },
+    codeBlock: false,
   }),
-  Placeholder.configure({ placeholder: '' }),
+  Placeholder.configure({ placeholder: 'Write something...' }),
   Link.configure({ openOnClick: false, HTMLAttributes: { class: 'text-primary underline' } }),
-  Image.configure({ HTMLAttributes: { class: 'rounded-lg max-w-full' } }),
+  Image.configure({ HTMLAttributes: { class: 'rounded-lg max-w-full my-4' } }),
   Underline,
   TextAlign.configure({ types: ['heading', 'paragraph'] }),
   TextStyle,
-  Color,
+  Color.configure({ types: ['textStyle'] }),
   Highlight.configure({ multicolor: true }),
   TaskList,
   TaskItem.configure({ nested: true }),
@@ -43,7 +59,14 @@ const extensions = [
   TableRow,
   TableCell,
   TableHeader,
+  HorizontalRule,
   Youtube,
+  CodeBlockLowlight.configure({
+    lowlight,
+    HTMLAttributes: {
+      class: 'bg-gray-100 dark:bg-gray-800 rounded-lg p-4 my-2 overflow-x-auto',
+    },
+  }),
 ]
 
 type EditorProps = {
@@ -54,11 +77,67 @@ type EditorProps = {
   className?: string
 }
 
+// Toolbar Button Component - matches Tiptap UI Components style
+type ToolbarButtonProps = {
+  onClick: () => void
+  isActive?: boolean
+  disabled?: boolean
+  ariaLabel: string
+  title?: string
+  children: React.ReactNode
+}
+
+function ToolbarButton({ onClick, isActive, disabled, ariaLabel, title, children }: ToolbarButtonProps) {
+  return (
+    <button
+      type='button'
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={ariaLabel}
+      title={title}
+      className={cn(
+        'h-8 w-8 rounded-md flex items-center justify-center text-sm font-medium transition-colors',
+        'hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed',
+        isActive ? 'bg-gray-200 dark:bg-gray-600' : 'bg-transparent',
+        'text-gray-700 dark:text-gray-200'
+      )}
+    >
+      {children}
+    </button>
+  )
+}
+
+// Heading Button Component
+function HeadingButton({ level, isActive, onClick, disabled }: { level: number; isActive: boolean; onClick: () => void; disabled: boolean }) {
+  return (
+    <button
+      type='button'
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={`Heading ${level}`}
+      className={cn(
+        'h-8 px-2 rounded-md text-sm font-medium transition-colors',
+        'hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed',
+        isActive ? 'bg-gray-200 dark:bg-gray-600' : 'bg-transparent',
+        'text-gray-700 dark:text-gray-200'
+      )}
+    >
+      H{level}
+    </button>
+  )
+}
+
+// Separator Component
+function Separator() {
+  return <div className='w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1' />
+}
+
 export default function TiptapEditor({ value, onChange, placeholder, readOnly = false, className }: EditorProps) {
   const { translate } = useLanguage()
   const { open, close } = useModalDrawer()
   const [imageUrl, setImageUrl] = useState('')
   const [videoUrl, setVideoUrl] = useState('')
+  const [linkUrl, setLinkUrl] = useState('')
 
   const editor = useEditor({
     extensions,
@@ -69,7 +148,7 @@ export default function TiptapEditor({ value, onChange, placeholder, readOnly = 
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-lg max-w-none focus:outline-none min-h-[300px] p-4',
+        class: 'prose dark:prose-invert max-w-none focus:outline-none p-4 prose-headings:mb-2 prose-headings:mt-4 prose-p:my-2 prose-li:my-1 prose-img:my-4 prose-blockquote:my-4 prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-code:before:content-none prose-code:after:content-none prose-pre:my-2 prose-table:my-4',
       },
     },
   })
@@ -95,7 +174,19 @@ export default function TiptapEditor({ value, onChange, placeholder, readOnly = 
     }
   }, [editor, videoUrl, close])
 
-  // Open image insert modal via useModalDrawer
+  const addLink = useCallback(() => {
+    if (linkUrl && editor) {
+      editor
+        .chain()
+        .focus()
+        .extendMarkRange('link')
+        .setLink({ href: linkUrl })
+        .run()
+      setLinkUrl('')
+      close()
+    }
+  }, [editor, linkUrl, close])
+
   const openImageModal = () => {
     open({
       mode: 'modal',
@@ -127,7 +218,6 @@ export default function TiptapEditor({ value, onChange, placeholder, readOnly = 
     })
   }
 
-  // Open video insert modal via useModalDrawer
   const openVideoModal = () => {
     open({
       mode: 'modal',
@@ -155,242 +245,317 @@ export default function TiptapEditor({ value, onChange, placeholder, readOnly = 
     })
   }
 
+  const openLinkModal = () => {
+    open({
+      mode: 'modal',
+      title: translate('blog.editor.addLink', {}, 'Thêm liên kết'),
+      classNames: { container: 'max-w-md' },
+      children: (
+        <div className='space-y-4'>
+          <MyInput
+            label={translate('blog.editor.linkUrl', {}, 'URL liên kết')}
+            placeholder='https://example.com'
+            value={linkUrl}
+            onChange={(e) => setLinkUrl(e.target.value)}
+          />
+          <div className='flex justify-end gap-2'>
+            <MyButton variant='outline' onClick={close}>
+              {translate('common.cancel')}
+            </MyButton>
+            <MyButton variant='primary' onClick={addLink} disabled={!linkUrl}>
+              {translate('common.add')}
+            </MyButton>
+          </div>
+        </div>
+      ),
+    })
+  }
+
   if (!editor) {
     return <div className={cn('min-h-[300px] border border-border rounded-lg', className)}>Loading editor...</div>
   }
 
   return (
-    <div className={cn('border border-border rounded-lg overflow-hidden', className)}>
-      <div className='flex flex-wrap gap-2 p-2 border-b border-border bg-gray-50'>
-        <MyButton
-          type='button'
-          variant='ghost'
-          size='sm'
+    <div className={cn('border border-border rounded-lg overflow-hidden bg-white dark:bg-gray-900 shadow-sm', className)}>
+      {/* Toolbar - Based on Simple Editor template from Tiptap UI Components docs */}
+      <div className='flex flex-wrap items-center gap-1 p-2 border-b border-border bg-gray-50 dark:bg-gray-800'>
+        {/* Undo/Redo */}
+        <ToolbarButton
+          onClick={() => editor.chain().focus().undo().run()}
+          disabled={readOnly || !editor.can().undo()}
+          isActive={false}
+          ariaLabel='Undo'
+          title='Undo (Ctrl+Z)'
+        >
+          ⬅️
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().redo().run()}
+          disabled={readOnly || !editor.can().redo()}
+          isActive={false}
+          ariaLabel='Redo'
+          title='Redo (Ctrl+Y)'
+        >
+          ➡️
+        </ToolbarButton>
+
+        <Separator />
+
+        {/* Headings */}
+        <HeadingButton
+          level={1}
+          isActive={editor.isActive('heading', { level: 1 })}
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
           disabled={readOnly}
-          aria-label='Heading 1'
-        >
-          H1
-        </MyButton>
-        <MyButton
-          type='button'
-          variant='ghost'
-          size='sm'
+        />
+        <HeadingButton
+          level={2}
+          isActive={editor.isActive('heading', { level: 2 })}
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
           disabled={readOnly}
-          aria-label='Heading 2'
-        >
-          H2
-        </MyButton>
-        <MyButton
-          type='button'
-          variant='ghost'
-          size='sm'
+        />
+        <HeadingButton
+          level={3}
+          isActive={editor.isActive('heading', { level: 3 })}
           onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
           disabled={readOnly}
-          aria-label='Heading 3'
-        >
-          H3
-        </MyButton>
+        />
+        <HeadingButton
+          level={4}
+          isActive={editor.isActive('heading', { level: 4 })}
+          onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
+          disabled={readOnly}
+        />
+        <HeadingButton
+          level={5}
+          isActive={editor.isActive('heading', { level: 5 })}
+          onClick={() => editor.chain().focus().toggleHeading({ level: 5 }).run()}
+          disabled={readOnly}
+        />
+        <HeadingButton
+          level={6}
+          isActive={editor.isActive('heading', { level: 6 })}
+          onClick={() => editor.chain().focus().toggleHeading({ level: 6 }).run()}
+          disabled={readOnly}
+        />
 
-        <div className='w-px h-6 bg-border mx-1' />
+        <Separator />
 
-        <MyButton
-          type='button'
-          variant='ghost'
-          size='sm'
+        {/* Text formatting */}
+        <ToolbarButton
           onClick={() => editor.chain().focus().toggleBold().run()}
-          disabled={readOnly}
           isActive={editor.isActive('bold')}
-          aria-label='Bold'
+          disabled={readOnly}
+          ariaLabel='Bold'
+          title='Bold (Ctrl+B)'
         >
-          <strong>B</strong>
-        </MyButton>
-        <MyButton
-          type='button'
-          variant='ghost'
-          size='sm'
+          B
+        </ToolbarButton>
+        <ToolbarButton
           onClick={() => editor.chain().focus().toggleItalic().run()}
-          disabled={readOnly}
           isActive={editor.isActive('italic')}
-          aria-label='Italic'
-        >
-          <em>I</em>
-        </MyButton>
-        <MyButton
-          type='button'
-          variant='ghost'
-          size='sm'
-          onClick={() => editor.chain().focus().toggleStrike().run()}
           disabled={readOnly}
-          isActive={editor.isActive('strike')}
-          aria-label='Strikethrough'
+          ariaLabel='Italic'
+          title='Italic (Ctrl+I)'
         >
-          <s>S</s>
-        </MyButton>
-        <MyButton
-          type='button'
-          variant='ghost'
-          size='sm'
+          I
+        </ToolbarButton>
+        <ToolbarButton
           onClick={() => editor.chain().focus().toggleUnderline().run()}
-          disabled={readOnly}
           isActive={editor.isActive('underline')}
-          aria-label='Underline'
-        >
-          <u>U</u>
-        </MyButton>
-        <MyButton
-          type='button'
-          variant='ghost'
-          size='sm'
-          onClick={() => editor.chain().focus().toggleHighlight().run()}
           disabled={readOnly}
-          isActive={editor.isActive('highlight')}
-          aria-label='Highlight'
+          ariaLabel='Underline'
+          title='Underline (Ctrl+U)'
         >
-          🖍️
-        </MyButton>
+          U
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleStrike().run()}
+          isActive={editor.isActive('strike')}
+          disabled={readOnly}
+          ariaLabel='Strikethrough'
+          title='Strikethrough'
+        >
+          S
+        </ToolbarButton>
 
-        <div className='w-px h-6 bg-border mx-1' />
+        <Separator />
 
-        <MyButton
-          type='button'
-          variant='ghost'
-          size='sm'
+        {/* Lists */}
+        <ToolbarButton
           onClick={() => editor.chain().focus().toggleBulletList().run()}
-          disabled={readOnly}
           isActive={editor.isActive('bulletList')}
-          aria-label='Bullet list'
+          disabled={readOnly}
+          ariaLabel='Bullet list'
+          title='Bullet List'
         >
-          • List
-        </MyButton>
-        <MyButton
-          type='button'
-          variant='ghost'
-          size='sm'
+          •
+        </ToolbarButton>
+        <ToolbarButton
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          disabled={readOnly}
           isActive={editor.isActive('orderedList')}
-          aria-label='Ordered list'
+          disabled={readOnly}
+          ariaLabel='Ordered list'
+          title='Ordered List'
         >
-          1. List
-        </MyButton>
-        <MyButton
-          type='button'
-          variant='ghost'
-          size='sm'
+          1.
+        </ToolbarButton>
+        <ToolbarButton
           onClick={() => editor.chain().focus().toggleTaskList().run()}
-          disabled={readOnly}
           isActive={editor.isActive('taskList')}
-          aria-label='Task list'
-        >
-          ☐ Task
-        </MyButton>
-
-        <div className='w-px h-6 bg-border mx-1' />
-
-        <MyButton
-          type='button'
-          variant='ghost'
-          size='sm'
-          onClick={() => editor.chain().focus().setTextAlign('left').run()}
           disabled={readOnly}
+          ariaLabel='Task list'
+          title='Task List'
+        >
+          ☐
+        </ToolbarButton>
+
+        <Separator />
+
+        {/* Blockquote */}
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleBlockquote().run()}
+          isActive={editor.isActive('blockquote')}
+          disabled={readOnly}
+          ariaLabel='Blockquote'
+          title='Blockquote'
+        >
+          "
+        </ToolbarButton>
+
+        {/* Code Block */}
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+          isActive={editor.isActive('codeBlock')}
+          disabled={readOnly}
+          ariaLabel='Code block'
+          title='Code Block'
+        >
+          {'{ }'}
+        </ToolbarButton>
+
+        <Separator />
+
+        {/* Alignment */}
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign('left').run()}
           isActive={editor.isActive({ textAlign: 'left' })}
-          aria-label='Align left'
+          disabled={readOnly}
+          ariaLabel='Align left'
+          title='Align Left'
         >
           ⬛
-        </MyButton>
-        <MyButton
-          type='button'
-          variant='ghost'
-          size='sm'
+        </ToolbarButton>
+        <ToolbarButton
           onClick={() => editor.chain().focus().setTextAlign('center').run()}
-          disabled={readOnly}
           isActive={editor.isActive({ textAlign: 'center' })}
-          aria-label='Align center'
+          disabled={readOnly}
+          ariaLabel='Align center'
+          title='Align Center'
         >
           ⬜
-        </MyButton>
-        <MyButton
-          type='button'
-          variant='ghost'
-          size='sm'
+        </ToolbarButton>
+        <ToolbarButton
           onClick={() => editor.chain().focus().setTextAlign('right').run()}
-          disabled={readOnly}
           isActive={editor.isActive({ textAlign: 'right' })}
-          aria-label='Align right'
+          disabled={readOnly}
+          ariaLabel='Align right'
+          title='Align Right'
         >
           ⬛
-        </MyButton>
-        <MyButton
-          type='button'
-          variant='ghost'
-          size='sm'
+        </ToolbarButton>
+        <ToolbarButton
           onClick={() => editor.chain().focus().setTextAlign('justify').run()}
-          disabled={readOnly}
           isActive={editor.isActive({ textAlign: 'justify' })}
-          aria-label='Align justify'
+          disabled={readOnly}
+          ariaLabel='Align justify'
+          title='Align Justify'
         >
           ▣
-        </MyButton>
+        </ToolbarButton>
 
-        <div className='w-px h-6 bg-border mx-1' />
+        <Separator />
 
-        <MyButton
-          type='button'
-          variant='ghost'
-          size='sm'
+        {/* Media */}
+        <ToolbarButton
           onClick={openImageModal}
           disabled={readOnly}
-          aria-label='Add image'
+          ariaLabel='Add image'
+          title='Add Image'
         >
           🖼️
-        </MyButton>
-        <MyButton
-          type='button'
-          variant='ghost'
-          size='sm'
+        </ToolbarButton>
+        <ToolbarButton
           onClick={openVideoModal}
           disabled={readOnly}
-          aria-label='Add video'
+          ariaLabel='Add video'
+          title='Add Video'
         >
           📹
-        </MyButton>
-        <MyButton
-          type='button'
-          variant='ghost'
-          size='sm'
-          onClick={() => editor.chain().focus().extendMarkRange('link').run()}
-          disabled={readOnly || !editor.can().setLink({ href: '' })}
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={openLinkModal}
           isActive={editor.isActive('link')}
-          aria-label='Add link'
+          disabled={readOnly}
+          ariaLabel='Add link'
+          title='Add Link (Ctrl+K)'
         >
           🔗
-        </MyButton>
-        <MyButton
-          type='button'
-          variant='ghost'
-          size='sm'
-          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+        </ToolbarButton>
+
+        <Separator />
+
+        {/* Code */}
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleCode().run()}
+          isActive={editor.isActive('code')}
           disabled={readOnly}
-          isActive={editor.isActive('codeBlock')}
-          aria-label='Code block'
+          ariaLabel='Code'
+          title='Inline Code'
         >
-          <code className='text-sm'>{'{}'}</code>
-        </MyButton>
-        <MyButton
-          type='button'
-          variant='ghost'
-          size='sm'
+          &lt;/&gt;
+        </ToolbarButton>
+
+        <Separator />
+
+        {/* Table */}
+        <ToolbarButton
           onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
           disabled={readOnly}
-          aria-label='Add table'
+          ariaLabel='Add table'
+          title='Add Table'
         >
           ⊞
-        </MyButton>
+        </ToolbarButton>
+
+        <Separator />
+
+        {/* Highlight */}
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleHighlight().run()}
+          isActive={editor.isActive('highlight')}
+          disabled={readOnly}
+          ariaLabel='Highlight'
+          title='Highlight'
+        >
+          🖍️
+        </ToolbarButton>
+
+        <Separator />
+
+        {/* Horizontal Rule */}
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setHorizontalRule().run()}
+          disabled={readOnly}
+          ariaLabel='Horizontal rule'
+          title='Horizontal Rule'
+        >
+          −−−
+        </ToolbarButton>
       </div>
 
-      <EditorContent editor={editor} className='p-4 min-h-[300px]' />
+      {/* Editor Content */}
+      <EditorContent editor={editor} className='p-4 min-h-[300px] prose dark:prose-invert max-w-none' />
     </div>
   )
 }
