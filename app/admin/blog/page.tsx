@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 import MyButton from '@/components/MyButton'
 import MyCard, { MyCardBody } from '@/components/MyCard'
@@ -10,7 +11,6 @@ import MyPagination from '@/components/MyPagination'
 import MyInput from '@/components/MyInput'
 import MySelect from '@/components/MySelect'
 import AdminDeleteConfirm from '@/components/admin/AdminDeleteConfirm'
-import BlogForm from '@/components/Blog/BlogForm'
 import { BlogPost } from '@/services/blog'
 import useAdminBlog from '@/hooks/admin/useAdminBlog'
 import useLanguage from '@/hooks/useLanguage'
@@ -21,6 +21,7 @@ import { TrashIcon } from '@/components/Icons/Trash'
 
 const AdminBlogPage = () => {
   const { translate } = useLanguage()
+  const router = useRouter()
   const { open } = useModalDrawer()
   const { posts, isLoading, deletePost, isDeleting } = useAdminBlog()
   const [search, setSearch] = useState('')
@@ -29,7 +30,12 @@ const AdminBlogPage = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 10
 
-  const categories = ['Mẹo hay', 'Kiến thức', 'Bảo quản', 'Môi trường']
+  const categories = [
+    { value: 'Mẹo hay', label: 'Mẹo hay' },
+    { value: 'Kiến thức', label: 'Kiến thức' },
+    { value: 'Bảo quản', label: 'Bảo quản' },
+    { value: 'Môi trường', label: 'Môi trường' },
+  ]
 
   const filteredPosts = useMemo(() => {
     return posts.filter((post) => {
@@ -47,21 +53,13 @@ const AdminBlogPage = () => {
   }, [filteredPosts, currentPage])
 
   const openCreate = () => {
-    open({
-      mode: 'modal',
-      title: translate('admin.blog.create'),
-      classNames: { container: 'max-w-4xl' },
-      children: <BlogForm />,
-    })
+    // Navigate directly to the create page instead of opening a modal
+    router.push('/admin/blog/new')
   }
 
   const openEdit = (post: BlogPost) => {
-    open({
-      mode: 'modal',
-      title: translate('admin.blog.edit'),
-      classNames: { container: 'max-w-4xl' },
-      children: <BlogForm post={post} />,
-    })
+    // Navigate directly to the edit page instead of opening a modal
+    router.push(`/admin/blog/${post.id}`)
   }
 
   const confirmDelete = (post: BlogPost) => {
@@ -97,7 +95,7 @@ const AdminBlogPage = () => {
               }}
             />
             <MySelect
-              data={categories.map((c) => ({ value: c, label: c }))}
+              data={categories}
               value={categoryFilter}
               onChange={(item) => {
                 setCategoryFilter(String(item.value ?? ''))

@@ -27,6 +27,10 @@ const useAdminBlog = (params?: AdminBlogParams) => {
     staleTime: 30_000,
   })
 
+  const getPostById = async (id: string): Promise<BlogPost> => {
+    return await BlogService.getPostById(id)
+  }
+
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.getListBlogs] })
   }
@@ -73,6 +77,7 @@ const useAdminBlog = (params?: AdminBlogParams) => {
     createPost,
     updatePost,
     deletePost,
+    getPostById,
     isCreating,
     isUpdating,
     isDeleting,
