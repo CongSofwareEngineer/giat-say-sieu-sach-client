@@ -9,7 +9,7 @@ import MyLoading from '@/components/MyLoading'
 import MyInput from '@/components/MyInput'
 import MyTextarea from '@/components/MyTextarea'
 import MySelect from '@/components/MySelect'
-import TiptapEditor from '@/components/Blog/TiptapEditor'
+import BlogEditor from '@/components/Blog/BlogEditor'
 import useAdminBlog from '@/hooks/admin/useAdminBlog'
 import useLanguage from '@/hooks/useLanguage'
 import { toast } from '@/utils/toast'
@@ -147,12 +147,9 @@ const AdminBlogNewPage = () => {
 
             <div>
               <label className='block text-sm font-medium text-text mb-2'>{translate('blog.content', {}, 'Nội dung')}</label>
-              <TiptapEditor
-                value={content}
-                onChange={setContent}
-                placeholder={translate('blog.editor.placeholder', {}, 'Viết nội dung bài viết...')}
-                className='min-h-[400px]'
-              />
+              <div className='min-h-[400px] rounded-lg border border-border py-4'>
+                <BlogEditor onChange={setContent} />
+              </div>
             </div>
 
             <div className='flex items-center gap-3'>

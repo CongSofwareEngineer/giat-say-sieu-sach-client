@@ -11,6 +11,7 @@ import useLanguage from '@/hooks/useLanguage'
 import { useBlogPosts } from '@/hooks/reactQuery/useBlog'
 import { blogSchema, breadcrumbSchema } from '@/config/seo'
 import { cn } from '@/utils/tailwind'
+import { getBlogReadTime } from '@/utils/blogContent'
 
 type Post = {
   id: string
@@ -45,8 +46,6 @@ const BlogPage = () => {
 
     return categoryPalette[Math.max(index, 0) % categoryPalette.length]
   }
-
-  const readTime = (content: string) => Math.ceil(content.replace(/<[^>]*>/g, '').length / 200 / 60) || 1
 
   return (
     <div className='py-16 lg:py-24'>
@@ -129,7 +128,7 @@ const BlogPage = () => {
                   <MyCardBody className='flex flex-1 flex-col p-5 lg:p-6'>
                     <div className='flex items-center gap-3'>
                       <span className={cn('rounded-full px-3 py-1 text-xs font-bold', categoryColor(post.category))}>{post.category}</span>
-                      <span className='text-xs text-gray-500'>{translate('blog.readTime', { minutes: readTime(post.content) })}</span>
+                      <span className='text-xs text-gray-500'>{translate('blog.readTime', { minutes: getBlogReadTime(post.content) })}</span>
                     </div>
                     <h2 className='mt-4 line-clamp-2 text-lg font-bold leading-snug text-text transition-colors group-hover:text-primary'>
                       {post.title}

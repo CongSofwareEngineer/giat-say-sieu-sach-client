@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
     includePaths: [path.join(__dirname, 'styles')],
   },
   transpilePackages: ['zustand', '@tanstack/react-query', 'query-string'],
+  // Required by @blocknote/server-util to render blog content in Server Components
+  serverExternalPackages: ['@blocknote/server-util'],
 
   productionBrowserSourceMaps: !isProduction,
   enablePrerenderSourceMaps: !isProduction,

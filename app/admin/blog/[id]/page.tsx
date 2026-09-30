@@ -9,13 +9,14 @@ import MyLoading from '@/components/MyLoading'
 import MyInput from '@/components/MyInput'
 import MySelect from '@/components/MySelect'
 import MyTextarea from '@/components/MyTextarea'
-import TiptapEditor from '@/components/Blog/TiptapEditor'
+import BlogEditor from '@/components/Blog/BlogEditor'
 import useAdminBlog from '@/hooks/admin/useAdminBlog'
 import useLanguage from '@/hooks/useLanguage'
 import { toast } from '@/utils/toast'
 import { BlogPost } from '@/services/blog'
 import { slugify } from '@/utils/slugify'
 import { formatDate } from '@/utils/date'
+import { getBlogReadTime } from '@/utils/blogContent'
 import { ArrowLeftIcon } from '@/components/Icons/ArrowLeft'
 import { CheckIcon } from '@/components/Icons/Check'
 import { XIcon } from '@/components/Icons/X'
@@ -169,7 +170,6 @@ const AdminBlogEditPage = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [editingField, setEditingField] = useState<string | null>(null)
   const [content, setContent] = useState('')
-  const [isContentEditing, setIsContentEditing] = useState(false)
   const [thumbnail, setThumbnail] = useState('')
   const [isThumbnailEditing, setIsThumbnailEditing] = useState(false)
 
@@ -258,9 +258,6 @@ const AdminBlogEditPage = () => {
       .catch(() => {
         toast({ message: translate('common.error'), type: 'error' })
       })
-      .finally(() => {
-        setIsContentEditing(false)
-      })
   }
 
   const handlePublishToggle = () => {
@@ -324,7 +321,7 @@ const AdminBlogEditPage = () => {
     )
   }
 
-  const readTime = Math.ceil(post.content.replace(/<[^>]*>/g, '').length / 200 / 60) || 1
+  const readTime = getBlogReadTime(post.content)
 
   return (
     <div className='py-8 px-4'>
@@ -458,37 +455,14 @@ const AdminBlogEditPage = () => {
             <div className='pt-4 border-t border-border'>
               <div className='flex items-center justify-between mb-4'>
                 <span className='font-medium text-text'>{translate('blog.content', {}, 'Nội dung')}</span>
-                {!isContentEditing && (
-                  <MyButton variant='ghost' size='sm' onClick={() => setIsContentEditing(true)}>
-                    {translate('common.edit')}
-                  </MyButton>
-                )}
+                <MyButton variant='primary' size='sm' onClick={handleContentSave} disabled={isUpdating || content === post.content}>
+                  <CheckIcon className='h-4 w-4' /> {translate('common.save')}
+                </MyButton>
               </div>
 
-              {isContentEditing ? (
-                <div className='space-y-4'>
-                  <TiptapEditor
-                    value={content}
-                    onChange={setContent}
-                    placeholder={translate('blog.editor.placeholder', {}, 'Viết nội dung bài viết...')}
-                    className='min-h-[400px]'
-                  />
-                  <div className='flex justify-end gap-2'>
-                    <MyButton variant='outline' onClick={() => setIsContentEditing(false)}>
-                      <XIcon className='h-4 w-4' /> {translate('common.cancel')}
-                    </MyButton>
-                    <MyButton variant='primary' onClick={handleContentSave} disabled={isUpdating}>
-                      <CheckIcon className='h-4 w-4' /> {translate('common.save')}
-                    </MyButton>
-                  </div>
-                </div>
-              ) : (
-                <div
-                  className='prose prose-lg max-w-none text-text cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-colors'
-                  onClick={() => setIsContentEditing(true)}
-                  dangerouslySetInnerHTML={{ __html: post.content }}
-                />
-              )}
+              <div className='min-h-[400px] rounded-lg border border-border py-4'>
+                <BlogEditor initialContent={post.content} onChange={setContent} />
+              </div>
             </div>
 
             {/* Slug */}

@@ -16,12 +16,3 @@ export const useBlogPosts = (params?: BlogParams) => {
     staleTime: 60_000,
   })
 }
-
-export const useBlogPost = (slug: string) => {
-  return useQuery<BlogPost>({
-    queryKey: [QUERY_KEYS.getListBlogs, slug],
-    queryFn: () => BlogService.getPostBySlug(slug),
-    staleTime: 60_000,
-    enabled: !!slug,
-  })
-}
