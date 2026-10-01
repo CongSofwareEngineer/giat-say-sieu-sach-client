@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { initNotificationService } from '@/services/notification'
 
-const FCM_TOKEN_KEY = 'fcm_token'
+export const FCM_TOKEN_KEY = 'fcm_token'
 
 interface UseNotificationsReturn {
   permission: NotificationPermission | null

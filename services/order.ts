@@ -31,6 +31,34 @@ export type CreateOrderPayload = {
   notes?: string
 }
 
+// Mirrors CreateGuestOrderDto of the server (no login required)
+export type CreateGuestOrderPayload = {
+  phone: string
+  name: string
+  notificationToken?: string
+  address: string
+  district: string
+  city: string
+  items: { categoryId: string; quantity: number }[]
+  notes?: string
+}
+
+// Public order view returned by the no-auth lookups (no address/notes/user)
+export type PublicOrderItem = {
+  id: string
+  code: string
+  status: ORDER_STATUS
+  finalAmount: number
+  items: { categoryName: string; quantity: number; subtotal: number }[]
+  createdAt: string
+}
+
+// Short order code shown to customers (last 6 chars of the order ID)
+export const getOrderCode = (id: string): string => id.slice(-6).toUpperCase()
+
+// Normalize a code typed by the user ("#a1b2c3" -> "A1B2C3")
+export const normalizeOrderCode = (code: string): string => code.trim().replace(/^#/, '').toUpperCase()
+
 type ListResponse = {
   data: OrderItem[]
   meta?: {
@@ -64,6 +92,18 @@ class OrderApi extends BaseAPI {
     return response
   }
 
+  // Orders of the logged-in user, newest first
+  async getMyOrders(params?: { page?: number; limit?: number }): Promise<ListResponse> {
+    const query = new URLSearchParams()
+
+    if (params?.page) query.set('page', String(params.page))
+    if (params?.limit) query.set('limit', String(params.limit))
+
+    const response = await this.get<ListResponse>(`/me${query.toString() ? `?${query.toString()}` : ''}`, { isUseAuth: true })
+
+    return response
+  }
+
   async updateOrderStatus(id: string, status: ORDER_STATUS): Promise<OrderItem> {
     const response = await this.patch<{ data: OrderItem }>(`/${id}/status?status=${status}`, {}, { isUseAuth: true })
 
@@ -82,6 +122,26 @@ class OrderApi extends BaseAPI {
 
   async createOrder(payload: CreateOrderPayload): Promise<OrderItem> {
     const response = await this.post<{ data: OrderItem }>('/', payload, { isUseAuth: true })
+
+    return response.data
+  }
+
+  async createGuestOrder(payload: CreateGuestOrderPayload): Promise<OrderItem> {
+    const response = await this.post<{ data: OrderItem }>('/guest', payload, { isUseAuth: false })
+
+    return response.data
+  }
+
+  // Most recent orders of a phone number (public fields only)
+  async lookupOrdersByPhone(payload: { phone: string; limit?: number }): Promise<PublicOrderItem[]> {
+    const response = await this.post<{ data: PublicOrderItem[] }>('/guest/lookup', payload, { isUseAuth: false })
+
+    return response.data ?? []
+  }
+
+  // One order by its short code or full ID (public fields only)
+  async getOrderByCode(code: string): Promise<PublicOrderItem> {
+    const response = await this.get<{ data: PublicOrderItem }>(`/lookup/${encodeURIComponent(code)}`, { isUseAuth: false })
 
     return response.data
   }

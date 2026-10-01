@@ -20,8 +20,9 @@ import { notifyUnreadMessage } from '@/utils/notification'
 import { formatAddress } from '@/services/address'
 import { chat } from '@/zustand/chat'
 import PricingService, { PricingPlan } from '@/services/pricing'
-import OrderService from '@/services/order'
-import AddressService from '@/services/address'
+import { getOrderCode } from '@/services/order'
+import { createLaundryBooking } from '@/agents/tools/booking'
+import { getMyOrders, ORDER_PHONE_FORM_MARKER } from '@/agents/tools/myOrders'
 import { QUERY_KEYS } from '@/constants/reactQuery'
 
 type ChatProps = {
@@ -52,8 +53,6 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
   const { addresses, defaultAddress } = useGetListAddress()
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const defaultAddressText = formatAddress(defaultAddress)
-
   const { data: plans = [] } = useQuery<PricingPlan[]>({
     queryKey: [QUERY_KEYS.getListPrice],
     queryFn: () => PricingService.getPlans(),
@@ -66,22 +65,35 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
 
   // Laundry form state
   const [showLaundryForm, setShowLaundryForm] = useState(false)
-  const [laundryFormData, setLaundryFormData] = useState<LaundryFormData>({
-    name: user?.name || '',
-    phone: user?.phone || '',
-    addressId: defaultAddress?.id || '',
-    address: defaultAddressText,
-    serviceType: activePlans.find((p) => p.name.toLowerCase().includes('thường'))?.id || 'quan-ao',
-    weight: '',
-  })
+  const getInitialLaundryForm = useCallback(
+    (): LaundryFormData => ({
+      name: user?.name || '',
+      phone: user?.phone || '',
+      addressId: defaultAddress?.id || '',
+      address: defaultAddress?.address || '',
+      district: defaultAddress?.district || '',
+      city: defaultAddress?.city || '',
+      serviceType: activePlans.find((p) => p.name.toLowerCase().includes('thường'))?.id || 'quan-ao',
+      weight: '',
+    }),
+    [user, defaultAddress, activePlans]
+  )
+  const [laundryFormData, setLaundryFormData] = useState<LaundryFormData>(getInitialLaundryForm)
+  const [isBooking, setIsBooking] = useState(false)
+  const [showOrderPhoneForm, setShowOrderPhoneForm] = useState(false)
+  const [isLookingUpOrders, setIsLookingUpOrders] = useState(false)
   const [laundryFormMessageId, setLaundryFormMessageId] = useState<number | null>(null)
 
   // Prefill the pickup address once the default address is loaded from the server
   useEffect(() => {
     if (!defaultAddress) return
 
-    setLaundryFormData((prev) => (prev.addressId ? prev : { ...prev, addressId: defaultAddress.id, address: defaultAddressText }))
-  }, [defaultAddress, defaultAddressText])
+    setLaundryFormData((prev) =>
+      prev.addressId
+        ? prev
+        : { ...prev, addressId: defaultAddress.id, address: defaultAddress.address, district: defaultAddress.district, city: defaultAddress.city }
+    )
+  }, [defaultAddress])
 
   // Update service type if plans load and current selection is invalid
   useEffect(() => {
@@ -150,49 +162,43 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
   }, [])
 
   const handleSubmitLaundry = useCallback(async () => {
-    if (!laundryFormData.name.trim() || !laundryFormData.phone.trim() || !laundryFormData.address.trim() || !laundryFormData.weight.trim()) {
+    if (
+      isBooking ||
+      !laundryFormData.name.trim() ||
+      !laundryFormData.phone.trim() ||
+      !laundryFormData.address.trim() ||
+      !laundryFormData.district ||
+      !laundryFormData.city ||
+      !laundryFormData.weight.trim()
+    ) {
       return
     }
 
+    const plan = planByKey.get(laundryFormData.serviceType)
+
+    if (!plan) {
+      addMessage({
+        id: Date.now(),
+        text: translate('chat.serviceNotFound'),
+        isUser: false,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      })
+
+      return
+    }
+
+    setIsBooking(true)
+
     try {
-      let addressId = laundryFormData.addressId
-
-      if (!addressId) {
-        const matched = addresses.find((a) => formatAddress(a) === laundryFormData.address)
-
-        if (matched) {
-          addressId = matched.id
-        } else {
-          const newAddr = await AddressService.createAddress({
-            phone: laundryFormData.phone,
-            address: laundryFormData.address,
-            district: '',
-            city: '',
-          })
-
-          addressId = newAddr.id
-        }
-      }
-
-      const plan = planByKey.get(laundryFormData.serviceType)
-
-      if (!plan) {
-        addMessage({
-          id: Date.now(),
-          text: translate('chat.serviceNotFound'),
-          isUser: false,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        })
-
-        return
-      }
-
-      const weight = parseFloat(laundryFormData.weight)
-
-      await OrderService.createOrder({
-        addressId,
-        items: [{ categoryId: plan.id, quantity: weight }],
-        notes: translate('chat.order.notes', { serviceType: laundryFormData.serviceType }),
+      const created = await createLaundryBooking({
+        name: laundryFormData.name,
+        phone: laundryFormData.phone,
+        address: laundryFormData.address,
+        district: laundryFormData.district,
+        city: laundryFormData.city,
+        planId: plan.id,
+        planName: plan.name,
+        weight: parseFloat(laundryFormData.weight),
       })
 
       // Remove the laundry form placeholder message if it exists
@@ -201,12 +207,11 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
         setLaundryFormMessageId(null)
       }
 
-      const serviceName = plan.name
-      const orderMessage = translate('chat.order.confirmation', {
+      const orderMessage = translate('chat.orderConfirmation', {
         name: laundryFormData.name,
         phone: laundryFormData.phone,
-        address: laundryFormData.address,
-        service: serviceName,
+        address: formatAddress({ ...laundryFormData, address: laundryFormData.address.trim() }),
+        service: plan.name,
         weight: laundryFormData.weight,
         price: estimatedPrice.toLocaleString(),
       })
@@ -219,20 +224,12 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
       })
 
       setShowLaundryForm(false)
-
-      setLaundryFormData({
-        name: user?.name || '',
-        phone: user?.phone || '',
-        addressId: defaultAddress?.id || '',
-        address: defaultAddressText,
-        serviceType: activePlans.find((p) => p.name.toLowerCase().includes('thường'))?.id || 'quan-ao',
-        weight: '',
-      })
+      setLaundryFormData(getInitialLaundryForm())
 
       setTimeout(() => {
         addMessage({
           id: Date.now() + 1,
-          text: translate('chat.order.success'),
+          text: translate('chat.orderSuccessWithCode', { code: getOrderCode(created.id) }),
           isUser: false,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         })
@@ -244,21 +241,10 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
         isUser: false,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       })
+    } finally {
+      setIsBooking(false)
     }
-  }, [
-    laundryFormData,
-    estimatedPrice,
-    user,
-    translate,
-    addMessage,
-    removeMessage,
-    laundryFormMessageId,
-    defaultAddressText,
-    defaultAddress,
-    addresses,
-    activePlans,
-    planByKey,
-  ])
+  }, [isBooking, laundryFormData, estimatedPrice, translate, addMessage, removeMessage, laundryFormMessageId, planByKey, getInitialLaundryForm])
 
   const handleCancelLaundry = useCallback(() => {
     if (laundryFormMessageId) {
@@ -266,15 +252,8 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
     }
     setShowLaundryForm(false)
     setLaundryFormMessageId(null)
-    setLaundryFormData({
-      name: user?.name || '',
-      phone: user?.phone || '',
-      addressId: defaultAddress?.id || '',
-      address: defaultAddressText,
-      serviceType: activePlans.find((p) => p.name.toLowerCase().includes('thường'))?.id || 'quan-ao',
-      weight: '',
-    })
-  }, [user, laundryFormMessageId, removeMessage, defaultAddressText, defaultAddress, activePlans])
+    setLaundryFormData(getInitialLaundryForm())
+  }, [laundryFormMessageId, removeMessage, getInitialLaundryForm])
 
   // Handle laundry option click
   const handleLaundryOptionClick = useCallback(() => {
@@ -290,6 +269,45 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
     setShowLaundryForm(true)
     setInputValue('')
   }, [addMessage, setInputValue, translate])
+
+  // Guest order lookup: call the get_my_orders tool directly with the phone
+  const handleSubmitOrderPhone = useCallback(
+    async (phone: string) => {
+      setIsLookingUpOrders(true)
+
+      try {
+        const result = await getMyOrders(phone, { locale: lang, userId: user?.id })
+
+        addMessage({
+          id: Date.now(),
+          text: phone,
+          isUser: true,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        })
+        addMessage({
+          id: Date.now() + 1,
+          text: result,
+          isUser: false,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        })
+        // Keep the agent aware of the lookup for follow-up questions
+        setHistory([...history, { role: 'user', content: phone }, { role: 'assistant', content: result }])
+        setShowOrderPhoneForm(false)
+      } catch {
+        addMessage({
+          id: Date.now(),
+          text: translate('chat.error'),
+          isUser: false,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        })
+      } finally {
+        setIsLookingUpOrders(false)
+      }
+    },
+    [lang, user?.id, history, addMessage, setHistory, translate]
+  )
+
+  const handleCancelOrderPhone = useCallback(() => setShowOrderPhoneForm(false), [])
 
   // Chat handlers
   const handleSend = async (messageText?: string) => {
@@ -317,7 +335,8 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
 
       if (text) {
         const wantsLaundryForm = text.includes(LAUNDRY_FORM_MARKER)
-        const cleanText = wantsLaundryForm ? text.replace(LAUNDRY_FORM_MARKER, '').trim() : text
+        const wantsPhoneForm = text.includes(ORDER_PHONE_FORM_MARKER)
+        const cleanText = text.replace(LAUNDRY_FORM_MARKER, '').replace(ORDER_PHONE_FORM_MARKER, '').trim()
 
         if (cleanText) {
           addMessage({
@@ -333,6 +352,10 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
 
         if (wantsLaundryForm) {
           setShowLaundryForm(true)
+        }
+
+        if (wantsPhoneForm) {
+          setShowOrderPhoneForm(true)
         }
 
         if (!chat.getState().isOpen) {
@@ -411,6 +434,11 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
         onLaundryFormChange={handleLaundryFormChange}
         onSubmitLaundry={handleSubmitLaundry}
         onCancelLaundry={handleCancelLaundry}
+        isBooking={isBooking}
+        showOrderPhoneForm={showOrderPhoneForm}
+        isLookingUpOrders={isLookingUpOrders}
+        onSubmitOrderPhone={handleSubmitOrderPhone}
+        onCancelOrderPhone={handleCancelOrderPhone}
       />
 
       <div className='p-3 border-t border-border'>

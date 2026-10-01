@@ -6,6 +6,7 @@ export const TOOL_NAME = {
   getService: 'get_service',
   estimateCost: 'estimate_cost',
   trackOrder: 'track_order',
+  getMyOrders: 'get_my_orders',
   getContactInfo: 'get_contact_info',
   getBranches: 'get_branches',
   getMyAddresses: 'get_my_addresses',

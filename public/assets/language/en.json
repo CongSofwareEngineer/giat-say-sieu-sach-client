@@ -372,7 +372,10 @@
       "orderCode": "Order Code",
       "orderCodePlaceholder": "Enter order code",
       "track": "Track Now",
-      "tracking": "Searching..."
+      "tracking": "Searching...",
+      "requireOne": "Please enter an order code or phone number",
+      "invalidPhone": "Invalid phone number",
+      "hint": "Enter the order code (6 characters, e.g. #XXXXXX) or the phone number you booked with to see your recent orders"
     },
     "result": {
       "title": "Order Information",
@@ -385,7 +388,13 @@
       "service": "Service",
       "weight": "Weight",
       "totalPrice": "Total",
-      "notFound": "Order not found"
+      "notFound": "Order not found",
+      "listTitle": "{count} most recent orders",
+      "createdAt": "Created at",
+      "quantity": "{quantity} kg",
+      "price": "{price}đ",
+      "cancelled": "This order has been cancelled",
+      "notFoundPhone": "No orders found for this phone number"
     },
     "status": {
       "PENDING": "Pending",
@@ -397,72 +406,72 @@
       "CANCELLED": "Cancelled"
     }
   },
-"blog": {
-      "title": "Blog & News",
-      "subtitle": "Laundry tips, clothing care and much more",
-      "all": "All",
-      "categories": ["Tips", "Knowledge", "Care", "Environment"],
-      "readTime": "{minutes} min read",
-      "readMore": "Read More",
-      "noPosts": "No posts yet",
-      "relatedPosts": "Related Posts",
-      "share": "Share",
-      "backToList": "Back to list",
-      "copied": "Link copied!",
-      "notFound": "Post not found",
-      "posts": [
-        {
-          "category": "Tips",
-          "minutes": 5,
-          "title": "10 Laundry Tips to Wash Clothes Properly and Keep Colors Fading",
-          "excerpt": "Washing clothes seems simple, but without the right know-how your clothes will fade quickly and get damaged. Let's find out the expert secrets.",
-          "slug": "10-meo-giat-quan-ao-dung-cach-de-ben-mau"
-        },
-        {
-          "category": "Knowledge",
-          "minutes": 7,
-          "title": "What Is Dry Cleaning? When Should You Use It?",
-          "excerpt": "Dry cleaning is not washing without water. It's a specialized process for premium fabrics. Find out more!",
-          "slug": "giat-kho-la-gi-khi-nao-nen-dung"
-        },
-        {
-          "category": "Care",
-          "minutes": 6,
-          "title": "How to Properly Care for Suits and Blazers",
-          "excerpt": "Suits are expensive items that need careful maintenance. This article will guide you on how to wash, iron and store suits to keep them like new.",
-          "slug": "cach-bao-quan-ao-vest-va-comple"
-        },
-        {
-          "category": "Tips",
-          "minutes": 4,
-          "title": "5 Signs Your Washing Machine Is About to Break",
-          "excerpt": "Washing machines also show warning signs before fully breaking down. Detecting them early saves you from costly repairs.",
-          "slug": "5-dau-hieu-may-giat-cua-ban-dang-bi-hong"
-        },
-        {
-          "category": "Environment",
-          "minutes": 5,
-          "title": "Water-Saving Laundry: Green Habits for Your Family",
-          "excerpt": "A few small changes in your washing habits can save thousands of liters of water every year. Find out how!",
-          "slug": "giat-giu-tiet-kiem-nuoc-thoi-quen-xanh"
-        },
-        {
-          "category": "Knowledge",
-          "minutes": 8,
-          "title": "Decoding the Washing Symbols on Your Clothes",
-          "excerpt": "Those tiny symbols on clothing labels are actually your guide to protecting your garments. Let's decode them together.",
-          "slug": "giai-ma-cac-ky-hieu-giat-la-tren-quan-ao"
-        }
-      ],
-      "editor": {
-        "placeholder": "Write your blog content...",
-        "addImage": "Add Image",
-        "addVideo": "Add Video (YouTube)",
-        "imageUrl": "Image URL",
-        "videoUrl": "YouTube Video URL",
-        "videoHint": "Supports YouTube links: youtube.com/watch?v=... or youtu.be/..."
+  "blog": {
+    "title": "Blog & News",
+    "subtitle": "Laundry tips, clothing care and much more",
+    "all": "All",
+    "categories": ["Tips", "Knowledge", "Care", "Environment"],
+    "readTime": "{minutes} min read",
+    "readMore": "Read More",
+    "noPosts": "No posts yet",
+    "relatedPosts": "Related Posts",
+    "share": "Share",
+    "backToList": "Back to list",
+    "copied": "Link copied!",
+    "notFound": "Post not found",
+    "posts": [
+      {
+        "category": "Tips",
+        "minutes": 5,
+        "title": "10 Laundry Tips to Wash Clothes Properly and Keep Colors Fading",
+        "excerpt": "Washing clothes seems simple, but without the right know-how your clothes will fade quickly and get damaged. Let's find out the expert secrets.",
+        "slug": "10-meo-giat-quan-ao-dung-cach-de-ben-mau"
+      },
+      {
+        "category": "Knowledge",
+        "minutes": 7,
+        "title": "What Is Dry Cleaning? When Should You Use It?",
+        "excerpt": "Dry cleaning is not washing without water. It's a specialized process for premium fabrics. Find out more!",
+        "slug": "giat-kho-la-gi-khi-nao-nen-dung"
+      },
+      {
+        "category": "Care",
+        "minutes": 6,
+        "title": "How to Properly Care for Suits and Blazers",
+        "excerpt": "Suits are expensive items that need careful maintenance. This article will guide you on how to wash, iron and store suits to keep them like new.",
+        "slug": "cach-bao-quan-ao-vest-va-comple"
+      },
+      {
+        "category": "Tips",
+        "minutes": 4,
+        "title": "5 Signs Your Washing Machine Is About to Break",
+        "excerpt": "Washing machines also show warning signs before fully breaking down. Detecting them early saves you from costly repairs.",
+        "slug": "5-dau-hieu-may-giat-cua-ban-dang-bi-hong"
+      },
+      {
+        "category": "Environment",
+        "minutes": 5,
+        "title": "Water-Saving Laundry: Green Habits for Your Family",
+        "excerpt": "A few small changes in your washing habits can save thousands of liters of water every year. Find out how!",
+        "slug": "giat-giu-tiet-kiem-nuoc-thoi-quen-xanh"
+      },
+      {
+        "category": "Knowledge",
+        "minutes": 8,
+        "title": "Decoding the Washing Symbols on Your Clothes",
+        "excerpt": "Those tiny symbols on clothing labels are actually your guide to protecting your garments. Let's decode them together.",
+        "slug": "giai-ma-cac-ky-hieu-giat-la-tren-quan-ao"
       }
-    },
+    ],
+    "editor": {
+      "placeholder": "Write your blog content...",
+      "addImage": "Add Image",
+      "addVideo": "Add Video (YouTube)",
+      "imageUrl": "Image URL",
+      "videoUrl": "YouTube Video URL",
+      "videoHint": "Supports YouTube links: youtube.com/watch?v=... or youtu.be/..."
+    }
+  },
   "about": {
     "tag": "About us",
     "title": "Our Story",
@@ -785,20 +794,20 @@
       "createdAt": "Created At",
       "filterByRole": "Filter by role"
     },
-"blog": {
-        "title": "Blog Management",
-        "list": "Post List",
-        "create": "Add Post",
-        "edit": "Edit Post",
-        "delete": "Delete Post",
-        "deleteConfirm": "Are you sure you want to delete this post?",
-        "created": "Post added successfully",
-        "updated": "Post updated successfully",
-        "deleted": "Post deleted successfully",
-        "published": "Published",
-        "draft": "Draft",
-        "publish": "Publish now"
-      },
+    "blog": {
+      "title": "Blog Management",
+      "list": "Post List",
+      "create": "Add Post",
+      "edit": "Edit Post",
+      "delete": "Delete Post",
+      "deleteConfirm": "Are you sure you want to delete this post?",
+      "created": "Post added successfully",
+      "updated": "Post updated successfully",
+      "deleted": "Post deleted successfully",
+      "published": "Published",
+      "draft": "Draft",
+      "publish": "Publish now"
+    },
     "banner": {
       "title": "Banner Management",
       "list": "Banner List",
@@ -807,60 +816,60 @@
       "delete": "Delete Banner",
       "deleteConfirm": "Are you sure you want to delete this banner?"
     },
-      "prices": {
-        "title": "Price Management",
-        "list": "Service List",
-        "create": "Add Service",
-        "edit": "Edit Service",
-        "delete": "Delete Service",
-        "deleteConfirm": "Are you sure you want to delete this service?",
-        "created": "Service added successfully",
-        "updated": "Service updated successfully",
-        "deleted": "Service deleted successfully",
-        "name": "Service Name",
-        "description": "Description",
-        "descriptionPlaceholder": "Brief description of the service",
-        "price": "Unit Price",
-        "unit": "Unit",
-        "unitPlaceholder": "e.g. VND/kg",
-        "active": "Active",
-        "inactive": "Inactive",
-        "popular": "Popular"
+    "prices": {
+      "title": "Price Management",
+      "list": "Service List",
+      "create": "Add Service",
+      "edit": "Edit Service",
+      "delete": "Delete Service",
+      "deleteConfirm": "Are you sure you want to delete this service?",
+      "created": "Service added successfully",
+      "updated": "Service updated successfully",
+      "deleted": "Service deleted successfully",
+      "name": "Service Name",
+      "description": "Description",
+      "descriptionPlaceholder": "Brief description of the service",
+      "price": "Unit Price",
+      "unit": "Unit",
+      "unitPlaceholder": "e.g. VND/kg",
+      "active": "Active",
+      "inactive": "Inactive",
+      "popular": "Popular"
+    },
+    "comments": {
+      "title": "Review Management",
+      "list": "Review List",
+      "delete": "Delete Review",
+      "deleteConfirm": "Are you sure you want to delete this review?",
+      "reply": "Reply to Review",
+      "filterByStatus": "Filter by status",
+      "toggled": "Review status updated successfully",
+      "replied": "Review replied successfully",
+      "updated": "Review updated successfully",
+      "deleted": "Review deleted successfully",
+      "statuses": {
+        "visible": "Visible",
+        "hidden": "Hidden"
       },
-      "comments": {
-        "title": "Review Management",
-        "list": "Review List",
-        "delete": "Delete Review",
-        "deleteConfirm": "Are you sure you want to delete this review?",
-        "reply": "Reply to Review",
-        "filterByStatus": "Filter by status",
-        "toggled": "Review status updated successfully",
-        "replied": "Review replied successfully",
-        "updated": "Review updated successfully",
-        "deleted": "Review deleted successfully",
-        "statuses": {
-          "visible": "Visible",
-          "hidden": "Hidden"
-        },
-        "hide": "Hide",
-        "show": "Show"
-      },
-      "contacts": {
-        "title": "Contact Management",
-        "list": "Contact List",
-        "delete": "Delete Contact",
-        "deleteConfirm": "Are you sure you want to delete this contact?",
-        "updated": "Contact updated successfully",
-        "statusUpdated": "Contact status updated successfully",
-        "deleted": "Contact deleted successfully",
-        "filterByStatus": "Filter by status",
-        "statuses": {
-          "PENDING": "Pending",
-          "IN_PROGRESS": "In Progress",
-          "RESOLVED": "Resolved",
-          "CLOSED": "Closed"
-        }
-      },
+      "hide": "Hide",
+      "show": "Show"
+    },
+    "contacts": {
+      "title": "Contact Management",
+      "list": "Contact List",
+      "delete": "Delete Contact",
+      "deleteConfirm": "Are you sure you want to delete this contact?",
+      "updated": "Contact updated successfully",
+      "statusUpdated": "Contact status updated successfully",
+      "deleted": "Contact deleted successfully",
+      "filterByStatus": "Filter by status",
+      "statuses": {
+        "PENDING": "Pending",
+        "IN_PROGRESS": "In Progress",
+        "RESOLVED": "Resolved",
+        "CLOSED": "Closed"
+      }
+    },
     "sidebar": {
       "dashboard": "Dashboard",
       "orders": "Orders",
@@ -914,6 +923,11 @@
       "namePlaceholder": "Enter your name",
       "phonePlaceholder": "Enter your phone",
       "addressPlaceholder": "Enter your address",
+      "savedAddress": "Choose a saved address",
+      "city": "Province/City",
+      "ward": "Ward/Commune",
+      "addressDetail": "Street address",
+      "addressDetailPlaceholder": "House number, street...",
       "serviceType": "Service Type",
       "weight": "Weight (kg)",
       "weightPlaceholder": "Enter weight in kg",
@@ -927,6 +941,12 @@
         "express": "Express Wash",
         "washIron": "Wash + Iron"
       }
+    },
+    "orderSuccessWithCode": "Booking confirmed! Your order code: **#{code}**\n\nPlease keep this code. Ask \"my orders\" anytime to check the order status.",
+    "orderLookup": {
+      "title": "Look up orders",
+      "submit": "View orders",
+      "invalidPhone": "Invalid phone number"
     }
   },
   "agent": {
@@ -941,7 +961,7 @@
         "CANCELLED": "Cancelled"
       },
       "track": {
-        "noCode": "Please provide an order code to track. Order codes look like GSxxxxxx.",
+        "noCode": "Please provide an order code to track. Order codes have 6 characters, like #XXXXXX.",
         "notFound": "No order found for \"{code}\".",
         "summary": "Order #{code}: {status}\nService: {services}\nTotal: {price}\nCreated: {date}"
       },
@@ -955,6 +975,12 @@
       },
       "branch": {
         "noHours": "No hours"
+      },
+      "myOrders": {
+        "header": "Your {count} most recent orders:",
+        "item": "- **#{code}** · {status}\n  {services} · {price}đ · {date}",
+        "empty": "No orders found. Please check the phone number you booked with.",
+        "invalidPhone": "Invalid phone number."
       }
     },
     "address": {

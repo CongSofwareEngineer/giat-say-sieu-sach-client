@@ -372,7 +372,10 @@
       "orderCode": "Mã đơn hàng",
       "orderCodePlaceholder": "Nhập mã đơn hàng",
       "track": "Theo dõi ngay",
-      "tracking": "Đang tìm kiếm..."
+      "tracking": "Đang tìm kiếm...",
+      "requireOne": "Vui lòng nhập mã đơn hàng hoặc số điện thoại",
+      "invalidPhone": "Số điện thoại không hợp lệ",
+      "hint": "Nhập mã đơn (6 ký tự, dạng #XXXXXX) hoặc số điện thoại đã đặt để xem các đơn gần nhất"
     },
     "result": {
       "title": "Thông tin đơn hàng",
@@ -385,7 +388,13 @@
       "service": "Dịch vụ",
       "weight": "Khối lượng",
       "totalPrice": "Tổng cộng",
-      "notFound": "Không tìm thấy đơn hàng"
+      "notFound": "Không tìm thấy đơn hàng",
+      "listTitle": "{count} đơn gần nhất",
+      "createdAt": "Ngày tạo",
+      "quantity": "{quantity} kg",
+      "price": "{price}đ",
+      "cancelled": "Đơn hàng này đã bị hủy",
+      "notFoundPhone": "Không tìm thấy đơn hàng nào với số điện thoại này"
     },
     "status": {
       "PENDING": "Chờ xác nhận",
@@ -397,72 +406,72 @@
       "CANCELLED": "Đã hủy"
     }
   },
-"blog": {
-      "title": "Blog & Tin Tức",
-      "subtitle": "Mẹo giặt giũ, chăm sóc quần áo và nhiều hơn nữa",
-      "all": "Tất cả",
-      "categories": ["Mẹo hay", "Kiến thức", "Bảo quản", "Môi trường"],
-      "readTime": "{minutes} phút đọc",
-      "readMore": "Đọc thêm",
-      "noPosts": "Chưa có bài viết nào",
-      "relatedPosts": "Bài viết liên quan",
-      "share": "Chia sẻ",
-      "backToList": "Quay lại danh sách",
-      "copied": "Đã sao chép liên kết!",
-      "notFound": "Bài viết không tồn tại",
-      "posts": [
-        {
-          "category": "Mẹo hay",
-          "minutes": 5,
-          "title": "10 Mẹo Giặt Quần Áo Đúng Cách Để Bền Màu",
-          "excerpt": "Giặt quần áo tưởng chừng đơn giản nhưng nếu không biết cách, quần áo của bạn sẽ nhanh phai màu và hỏng vải. Hãy cùng tìm hiểu những bí quyết từ chuyên gia.",
-          "slug": "10-meo-giat-quan-ao-dung-cach-de-ben-mau"
-        },
-        {
-          "category": "Kiến thức",
-          "minutes": 7,
-          "title": "Giặt Khô Là Gì? Khi Nào Nên Dùng Dịch Vụ Giặt Khô?",
-          "excerpt": "Giặt khô không phải là giặt bằng... không có nước. Đây là quy trình xử lý chuyên biệt cho các loại vải cao cấp. Tìm hiểu ngay!",
-          "slug": "giat-kho-la-gi-khi-nao-nen-dung"
-        },
-        {
-          "category": "Bảo quản",
-          "minutes": 6,
-          "title": "Cách Bảo Quản Áo Vest và Comple Đúng Cách",
-          "excerpt": "Áo vest là item đắt tiền cần được bảo quản kỹ. Bài viết này sẽ hướng dẫn bạn cách giặt, ủi và cất giữ áo vest để luôn như mới.",
-          "slug": "cach-bao-quan-ao-vest-va-comple"
-        },
-        {
-          "category": "Mẹo hay",
-          "minutes": 4,
-          "title": "5 Dấu Hiệu Cho Thấy Máy Giặt Của Bạn Đang Bị Hỏng",
-          "excerpt": "Máy giặt cũng có những dấu hiệu cảnh báo trước khi hỏng hẳn. Nếu nhận biết sớm, bạn sẽ tránh được những sự cố tốn kém.",
-          "slug": "5-dau-hieu-may-giat-cua-ban-dang-bi-hong"
-        },
-        {
-          "category": "Môi trường",
-          "minutes": 5,
-          "title": "Giặt Giũ Tiết Kiệm Nước: Thói Quen Xanh Cho Gia Đình",
-          "excerpt": "Một vài thay đổi nhỏ trong thói quen giặt giũ có thể giúp bạn tiết kiệm hàng nghìn lít nước mỗi năm. Tìm hiểu ngay!",
-          "slug": "giat-giu-tiet-kiem-nuoc-thoi-quen-xanh"
-        },
-        {
-          "category": "Kiến thức",
-          "minutes": 8,
-          "title": "Giải Mã Các Ký Hiệu Giặt Là Trên Quần Áo",
-          "excerpt": "Những ký hiệu nhỏ xíu trên nhãn mác quần áo thực ra là 'kim chỉ nam' giúp bạn bảo vệ trang phục. Hãy cùng giải mã chúng.",
-          "slug": "giai-ma-cac-ky-hieu-giat-la-tren-quan-ao"
-        }
-      ],
-      "editor": {
-        "placeholder": "Viết nội dung bài viết...",
-        "addImage": "Thêm hình ảnh",
-        "addVideo": "Thêm video (YouTube)",
-        "imageUrl": "URL hình ảnh",
-        "videoUrl": "URL video YouTube",
-        "videoHint": "Hỗ trợ link YouTube: youtube.com/watch?v=... hoặc youtu.be/..."
+  "blog": {
+    "title": "Blog & Tin Tức",
+    "subtitle": "Mẹo giặt giũ, chăm sóc quần áo và nhiều hơn nữa",
+    "all": "Tất cả",
+    "categories": ["Mẹo hay", "Kiến thức", "Bảo quản", "Môi trường"],
+    "readTime": "{minutes} phút đọc",
+    "readMore": "Đọc thêm",
+    "noPosts": "Chưa có bài viết nào",
+    "relatedPosts": "Bài viết liên quan",
+    "share": "Chia sẻ",
+    "backToList": "Quay lại danh sách",
+    "copied": "Đã sao chép liên kết!",
+    "notFound": "Bài viết không tồn tại",
+    "posts": [
+      {
+        "category": "Mẹo hay",
+        "minutes": 5,
+        "title": "10 Mẹo Giặt Quần Áo Đúng Cách Để Bền Màu",
+        "excerpt": "Giặt quần áo tưởng chừng đơn giản nhưng nếu không biết cách, quần áo của bạn sẽ nhanh phai màu và hỏng vải. Hãy cùng tìm hiểu những bí quyết từ chuyên gia.",
+        "slug": "10-meo-giat-quan-ao-dung-cach-de-ben-mau"
+      },
+      {
+        "category": "Kiến thức",
+        "minutes": 7,
+        "title": "Giặt Khô Là Gì? Khi Nào Nên Dùng Dịch Vụ Giặt Khô?",
+        "excerpt": "Giặt khô không phải là giặt bằng... không có nước. Đây là quy trình xử lý chuyên biệt cho các loại vải cao cấp. Tìm hiểu ngay!",
+        "slug": "giat-kho-la-gi-khi-nao-nen-dung"
+      },
+      {
+        "category": "Bảo quản",
+        "minutes": 6,
+        "title": "Cách Bảo Quản Áo Vest và Comple Đúng Cách",
+        "excerpt": "Áo vest là item đắt tiền cần được bảo quản kỹ. Bài viết này sẽ hướng dẫn bạn cách giặt, ủi và cất giữ áo vest để luôn như mới.",
+        "slug": "cach-bao-quan-ao-vest-va-comple"
+      },
+      {
+        "category": "Mẹo hay",
+        "minutes": 4,
+        "title": "5 Dấu Hiệu Cho Thấy Máy Giặt Của Bạn Đang Bị Hỏng",
+        "excerpt": "Máy giặt cũng có những dấu hiệu cảnh báo trước khi hỏng hẳn. Nếu nhận biết sớm, bạn sẽ tránh được những sự cố tốn kém.",
+        "slug": "5-dau-hieu-may-giat-cua-ban-dang-bi-hong"
+      },
+      {
+        "category": "Môi trường",
+        "minutes": 5,
+        "title": "Giặt Giũ Tiết Kiệm Nước: Thói Quen Xanh Cho Gia Đình",
+        "excerpt": "Một vài thay đổi nhỏ trong thói quen giặt giũ có thể giúp bạn tiết kiệm hàng nghìn lít nước mỗi năm. Tìm hiểu ngay!",
+        "slug": "giat-giu-tiet-kiem-nuoc-thoi-quen-xanh"
+      },
+      {
+        "category": "Kiến thức",
+        "minutes": 8,
+        "title": "Giải Mã Các Ký Hiệu Giặt Là Trên Quần Áo",
+        "excerpt": "Những ký hiệu nhỏ xíu trên nhãn mác quần áo thực ra là 'kim chỉ nam' giúp bạn bảo vệ trang phục. Hãy cùng giải mã chúng.",
+        "slug": "giai-ma-cac-ky-hieu-giat-la-tren-quan-ao"
       }
-    },
+    ],
+    "editor": {
+      "placeholder": "Viết nội dung bài viết...",
+      "addImage": "Thêm hình ảnh",
+      "addVideo": "Thêm video (YouTube)",
+      "imageUrl": "URL hình ảnh",
+      "videoUrl": "URL video YouTube",
+      "videoHint": "Hỗ trợ link YouTube: youtube.com/watch?v=... hoặc youtu.be/..."
+    }
+  },
   "about": {
     "tag": "Về chúng tôi",
     "title": "Câu Chuyện Của Chúng Tôi",
@@ -807,60 +816,60 @@
       "delete": "Xóa banner",
       "deleteConfirm": "Bạn có chắc chắn muốn xóa banner này?"
     },
-      "prices": {
-        "title": "Quản lý bảng giá",
-        "list": "Danh sách dịch vụ",
-        "create": "Thêm dịch vụ",
-        "edit": "Sửa dịch vụ",
-        "delete": "Xóa dịch vụ",
-        "deleteConfirm": "Bạn có chắc chắn muốn xóa dịch vụ này?",
-        "created": "Thêm dịch vụ thành công",
-        "updated": "Cập nhật dịch vụ thành công",
-        "deleted": "Xóa dịch vụ thành công",
-        "name": "Tên dịch vụ",
-        "description": "Mô tả",
-        "descriptionPlaceholder": "Mô tả ngắn gọn về dịch vụ",
-        "price": "Đơn giá",
-        "unit": "Đơn vị",
-        "unitPlaceholder": "Ví dụ: VNĐ/kg",
-        "active": "Đang hoạt động",
-        "inactive": "Không hoạt động",
-        "popular": "Phổ biến"
+    "prices": {
+      "title": "Quản lý bảng giá",
+      "list": "Danh sách dịch vụ",
+      "create": "Thêm dịch vụ",
+      "edit": "Sửa dịch vụ",
+      "delete": "Xóa dịch vụ",
+      "deleteConfirm": "Bạn có chắc chắn muốn xóa dịch vụ này?",
+      "created": "Thêm dịch vụ thành công",
+      "updated": "Cập nhật dịch vụ thành công",
+      "deleted": "Xóa dịch vụ thành công",
+      "name": "Tên dịch vụ",
+      "description": "Mô tả",
+      "descriptionPlaceholder": "Mô tả ngắn gọn về dịch vụ",
+      "price": "Đơn giá",
+      "unit": "Đơn vị",
+      "unitPlaceholder": "Ví dụ: VNĐ/kg",
+      "active": "Đang hoạt động",
+      "inactive": "Không hoạt động",
+      "popular": "Phổ biến"
+    },
+    "comments": {
+      "title": "Quản lý đánh giá",
+      "list": "Danh sách đánh giá",
+      "delete": "Xóa đánh giá",
+      "deleteConfirm": "Bạn có chắc chắn muốn xóa đánh giá này?",
+      "reply": "Phản hồi đánh giá",
+      "filterByStatus": "Lọc theo trạng thái",
+      "toggled": "Cập nhật trạng thái đánh giá thành công",
+      "replied": "Phản hồi đánh giá thành công",
+      "updated": "Cập nhật đánh giá thành công",
+      "deleted": "Xóa đánh giá thành công",
+      "statuses": {
+        "visible": "Đang hiển thị",
+        "hidden": "Đã ẩn"
       },
-      "comments": {
-        "title": "Quản lý đánh giá",
-        "list": "Danh sách đánh giá",
-        "delete": "Xóa đánh giá",
-        "deleteConfirm": "Bạn có chắc chắn muốn xóa đánh giá này?",
-        "reply": "Phản hồi đánh giá",
-        "filterByStatus": "Lọc theo trạng thái",
-        "toggled": "Cập nhật trạng thái đánh giá thành công",
-        "replied": "Phản hồi đánh giá thành công",
-        "updated": "Cập nhật đánh giá thành công",
-        "deleted": "Xóa đánh giá thành công",
-        "statuses": {
-          "visible": "Đang hiển thị",
-          "hidden": "Đã ẩn"
-        },
-        "hide": "Ẩn",
-        "show": "Hiện"
-      },
-      "contacts": {
-        "title": "Quản lý liên hệ",
-        "list": "Danh sách liên hệ",
-        "delete": "Xóa liên hệ",
-        "deleteConfirm": "Bạn có chắc chắn muốn xóa liên hệ này?",
-        "updated": "Cập nhật liên hệ thành công",
-        "statusUpdated": "Cập nhật trạng thái thành công",
-        "deleted": "Xóa liên hệ thành công",
-        "filterByStatus": "Lọc theo trạng thái",
-        "statuses": {
-          "PENDING": "Chờ xử lý",
-          "IN_PROGRESS": "Đang xử lý",
-          "RESOLVED": "Đã giải quyết",
-          "CLOSED": "Đã đóng"
-        }
-      },
+      "hide": "Ẩn",
+      "show": "Hiện"
+    },
+    "contacts": {
+      "title": "Quản lý liên hệ",
+      "list": "Danh sách liên hệ",
+      "delete": "Xóa liên hệ",
+      "deleteConfirm": "Bạn có chắc chắn muốn xóa liên hệ này?",
+      "updated": "Cập nhật liên hệ thành công",
+      "statusUpdated": "Cập nhật trạng thái thành công",
+      "deleted": "Xóa liên hệ thành công",
+      "filterByStatus": "Lọc theo trạng thái",
+      "statuses": {
+        "PENDING": "Chờ xử lý",
+        "IN_PROGRESS": "Đang xử lý",
+        "RESOLVED": "Đã giải quyết",
+        "CLOSED": "Đã đóng"
+      }
+    },
     "sidebar": {
       "dashboard": "Dashboard",
       "orders": "Đơn hàng",
@@ -914,6 +923,11 @@
       "namePlaceholder": "Nhập họ tên",
       "phonePlaceholder": "Nhập số điện thoại",
       "addressPlaceholder": "Nhập địa chỉ",
+      "savedAddress": "Chọn địa chỉ đã lưu",
+      "city": "Tỉnh/Thành phố",
+      "ward": "Phường/Xã",
+      "addressDetail": "Địa chỉ cụ thể",
+      "addressDetailPlaceholder": "Số nhà, tên đường...",
       "serviceType": "Loại dịch vụ",
       "weight": "Khối lượng (kg)",
       "weightPlaceholder": "Nhập số kg",
@@ -927,6 +941,12 @@
         "express": "Giặt nhanh",
         "washIron": "Giặt + Ủi"
       }
+    },
+    "orderSuccessWithCode": "Đặt lịch thành công! Mã đơn của bạn: **#{code}**\n\nHãy lưu lại mã này. Bạn có thể hỏi \"đơn hàng của tôi\" để kiểm tra tình trạng đơn bất cứ lúc nào.",
+    "orderLookup": {
+      "title": "Tra cứu đơn hàng",
+      "submit": "Xem đơn",
+      "invalidPhone": "Số điện thoại không hợp lệ"
     }
   },
   "agent": {
@@ -941,7 +961,7 @@
         "CANCELLED": "Đã hủy"
       },
       "track": {
-        "noCode": "Vui lòng cung cấp mã đơn hàng để tra cứu. Mã đơn hàng có dạng GSxxxxxx.",
+        "noCode": "Vui lòng cung cấp mã đơn hàng để tra cứu. Mã đơn hàng gồm 6 ký tự, dạng #XXXXXX.",
         "notFound": "Không tìm thấy đơn hàng nào cho \"{code}\".",
         "summary": "Đơn #{code}: {status}\nDịch vụ: {services}\nTổng tiền: {price}đ\nNgày tạo: {date}"
       },
@@ -955,6 +975,12 @@
       },
       "branch": {
         "noHours": "Không có giờ"
+      },
+      "myOrders": {
+        "header": "{count} đơn gần nhất của bạn:",
+        "item": "- **#{code}** · {status}\n  {services} · {price}đ · {date}",
+        "empty": "Không tìm thấy đơn hàng nào. Vui lòng kiểm tra lại số điện thoại đã dùng khi đặt lịch.",
+        "invalidPhone": "Số điện thoại không hợp lệ."
       }
     },
     "address": {

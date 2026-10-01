@@ -6,7 +6,12 @@ export type LaundryFormData = {
   name: string
   phone: string
   addressId: string
+  // Street / house number, typed by the user
   address: string
+  // Ward (phường/xã), picked from LocationApi
+  district: string
+  // Province (tỉnh/thành phố), picked from LocationApi
+  city: string
   serviceType: string
   weight: string
 }

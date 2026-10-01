@@ -7,6 +7,7 @@ export { estimateCostTool, getServiceTool, getServicesTool } from './price'
 export { getPromotionsTool } from './promotion'
 export { getBranchesTool, getContactInfoTool, trackOrderTool } from './order'
 export { getMyAddressesTool } from './address'
+export { getMyOrdersTool } from './myOrders'
 export { openLaundryFormTool } from './laundry'
 export { searchTool } from './search'
 

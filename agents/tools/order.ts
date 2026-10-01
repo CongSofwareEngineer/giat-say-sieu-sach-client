@@ -2,11 +2,11 @@ import type { AgentTool } from '../base'
 
 import { INFO_CONTACT, ORDER_STATUS } from '@/constants/app'
 import { TOOL_NAME } from '@/constants/tools'
-import OrderService, { OrderItem } from '@/services/order'
+import OrderService, { getOrderCode, normalizeOrderCode, PublicOrderItem } from '@/services/order'
 import BranchService from '@/services/branch'
 import { translate } from '@/utils/language'
 
-const statusLabel = (status: string): string => {
+export const statusLabel = (status: string): string => {
   const statusMap: Record<string, string> = {
     [ORDER_STATUS.PENDING]: translate('agent.order.status.PENDING', {}, 'Chờ xác nhận'),
     [ORDER_STATUS.RECEIVED]: translate('agent.order.status.RECEIVED', {}, 'Đã nhận đồ'),
@@ -20,16 +20,16 @@ const statusLabel = (status: string): string => {
   return statusMap[status] || status
 }
 
-// Look up an order by its code or phone and summarize its progress
+// Look up one order by its code (public API, no login needed) and summarize its progress
 export const trackOrderTool: AgentTool = {
   name: TOOL_NAME.trackOrder,
-  description: 'Track a laundry order by its order code or phone number.',
+  description: 'Track one laundry order by its order code. Use get_my_orders instead when the user only gives a phone number.',
   parameters: {
     type: 'object',
     properties: {
       orderCode: {
         type: 'string',
-        description: 'Order code, e.g. "GS100001" or the last 6 chars of the order ID.',
+        description: 'Order code shown after booking: 6 characters, e.g. "A1B2C3" or "#A1B2C3" (a full order ID also works).',
       },
       phone: {
         type: 'string',
@@ -38,25 +38,19 @@ export const trackOrderTool: AgentTool = {
     },
     required: [],
   },
-  execute: async (args, ctx) => {
-    const code = String(args?.orderCode ?? '')
-      .trim()
-      .toUpperCase()
+  execute: async (args) => {
+    const code = normalizeOrderCode(String(args?.orderCode ?? ''))
     const phone = String(args?.phone ?? '').trim()
 
-    const params: Record<string, string> = { limit: '50' }
+    if (!code && phone) {
+      return translate('agent.order.track.noCode', {}, 'Vui lòng cung cấp mã đơn hàng để tra cứu. Mã đơn hàng gồm 6 ký tự, dạng #XXXXXX.')
+    }
 
-    if (ctx.userId) params.userId = ctx.userId
-
-    const response = await OrderService.getOrders(params)
-    const orders = response.data ?? []
-
-    let order: OrderItem | undefined
+    let order: PublicOrderItem | undefined
 
     if (code) {
-      order = orders.find((o) => o.id.slice(-6).toUpperCase() === code)
-    } else if (phone) {
-      return translate('agent.order.track.noCode', {}, 'Vui lòng cung cấp mã đơn hàng để tra cứu. Mã đơn hàng có dạng GSxxxxxx.')
+      // Public lookup by short code / full ID, works with or without login
+      order = await OrderService.getOrderByCode(code).catch(() => undefined)
     }
 
     if (!order)
@@ -71,14 +65,14 @@ export const trackOrderTool: AgentTool = {
     return translate(
       'agent.order.track.summary',
       {
-        code: order.id.slice(-6).toUpperCase(),
+        code: getOrderCode(order.id),
         status: statusLabel(order.status),
         services: serviceNames,
         price: order.finalAmount.toLocaleString('vi-VN'),
         date: order.createdAt ? new Date(order.createdAt).toLocaleDateString('vi-VN') : '—',
       },
       [
-        `Đơn #${order.id.slice(-6).toUpperCase()}: ${statusLabel(order.status)}`,
+        `Đơn #${getOrderCode(order.id)}: ${statusLabel(order.status)}`,
         `Dịch vụ: ${serviceNames}`,
         `Tổng tiền: ${order.finalAmount.toLocaleString('vi-VN')}đ`,
         `Ngày tạo: ${order.createdAt ? new Date(order.createdAt).toLocaleDateString('vi-VN') : '—'}`,

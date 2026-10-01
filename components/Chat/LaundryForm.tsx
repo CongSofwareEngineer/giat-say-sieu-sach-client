@@ -2,29 +2,57 @@
 
 import type { AddressItem } from '@/services/address/type'
 import type { PricingPlan } from '@/services/pricing'
+import type { LaundryFormData } from './types'
+
+import { useMemo } from 'react'
 
 import MyButton from '@/components/MyButton'
+import MySelect from '@/components/MySelect'
 import useLanguage from '@/hooks/useLanguage'
+import useGetProvinces from '@/hooks/reactQuery/useGetProvinces'
+import useGetWards from '@/hooks/reactQuery/useGetWards'
+import { formatAddress } from '@/services/address'
+import { isValidVnPhone } from '@/utils/phone'
 
 type LaundryFormProps = {
-  formData: {
-    name: string
-    phone: string
-    addressId: string
-    address: string
-    serviceType: string
-    weight: string
-  }
+  formData: LaundryFormData
   addresses: AddressItem[]
   plans: PricingPlan[]
   estimatedPrice: number
   onChange: (field: string, value: string) => void
   onSubmit: () => void
   onCancel: () => void
+  isSubmitting?: boolean
 }
 
-const LaundryForm = ({ formData, addresses, plans, estimatedPrice, onChange, onSubmit, onCancel }: LaundryFormProps) => {
+const LaundryForm = ({ formData, addresses, plans, estimatedPrice, onChange, onSubmit, onCancel, isSubmitting = false }: LaundryFormProps) => {
   const { translate } = useLanguage()
+  const { provinces, isLoading: loadingProvinces } = useGetProvinces()
+
+  // Province is stored by name (same as profile AddressForm), wards are fetched by its id
+  const selectedProvince = provinces.find((p) => p.name === formData.city)
+  const { wards, isLoading: loadingWards } = useGetWards(selectedProvince?.id)
+
+  const savedAddressOptions = useMemo(() => addresses.map((addr) => ({ value: addr.id, label: formatAddress(addr) })), [addresses])
+  const cityOptions = useMemo(() => provinces.map((p) => ({ value: p.name, label: p.full_name || p.name })), [provinces])
+  const wardOptions = useMemo(() => wards.map((w) => ({ value: w.name, label: w.full_name || w.name })), [wards])
+
+  const handleSelectSavedAddress = (addressId: string) => {
+    const addr = addresses.find((a) => a.id === addressId)
+
+    if (!addr) return
+
+    onChange('addressId', addr.id)
+    onChange('address', addr.address)
+    onChange('district', addr.district)
+    onChange('city', addr.city)
+  }
+
+  // Editing any address part detaches the saved address so a new one is created on submit
+  const handleManualAddressChange = (field: 'address' | 'district' | 'city', value: string) => {
+    onChange('addressId', '')
+    onChange(field, value)
+  }
 
   const activePlans = plans.filter((p) => p.isActive)
   const serviceOptions =
@@ -43,7 +71,13 @@ const LaundryForm = ({ formData, addresses, plans, estimatedPrice, onChange, onS
     activePlans.find((p) => p.name === serviceOptions.find((o) => o.key === formData.serviceType)?.label)
 
   const isFormValid =
-    formData.name.trim() && formData.phone.trim() && formData.address.trim() && formData.weight.trim() && parseFloat(formData.weight) > 0
+    formData.name.trim() &&
+    isValidVnPhone(formData.phone) &&
+    formData.address.trim() &&
+    formData.district &&
+    formData.city &&
+    formData.weight.trim() &&
+    parseFloat(formData.weight) > 0
 
   return (
     <div className='bg-white border border-border w-full rounded-xl p-4 space-y-4'>
@@ -72,34 +106,56 @@ const LaundryForm = ({ formData, addresses, plans, estimatedPrice, onChange, onS
           />
         </div>
 
-        <div>
-          <label className='block text-xs font-medium text-gray-700 mb-1'>{translate('common.address')}</label>
+        <div className='space-y-2'>
+          <label className='block text-xs font-medium text-gray-700'>{translate('common.address')}</label>
           {addresses.length > 0 && (
-            <select
+            <MySelect
+              data={savedAddressOptions}
               value={formData.addressId}
-              onChange={(e) => {
-                const addr = addresses.find((a) => a.id === e.target.value)
-
-                if (addr) {
-                  onChange('addressId', addr.id)
-                  onChange('address', [addr.address, addr.district, addr.city].filter(Boolean).join(', '))
-                }
-              }}
-              className='w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 bg-white mb-2'
-            >
-              <option value=''>-- Chọn địa chỉ đã lưu --</option>
-              {addresses.map((addr) => (
-                <option key={addr.id} value={addr.id}>
-                  {[addr.address, addr.district, addr.city].filter(Boolean).join(', ')}
-                </option>
-              ))}
-            </select>
+              placeholder={translate('chat.laundryForm.savedAddress')}
+              onChange={(item) => handleSelectSavedAddress(item.value as string)}
+              className='text-sm'
+              style={{ width: '100%' }}
+            />
           )}
+        </div>
+
+        <div>
+          <label className='block text-xs font-medium text-gray-700 mb-1'>{translate('chat.laundryForm.city')}</label>
+          <MySelect
+            data={cityOptions}
+            value={formData.city}
+            placeholder={loadingProvinces ? translate('common.loading') : translate('common.select')}
+            disabled={loadingProvinces}
+            onChange={(item) => {
+              handleManualAddressChange('city', item.value as string)
+              onChange('district', '')
+            }}
+            className='text-sm'
+            style={{ width: '100%' }}
+          />
+        </div>
+
+        <div>
+          <label className='block text-xs font-medium text-gray-700 mb-1'>{translate('chat.laundryForm.ward')}</label>
+          <MySelect
+            data={wardOptions}
+            value={formData.district}
+            placeholder={loadingWards ? translate('common.loading') : translate('common.select')}
+            disabled={!selectedProvince || loadingWards}
+            onChange={(item) => handleManualAddressChange('district', item.value as string)}
+            className='text-sm'
+            style={{ width: '100%' }}
+          />
+        </div>
+
+        <div>
+          <label className='block text-xs font-medium text-gray-700 mb-1'>{translate('chat.laundryForm.addressDetail')}</label>
           <input
             type='text'
             value={formData.address}
-            onChange={(e) => onChange('address', e.target.value)}
-            placeholder={translate('chat.laundryForm.addressPlaceholder')}
+            onChange={(e) => handleManualAddressChange('address', e.target.value)}
+            placeholder={translate('chat.laundryForm.addressDetailPlaceholder')}
             className='w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20'
           />
         </div>
@@ -145,7 +201,7 @@ const LaundryForm = ({ formData, addresses, plans, estimatedPrice, onChange, onS
           <MyButton onClick={onCancel} variant='outline' className='flex-1 py-2 text-sm'>
             {translate('common.cancel')}
           </MyButton>
-          <MyButton onClick={onSubmit} disabled={!isFormValid} className='flex-1 py-2 text-sm'>
+          <MyButton onClick={onSubmit} disabled={!isFormValid} loading={isSubmitting} className='flex-1 py-2 text-sm'>
             {translate('chat.laundryForm.submit')}
           </MyButton>
         </div>

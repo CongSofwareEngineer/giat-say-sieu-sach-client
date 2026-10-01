@@ -45,7 +45,7 @@ class AddressApi extends BaseAPI {
 }
 
 // Join the address parts into one readable line
-export const formatAddress = (item?: AddressItem | null): string => {
+export const formatAddress = (item?: Pick<AddressItem, 'address' | 'district' | 'city'> | null): string => {
   if (!item) return ''
 
   return [item.address, item.district, item.city].filter(Boolean).join(', ')

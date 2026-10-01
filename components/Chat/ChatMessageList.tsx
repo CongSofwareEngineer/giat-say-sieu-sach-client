@@ -5,6 +5,7 @@ import type { AddressItem } from '@/services/address/type'
 import type { PricingPlan } from '@/services/pricing'
 
 import LaundryForm from './LaundryForm'
+import OrderPhoneForm from './OrderPhoneForm'
 import QuickOptions from './QuickOptions'
 import TypingIndicator from './TypingIndicator'
 import { type LaundryFormData } from './types'
@@ -25,6 +26,11 @@ type ChatMessageListProps = {
   onLaundryFormChange?: (field: string, value: string) => void
   onSubmitLaundry?: () => void
   onCancelLaundry?: () => void
+  isBooking?: boolean
+  showOrderPhoneForm?: boolean
+  isLookingUpOrders?: boolean
+  onSubmitOrderPhone?: (phone: string) => void
+  onCancelOrderPhone?: () => void
 }
 
 const ChatMessageList = ({
@@ -41,6 +47,11 @@ const ChatMessageList = ({
   onLaundryFormChange,
   onSubmitLaundry,
   onCancelLaundry,
+  isBooking,
+  showOrderPhoneForm,
+  isLookingUpOrders,
+  onSubmitOrderPhone,
+  onCancelOrderPhone,
 }: ChatMessageListProps) => {
   // Sort messages by id to ensure chronological order
   const sortedMessages = [...messages].sort((a, b) => a.id - b.id)
@@ -79,7 +90,17 @@ const ChatMessageList = ({
               onChange={onLaundryFormChange}
               onSubmit={onSubmitLaundry}
               onCancel={onCancelLaundry}
+              isSubmitting={isBooking}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Guest phone input for the order lookup */}
+      {showOrderPhoneForm && onSubmitOrderPhone && onCancelOrderPhone && (
+        <div className='flex justify-start'>
+          <div className='w-full'>
+            <OrderPhoneForm isSubmitting={isLookingUpOrders} onSubmit={onSubmitOrderPhone} onCancel={onCancelOrderPhone} />
           </div>
         </div>
       )}

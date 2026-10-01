@@ -46,13 +46,13 @@ class BlogApi extends BaseAPI {
     if (params?.category) query.set('category', params.category)
     if (params?.isPublished !== undefined) query.set('isPublished', String(params.isPublished))
 
-    const response = await this.get<{ data: BlogPost[] }>(query.toString() ? `?${query.toString()}` : '')
+    const response = await this.get<{ data: BlogPost[] }>(query.toString() ? `?${query.toString()}` : '', { isUseAuth: true })
 
     return response?.data ?? []
   }
 
   async getPostById(id: string): Promise<BlogPost> {
-    const response = await this.get<{ data: BlogPost }>(`/${id}`)
+    const response = await this.get<{ data: BlogPost }>(`/${id}`, { isUseAuth: true })
 
     return response.data
   }
