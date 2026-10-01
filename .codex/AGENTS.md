@@ -61,13 +61,13 @@ Cookies.get(COOKIES_KEY.accessToken)
 ## 5. Every logic change must have a log file in `docs/`
 
 - For every new or changed piece of logic (feature, hook, API call, business rule, bug fix), write a Markdown log file in `docs/` so the team can understand it.
-- Path: `docs/<feature>/<YYYY-MM-DD>-<short-slug>.md` (e.g. `docs/blog/2026-09-30-blocknote-editor.md`). Create the `<feature>` folder if missing.
+- Path: `docs/<feature>/<DD-MM-YYYY>-<short-slug>.md` (e.g. `docs/blog/30-09-2026-blocknote-editor.md`). Create the `<feature>` folder if missing.
 - Write the log in Vietnamese, short and clear, using this template:
 
 ```md
 # <Tên thay đổi>
 
-- Ngày: YYYY-MM-DD
+- Ngày: DD-MM-YYYY
 - Phạm vi: <feature / module>
 
 ## Mục đích
