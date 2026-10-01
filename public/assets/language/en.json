@@ -67,7 +67,12 @@
     "refresh": "Refresh",
     "retry": "Try again",
     "saving": "Saving...",
-    "selectImage": "Select image"
+    "selectImage": "Select image",
+    "notFoundPage": {
+      "title": "Page not found",
+      "description": "The page you are looking for does not exist or has been removed. Go back to the home page to continue.",
+      "backHome": "Back to home"
+    }
   },
   "menu": {
     "home": "Home",

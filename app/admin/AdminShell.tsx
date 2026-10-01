@@ -105,48 +105,53 @@ const AdminShell = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className='flex min-h-screen bg-background'>
-      {/* Sidebar - Desktop */}
-      <aside className='fixed inset-y-0 hidden w-64 flex-col border-r border-border bg-white lg:flex'>{sidebarContent}</aside>
+      {user?.isAdmin && (
+        <>
+          {/* Sidebar - Desktop */}
+          <aside className='fixed inset-y-0 hidden w-64 flex-col border-r border-border bg-white lg:flex'>{sidebarContent}</aside>
 
-      {/* Mobile Sidebar */}
-      {isSidebarOpen && (
-        <div className='fixed inset-0 z-50 lg:hidden'>
-          <div className='fixed inset-0 bg-black/50' onClick={() => setIsSidebarOpen(false)} />
-          <aside className='fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-border bg-white'>
-            <div className='flex items-center justify-end p-3'>
-              <button type='button' onClick={() => setIsSidebarOpen(false)} aria-label='Close menu'>
-                <CloseIcon className='h-5 w-5 text-text' />
+          {/* Mobile Sidebar */}
+          {isSidebarOpen && (
+            <div className='fixed inset-0 z-50 lg:hidden'>
+              <div className='fixed inset-0 bg-black/50' onClick={() => setIsSidebarOpen(false)} />
+              <aside className='fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-border bg-white'>
+                <div className='flex items-center justify-end p-3'>
+                  <button type='button' onClick={() => setIsSidebarOpen(false)} aria-label='Close menu'>
+                    <CloseIcon className='h-5 w-5 text-text' />
+                  </button>
+                </div>
+                {sidebarContent}
+              </aside>
+            </div>
+          )}
+
+          {/* Main Content */}
+
+          <div className='flex-1 lg:ml-64'>
+            {/* Topbar */}
+            <header className='sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-white px-4 lg:px-6'>
+              <button type='button' onClick={() => setIsSidebarOpen(true)} className='rounded-lg p-2 lg:hidden' aria-label='Open menu'>
+                <MenuIcon className='h-5 w-5 text-text' />
               </button>
-            </div>
-            {sidebarContent}
-          </aside>
-        </div>
-      )}
+              <Link href='/' className='hidden text-sm text-gray-500 hover:text-primary sm:block'>
+                {translate('admin.topbar.backHome')}
+              </Link>
+              <div className='flex items-center gap-3'>
+                <div className='flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary font-bold text-white'>
+                  {translate('admin.topbar.name').charAt(0)}
+                </div>
+                <div className='leading-tight'>
+                  <p className='text-sm font-semibold text-text'>{translate('admin.topbar.name')}</p>
+                  <p className='text-xs text-gray-500'>{translate('admin.topbar.role')}</p>
+                </div>
+              </div>
+            </header>
 
-      {/* Main Content */}
-      <div className='flex-1 lg:ml-64'>
-        {/* Topbar */}
-        <header className='sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-white px-4 lg:px-6'>
-          <button type='button' onClick={() => setIsSidebarOpen(true)} className='rounded-lg p-2 lg:hidden' aria-label='Open menu'>
-            <MenuIcon className='h-5 w-5 text-text' />
-          </button>
-          <Link href='/' className='hidden text-sm text-gray-500 hover:text-primary sm:block'>
-            {translate('admin.topbar.backHome')}
-          </Link>
-          <div className='flex items-center gap-3'>
-            <div className='flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary font-bold text-white'>
-              {translate('admin.topbar.name').charAt(0)}
-            </div>
-            <div className='leading-tight'>
-              <p className='text-sm font-semibold text-text'>{translate('admin.topbar.name')}</p>
-              <p className='text-xs text-gray-500'>{translate('admin.topbar.role')}</p>
-            </div>
+            {/* Page Content */}
+            <main className='p-4 lg:p-6'>{children}</main>
           </div>
-        </header>
-
-        {/* Page Content */}
-        <main className='p-4 lg:p-6'>{children}</main>
-      </div>
+        </>
+      )}
     </div>
   )
 }

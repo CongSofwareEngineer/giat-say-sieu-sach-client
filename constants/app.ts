@@ -22,6 +22,11 @@ export enum INFO_CONTACT {
 
 export const IS_PRODUCTION = process.env.NEXT_PUBLIC_ENV === 'production'
 
+// HTTP status codes checked on API errors
+export enum HTTP_STATUS {
+  NOT_FOUND = 404,
+}
+
 // Primary colors
 export const COLORS = {
   primary: '#0A6F87',

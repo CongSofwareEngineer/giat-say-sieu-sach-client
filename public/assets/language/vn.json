@@ -67,7 +67,12 @@
     "refresh": "Làm mới",
     "retry": "Thử lại",
     "saving": "Đang lưu...",
-    "selectImage": "Chọn ảnh"
+    "selectImage": "Chọn ảnh",
+    "notFoundPage": {
+      "title": "Không tìm thấy trang",
+      "description": "Trang bạn tìm không tồn tại hoặc đã bị xoá. Hãy quay lại trang chủ để tiếp tục.",
+      "backHome": "Về trang chủ"
+    }
   },
   "menu": {
     "home": "Trang chủ",

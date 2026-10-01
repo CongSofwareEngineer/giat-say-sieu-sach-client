@@ -12,6 +12,16 @@ interface RequestOptions extends RequestInit {
   isUseAuth?: boolean
 }
 
+// API error that keeps the HTTP status so callers can tell 404 from other failures
+export class HttpError extends Error {
+  status: number
+
+  constructor(status: number) {
+    super(`HTTP error! status: ${status}`)
+    this.status = status
+  }
+}
+
 let isRefreshing = false
 let refreshPromise: Promise<TokenResponse | null> | null = null
 
@@ -171,7 +181,7 @@ class BaseAPI {
     }
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
+      throw new HttpError(response.status)
     }
 
     return response.json() as Promise<T>

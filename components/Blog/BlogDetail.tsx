@@ -39,14 +39,7 @@ const BlogDetail = ({ post, children }: BlogDetailProps) => {
 
   return (
     <div className='py-12 px-4'>
-      <SeoJsonLd
-        data={articleSchema({
-          slug: post.slug,
-          title: post.title,
-          excerpt: post.excerpt,
-          publishedTime: post.publishedAt || post.createdAt,
-        })}
-      />
+      <SeoJsonLd data={articleSchema(post)} />
       <SeoJsonLd
         data={breadcrumbSchema([
           { name: 'Trang chủ', path: '/' },

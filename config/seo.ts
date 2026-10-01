@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import type { BlogPost as BlogPostApi } from '@/services/blogClient'
+import type { PricingPlan } from '@/services/pricing'
 
 import { INFO_CONTACT, IS_PRODUCTION, SITE_CONFIG } from '@/constants/app'
 
@@ -141,11 +143,15 @@ export const breadcrumbSchema = (items: BreadcrumbItem[]): JsonLd => ({
   })),
 })
 
-type ServiceOffer = {
+export type ServiceOffer = {
   name: string
   price: string
   description?: string
 }
+
+// Map pricing plans from the API to schema offers
+export const toServiceOffers = (plans: PricingPlan[]): ServiceOffer[] =>
+  plans.map((plan) => ({ name: plan.name, price: String(plan.price), description: plan.description }))
 
 // Core services offered, reused by LocalBusiness, Service and home schemas
 export const SERVICE_OFFERS: ServiceOffer[] = [
@@ -217,8 +223,8 @@ export const faqSchema = (items: FaqItem[]): JsonLd => ({
   })),
 })
 
-// Service schema with pricing for the price list page
-export const serviceSchema = (): JsonLd => ({
+// Service schema with pricing from the API offers for the price list page
+export const serviceSchema = (offers: ServiceOffer[]): JsonLd => ({
   '@context': 'https://schema.org',
   '@type': 'Service',
   '@id': `${seo.url}/#service`,
@@ -230,20 +236,22 @@ export const serviceSchema = (): JsonLd => ({
   provider: { '@id': `${seo.url}/#localbusiness` },
   areaServed: 'Hồ Chí Minh',
   isRelatedTo: { '@id': `${seo.url}/#localbusiness` },
-  offers: {
-    '@type': 'AggregateOffer',
-    priceCurrency: 'VND',
-    lowPrice: '15000',
-    highPrice: '80000',
-    offerCount: SERVICE_OFFERS.length,
-    offers: SERVICE_OFFERS.map((offer) => ({
-      '@type': 'Offer',
-      name: offer.name,
-      price: offer.price,
+  ...(offers.length > 0 && {
+    offers: {
+      '@type': 'AggregateOffer',
       priceCurrency: 'VND',
-      availability: 'https://schema.org/InStock',
-    })),
-  },
+      lowPrice: String(Math.min(...offers.map((offer) => Number(offer.price)))),
+      highPrice: String(Math.max(...offers.map((offer) => Number(offer.price)))),
+      offerCount: offers.length,
+      offers: offers.map((offer) => ({
+        '@type': 'Offer',
+        name: offer.name,
+        price: offer.price,
+        priceCurrency: 'VND',
+        availability: 'https://schema.org/InStock',
+      })),
+    },
+  }),
 })
 
 // AboutPage schema
@@ -329,22 +337,24 @@ export const BLOG_POSTS: BlogPost[] = [
   },
 ]
 
-// BlogPosting schema for a single article
-export const articleSchema = (post: Pick<BlogPost, 'slug' | 'title' | 'excerpt' | 'publishedTime'>): JsonLd => ({
+type BlogPostSeo = Pick<BlogPostApi, 'slug' | 'title' | 'excerpt' | 'publishedAt' | 'createdAt'>
+
+// BlogPosting schema for a single article from the API
+export const articleSchema = (post: BlogPostSeo & Pick<BlogPostApi, 'updatedAt' | 'thumbnail' | 'author'>): JsonLd => ({
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
   headline: post.title,
   description: post.excerpt,
-  image: absolute(seo.thumbnail),
-  datePublished: post.publishedTime,
-  dateModified: post.publishedTime,
-  author: { '@type': 'Organization', name: seo.siteName, url: seo.url },
+  image: post.thumbnail?.url || absolute(seo.thumbnail),
+  datePublished: post.publishedAt || post.createdAt,
+  dateModified: post.updatedAt,
+  author: post.author ? { '@type': 'Person', name: post.author } : { '@type': 'Organization', name: seo.siteName, url: seo.url },
   publisher: { '@id': `${seo.url}/#organization` },
   mainEntityOfPage: absolute(`/blog/${post.slug}`),
 })
 
-// Blog schema for the listing page
-export const blogSchema = (): JsonLd => ({
+// Blog schema for the listing page, built from the API posts
+export const blogSchema = (posts: BlogPostSeo[]): JsonLd => ({
   '@context': 'https://schema.org',
   '@type': 'Blog',
   '@id': `${seo.url}/blog/#blog`,
@@ -353,11 +363,11 @@ export const blogSchema = (): JsonLd => ({
   url: absolute('/blog'),
   inLanguage: 'vi-VN',
   publisher: { '@id': `${seo.url}/#organization` },
-  blogPost: BLOG_POSTS.map((post) => ({
+  blogPost: posts.map((post) => ({
     '@type': 'BlogPosting',
     headline: post.title,
     description: post.excerpt,
-    datePublished: post.publishedTime,
+    datePublished: post.publishedAt || post.createdAt,
     url: absolute(`/blog/${post.slug}`),
   })),
 })
@@ -381,11 +391,26 @@ type PageSeo = {
   keywords?: string[]
   type?: 'website' | 'article'
   publishedTime?: string
+  modifiedTime?: string
+  authors?: string[]
+  // Absolute image URL (e.g. blog thumbnail); defaults to the site thumbnail
+  image?: string
 }
 
 // Build per-page Metadata on top of generateMetaBase defaults
-export const buildMetadata = ({ title, description, path, keywords, type = 'website', publishedTime }: PageSeo): Metadata => {
+export const buildMetadata = ({
+  title,
+  description,
+  path,
+  keywords,
+  type = 'website',
+  publishedTime,
+  modifiedTime,
+  authors = [seo.siteName],
+  image,
+}: PageSeo): Metadata => {
   const pageUrl = absolute(path)
+  const ogImage = image ? { url: image, alt: title } : { url: absolute(seo.thumbnail), width: 1200, height: 630, alt: title }
 
   return generateMetaBase({
     title,
@@ -399,14 +424,14 @@ export const buildMetadata = ({ title, description, path, keywords, type = 'webs
       url: pageUrl,
       title: `${title} | ${seo.siteName}`,
       description,
-      images: [{ url: absolute(seo.thumbnail), width: 1200, height: 630, alt: title }],
-      ...(type === 'article' && publishedTime ? { article: { publishedTime, authors: [seo.siteName] } } : {}),
+      images: [ogImage],
+      ...(type === 'article' && { publishedTime, modifiedTime, authors }),
     },
     twitter: {
       card: 'summary_large_image',
       title: `${title} | ${seo.siteName}`,
       description,
-      images: [absolute(seo.thumbnail)],
+      images: [ogImage.url],
     },
   })
 }
