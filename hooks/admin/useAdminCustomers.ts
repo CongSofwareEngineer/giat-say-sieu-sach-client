@@ -1,3 +1,5 @@
+import type { CloudinaryImage } from '@/services/upload'
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { QUERY_KEYS } from '@/constants/reactQuery'
@@ -18,14 +20,14 @@ type CreateCustomerPayload = {
   name: string
   password: string
   role?: UserRole
-  avatar?: string
+  avatar?: CloudinaryImage
   isActive?: boolean
 }
 
 type UpdateCustomerPayload = {
   phone?: string
   name?: string
-  avatar?: string
+  avatar?: CloudinaryImage | null
   isActive?: boolean
 }
 

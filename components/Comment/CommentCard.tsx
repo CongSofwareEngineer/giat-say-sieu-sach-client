@@ -146,15 +146,19 @@ const CommentCard = ({ comment, className }: CommentCardProps) => {
 
       {comment.images.length > 0 && (
         <div className={cn('grid gap-2', comment.images.length === 1 ? 'grid-cols-1' : comment.images.length === 2 ? 'grid-cols-2' : 'grid-cols-3')}>
-          {comment.images.map((src, index) => (
+          {comment.images.map((image, index) => (
             <button
-              key={`${src}-${index}`}
+              key={`${image.publicId}-${index}`}
               type='button'
-              onClick={() => viewImage(src)}
+              onClick={() => viewImage(image.url)}
               className='group relative aspect-square cursor-pointer overflow-hidden rounded-xl border border-border'
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt={comment.title} className='h-full w-full object-cover transition-transform duration-300 group-hover:scale-110' />
+              <img
+                src={image.url}
+                alt={comment.title}
+                className='h-full w-full object-cover transition-transform duration-300 group-hover:scale-110'
+              />
             </button>
           ))}
         </div>

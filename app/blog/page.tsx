@@ -1,5 +1,7 @@
 'use client'
 
+import type { CloudinaryImage } from '@/services/upload'
+
 import { useState } from 'react'
 import Link from 'next/link'
 
@@ -10,6 +12,7 @@ import SeoJsonLd from '@/components/SeoJsonLd'
 import useLanguage from '@/hooks/useLanguage'
 import { useBlogPosts } from '@/hooks/reactQuery/useBlog'
 import { blogSchema, breadcrumbSchema } from '@/config/seo'
+import { SITE_CONFIG } from '@/constants/app'
 import { cn } from '@/utils/tailwind'
 import { getBlogReadTime } from '@/utils/blogContent'
 
@@ -20,7 +23,7 @@ type Post = {
   excerpt: string
   content: string
   slug: string
-  thumbnail: string
+  thumbnail: CloudinaryImage | null
   createdAt: string
 }
 
@@ -118,7 +121,7 @@ const BlogPage = () => {
                 <MyCard className='flex h-full flex-col overflow-hidden transition-transform duration-300 group-hover:-translate-y-1'>
                   <div className='relative aspect-video flex-shrink-0 overflow-hidden'>
                     <MyImage
-                      src={post.thumbnail || '/thumbnail.png'}
+                      src={post.thumbnail?.url || SITE_CONFIG.thumbnail}
                       alt={post.title}
                       fill
                       sizes='(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw'

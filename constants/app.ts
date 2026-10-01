@@ -51,3 +51,13 @@ export const MAX_AVATAR_FILE_SIZE = (5 * 1024 * 1024) as number
 export const PAGE_SIZE = 10 as number
 // Recent orders shown in the chat order list
 export const MAX_CHAT_ORDERS = 4 as number
+
+// Image upload folders (must match server CloudinaryFolder enum)
+export enum UPLOAD_IMAGE_TYPE {
+  AVATAR = 'avatars',
+  BLOG = 'blogs',
+  COMMENT = 'comments',
+}
+
+// Max files the server accepts in one upload request
+export const MAX_IMAGES_PER_UPLOAD = 10 as number

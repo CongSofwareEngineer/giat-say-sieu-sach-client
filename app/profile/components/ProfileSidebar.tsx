@@ -10,8 +10,9 @@ import { UserCircleIcon } from '@/components/Icons/UserCircle'
 import useBase64Img from '@/hooks/useBase64Img'
 import useLanguage from '@/hooks/useLanguage'
 import useUser from '@/hooks/useUser'
-import { MAX_AVATAR_FILE_SIZE } from '@/constants/app'
-import { getBase64 } from '@/utils/functions'
+import { MAX_AVATAR_FILE_SIZE, UPLOAD_IMAGE_TYPE } from '@/constants/app'
+import UploadService from '@/services/upload'
+import UserService from '@/services/users'
 import { cn } from '@/utils/tailwind'
 
 export type ProfileTab = 'info' | 'addresses'
@@ -35,7 +36,7 @@ const ProfileSidebar = ({ activeTab, onChangeTab }: ProfileSidebarProps) => {
     { key: 'addresses', label: translate('profile.menu.addresses'), icon: <MapPinIcon className='h-5 w-5' /> },
   ]
 
-  // Preview a new avatar locally before persisting
+  // Optimize avatar -> upload to get its path -> save it to the profile
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
 
@@ -54,9 +55,10 @@ const ProfileSidebar = ({ activeTab, onChangeTab }: ProfileSidebarProps) => {
 
     try {
       const optimized = await getFileOptimize(file)
-      const { base64 } = (await getBase64(optimized)) as { base64: string }
+      const [avatar] = await UploadService.uploadImages([optimized], UPLOAD_IMAGE_TYPE.AVATAR)
+      const updatedUser = await UserService.updateAvatar(avatar)
 
-      updateUser({ avatar: base64 })
+      updateUser({ avatar: updatedUser?.avatar ?? avatar })
     } catch (error: any) {
       // Only show error if it's not a cancellation
       if (error?.message !== 'Crop cancelled') {
@@ -72,8 +74,8 @@ const ProfileSidebar = ({ activeTab, onChangeTab }: ProfileSidebarProps) => {
       <MyCardBody className='text-center'>
         <div className='relative mx-auto h-28 w-28'>
           <div className='relative h-full w-full overflow-hidden rounded-full border-4 border-white shadow-lg'>
-            {user?.avatar ? (
-              <MyImage src={user.avatar} alt={translate('common.avatar')} fill className='object-cover' sizes='112px' />
+            {user?.avatar?.url ? (
+              <MyImage src={user.avatar.url} alt={translate('common.avatar')} fill className='object-cover' sizes='112px' />
             ) : (
               <div className='flex h-full w-full items-center justify-center bg-gradient-to-br from-primary to-secondary'>
                 <UserCircleIcon className='h-14 w-14 text-white' />

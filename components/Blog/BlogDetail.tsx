@@ -83,9 +83,9 @@ const BlogDetail = ({ post, children }: BlogDetailProps) => {
             <span>{post.author || 'Admin'}</span>
           </div>
 
-          {post.thumbnail && (
+          {post.thumbnail?.url && (
             <div className='relative aspect-video mb-8 rounded-2xl overflow-hidden'>
-              <img src={post.thumbnail} alt={post.title} className='w-full h-full object-cover' />
+              <img src={post.thumbnail.url} alt={post.title} className='w-full h-full object-cover' />
             </div>
           )}
 

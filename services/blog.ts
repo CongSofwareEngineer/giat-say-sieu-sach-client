@@ -1,3 +1,5 @@
+import type { CloudinaryImage } from '@/services/upload'
+
 import BaseAPI from '@/config/baseApi'
 import { LANGUAGE_SUPPORT } from '@/zustand/language'
 
@@ -5,7 +7,7 @@ export type BlogPost = {
   id: string
   title: string
   slug: string
-  thumbnail: string
+  thumbnail: CloudinaryImage | null
   excerpt: string
   content: string
   category: string
@@ -19,7 +21,7 @@ export type BlogPost = {
 export type CreateBlogPayload = {
   title: string
   slug: string
-  thumbnail?: string
+  thumbnail?: CloudinaryImage | null
   excerpt?: string
   content: string
   category: string
@@ -29,7 +31,7 @@ export type CreateBlogPayload = {
 export type UpdateBlogPayload = {
   title?: string
   slug?: string
-  thumbnail?: string
+  thumbnail?: CloudinaryImage | null
   excerpt?: string
   content?: string
   category?: string

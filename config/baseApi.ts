@@ -125,8 +125,10 @@ class BaseAPI {
 
     urlFinal = urlFinal.replace(/([^:]\/)\/+/g, '$1')
 
+    // Let the browser set the multipart boundary for FormData bodies
+    const isFormData = options?.body instanceof FormData
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...((options?.headers as Record<string, string>) || {}),
     }
 
@@ -190,6 +192,16 @@ class BaseAPI {
         ...((options?.headers as Record<string, string>) || {}),
       },
       body: JSON.stringify(body),
+    })
+  }
+
+  // Send a multipart/form-data body (e.g. file uploads) without JSON encoding
+  async postFormData<T>(url: string, body: FormData, options: RequestOptions = {}): Promise<T> {
+    return this.request<T>(url, {
+      isUseAuth: true,
+      ...options,
+      method: 'POST',
+      body,
     })
   }
 

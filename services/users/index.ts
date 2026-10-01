@@ -1,3 +1,5 @@
+import type { CloudinaryImage } from '@/services/upload'
+
 import { User } from './type'
 
 import BaseAPI from '@/config/baseApi'
@@ -11,13 +13,9 @@ class UserApi extends BaseAPI {
     return response.data
   }
 
-  async updateAvatar(avatarData: FormData): Promise<any> {
-    const response = await this.patch<{ data: any }>('/me', avatarData, {
-      isUseAuth: true,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
+  // Avatar must be an object returned by UploadService.uploadImages (null removes it)
+  async updateAvatar(avatar: CloudinaryImage | null): Promise<User> {
+    const response = await this.patch<{ data: User }>('/me', { avatar }, { isUseAuth: true })
 
     return response.data
   }
@@ -55,7 +53,14 @@ class UserApi extends BaseAPI {
     return response.data
   }
 
-  async createUser(payload: { phone: string; name: string; password: string; role?: string; avatar?: string; isActive?: boolean }): Promise<User> {
+  async createUser(payload: {
+    phone: string
+    name: string
+    password: string
+    role?: string
+    avatar?: CloudinaryImage
+    isActive?: boolean
+  }): Promise<User> {
     const response = await this.post<{ data: User }>('/', payload, { isUseAuth: true })
 
     return response.data

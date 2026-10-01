@@ -1,3 +1,5 @@
+import type { CloudinaryImage } from '@/services/upload'
+
 import BaseAPI from '@/config/baseApi'
 
 export const COMMENT_SERVICES = [
@@ -24,7 +26,7 @@ export type CommentItem = {
   rating?: number
   content: string
   isVisible: boolean
-  images: string[]
+  images: CloudinaryImage[]
   parentComment: string | null
   createdAt: string
   name?: string
@@ -39,7 +41,7 @@ export type CreateCommentPayload = {
   categoryId?: string
   rating?: number
   content: string
-  images: string[]
+  images: CloudinaryImage[]
   parentComment?: string | null
   name?: string
   phone?: string
@@ -52,7 +54,7 @@ export type UpdateCommentPayload = {
   categoryId?: string
   rating?: number
   content?: string
-  images?: string[]
+  images?: CloudinaryImage[]
   isVisible?: boolean
   parentComment?: string | null
   name?: string
@@ -138,7 +140,7 @@ class CommentApi extends BaseAPI {
 
   async createComment(
     categoryId: string,
-    payload: { rating?: number; content: string; images: string[] },
+    payload: { rating?: number; content: string; images: CloudinaryImage[] },
     options?: { isUseAuth?: boolean }
   ): Promise<CommentItem> {
     const response = await this.post<{ data: CommentItem }>(`/laundry-categories/${categoryId}`, payload, { isUseAuth: options?.isUseAuth ?? false })

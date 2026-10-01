@@ -1,7 +1,7 @@
 'use client'
 
 import { useParams, useRouter } from 'next/navigation'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 import MyButton from '@/components/MyButton'
 import MyCard, { MyCardBody } from '@/components/MyCard'
@@ -11,7 +11,10 @@ import MySelect from '@/components/MySelect'
 import MyTextarea from '@/components/MyTextarea'
 import BlogEditor from '@/components/Blog/BlogEditor'
 import useAdminBlog from '@/hooks/admin/useAdminBlog'
+import useBase64Img from '@/hooks/useBase64Img'
 import useLanguage from '@/hooks/useLanguage'
+import UploadService, { CloudinaryImage } from '@/services/upload'
+import { UPLOAD_IMAGE_TYPE } from '@/constants/app'
 import { toast } from '@/utils/toast'
 import { BlogPost } from '@/services/blog'
 import { slugify } from '@/utils/slugify'
@@ -20,6 +23,8 @@ import { getBlogReadTime } from '@/utils/blogContent'
 import { ArrowLeftIcon } from '@/components/Icons/ArrowLeft'
 import { CheckIcon } from '@/components/Icons/Check'
 import { XIcon } from '@/components/Icons/X'
+import { CameraIcon } from '@/components/Icons/Camera'
+import { getBase64 } from '@/utils/functions'
 
 type EditableFieldProps = {
   value: string
@@ -165,13 +170,18 @@ const AdminBlogEditPage = () => {
   const id = params.id as string
   const { translate } = useLanguage()
   const { getPostById, updatePost, isUpdating } = useAdminBlog()
+  const { getFileOptimize } = useBase64Img()
+  const thumbnailInputRef = useRef<HTMLInputElement>(null)
 
   const [post, setPost] = useState<BlogPost | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [editingField, setEditingField] = useState<string | null>(null)
   const [content, setContent] = useState('')
-  const [thumbnail, setThumbnail] = useState('')
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
+  const [thumbnailPreview, setThumbnailPreview] = useState('')
   const [isThumbnailEditing, setIsThumbnailEditing] = useState(false)
+  const [isOptimizing, setIsOptimizing] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
 
   const categories = [
     { value: 'Mẹo hay', label: 'Mẹo hay' },
@@ -187,7 +197,7 @@ const AdminBlogEditPage = () => {
         const fetchedPost = await getPostById(id)
         setPost(fetchedPost)
         setContent(fetchedPost.content)
-        setThumbnail(fetchedPost.thumbnail || '')
+        setThumbnailPreview(fetchedPost.thumbnail?.url || '')
       } catch (error) {
         toast({ message: translate('common.error'), type: 'error' })
       } finally {
@@ -231,20 +241,67 @@ const AdminBlogEditPage = () => {
       })
   }
 
-  const handleThumbnailSave = () => {
+  // Optimize the picked thumbnail and keep it for upload on save
+  const handleThumbnailChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+
+    e.target.value = ''
+
+    if (!file) return
+
+    setIsOptimizing(true)
+
+    try {
+      const optimized = await getFileOptimize(file)
+      const { base64 } = (await getBase64(optimized)) as { base64: string }
+
+      setThumbnailFile(optimized)
+      setThumbnailPreview(base64)
+    } catch {
+      // Ignore failed/cancelled crops
+    } finally {
+      setIsOptimizing(false)
+    }
+  }
+
+  // Drop the picked file and show the saved thumbnail again
+  const handleThumbnailCancel = () => {
+    setThumbnailFile(null)
+    setThumbnailPreview(post?.thumbnail?.url || '')
+    setIsThumbnailEditing(false)
+  }
+
+  // Upload the pending thumbnail (if any) to get its path, otherwise keep the saved one
+  const resolveThumbnail = async (): Promise<CloudinaryImage | null> => {
+    if (!thumbnailFile) return post?.thumbnail ?? null
+
+    setIsUploading(true)
+
+    try {
+      const [uploaded] = await UploadService.uploadImages([thumbnailFile], UPLOAD_IMAGE_TYPE.BLOG)
+
+      setThumbnailFile(null)
+
+      return uploaded
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const handleThumbnailSave = async () => {
     if (!post) return
 
-    updatePost({ id: post.id, payload: { thumbnail } as any })
-      .then(() => {
-        setPost({ ...post, thumbnail })
-        toast({ message: 'Saved!', type: 'default' })
-      })
-      .catch(() => {
-        toast({ message: translate('common.error'), type: 'error' })
-      })
-      .finally(() => {
-        setIsThumbnailEditing(false)
-      })
+    try {
+      const thumbnail = await resolveThumbnail()
+
+      await updatePost({ id: post.id, payload: { thumbnail } })
+      setPost({ ...post, thumbnail })
+      toast({ message: 'Saved!', type: 'default' })
+    } catch {
+      toast({ message: translate('common.error'), type: 'error' })
+    } finally {
+      setIsThumbnailEditing(false)
+    }
   }
 
   const handleContentSave = () => {
@@ -274,26 +331,27 @@ const AdminBlogEditPage = () => {
       })
   }
 
-  const handleSaveAll = () => {
+  const handleSaveAll = async () => {
     if (!post) return
 
-    const payload: any = {
-      title: post.title,
-      slug: post.slug,
-      thumbnail,
-      excerpt: post.excerpt,
-      content,
-      category: post.category,
-      isPublished: post.isPublished,
-    }
+    try {
+      const thumbnail = await resolveThumbnail()
+      const payload: any = {
+        title: post.title,
+        slug: post.slug,
+        thumbnail,
+        excerpt: post.excerpt,
+        content,
+        category: post.category,
+        isPublished: post.isPublished,
+      }
 
-    updatePost({ id: post.id, payload })
-      .then(() => {
-        toast({ message: 'All changes saved!', type: 'default' })
-      })
-      .catch(() => {
-        toast({ message: translate('common.error'), type: 'error' })
-      })
+      await updatePost({ id: post.id, payload })
+      setPost({ ...post, thumbnail })
+      toast({ message: 'All changes saved!', type: 'default' })
+    } catch {
+      toast({ message: translate('common.error'), type: 'error' })
+    }
   }
 
   const handleCancel = () => {
@@ -398,36 +456,53 @@ const AdminBlogEditPage = () => {
             {/* Thumbnail */}
             {isThumbnailEditing ? (
               <div className='space-y-4 pt-4 border-t border-border'>
-                <MyInput
-                  label={translate('blog.thumbnail', {}, 'Thumbnail URL')}
-                  placeholder='https://example.com/image.jpg'
-                  value={thumbnail}
-                  onChange={(e) => setThumbnail(e.target.value)}
-                  className='w-full'
-                />
-                {thumbnail && (
-                  <div className='relative aspect-video rounded-2xl overflow-hidden'>
-                    <img src={thumbnail} alt='Preview' className='w-full h-full object-cover' />
-                  </div>
-                )}
+                <span className='font-medium text-text block'>{translate('blog.thumbnail')}</span>
+                <button
+                  type='button'
+                  onClick={() => thumbnailInputRef.current?.click()}
+                  disabled={isOptimizing}
+                  aria-label={translate('common.selectImage')}
+                  className='relative flex aspect-video w-full cursor-pointer items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-border text-gray-400 transition-colors hover:border-primary hover:text-primary'
+                >
+                  {thumbnailPreview ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={thumbnailPreview} alt={translate('blog.thumbnail')} className='w-full h-full object-cover' />
+                  ) : isOptimizing ? (
+                    <span className='h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent' />
+                  ) : (
+                    <span className='flex flex-col items-center gap-1 text-sm'>
+                      <CameraIcon className='h-6 w-6' />
+                      {translate('common.selectImage')}
+                    </span>
+                  )}
+                </button>
+                <input ref={thumbnailInputRef} type='file' accept='image/*' className='hidden' onChange={handleThumbnailChange} />
                 <div className='flex gap-2'>
-                  <MyButton variant='outline' onClick={() => setIsThumbnailEditing(false)}>
+                  <MyButton variant='outline' onClick={handleThumbnailCancel}>
                     <XIcon className='h-4 w-4' />
                   </MyButton>
-                  <MyButton variant='primary' onClick={handleThumbnailSave} disabled={isUpdating}>
+                  <MyButton variant='primary' onClick={handleThumbnailSave} disabled={isUpdating || isUploading || !thumbnailFile}>
                     <CheckIcon className='h-4 w-4' />
                   </MyButton>
                 </div>
               </div>
-            ) : (
-              post.thumbnail && (
-                <div className='relative aspect-video rounded-2xl overflow-hidden cursor-pointer' onClick={() => setIsThumbnailEditing(true)}>
-                  <img src={post.thumbnail} alt={post.title} className='w-full h-full object-cover' />
-                  <div className='absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center hover:bg-opacity-30 transition-all'>
-                    <span className='text-white font-medium'>{translate('common.edit')}</span>
-                  </div>
+            ) : post.thumbnail?.url ? (
+              <div className='relative aspect-video rounded-2xl overflow-hidden cursor-pointer' onClick={() => setIsThumbnailEditing(true)}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={post.thumbnail.url} alt={post.title} className='w-full h-full object-cover' />
+                <div className='absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center hover:bg-opacity-30 transition-all'>
+                  <span className='text-white font-medium'>{translate('common.edit')}</span>
                 </div>
-              )
+              </div>
+            ) : (
+              <button
+                type='button'
+                onClick={() => setIsThumbnailEditing(true)}
+                className='flex aspect-video w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl border-2 border-dashed border-border text-sm text-gray-400 transition-colors hover:border-primary hover:text-primary'
+              >
+                <CameraIcon className='h-6 w-6' />
+                {translate('common.selectImage')}
+              </button>
             )}
 
             {/* Excerpt */}

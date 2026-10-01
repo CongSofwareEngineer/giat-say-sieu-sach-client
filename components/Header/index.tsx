@@ -192,8 +192,8 @@ const Header = () => {
                   className='flex items-center gap-2 rounded-full p-1 pr-3 transition-colors hover:bg-gray-100'
                 >
                   <div className='relative h-9 w-9 overflow-hidden rounded-full bg-gradient-to-br from-primary to-secondary'>
-                    {user?.avatar ? (
-                      <MyImage src={user.avatar} alt={user?.name || 'avatar'} fill sizes='36px' className='object-cover' />
+                    {user?.avatar?.url ? (
+                      <MyImage src={user.avatar.url} alt={user?.name || translate('common.avatar')} fill sizes='36px' className='object-cover' />
                     ) : (
                       <UserCircleIcon className='h-9 w-9 text-white' />
                     )}

@@ -11,7 +11,8 @@ import { CameraIcon } from '@/components/Icons/Camera'
 import { PlusIcon } from '@/components/Icons/Plus'
 import { TrashIcon } from '@/components/Icons/Trash'
 import { COMMENT_SERVICES, CommentItem } from '@/services/comment'
-import { MAX_COMMENT_IMAGES } from '@/constants/app'
+import UploadService, { CloudinaryImage } from '@/services/upload'
+import { MAX_COMMENT_IMAGES, UPLOAD_IMAGE_TYPE } from '@/constants/app'
 import useBase64Img from '@/hooks/useBase64Img'
 import useGetListComments from '@/hooks/reactQuery/useGetListComments'
 import useLanguage from '@/hooks/useLanguage'
@@ -35,6 +36,13 @@ type FormState = {
 }
 
 type FormErrors = Partial<Record<keyof FormState | 'images', string>>
+
+// An already uploaded image (editing) or a new optimized file waiting to be uploaded on submit
+type ImageItem = {
+  preview: string
+  uploaded?: CloudinaryImage
+  file?: File
+}
 
 // Convert an optimized File into a base64 data URL string
 const fileToBase64 = (file: File) =>
@@ -64,7 +72,7 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
     serviceId: editingComment?.serviceId ?? defaultServiceId,
     rating: editingComment?.rating ?? 0,
   })
-  const [images, setImages] = useState<string[]>(editingComment?.images ?? [])
+  const [images, setImages] = useState<ImageItem[]>(() => (editingComment?.images ?? []).map((image) => ({ preview: image.url, uploaded: image })))
   const [errors, setErrors] = useState<FormErrors>({})
   const [isOptimizing, setIsOptimizing] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -84,7 +92,7 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }))
   }
 
-  // Optimize each picked image via cropper then store as base64
+  // Optimize each picked image via cropper, keep the file for upload and a base64 preview
   const handleFiles = async (files: FileList | null) => {
     if (!files?.length || !canAddImage) return
 
@@ -95,9 +103,9 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
     try {
       for (const file of picked) {
         const optimized = await getFileOptimize(file)
-        const base64 = await fileToBase64(optimized)
+        const preview = await fileToBase64(optimized)
 
-        setImages((prev) => [...prev, base64])
+        setImages((prev) => [...prev, { preview, file: optimized }])
       }
     } catch {
       // Ignore failed/cancelled crops
@@ -124,6 +132,19 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
     return Object.keys(newErrors).length === 0
   }
 
+  // Upload all new files in one request, then return every image in display order
+  const resolveImages = async (): Promise<CloudinaryImage[]> => {
+    const newFiles = images.flatMap((item) => (item.file ? [item.file] : []))
+    const uploaded = await UploadService.uploadImages(newFiles, UPLOAD_IMAGE_TYPE.COMMENT)
+    let uploadIndex = 0
+    const result = images.map((item) => item.uploaded ?? uploaded[uploadIndex++])
+
+    // Keep uploaded paths so a retry after a failed submit does not upload again
+    setImages(images.map((item, index) => ({ preview: item.preview, uploaded: result[index] })))
+
+    return result
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -133,13 +154,15 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
     setSubmitError('')
 
     try {
+      const uploadedImages = await resolveImages()
+
       if (isEditing && editingComment) {
         await updateComment({
           id: editingComment.id,
           payload: {
             title: formData.title.trim(),
             content: formData.content.trim(),
-            images,
+            images: uploadedImages,
             ...(isLogin ? { rating: formData.rating } : {}),
           },
         })
@@ -150,7 +173,7 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
           name: formData.name.trim(),
           title: formData.title.trim(),
           content: formData.content.trim(),
-          images,
+          images: uploadedImages,
           ...(isLogin ? { rating: formData.rating } : {}),
         })
       }
@@ -247,10 +270,13 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
         <p className='mb-2 text-xs text-gray-400'>{translate('reviews.form.maxImages', { max: MAX_COMMENT_IMAGES })}</p>
 
         <div className='flex flex-wrap gap-3'>
-          {images.map((src, index) => (
-            <div key={`${src}-${index}`} className='group relative h-20 w-20 overflow-hidden rounded-xl border border-border'>
+          {images.map((item, index) => (
+            <div
+              key={`${item.uploaded?.publicId ?? item.preview}-${index}`}
+              className='group relative h-20 w-20 overflow-hidden rounded-xl border border-border'
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt={translate('reviews.form.images')} className='h-full w-full object-cover' />
+              <img src={item.preview} alt={translate('reviews.form.images')} className='h-full w-full object-cover' />
               <button
                 type='button'
                 aria-label={translate('common.delete')}

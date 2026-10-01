@@ -1,10 +1,12 @@
+import type { CloudinaryImage } from '@/services/upload'
+
 import BaseAPI from '@/config/baseApi'
 
 export type BlogPost = {
   id: string
   title: string
   slug: string
-  thumbnail: string
+  thumbnail: CloudinaryImage | null
   excerpt: string
   content: string
   category: string

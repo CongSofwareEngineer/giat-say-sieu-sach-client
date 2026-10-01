@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 import MyButton from '@/components/MyButton'
 import MyCard, { MyCardBody } from '@/components/MyCard'
@@ -11,16 +11,20 @@ import MyTextarea from '@/components/MyTextarea'
 import MySelect from '@/components/MySelect'
 import BlogEditor from '@/components/Blog/BlogEditor'
 import useAdminBlog from '@/hooks/admin/useAdminBlog'
+import useBase64Img from '@/hooks/useBase64Img'
 import useLanguage from '@/hooks/useLanguage'
+import UploadService from '@/services/upload'
+import { UPLOAD_IMAGE_TYPE } from '@/constants/app'
 import { toast } from '@/utils/toast'
 import { slugify } from '@/utils/slugify'
 import { ArrowLeftIcon } from '@/components/Icons/ArrowLeft'
 import { CheckIcon } from '@/components/Icons/Check'
+import { CameraIcon } from '@/components/Icons/Camera'
+import { getBase64 } from '@/utils/functions'
 
 type FormValues = {
   title: string
   slug: string
-  thumbnail: string
   excerpt: string
   category: string
   isPublished: boolean
@@ -30,17 +34,22 @@ const AdminBlogNewPage = () => {
   const router = useRouter()
   const { translate } = useLanguage()
   const { createPost, isCreating } = useAdminBlog()
+  const { getFileOptimize } = useBase64Img()
+  const thumbnailInputRef = useRef<HTMLInputElement>(null)
 
   const [values, setValues] = useState<FormValues>({
     title: '',
     slug: '',
-    thumbnail: '',
     excerpt: '',
     category: 'Mẹo hay',
     isPublished: false,
   })
   const [content, setContent] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
+  const [thumbnailPreview, setThumbnailPreview] = useState('')
+  const [isOptimizing, setIsOptimizing] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
 
   useEffect(() => {
     if (values.title) {
@@ -50,6 +59,29 @@ const AdminBlogNewPage = () => {
 
   const handleChange = (field: keyof FormValues, value: string | boolean) => {
     setValues((prev) => ({ ...prev, [field]: value }))
+  }
+
+  // Optimize the picked thumbnail and keep it for upload on submit
+  const handleThumbnailChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+
+    e.target.value = ''
+
+    if (!file) return
+
+    setIsOptimizing(true)
+
+    try {
+      const optimized = await getFileOptimize(file)
+      const { base64 } = (await getBase64(optimized)) as { base64: string }
+
+      setThumbnailFile(optimized)
+      setThumbnailPreview(base64)
+    } catch {
+      // Ignore failed/cancelled crops
+    } finally {
+      setIsOptimizing(false)
+    }
   }
 
   const validate = () => {
@@ -64,9 +96,14 @@ const AdminBlogNewPage = () => {
   const onSubmit = async () => {
     if (!validate()) return
 
+    setIsUploading(true)
+
     try {
+      // Upload the thumbnail first to get its path, then create the post
+      const [thumbnail] = await UploadService.uploadImages(thumbnailFile ? [thumbnailFile] : [], UPLOAD_IMAGE_TYPE.BLOG)
       const payload = {
         ...values,
+        thumbnail: thumbnail ?? null,
         content,
       }
 
@@ -75,6 +112,8 @@ const AdminBlogNewPage = () => {
       router.push('/admin/blog')
     } catch {
       toast({ message: translate('common.error'), type: 'error' })
+    } finally {
+      setIsUploading(false)
     }
   }
 
@@ -121,12 +160,29 @@ const AdminBlogNewPage = () => {
             </div>
 
             <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
-              <MyInput
-                label={translate('blog.thumbnail', {}, 'Ảnh đại diện (URL)')}
-                placeholder='https://example.com/image.jpg'
-                value={values.thumbnail}
-                onChange={(e) => handleChange('thumbnail', e.target.value)}
-              />
+              <div>
+                <label className='mb-1.5 block text-sm font-medium text-text'>{translate('blog.thumbnail')}</label>
+                <button
+                  type='button'
+                  onClick={() => thumbnailInputRef.current?.click()}
+                  disabled={isOptimizing}
+                  aria-label={translate('common.selectImage')}
+                  className='relative flex aspect-video w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-border text-gray-400 transition-colors hover:border-primary hover:text-primary'
+                >
+                  {thumbnailPreview ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={thumbnailPreview} alt={translate('blog.thumbnail')} className='h-full w-full object-cover' />
+                  ) : isOptimizing ? (
+                    <span className='h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent' />
+                  ) : (
+                    <span className='flex flex-col items-center gap-1 text-sm'>
+                      <CameraIcon className='h-6 w-6' />
+                      {translate('common.selectImage')}
+                    </span>
+                  )}
+                </button>
+                <input ref={thumbnailInputRef} type='file' accept='image/*' className='hidden' onChange={handleThumbnailChange} />
+              </div>
               <MySelect
                 label={translate('blog.category')}
                 data={categories}
@@ -173,10 +229,10 @@ const AdminBlogNewPage = () => {
                 type='button'
                 variant='primary'
                 onClick={onSubmit}
-                disabled={isCreating}
+                disabled={isCreating || isUploading}
                 className='flex items-center gap-2'
               >
-                {isCreating ? (
+                {isCreating || isUploading ? (
                   <>
                     {translate('common.saving', {}, 'Đang lưu...')}
                   </>

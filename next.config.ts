@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
     includePaths: [path.join(__dirname, 'styles')],
   },
   transpilePackages: ['zustand', '@tanstack/react-query', 'query-string'],
+  // Uploaded images (avatar, blog thumbnail, comment images) are served from Cloudinary
+  images: {
+    remotePatterns: [{ protocol: 'https', hostname: 'res.cloudinary.com', pathname: '/**' }],
+  },
   // Required by @blocknote/server-util to render blog content in Server Components
   serverExternalPackages: ['@blocknote/server-util'],
 
