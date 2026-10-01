@@ -467,7 +467,7 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
 
   if (!isMobile) {
     return (
-      <div className='fixed bottom-24 right-6 z-50 flex flex-col h-[78dvh] max-h-[calc(100dvh-7rem)] w-[500px] max-w-[calc(100vw-3rem)] overflow-hidden rounded-2xl border border-border bg-white shadow-2xl'>
+      <div className='fixed bottom-10 right-6 z-50 flex flex-col h-[85dvh] max-h-[calc(100dvh-7rem)] w-[500px] max-w-[calc(100vw-3rem)] overflow-hidden rounded-2xl border border-border bg-white shadow-2xl'>
         <div className='flex items-center justify-between px-4 py-3 bg-primary text-white rounded-t-2xl'>
           <div>
             <p className='font-semibold text-sm'>{translate('chat.title')}</p>
