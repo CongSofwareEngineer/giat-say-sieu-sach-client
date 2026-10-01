@@ -425,6 +425,7 @@
     "backToList": "Quay lại danh sách",
     "copied": "Đã sao chép liên kết!",
     "notFound": "Bài viết không tồn tại",
+    "emptyContent": "Nội dung trống",
     "posts": [
       {
         "category": "Mẹo hay",

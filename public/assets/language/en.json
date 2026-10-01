@@ -425,6 +425,7 @@
     "backToList": "Back to list",
     "copied": "Link copied!",
     "notFound": "Post not found",
+    "emptyContent": "Empty content",
     "posts": [
       {
         "category": "Tips",

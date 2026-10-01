@@ -40,4 +40,4 @@ export const getBlogPlainText = (content?: string | null): string => {
   return texts.join(' ')
 }
 
-export const getBlogReadTime = (content?: string | null) => Math.ceil(getBlogPlainText(content).length / 200 / 60) || 1
+export const getBlogReadTime = (content?: string | null) => Math.ceil(getBlogPlainText(content).length / 200) || 1
