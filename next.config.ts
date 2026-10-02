@@ -7,13 +7,25 @@ const nextConfig: NextConfig = {
   sassOptions: {
     includePaths: [path.join(__dirname, 'styles')],
   },
-  transpilePackages: ['zustand', '@tanstack/react-query', 'query-string'],
+  // Bổ sung đầy đủ các gói ESM liên quan đến BlockNote và encoding
+  transpilePackages: [
+    '@blocknote/server-util',
+    '@blocknote/core',
+    'html-encoding-sniffer',
+    '@exodus/bytes',
+    'whatwg-url',
+    'zustand',
+    '@tanstack/react-query',
+    'query-string',
+  ],
+
   // Uploaded images (avatar, blog thumbnail, comment images) are served from Cloudinary
   images: {
     remotePatterns: [{ protocol: 'https', hostname: 'res.cloudinary.com', pathname: '/**' }],
   },
-  // Required by @blocknote/server-util to render blog content in Server Components
-  serverExternalPackages: ['@blocknote/server-util'],
+
+  // ⚠️ Xóa dòng serverExternalPackages bên dưới để Turbopack/Next.js transpile ESM bình thường:
+  // serverExternalPackages: ['@blocknote/server-util'],
 
   productionBrowserSourceMaps: !isProduction,
   enablePrerenderSourceMaps: !isProduction,
