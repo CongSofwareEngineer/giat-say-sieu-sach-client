@@ -2,6 +2,7 @@
 
 import type { AddressItem } from '@/services/address/type'
 import type { PricingPlan } from '@/services/pricing'
+import type { OrderPricing } from '@/utils/orderPricing'
 import type { LaundryFormData } from './types'
 
 import { useEffect, useMemo } from 'react'
@@ -14,7 +15,7 @@ import useGetWards from '@/hooks/reactQuery/useGetWards'
 import useGetListBranches from '@/hooks/reactQuery/useGetListBranches'
 import { formatAddress } from '@/services/address'
 import { getBranchCities } from '@/services/branch'
-import { MAX_BOOKING_NOTE_LENGTH } from '@/constants/app'
+import { LOYALTY_REDEEM, MAX_BOOKING_NOTE_LENGTH, WEIGHT_DISCOUNT } from '@/constants/app'
 import { cn } from '@/utils/tailwind'
 import { isValidVnPhone } from '@/utils/phone'
 
@@ -22,7 +23,11 @@ type LaundryFormProps = {
   formData: LaundryFormData
   addresses: AddressItem[]
   plans: PricingPlan[]
-  estimatedPrice: number
+  pricing: OrderPricing
+  // Points of the logged-in customer; the redeem checkbox is hidden below one redeem step
+  pointsBalance?: number
+  usePoints?: boolean
+  onToggleUsePoints?: (usePoints: boolean) => void
   onChange: (field: string, value: string) => void
   onSubmit: () => void
   // Cancel button is hidden when not provided (booking page)
@@ -38,7 +43,10 @@ const LaundryForm = ({
   formData,
   addresses,
   plans,
-  estimatedPrice,
+  pricing,
+  pointsBalance = 0,
+  usePoints = false,
+  onToggleUsePoints,
   onChange,
   onSubmit,
   onCancel,
@@ -125,6 +133,11 @@ const LaundryForm = ({
     !isPrefilledCityOutside &&
     formData.weight.trim() &&
     parseFloat(formData.weight) > 0
+
+  const formatPrice = (price: number) => translate('tracking.result.price', { price: price.toLocaleString('vi-VN') })
+  const canRedeemPoints = !!onToggleUsePoints && pointsBalance >= LOYALTY_REDEEM.POINTS_STEP
+  const weight = parseFloat(formData.weight)
+  const showWeightHint = weight > 0 && weight <= WEIGHT_DISCOUNT.MIN_KG
 
   return (
     <div className={cn('bg-white border border-border w-full rounded-xl p-4 space-y-4', className)}>
@@ -244,12 +257,63 @@ const LaundryForm = ({
           />
         </div>
 
-        {estimatedPrice > 0 && (
-          <div className='p-3 bg-primary/5 border border-primary/20 rounded-lg'>
-            <p className='text-sm text-primary font-medium'>
-              {translate('chat.laundryForm.estimatedPrice')}:<span className='font-bold text-primary ml-1'>{estimatedPrice.toLocaleString()}đ</span>
-              {selectedPlan && <span className='text-xs text-gray-500 ml-1'>/ {selectedPlan.unit || 'kg'}</span>}
-            </p>
+        {canRedeemPoints && (
+          <label className='flex cursor-pointer items-start gap-3 rounded-xl border border-accent/40 bg-accent/10 p-3 transition-colors hover:bg-accent/15'>
+            <input
+              type='checkbox'
+              checked={usePoints}
+              onChange={(e) => onToggleUsePoints?.(e.target.checked)}
+              className='mt-0.5 size-4 shrink-0 rounded border-gray-300 accent-primary'
+            />
+            <span className='min-w-0'>
+              <span className='block text-sm font-semibold text-text'>{translate('booking.points.label')}</span>
+              <span className='block text-xs text-gray-600'>
+                {translate('booking.points.balance', {
+                  points: pointsBalance.toLocaleString('vi-VN'),
+                  step: LOYALTY_REDEEM.POINTS_STEP,
+                  value: LOYALTY_REDEEM.VND_PER_STEP.toLocaleString('vi-VN'),
+                })}
+              </span>
+              <span className='block text-xs text-gray-500'>{translate('booking.points.deductNote')}</span>
+            </span>
+          </label>
+        )}
+
+        {pricing.totalAmount > 0 && (
+          <div className='space-y-1.5 rounded-xl border border-primary/20 bg-primary/5 p-3 text-sm'>
+            <div className='flex items-center justify-between gap-3 text-gray-600'>
+              <span>
+                {translate('booking.pricing.subtotal')}
+                {selectedPlan && (
+                  <span className='ml-1 text-xs text-gray-500'>
+                    ({formatPrice(selectedPlan.price)}
+                    {selectedPlan.unit ? ` / ${selectedPlan.unit}` : translate('home.pricing.perKg')})
+                  </span>
+                )}
+              </span>
+              <span className='font-medium text-text'>{formatPrice(pricing.totalAmount)}</span>
+            </div>
+            {pricing.weightDiscount > 0 && (
+              <div className='flex items-center justify-between gap-3 text-emerald-700'>
+                <span>{translate('booking.pricing.weightDiscount', { kg: WEIGHT_DISCOUNT.MIN_KG })}</span>
+                <span className='font-medium'>-{formatPrice(pricing.weightDiscount)}</span>
+              </div>
+            )}
+            {pricing.pointsDiscount > 0 && (
+              <div className='flex items-center justify-between gap-3 text-emerald-700'>
+                <span>{translate('booking.pricing.pointsDiscount', { points: pricing.pointsUsed.toLocaleString('vi-VN') })}</span>
+                <span className='font-medium'>-{formatPrice(pricing.pointsDiscount)}</span>
+              </div>
+            )}
+            <div className='flex items-center justify-between gap-3 border-t border-primary/15 pt-1.5'>
+              <span className='font-semibold text-primary'>{translate('chat.laundryForm.estimatedPrice')}</span>
+              <span className='text-base font-bold text-primary'>{formatPrice(pricing.finalAmount)}</span>
+            </div>
+            {showWeightHint && (
+              <p className='text-xs text-gray-500'>
+                {translate('booking.pricing.weightHint', { kg: WEIGHT_DISCOUNT.MIN_KG, amount: formatPrice(WEIGHT_DISCOUNT.AMOUNT) })}
+              </p>
+            )}
           </div>
         )}
 

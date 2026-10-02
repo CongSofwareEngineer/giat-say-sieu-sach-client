@@ -16,6 +16,8 @@ export type LaundryBookingInput = {
   // Free note for the admin
   note?: string
   source?: BOOKING_SOURCE
+  // Redeem loyalty points (logged-in customers only)
+  usePoints?: boolean
 }
 
 // Order notes prefix per booking source
@@ -34,16 +36,35 @@ const getStoredFcmToken = (): string | undefined => {
 
 // Place a laundry order from the chat form or the booking page. No login needed: the server finds
 // (or registers) the customer by phone and stores the address on the order.
-export const createLaundryBooking = async (input: LaundryBookingInput): Promise<OrderItem> =>
-  OrderService.createGuestOrder({
+// Redeeming points needs the authenticated endpoint, since the guest one cannot prove who owns the points.
+export const createLaundryBooking = async (input: LaundryBookingInput): Promise<OrderItem> => {
+  const items = [{ categoryId: input.planId, quantity: input.weight }]
+  const notes = [translate(SOURCE_LABEL_KEY[input.source ?? BOOKING_SOURCE.CHAT], { serviceType: input.planName }), input.note?.trim()]
+    .filter(Boolean)
+    .join('\n')
+
+  if (input.usePoints) {
+    // The order is tied to the account, so keep the contact typed in the form for the admin
+    const contactNote = translate('booking.contactNote', { name: input.name.trim(), phone: input.phone.trim() })
+
+    return OrderService.createOrder({
+      address: input.address.trim(),
+      district: input.district,
+      city: input.city,
+      items,
+      notes: [notes, contactNote].join('\n'),
+      usePoints: true,
+    })
+  }
+
+  return OrderService.createGuestOrder({
     phone: formatPhoneToE164(input.phone) ?? input.phone,
     name: input.name.trim(),
     notificationToken: getStoredFcmToken(),
     address: input.address.trim(),
     district: input.district,
     city: input.city,
-    items: [{ categoryId: input.planId, quantity: input.weight }],
-    notes: [translate(SOURCE_LABEL_KEY[input.source ?? BOOKING_SOURCE.CHAT], { serviceType: input.planName }), input.note?.trim()]
-      .filter(Boolean)
-      .join('\n'),
+    items,
+    notes,
   })
+}

@@ -26,6 +26,12 @@ class UserApi extends BaseAPI {
     return response.data
   }
 
+  async changePassword(payload: { currentPassword: string; newPassword: string }): Promise<User> {
+    const response = await this.patch<{ data: User }>('/me/password', payload, { isUseAuth: true })
+
+    return response.data
+  }
+
   async updateFcmToken(fcmToken: string): Promise<any> {
     const response = await this.patch<{ data: any }>('/me', { fcmToken }, { isUseAuth: true })
 

@@ -3,6 +3,9 @@
 import type { ChatMessage } from '@/zustand/chat'
 import type { AddressItem } from '@/services/address/type'
 import type { PricingPlan } from '@/services/pricing'
+import type { OrderPricing } from '@/utils/orderPricing'
+
+import { useState } from 'react'
 
 import LaundryForm from './LaundryForm'
 import OrderPhoneForm from './OrderPhoneForm'
@@ -11,6 +14,11 @@ import TypingIndicator from './TypingIndicator'
 import { type LaundryFormData } from './types'
 
 import ChatMarkdown from '@/components/ChatMarkdown'
+import { CheckIcon } from '@/components/Icons/Check'
+import { CopyIcon } from '@/components/Icons/Functions/Copy'
+import useLanguage from '@/hooks/useLanguage'
+import { COPY_FEEDBACK_DURATION } from '@/constants/app'
+import { copyToClipboard } from '@/utils/functions'
 
 type ChatMessageListProps = {
   messages: ChatMessage[]
@@ -22,7 +30,10 @@ type ChatMessageListProps = {
   laundryFormData?: LaundryFormData
   addresses?: AddressItem[]
   plans?: PricingPlan[]
-  estimatedPrice?: number
+  pricing?: OrderPricing
+  pointsBalance?: number
+  usePoints?: boolean
+  onToggleUsePoints?: (usePoints: boolean) => void
   onLaundryFormChange?: (field: string, value: string) => void
   onSubmitLaundry?: () => void
   onCancelLaundry?: () => void
@@ -43,7 +54,10 @@ const ChatMessageList = ({
   laundryFormData,
   addresses,
   plans,
-  estimatedPrice,
+  pricing,
+  pointsBalance,
+  usePoints,
+  onToggleUsePoints,
   onLaundryFormChange,
   onSubmitLaundry,
   onCancelLaundry,
@@ -53,8 +67,19 @@ const ChatMessageList = ({
   onSubmitOrderPhone,
   onCancelOrderPhone,
 }: ChatMessageListProps) => {
+  const { translate } = useLanguage()
+  const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null)
+
   // Sort messages by id to ensure chronological order
   const sortedMessages = [...messages].sort((a, b) => a.id - b.id)
+
+  const handleCopyOrderCode = async (msg: ChatMessage) => {
+    if (!msg.orderCode) return
+
+    await copyToClipboard(msg.orderCode)
+    setCopiedMessageId(msg.id)
+    setTimeout(() => setCopiedMessageId((current) => (current === msg.id ? null : current)), COPY_FEEDBACK_DURATION)
+  }
 
   return (
     <div className='flex-1  px-5 overflow-y-auto py-4 space-y-3'>
@@ -73,6 +98,16 @@ const ChatMessageList = ({
             ) : (
               <ChatMarkdown>{msg.text}</ChatMarkdown>
             )}
+            {msg.orderCode && (
+              <button
+                type='button'
+                onClick={() => handleCopyOrderCode(msg)}
+                className='mt-2 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-white px-3 py-1 text-xs font-semibold text-primary transition-colors hover:bg-primary/5'
+              >
+                {copiedMessageId === msg.id ? <CheckIcon className='size-3.5' strokeWidth={2.5} /> : <CopyIcon className='size-3.5' />}
+                {copiedMessageId === msg.id ? translate('common.copied') : translate('booking.success.copyCode')}
+              </button>
+            )}
             <p className={`text-[10px] mt-1 ${msg.isUser ? 'text-white/90' : 'text-gray-500'}`}>{msg.time}</p>
           </div>
         </div>
@@ -86,7 +121,10 @@ const ChatMessageList = ({
               formData={laundryFormData}
               addresses={addresses ?? []}
               plans={plans ?? []}
-              estimatedPrice={estimatedPrice || 0}
+              pricing={pricing ?? { totalAmount: 0, weightDiscount: 0, pointsUsed: 0, pointsDiscount: 0, finalAmount: 0 }}
+              pointsBalance={pointsBalance}
+              usePoints={usePoints}
+              onToggleUsePoints={onToggleUsePoints}
               onChange={onLaundryFormChange}
               onSubmit={onSubmitLaundry}
               onCancel={onCancelLaundry}

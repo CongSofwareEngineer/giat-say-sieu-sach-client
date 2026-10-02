@@ -6,24 +6,48 @@ import { useRouter } from 'next/navigation'
 import MyButton from '@/components/MyButton'
 import MyCard, { MyCardBody } from '@/components/MyCard'
 import { CheckIcon } from '@/components/Icons/Check'
+import { CopyIcon } from '@/components/Icons/Functions/Copy'
 import SeoJsonLd from '@/components/SeoJsonLd'
 import LaundryForm from '@/components/Chat/LaundryForm'
 import useLanguage from '@/hooks/useLanguage'
 import useLaundryBooking from '@/hooks/useLaundryBooking'
 import { breadcrumbSchema, webPageSchema } from '@/config/seo'
-import { BOOKING_SOURCE } from '@/constants/app'
+import { BOOKING_SOURCE, COPY_FEEDBACK_DURATION } from '@/constants/app'
 import { getOrderCode } from '@/services/order'
+import { copyToClipboard } from '@/utils/functions'
 import { toast } from '@/utils/toast'
 
 const BookingPage = () => {
   const { translate } = useLanguage()
   const router = useRouter()
   const [orderCode, setOrderCode] = useState('')
+  const [isCopied, setIsCopied] = useState(false)
 
   // Same form + submit logic as the chat booking form
-  const { formData, addresses, activePlans, selectedPlan, estimatedPrice, isBooking, handleChange, resetForm, submitBooking } = useLaundryBooking(
-    BOOKING_SOURCE.PAGE
-  )
+  const {
+    formData,
+    addresses,
+    activePlans,
+    selectedPlan,
+    pricing,
+    pointsBalance,
+    usePoints,
+    setUsePoints,
+    isBooking,
+    handleChange,
+    resetForm,
+    submitBooking,
+  } = useLaundryBooking(BOOKING_SOURCE.PAGE)
+
+  const handleCopyCode = async () => {
+    try {
+      await copyToClipboard(orderCode)
+      setIsCopied(true)
+      setTimeout(() => setIsCopied(false), COPY_FEEDBACK_DURATION)
+    } catch {
+      toast({ message: translate('common.error'), type: 'error' })
+    }
+  }
 
   const handleSubmit = async () => {
     if (!selectedPlan) {
@@ -54,7 +78,21 @@ const BookingPage = () => {
             </div>
             <h2 className='text-2xl font-bold text-text mb-2'>{translate('booking.success.title')}</h2>
             <p className='text-gray-600 mb-4'>{translate('booking.success.message')}</p>
-            <p className='text-2xl font-bold text-primary mb-6'>{orderCode}</p>
+            <div className='mb-6 flex items-center justify-center gap-2'>
+              <p className='rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 px-5 py-2 text-2xl font-bold tracking-widest text-primary'>
+                #{orderCode}
+              </p>
+              <button
+                type='button'
+                onClick={handleCopyCode}
+                aria-label={translate('booking.success.copyCode')}
+                title={translate('booking.success.copyCode')}
+                className='flex size-11 items-center justify-center rounded-xl border border-border text-gray-600 transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-primary'
+              >
+                {isCopied ? <CheckIcon className='size-5 text-emerald-600' strokeWidth={2.5} /> : <CopyIcon className='size-5' />}
+              </button>
+            </div>
+            {isCopied && <p className='-mt-4 mb-4 text-xs font-medium text-emerald-600'>{translate('common.copied')}</p>}
             <div className='flex flex-col gap-3'>
               <MyButton variant='primary' className='w-full' onClick={() => router.push(`/track-order?code=${orderCode}`)}>
                 {translate('booking.success.track')}
@@ -88,7 +126,10 @@ const BookingPage = () => {
           formData={formData}
           addresses={addresses}
           plans={activePlans}
-          estimatedPrice={estimatedPrice}
+          pricing={pricing}
+          pointsBalance={pointsBalance}
+          usePoints={usePoints}
+          onToggleUsePoints={setUsePoints}
           onChange={handleChange}
           onSubmit={handleSubmit}
           isSubmitting={isBooking}

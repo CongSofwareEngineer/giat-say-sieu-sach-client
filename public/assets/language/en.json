@@ -72,7 +72,8 @@
       "title": "Page not found",
       "description": "The page you are looking for does not exist or has been removed. Go back to the home page to continue.",
       "backHome": "Back to home"
-    }
+    },
+    "copied": "Copied"
   },
   "menu": {
     "home": "Home",
@@ -304,7 +305,8 @@
       "title": "Booking Successful!",
       "message": "Thank you for booking. Your order code is:",
       "track": "Track Order",
-      "backHome": "Back to Home"
+      "backHome": "Back to Home",
+      "copyCode": "Copy order code"
     },
     "validation": {
       "nameRequired": "Please enter your name",
@@ -317,6 +319,18 @@
       "serviceRequired": "Please select a service",
       "weightRequired": "Please enter estimated weight",
       "weightMin": "Minimum weight is 1kg"
+    },
+    "contactNote": "Contact: {name} - {phone}",
+    "points": {
+      "label": "Use loyalty points for a discount",
+      "balance": "You have {points} points · {step} points = {value} VND",
+      "deductNote": "Points are only deducted when the order is completed; cancelling keeps them."
+    },
+    "pricing": {
+      "subtotal": "Subtotal",
+      "weightDiscount": "Order over {kg}kg discount",
+      "pointsDiscount": "{points} points used",
+      "weightHint": "Book over {kg}kg to get {amount} off"
     }
   },
   "reviews": {
@@ -408,7 +422,10 @@
       "quantity": "{quantity} kg",
       "price": "{price}đ",
       "cancelled": "This order has been cancelled",
-      "notFoundPhone": "No orders found for this phone number"
+      "notFoundPhone": "No orders found for this phone number",
+      "orderCode": "Order code",
+      "current": "Current",
+      "discount": "Discount"
     },
     "status": {
       "PENDING": "Pending",
@@ -418,6 +435,14 @@
       "READY": "Ready",
       "COMPLETED": "Completed",
       "CANCELLED": "Cancelled"
+    },
+    "stepDesc": {
+      "PENDING": "Order received, we will contact you soon for pickup",
+      "RECEIVED": "Clothes picked up and weighed at the store",
+      "WASHING": "Your clothes are being washed",
+      "DRYING": "Drying and pressing",
+      "READY": "Ready to be delivered back",
+      "COMPLETED": "Delivered, thank you for using our service"
     }
   },
   "blog": {
@@ -642,7 +667,9 @@
     "subtitle": "Manage your personal info and delivery addresses",
     "menu": {
       "info": "Personal Info",
-      "addresses": "Address Book"
+      "addresses": "Address Book",
+      "orders": "My Orders",
+      "password": "Change Password"
     },
     "info": {
       "title": "Personal Information",
@@ -781,7 +808,8 @@
         "service": "Service",
         "status": "Status",
         "price": "Price",
-        "date": "Created Date"
+        "date": "Created Date",
+        "weight": "Weight"
       },
       "detail": "Order Details",
       "create": "Create Order",
@@ -800,7 +828,14 @@
         "processing": "Processing",
         "completed": "Completed",
         "cancelled": "Cancelled"
-      }
+      },
+      "editWeight": "Edit weight",
+      "weightEditDesc": "Update the actual weight of order #{code}. The price is recalculated automatically.",
+      "weightInvalid": "Weight must be greater than 0",
+      "weightEditError": "Could not update. The order may already be in washing.",
+      "weightUpdated": "Weight updated",
+      "weightLocked": "Weight cannot be edited once washing has started",
+      "newTotal": "New total (estimated)"
     },
     "customers": {
       "title": "Customer Management",
@@ -1047,7 +1082,11 @@
       "error": "Notification permission is required to receive notifications"
     },
     "tokenReceived": "Notifications activated",
-    "tokenError": "Could not activate notifications"
+    "tokenError": "Could not activate notifications",
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "empty": "No notifications yet",
+    "emptyDesc": "Order updates and promotions will appear here"
   },
   "otp": {
     "title": "Verify phone number",
@@ -1067,6 +1106,45 @@
       "quotaExceeded": "Service temporarily overloaded, please try again later",
       "authUnavailable": "Verification service is unavailable",
       "sendFailed": "Could not send the code, please try again"
+    }
+  },
+  "myOrders": {
+    "title": "My Orders",
+    "subtitle": "Track and manage your laundry orders",
+    "empty": "You have no orders yet",
+    "loadError": "Could not load your orders",
+    "bookNow": "Book now",
+    "track": "Track",
+    "pointsUsed": "{points} points used",
+    "cancel": {
+      "title": "Cancel order",
+      "message": "Are you sure you want to cancel order #{code}?",
+      "note": "Orders can only be cancelled right after booking. Redeemed points will not be deducted.",
+      "keep": "Keep order",
+      "confirm": "Cancel order",
+      "button": "Cancel order",
+      "hint": "You can cancel before we pick up your clothes.",
+      "success": "Order cancelled",
+      "error": "Could not cancel. The order may already be received."
+    }
+  },
+  "changePassword": {
+    "title": "Change Password",
+    "subtitle": "The new password needs at least {min} characters",
+    "currentPassword": "Current password",
+    "currentPasswordPlaceholder": "Enter current password",
+    "newPassword": "New password",
+    "newPasswordPlaceholder": "Enter new password",
+    "confirmPassword": "Confirm new password",
+    "confirmPasswordPlaceholder": "Re-enter new password",
+    "submit": "Update password",
+    "success": "Password changed successfully",
+    "show": "Show password",
+    "hide": "Hide password",
+    "errors": {
+      "minLength": "Password must be at least {min} characters",
+      "sameAsCurrent": "The new password must differ from the current one",
+      "currentInvalid": "Current password is incorrect"
     }
   }
 }

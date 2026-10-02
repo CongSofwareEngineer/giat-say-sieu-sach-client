@@ -7,6 +7,8 @@ import LoyaltyCard from './LoyaltyCard'
 import MyCard, { MyCardBody } from '@/components/MyCard'
 import MyImage from '@/components/MyImage'
 import { CameraIcon } from '@/components/Icons/Camera'
+import InboxIcon from '@/components/Icons/Inbox'
+import { LockIcon } from '@/components/Icons/Lock'
 import { MapPinIcon } from '@/components/Icons/MapPin'
 import { UserCircleIcon } from '@/components/Icons/UserCircle'
 import useBase64Img from '@/hooks/useBase64Img'
@@ -17,7 +19,7 @@ import UploadService from '@/services/upload'
 import UserService from '@/services/users'
 import { cn } from '@/utils/tailwind'
 
-export type ProfileTab = 'info' | 'addresses'
+export type ProfileTab = 'info' | 'addresses' | 'orders' | 'password'
 
 export type ProfileSidebarProps = {
   activeTab: ProfileTab
@@ -36,6 +38,8 @@ const ProfileSidebar = ({ activeTab, onChangeTab }: ProfileSidebarProps) => {
   const tabs: { key: ProfileTab; label: string; icon: React.ReactNode }[] = [
     { key: 'info', label: translate('profile.menu.info'), icon: <UserCircleIcon className='h-5 w-5' /> },
     { key: 'addresses', label: translate('profile.menu.addresses'), icon: <MapPinIcon className='h-5 w-5' /> },
+    { key: 'orders', label: translate('profile.menu.orders'), icon: <InboxIcon className='h-5 w-5' /> },
+    { key: 'password', label: translate('profile.menu.password'), icon: <LockIcon className='h-5 w-5' /> },
   ]
 
   // Optimize avatar -> upload to get its path -> save it to the profile

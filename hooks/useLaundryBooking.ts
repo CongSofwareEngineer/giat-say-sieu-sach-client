@@ -13,11 +13,13 @@ import PricingService, { PricingPlan } from '@/services/pricing'
 import { OrderItem } from '@/services/order'
 import { createLaundryBooking } from '@/agents/tools/booking'
 import { getSavedBookingAddress, saveBookingAddress } from '@/utils/bookingAddress'
+import { calculateOrderPricing } from '@/utils/orderPricing'
 
 export type LaundryBookingResult = {
   order: OrderItem
   plan: PricingPlan
   data: LaundryFormData
+  // Final amount charged by the server (after discounts)
   price: number
 }
 
@@ -42,7 +44,7 @@ const isFormComplete = (data: LaundryFormData): boolean =>
 
 // Shared laundry booking form state + submit, used by the chat form and the booking page
 const useLaundryBooking = (source: BOOKING_SOURCE) => {
-  const { user } = useUser()
+  const { user, isLogin } = useUser()
   const { addresses, defaultAddress } = useGetListAddress()
 
   const { data: plans = [] } = useQuery<PricingPlan[]>({
@@ -57,6 +59,11 @@ const useLaundryBooking = (source: BOOKING_SOURCE) => {
   // Starts empty so SSR and first client render match, prefilled in an effect below
   const [formData, setFormData] = useState<LaundryFormData>(EMPTY_FORM)
   const [isBooking, setIsBooking] = useState(false)
+  const [usePoints, setUsePoints] = useState(false)
+
+  // Points can only be redeemed by a logged-in customer (the server checks it again)
+  const pointsBalance = isLogin ? (user?.loyaltyPoints ?? 0) : 0
+  const shouldUsePoints = usePoints && pointsBalance > 0
 
   // Logged-in profile + default address first, then the last booking saved locally
   const buildInitialForm = useCallback((): LaundryFormData => {
@@ -101,13 +108,13 @@ const useLaundryBooking = (source: BOOKING_SOURCE) => {
 
   const selectedPlan = planByKey.get(formData.serviceType)
 
-  const estimatedPrice = useMemo(() => {
+  // Estimated amounts with the weight discount and the redeemed points
+  const pricing = useMemo(() => {
     const weight = parseFloat(formData.weight)
+    const safeWeight = isNaN(weight) || weight <= 0 ? 0 : weight
 
-    if (isNaN(weight) || weight <= 0) return 0
-
-    return Math.round((selectedPlan?.price ?? 25000) * weight)
-  }, [formData.weight, selectedPlan])
+    return calculateOrderPricing((selectedPlan?.price ?? 25000) * safeWeight, safeWeight, shouldUsePoints ? pointsBalance : 0)
+  }, [formData.weight, selectedPlan, shouldUsePoints, pointsBalance])
 
   const handleChange = useCallback((field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -136,6 +143,7 @@ const useLaundryBooking = (source: BOOKING_SOURCE) => {
         weight: parseFloat(formData.weight),
         note: formData.note,
         source,
+        usePoints: shouldUsePoints,
       })
 
       saveBookingAddress({
@@ -146,18 +154,23 @@ const useLaundryBooking = (source: BOOKING_SOURCE) => {
         city: formData.city,
       })
 
-      return { order, plan: selectedPlan, data: formData, price: estimatedPrice }
+      setUsePoints(false)
+
+      return { order, plan: selectedPlan, data: formData, price: order.finalAmount ?? pricing.finalAmount }
     } finally {
       setIsBooking(false)
     }
-  }, [isBooking, selectedPlan, formData, estimatedPrice, source])
+  }, [isBooking, selectedPlan, formData, pricing.finalAmount, source, shouldUsePoints])
 
   return {
     formData,
     addresses,
     activePlans,
     selectedPlan,
-    estimatedPrice,
+    pricing,
+    pointsBalance,
+    usePoints: shouldUsePoints,
+    setUsePoints,
     isBooking,
     handleChange,
     resetForm,

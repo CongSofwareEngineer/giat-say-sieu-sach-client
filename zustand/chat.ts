@@ -11,6 +11,8 @@ export type ChatMessage = {
   isUser: boolean
   time: string
   isQuickOptions?: boolean
+  // Shows a copy button for this order code (booking success message)
+  orderCode?: string
 }
 
 interface ChatState {

@@ -51,6 +51,15 @@ const useAdminOrders = (params?: AdminOrdersParams) => {
     },
   })
 
+  // Errors are shown by the caller (edit form) so the modal can stay open
+  const { mutateAsync: updateOrderItems, isPending: isUpdatingItems } = useMutation({
+    mutationFn: ({ id, items }: { id: string; items: { categoryId: string; quantity: number }[] }) => OrderService.updateOrderItems(id, items),
+    onSuccess: () => {
+      refresh()
+      toast({ message: translate('admin.orders.weightUpdated'), type: 'default' })
+    },
+  })
+
   const { mutateAsync: deleteOrder, isPending: isDeleting } = useMutation({
     mutationFn: (id: string) => OrderService.deleteOrder(id),
     onSuccess: () => {
@@ -71,8 +80,10 @@ const useAdminOrders = (params?: AdminOrdersParams) => {
     refetch,
     updateOrder,
     updateOrderStatus,
+    updateOrderItems,
     deleteOrder,
     isUpdating,
+    isUpdatingItems,
     isUpdatingStatus,
     isDeleting,
   }

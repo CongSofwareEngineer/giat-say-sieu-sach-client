@@ -54,7 +54,10 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
     addresses,
     activePlans,
     selectedPlan,
-    estimatedPrice,
+    pricing,
+    pointsBalance,
+    usePoints,
+    setUsePoints,
     isBooking,
     handleChange: handleLaundryFormChange,
     resetForm: resetLaundryForm,
@@ -150,6 +153,7 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
         addMessage({
           id: Date.now() + 1,
           text: translate('chat.orderSuccessWithCode', { code: getOrderCode(order.id) }),
+          orderCode: getOrderCode(order.id),
           isUser: false,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         })
@@ -348,7 +352,10 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
         laundryFormData={laundryFormData}
         addresses={addresses}
         plans={activePlans}
-        estimatedPrice={estimatedPrice}
+        pricing={pricing}
+        pointsBalance={pointsBalance}
+        usePoints={usePoints}
+        onToggleUsePoints={setUsePoints}
         onLaundryFormChange={handleLaundryFormChange}
         onSubmitLaundry={handleSubmitLaundry}
         onCancelLaundry={handleCancelLaundry}

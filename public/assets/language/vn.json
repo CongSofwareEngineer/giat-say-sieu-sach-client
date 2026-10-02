@@ -72,7 +72,8 @@
       "title": "Không tìm thấy trang",
       "description": "Trang bạn tìm không tồn tại hoặc đã bị xoá. Hãy quay lại trang chủ để tiếp tục.",
       "backHome": "Về trang chủ"
-    }
+    },
+    "copied": "Đã sao chép"
   },
   "menu": {
     "home": "Trang chủ",
@@ -304,7 +305,8 @@
       "title": "Đặt lịch thành công!",
       "message": "Cảm ơn bạn đã đặt lịch. Mã đơn hàng của bạn là:",
       "track": "Theo dõi đơn hàng",
-      "backHome": "Về trang chủ"
+      "backHome": "Về trang chủ",
+      "copyCode": "Sao chép mã đơn"
     },
     "validation": {
       "nameRequired": "Vui lòng nhập họ tên",
@@ -317,6 +319,18 @@
       "serviceRequired": "Vui lòng chọn dịch vụ",
       "weightRequired": "Vui lòng nhập khối lượng ước tính",
       "weightMin": "Khối lượng tối thiểu là 1kg"
+    },
+    "contactNote": "Người liên hệ: {name} - {phone}",
+    "points": {
+      "label": "Dùng điểm tích lũy để giảm giá",
+      "balance": "Bạn có {points} điểm · {step} điểm = {value}đ",
+      "deductNote": "Điểm chỉ bị trừ khi đơn hoàn thành, huỷ đơn không mất điểm."
+    },
+    "pricing": {
+      "subtotal": "Tạm tính",
+      "weightDiscount": "Giảm giá đơn trên {kg}kg",
+      "pointsDiscount": "Dùng {points} điểm",
+      "weightHint": "Đặt trên {kg}kg để được giảm {amount}"
     }
   },
   "reviews": {
@@ -408,7 +422,10 @@
       "quantity": "{quantity} kg",
       "price": "{price}đ",
       "cancelled": "Đơn hàng này đã bị hủy",
-      "notFoundPhone": "Không tìm thấy đơn hàng nào với số điện thoại này"
+      "notFoundPhone": "Không tìm thấy đơn hàng nào với số điện thoại này",
+      "orderCode": "Mã đơn hàng",
+      "current": "Hiện tại",
+      "discount": "Giảm giá"
     },
     "status": {
       "PENDING": "Chờ xác nhận",
@@ -418,6 +435,14 @@
       "READY": "Đã sẵn sàng",
       "COMPLETED": "Hoàn thành",
       "CANCELLED": "Đã hủy"
+    },
+    "stepDesc": {
+      "PENDING": "Đơn đã được ghi nhận, chúng tôi sẽ sớm liên hệ để lấy đồ",
+      "RECEIVED": "Đã nhận đồ và cân ký tại cửa hàng",
+      "WASHING": "Quần áo đang được giặt sạch",
+      "DRYING": "Đang sấy khô và làm phẳng",
+      "READY": "Đồ đã sẵn sàng để giao trả",
+      "COMPLETED": "Đã giao trả, cảm ơn bạn đã sử dụng dịch vụ"
     }
   },
   "blog": {
@@ -642,7 +667,9 @@
     "subtitle": "Quản lý thông tin cá nhân và địa chỉ giao nhận",
     "menu": {
       "info": "Thông tin cá nhân",
-      "addresses": "Sổ địa chỉ"
+      "addresses": "Sổ địa chỉ",
+      "orders": "Đơn hàng của tôi",
+      "password": "Đổi mật khẩu"
     },
     "info": {
       "title": "Thông tin cá nhân",
@@ -781,7 +808,8 @@
         "service": "Dịch vụ",
         "status": "Trạng thái",
         "price": "Giá",
-        "date": "Ngày tạo"
+        "date": "Ngày tạo",
+        "weight": "Số kg"
       },
       "detail": "Chi tiết đơn hàng",
       "create": "Tạo đơn hàng",
@@ -800,7 +828,14 @@
         "processing": "Đang xử lý",
         "completed": "Hoàn thành",
         "cancelled": "Đã hủy"
-      }
+      },
+      "editWeight": "Sửa số kg",
+      "weightEditDesc": "Cập nhật số kg thực tế của đơn #{code}. Giá sẽ được tính lại tự động.",
+      "weightInvalid": "Số kg phải lớn hơn 0",
+      "weightEditError": "Không thể cập nhật. Đơn có thể đã chuyển sang trạng thái đang giặt.",
+      "weightUpdated": "Đã cập nhật số kg",
+      "weightLocked": "Không thể sửa số kg khi đơn đã bắt đầu giặt",
+      "newTotal": "Thành tiền mới (ước tính)"
     },
     "customers": {
       "title": "Quản lý khách hàng",
@@ -1047,7 +1082,11 @@
       "error": "Cần cấp quyền thông báo để nhận thông báo"
     },
     "tokenReceived": "Đã kích hoạt thông báo",
-    "tokenError": "Không thể kích hoạt thông báo"
+    "tokenError": "Không thể kích hoạt thông báo",
+    "title": "Thông báo",
+    "markAllRead": "Đánh dấu đã đọc",
+    "empty": "Chưa có thông báo nào",
+    "emptyDesc": "Cập nhật về đơn hàng và khuyến mãi sẽ hiển thị tại đây"
   },
   "otp": {
     "title": "Xác thực số điện thoại",
@@ -1067,6 +1106,45 @@
       "quotaExceeded": "Hệ thống tạm quá tải, vui lòng thử lại sau",
       "authUnavailable": "Dịch vụ xác thực chưa sẵn sàng",
       "sendFailed": "Không thể gửi mã, vui lòng thử lại"
+    }
+  },
+  "myOrders": {
+    "title": "Đơn hàng của tôi",
+    "subtitle": "Theo dõi và quản lý các đơn giặt ủi của bạn",
+    "empty": "Bạn chưa có đơn hàng nào",
+    "loadError": "Không thể tải danh sách đơn hàng",
+    "bookNow": "Đặt lịch ngay",
+    "track": "Theo dõi",
+    "pointsUsed": "Đã dùng {points} điểm",
+    "cancel": {
+      "title": "Huỷ đơn hàng",
+      "message": "Bạn có chắc muốn huỷ đơn #{code}?",
+      "note": "Chỉ có thể huỷ khi đơn vừa được đặt. Điểm tích lũy đã dùng sẽ không bị trừ.",
+      "keep": "Giữ đơn",
+      "confirm": "Huỷ đơn",
+      "button": "Huỷ đơn",
+      "hint": "Bạn có thể huỷ đơn trước khi chúng tôi nhận đồ.",
+      "success": "Đã huỷ đơn hàng",
+      "error": "Không thể huỷ đơn. Đơn có thể đã được tiếp nhận."
+    }
+  },
+  "changePassword": {
+    "title": "Đổi mật khẩu",
+    "subtitle": "Mật khẩu mới cần ít nhất {min} ký tự",
+    "currentPassword": "Mật khẩu hiện tại",
+    "currentPasswordPlaceholder": "Nhập mật khẩu hiện tại",
+    "newPassword": "Mật khẩu mới",
+    "newPasswordPlaceholder": "Nhập mật khẩu mới",
+    "confirmPassword": "Xác nhận mật khẩu mới",
+    "confirmPasswordPlaceholder": "Nhập lại mật khẩu mới",
+    "submit": "Cập nhật mật khẩu",
+    "success": "Đổi mật khẩu thành công",
+    "show": "Hiện mật khẩu",
+    "hide": "Ẩn mật khẩu",
+    "errors": {
+      "minLength": "Mật khẩu phải có ít nhất {min} ký tự",
+      "sameAsCurrent": "Mật khẩu mới phải khác mật khẩu hiện tại",
+      "currentInvalid": "Mật khẩu hiện tại không đúng"
     }
   }
 }

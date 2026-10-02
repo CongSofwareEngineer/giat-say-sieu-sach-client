@@ -32,6 +32,7 @@ export const IS_BUILD_PHASE = process.env.NEXT_PHASE === PHASE_PRODUCTION_BUILD
 
 // HTTP status codes checked on API errors
 export enum HTTP_STATUS {
+  BAD_REQUEST = 400,
   NOT_FOUND = 404,
 }
 
@@ -71,6 +72,40 @@ export const CUSTOMER_TIER_MIN_POINTS: Record<CUSTOMER_TIER, number> = {
   [CUSTOMER_TIER.GOLD]: 1000,
   [CUSTOMER_TIER.DIAMOND]: 3000,
 }
+
+// Loyalty points redemption at booking (must match server LOYALTY_POINTS): 100 points = 5,000 VND
+export const LOYALTY_REDEEM = {
+  POINTS_STEP: 100,
+  VND_PER_STEP: 5000,
+} as const
+
+// Fixed discount when the total weight is strictly above MIN_KG (must match server WEIGHT_DISCOUNT)
+export const WEIGHT_DISCOUNT = {
+  MIN_KG: 10,
+  AMOUNT: 10000,
+} as const
+
+// Normal order flow shown on the tracking timeline (CANCELLED is shown separately)
+export const ORDER_STATUS_STEPS: ORDER_STATUS[] = [
+  ORDER_STATUS.PENDING,
+  ORDER_STATUS.RECEIVED,
+  ORDER_STATUS.WASHING,
+  ORDER_STATUS.DRYING,
+  ORDER_STATUS.READY,
+  ORDER_STATUS.COMPLETED,
+]
+
+// Admin can still edit the order weight in these statuses (locked once washing starts)
+export const ORDER_EDITABLE_STATUSES: ORDER_STATUS[] = [ORDER_STATUS.PENDING, ORDER_STATUS.RECEIVED]
+
+// Customers can only cancel a just-placed order
+export const CANCELLABLE_ORDER_STATUS = ORDER_STATUS.PENDING
+
+// Server rejects passwords shorter than this
+export const MIN_PASSWORD_LENGTH = 8 as number
+
+// How long the "Copied" state stays on a copy button (ms)
+export const COPY_FEEDBACK_DURATION = 2000 as number
 
 export const MAX_PIXEL_REDUCE = 300 as number
 export const MAX_COMMENT_IMAGES = 5 as number

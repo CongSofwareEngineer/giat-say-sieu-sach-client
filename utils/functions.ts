@@ -1,5 +1,7 @@
+import type { MyBadgeVariant } from '@/components/MyBadge'
+
 import { images } from '@/config/images'
-import { COLORS } from '@/constants/app'
+import { COLORS, ORDER_STATUS } from '@/constants/app'
 
 export const viewExternal = (url: string) => {
   window.open(url, '_blank')
@@ -88,6 +90,22 @@ export const getColorStatus = (key: string) => {
   //   default:
   //     return COLOR.green1
   // }
+}
+
+// Badge color of an order status (tracking page, my orders)
+export const getOrderStatusBadgeVariant = (status: ORDER_STATUS): MyBadgeVariant => {
+  switch (status) {
+    case ORDER_STATUS.COMPLETED:
+      return 'success'
+    case ORDER_STATUS.WASHING:
+    case ORDER_STATUS.DRYING:
+    case ORDER_STATUS.READY:
+      return 'warning'
+    case ORDER_STATUS.CANCELLED:
+      return 'error'
+    default:
+      return 'info'
+  }
 }
 
 export const getBase64 = (file: File) => {

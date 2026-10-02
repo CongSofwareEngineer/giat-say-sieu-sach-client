@@ -7,7 +7,7 @@ import TrackOrderForm, { TrackOrderQuery } from './TrackOrderForm'
 import TrackOrderResult from './TrackOrderResult'
 
 import MyCard, { MyCardBody } from '@/components/MyCard'
-import { MAX_CHAT_ORDERS } from '@/constants/app'
+import { MAX_CHAT_ORDERS, ORDER_STATUS } from '@/constants/app'
 import useLanguage from '@/hooks/useLanguage'
 import OrderService, { normalizeOrderCode, PublicOrderItem } from '@/services/order'
 import { formatPhoneToE164 } from '@/utils/phone'
@@ -54,6 +54,11 @@ const TrackOrderContent = () => {
     }
   }, [])
 
+  // Reflect a cancellation done from the result card without searching again
+  const handleCancelled = useCallback((orderId: string) => {
+    setOrders((prev) => prev.map((order) => (order.id === orderId ? { ...order, status: ORDER_STATUS.CANCELLED } : order)))
+  }, [])
+
   // Arriving with ?code=XXXXXX (e.g. from the booking page) tracks it right away
   useEffect(() => {
     if (initialCode) handleTrack({ code: initialCode, phone: '' })
@@ -77,7 +82,7 @@ const TrackOrderContent = () => {
 
       <div className='space-y-6'>
         {orders.map((order) => (
-          <TrackOrderResult key={order.id} order={order} />
+          <TrackOrderResult key={order.id} order={order} onCancelled={handleCancelled} />
         ))}
       </div>
     </>

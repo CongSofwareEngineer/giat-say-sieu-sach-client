@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 import AddressBook from './components/AddressBook'
+import ChangePasswordForm from './components/ChangePasswordForm'
+import MyOrders from './components/MyOrders'
 import ProfileInfoForm from './components/ProfileInfoForm'
 import ProfileSidebar, { ProfileTab } from './components/ProfileSidebar'
 
@@ -49,7 +51,10 @@ const ProfilePage = () => {
         <div className='grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6 items-start'>
           <ProfileSidebar activeTab={activeTab} onChangeTab={setActiveTab} />
 
-          {activeTab === 'info' ? <ProfileInfoForm /> : <AddressBook />}
+          {activeTab === 'info' && <ProfileInfoForm />}
+          {activeTab === 'addresses' && <AddressBook />}
+          {activeTab === 'orders' && <MyOrders />}
+          {activeTab === 'password' && <ChangePasswordForm />}
         </div>
       </div>
     </main>

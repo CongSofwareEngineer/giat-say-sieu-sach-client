@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 
 import MyImage from '../MyImage'
+import NotificationBell from '../NotificationBell'
 import { MenuIcon } from '../Icons/Functions/Menu'
 import { CloseIcon } from '../Icons/Functions/Close'
 import { LogOutIcon } from '../Icons/Functions/LogOut'
@@ -183,6 +184,9 @@ const Header = () => {
                 </div>
               )}
             </div>
+
+            {/* UI only for now: notifications are not loaded yet */}
+            {hasHydrated && isLogin && <NotificationBell notifications={[]} />}
 
             {!isMobile && hasHydrated && isLogin && (
               <div className='relative hidden md:block'>

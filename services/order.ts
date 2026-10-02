@@ -9,9 +9,16 @@ export type OrderItem = {
   totalAmount: number
   discountAmount?: number
   finalAmount: number
+  // Parts of discountAmount: heavy-order discount and redeemed loyalty points
+  weightDiscount?: number
+  pointsUsed?: number
+  pointsDiscount?: number
   promotionId?: string
   promotionCode?: string
   notes?: string
+  address?: string
+  district?: string
+  city?: string
   items: OrderItemDetail[]
   createdAt: string
   updatedAt: string
@@ -25,10 +32,15 @@ export type OrderItemDetail = {
   subtotal: number
 }
 
+// Mirrors CreateLaundryOrderDto of the server (login required, needed to redeem points)
 export type CreateOrderPayload = {
-  addressId: string
+  addressId?: string
+  address?: string
+  district?: string
+  city?: string
   items: { categoryId: string; quantity: number }[]
   notes?: string
+  usePoints?: boolean
 }
 
 // Mirrors CreateGuestOrderDto of the server (no login required)
@@ -48,6 +60,8 @@ export type PublicOrderItem = {
   id: string
   code: string
   status: ORDER_STATUS
+  totalAmount?: number
+  discountAmount?: number
   finalAmount: number
   items: { categoryName: string; quantity: number; subtotal: number }[]
   createdAt: string
@@ -102,6 +116,27 @@ class OrderApi extends BaseAPI {
     const response = await this.get<ListResponse>(`/me${query.toString() ? `?${query.toString()}` : ''}`, { isUseAuth: true })
 
     return response
+  }
+
+  // One order of the logged-in user (fails with 404 when the order belongs to someone else)
+  async getMyOrder(id: string): Promise<OrderItem> {
+    const response = await this.get<{ data: OrderItem }>(`/me/${id}`, { isUseAuth: true })
+
+    return response.data
+  }
+
+  // Customer cancels their own order (server only allows PENDING)
+  async cancelMyOrder(id: string): Promise<OrderItem> {
+    const response = await this.patch<{ data: OrderItem }>(`/me/${id}/cancel`, {}, { isUseAuth: true })
+
+    return response.data
+  }
+
+  // Admin replaces the order items (weight); server recalculates amounts and rejects once washing started
+  async updateOrderItems(id: string, items: { categoryId: string; quantity: number }[]): Promise<OrderItem> {
+    const response = await this.patch<{ data: OrderItem }>(`/${id}/items`, { items }, { isUseAuth: true })
+
+    return response.data
   }
 
   async updateOrderStatus(id: string, status: ORDER_STATUS): Promise<OrderItem> {
