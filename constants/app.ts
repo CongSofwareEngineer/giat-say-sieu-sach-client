@@ -74,3 +74,21 @@ export enum UPLOAD_IMAGE_TYPE {
 
 // Max files the server accepts in one upload request
 export const MAX_IMAGES_PER_UPLOAD = 10 as number
+
+// localStorage keys
+export enum LOCAL_STORAGE_KEY {
+  branches = 'branches_cache',
+  bookingAddress = 'booking_address',
+}
+
+// Branch list is refetched from the API once the local cache is older than this
+export const BRANCH_CACHE_DURATION = (24 * 60 * 60 * 1000) as number
+
+// Max length of the note a customer leaves for the admin when booking
+export const MAX_BOOKING_NOTE_LENGTH = 300 as number
+
+// Where a laundry booking was placed, written into the order notes
+export enum BOOKING_SOURCE {
+  CHAT = 'chat',
+  PAGE = 'page',
+}

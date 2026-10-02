@@ -1,3 +1,4 @@
+import { BOOKING_SOURCE } from '@/constants/app'
 import { FCM_TOKEN_KEY } from '@/hooks/useNotifications'
 import OrderService, { OrderItem } from '@/services/order'
 import { formatPhoneToE164 } from '@/utils/phone'
@@ -12,6 +13,15 @@ export type LaundryBookingInput = {
   planId: string
   planName: string
   weight: number
+  // Free note for the admin
+  note?: string
+  source?: BOOKING_SOURCE
+}
+
+// Order notes prefix per booking source
+const SOURCE_LABEL_KEY: Record<BOOKING_SOURCE, string> = {
+  [BOOKING_SOURCE.CHAT]: 'chat.serviceTypeLabel',
+  [BOOKING_SOURCE.PAGE]: 'booking.serviceTypeLabel',
 }
 
 const getStoredFcmToken = (): string | undefined => {
@@ -22,7 +32,7 @@ const getStoredFcmToken = (): string | undefined => {
   }
 }
 
-// Place a laundry order from the chat form. No login needed: the server finds
+// Place a laundry order from the chat form or the booking page. No login needed: the server finds
 // (or registers) the customer by phone and stores the address on the order.
 export const createLaundryBooking = async (input: LaundryBookingInput): Promise<OrderItem> =>
   OrderService.createGuestOrder({
@@ -33,5 +43,7 @@ export const createLaundryBooking = async (input: LaundryBookingInput): Promise<
     district: input.district,
     city: input.city,
     items: [{ categoryId: input.planId, quantity: input.weight }],
-    notes: translate('chat.serviceTypeLabel', { serviceType: input.planName }),
+    notes: [translate(SOURCE_LABEL_KEY[input.source ?? BOOKING_SOURCE.CHAT], { serviceType: input.planName }), input.note?.trim()]
+      .filter(Boolean)
+      .join('\n'),
   })

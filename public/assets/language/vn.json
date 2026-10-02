@@ -274,6 +274,8 @@
     "note": "* Giá có thể thay đổi theo từng loại vải và mức độ bẩn. Tư vấn miễn phí: 0901 234 567"
   },
   "booking": {
+    "serviceTypeLabel": "Đặt qua trang đặt lịch: {serviceType}",
+    "error": "Đặt lịch thất bại, vui lòng thử lại sau",
     "title": "Đặt lịch giặt ủi",
     "subtitle": "Điền thông tin để đặt lịch giao nhận đồ",
     "form": {
@@ -939,6 +941,8 @@
       "serviceType": "Loại dịch vụ",
       "weight": "Khối lượng (kg)",
       "weightPlaceholder": "Nhập số kg",
+      "note": "Ghi chú cho cửa hàng",
+      "notePlaceholder": "Ví dụ: đồ trắng giặt riêng, gọi trước khi đến...",
       "estimatedPrice": "Giá ước tính",
       "submit": "Đặt lịch",
       "orderConfirmed": "Cảm ơn bạn đã đặt dịch vụ! Chúng tôi sẽ liên hệ xác nhận sớm nhất.",

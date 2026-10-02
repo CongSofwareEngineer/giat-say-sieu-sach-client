@@ -4,14 +4,18 @@ import type { AddressItem } from '@/services/address/type'
 import type { PricingPlan } from '@/services/pricing'
 import type { LaundryFormData } from './types'
 
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import MyButton from '@/components/MyButton'
 import MySelect from '@/components/MySelect'
 import useLanguage from '@/hooks/useLanguage'
 import useGetProvinces from '@/hooks/reactQuery/useGetProvinces'
 import useGetWards from '@/hooks/reactQuery/useGetWards'
+import useGetListBranches from '@/hooks/reactQuery/useGetListBranches'
 import { formatAddress } from '@/services/address'
+import { getBranchCities } from '@/services/branch'
+import { MAX_BOOKING_NOTE_LENGTH } from '@/constants/app'
+import { cn } from '@/utils/tailwind'
 import { isValidVnPhone } from '@/utils/phone'
 
 type LaundryFormProps = {
@@ -21,20 +25,51 @@ type LaundryFormProps = {
   estimatedPrice: number
   onChange: (field: string, value: string) => void
   onSubmit: () => void
-  onCancel: () => void
+  // Cancel button is hidden when not provided (booking page)
+  onCancel?: () => void
   isSubmitting?: boolean
+  showTitle?: boolean
+  className?: string
 }
 
-const LaundryForm = ({ formData, addresses, plans, estimatedPrice, onChange, onSubmit, onCancel, isSubmitting = false }: LaundryFormProps) => {
+const normalizeCity = (city: string) => city.trim().toLowerCase()
+
+const LaundryForm = ({
+  formData,
+  addresses,
+  plans,
+  estimatedPrice,
+  onChange,
+  onSubmit,
+  onCancel,
+  isSubmitting = false,
+  showTitle = true,
+  className = '',
+}: LaundryFormProps) => {
   const { translate } = useLanguage()
   const { provinces, isLoading: loadingProvinces } = useGetProvinces()
+  const { branches } = useGetListBranches()
+
+  // Only provinces that have a branch; fall back to all when no branch city matches (empty list / API error)
+  const allowedProvinces = useMemo(() => {
+    const branchCities = new Set(getBranchCities(branches).map(normalizeCity))
+    const matched = provinces.filter((p) => branchCities.has(normalizeCity(p.name)))
+
+    return matched.length > 0 ? matched : provinces
+  }, [provinces, branches])
+
+  const isCityAllowed = (city: string) => allowedProvinces.some((p) => p.name === city)
 
   // Province is stored by name (same as profile AddressForm), wards are fetched by its id
   const selectedProvince = provinces.find((p) => p.name === formData.city)
   const { wards, isLoading: loadingWards } = useGetWards(selectedProvince?.id)
 
-  const savedAddressOptions = useMemo(() => addresses.map((addr) => ({ value: addr.id, label: formatAddress(addr) })), [addresses])
-  const cityOptions = useMemo(() => provinces.map((p) => ({ value: p.name, label: p.full_name || p.name })), [provinces])
+  const savedAddressOptions = useMemo(
+    () =>
+      addresses.filter((addr) => allowedProvinces.some((p) => p.name === addr.city)).map((addr) => ({ value: addr.id, label: formatAddress(addr) })),
+    [addresses, allowedProvinces]
+  )
+  const cityOptions = useMemo(() => allowedProvinces.map((p) => ({ value: p.name, label: p.full_name || p.name })), [allowedProvinces])
   const wardOptions = useMemo(() => wards.map((w) => ({ value: w.name, label: w.full_name || w.name })), [wards])
 
   const handleSelectSavedAddress = (addressId: string) => {
@@ -53,6 +88,17 @@ const LaundryForm = ({ formData, addresses, plans, estimatedPrice, onChange, onS
     onChange('addressId', '')
     onChange(field, value)
   }
+
+  // Prefilled address (default / last booking) outside the served provinces: clear it so the user picks again
+  const isPrefilledCityOutside = provinces.length > 0 && !!formData.city && !isCityAllowed(formData.city)
+
+  useEffect(() => {
+    if (!isPrefilledCityOutside) return
+
+    onChange('addressId', '')
+    onChange('city', '')
+    onChange('district', '')
+  }, [isPrefilledCityOutside, onChange])
 
   const activePlans = plans.filter((p) => p.isActive)
   const serviceOptions =
@@ -76,12 +122,13 @@ const LaundryForm = ({ formData, addresses, plans, estimatedPrice, onChange, onS
     formData.address.trim() &&
     formData.district &&
     formData.city &&
+    !isPrefilledCityOutside &&
     formData.weight.trim() &&
     parseFloat(formData.weight) > 0
 
   return (
-    <div className='bg-white border border-border w-full rounded-xl p-4 space-y-4'>
-      <h3 className='font-semibold text-primary'>{translate('chat.laundryForm.title')}</h3>
+    <div className={cn('bg-white border border-border w-full rounded-xl p-4 space-y-4', className)}>
+      {showTitle && <h3 className='font-semibold text-primary'>{translate('chat.laundryForm.title')}</h3>}
 
       <div className='space-y-3'>
         <div>
@@ -188,6 +235,18 @@ const LaundryForm = ({ formData, addresses, plans, estimatedPrice, onChange, onS
           />
         </div>
 
+        <div>
+          <label className='block text-xs font-medium text-gray-700 mb-1'>{translate('chat.laundryForm.note')}</label>
+          <textarea
+            rows={2}
+            value={formData.note}
+            onChange={(e) => onChange('note', e.target.value)}
+            placeholder={translate('chat.laundryForm.notePlaceholder')}
+            maxLength={MAX_BOOKING_NOTE_LENGTH}
+            className='w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none'
+          />
+        </div>
+
         {estimatedPrice > 0 && (
           <div className='p-3 bg-primary/5 border border-primary/20 rounded-lg'>
             <p className='text-sm text-primary font-medium'>
@@ -198,9 +257,11 @@ const LaundryForm = ({ formData, addresses, plans, estimatedPrice, onChange, onS
         )}
 
         <div className='flex gap-2 pt-2'>
-          <MyButton onClick={onCancel} variant='outline' className='flex-1 py-2 text-sm'>
-            {translate('common.cancel')}
-          </MyButton>
+          {onCancel && (
+            <MyButton onClick={onCancel} variant='outline' className='flex-1 py-2 text-sm'>
+              {translate('common.cancel')}
+            </MyButton>
+          )}
           <MyButton onClick={onSubmit} disabled={!isFormValid} loading={isSubmitting} className='flex-1 py-2 text-sm'>
             {translate('chat.laundryForm.submit')}
           </MyButton>

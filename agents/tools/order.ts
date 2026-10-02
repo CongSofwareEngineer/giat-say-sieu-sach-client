@@ -4,6 +4,7 @@ import { INFO_CONTACT, ORDER_STATUS } from '@/constants/app'
 import { TOOL_NAME } from '@/constants/tools'
 import OrderService, { getOrderCode, normalizeOrderCode, PublicOrderItem } from '@/services/order'
 import BranchService from '@/services/branch'
+import { formatAddress } from '@/services/address'
 import { translate } from '@/utils/language'
 
 export const statusLabel = (status: string): string => {
@@ -126,6 +127,6 @@ export const getBranchesTool: AgentTool = {
     const branches = await BranchService.getBranches()
     const noHours = translate('agent.order.branch.noHours', {}, 'Không có giờ')
 
-    return branches.map((b) => `- ${b.name}: ${b.address} (${b.workingHours || noHours}) - ${b.phone || '—'}`).join('\n')
+    return branches.map((b) => `- ${b.name}: ${formatAddress(b)} (${b.workingHours || noHours}) - ${b.phone || '—'}`).join('\n')
   },
 }

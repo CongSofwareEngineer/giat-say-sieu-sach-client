@@ -14,6 +14,8 @@ export type LaundryFormData = {
   city: string
   serviceType: string
   weight: string
+  // Optional note for the admin
+  note: string
 }
 
 export type TranslateFn = (key?: string, variables?: Record<string, any>, defaultMessage?: string) => any

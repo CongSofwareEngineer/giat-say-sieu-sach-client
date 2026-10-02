@@ -274,6 +274,8 @@
     "note": "* Prices may vary depending on fabric type and level of dirt. Free consultation: 0901 234 567"
   },
   "booking": {
+    "serviceTypeLabel": "Booked via booking page: {serviceType}",
+    "error": "Booking failed, please try again later",
     "title": "Book Laundry Service",
     "subtitle": "Fill in your information to schedule pickup",
     "form": {
@@ -939,6 +941,8 @@
       "serviceType": "Service Type",
       "weight": "Weight (kg)",
       "weightPlaceholder": "Enter weight in kg",
+      "note": "Note for the shop",
+      "notePlaceholder": "E.g. wash whites separately, call before pickup...",
       "estimatedPrice": "Estimated Price",
       "submit": "Book Now",
       "orderConfirmed": "Thank you for booking! We will contact you soon to confirm.",
