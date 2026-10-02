@@ -138,7 +138,7 @@ const LaundryForm = ({
             value={formData.name}
             onChange={(e) => onChange('name', e.target.value)}
             placeholder={translate('chat.laundryForm.namePlaceholder')}
-            className='w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20'
+            className='w-full px-3 py-2.5 text-sm border border-border rounded-xl bg-white transition-[border-color,box-shadow] hover:border-primary/40 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10'
           />
         </div>
 
@@ -149,7 +149,7 @@ const LaundryForm = ({
             value={formData.phone}
             onChange={(e) => onChange('phone', e.target.value)}
             placeholder={translate('chat.laundryForm.phonePlaceholder')}
-            className='w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20'
+            className='w-full px-3 py-2.5 text-sm border border-border rounded-xl bg-white transition-[border-color,box-shadow] hover:border-primary/40 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10'
           />
         </div>
 
@@ -203,23 +203,20 @@ const LaundryForm = ({
             value={formData.address}
             onChange={(e) => handleManualAddressChange('address', e.target.value)}
             placeholder={translate('chat.laundryForm.addressDetailPlaceholder')}
-            className='w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20'
+            className='w-full px-3 py-2.5 text-sm border border-border rounded-xl bg-white transition-[border-color,box-shadow] hover:border-primary/40 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10'
           />
         </div>
 
         <div>
           <label className='block text-xs font-medium text-gray-700 mb-1'>{translate('chat.laundryForm.serviceType')}</label>
-          <select
+          <MySelect
+            data={serviceOptions.map((option) => ({ value: option.key, label: option.label }))}
             value={formData.serviceType}
-            onChange={(e) => onChange('serviceType', e.target.value)}
-            className='w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 bg-white'
-          >
-            {serviceOptions.map((option) => (
-              <option key={option.key} value={option.key}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+            search={false}
+            onChange={(item) => onChange('serviceType', item.value as string)}
+            className='text-sm'
+            style={{ width: '100%' }}
+          />
         </div>
 
         <div>
@@ -231,7 +228,7 @@ const LaundryForm = ({
             placeholder={translate('chat.laundryForm.weightPlaceholder')}
             min={1}
             step={1}
-            className='w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20'
+            className='w-full px-3 py-2.5 text-sm border border-border rounded-xl bg-white transition-[border-color,box-shadow] hover:border-primary/40 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10'
           />
         </div>
 
@@ -243,7 +240,7 @@ const LaundryForm = ({
             onChange={(e) => onChange('note', e.target.value)}
             placeholder={translate('chat.laundryForm.notePlaceholder')}
             maxLength={MAX_BOOKING_NOTE_LENGTH}
-            className='w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none'
+            className='w-full px-3 py-2.5 text-sm border border-border rounded-xl bg-white transition-[border-color,box-shadow] hover:border-primary/40 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 resize-none'
           />
         </div>
 

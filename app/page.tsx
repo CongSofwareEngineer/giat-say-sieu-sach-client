@@ -6,6 +6,7 @@ import Link from 'next/link'
 import MyCard, { MyCardBody } from '@/components/MyCard'
 import MyButton from '@/components/MyButton'
 import { CheckBadgeIcon } from '@/components/Icons/CheckBadge'
+import { CheckIcon } from '@/components/Icons/Check'
 import StarIcon from '@/components/Icons/Star'
 import { ArrowDownIcon } from '@/components/Icons/ArrowDown'
 import { ArrowUpIcon } from '@/components/Icons/ArrowUp'
@@ -144,7 +145,7 @@ const HomePage = () => {
                 </Link>
                 <Link
                   href='/track-order'
-                  className='inline-flex items-center justify-center rounded-xl border-2 border-primary px-8 py-3 text-base font-bold text-primary transition-all duration-250 hover:bg-primary hover:text-white sm:flex-none'
+                  className='inline-flex items-center justify-center rounded-full border border-primary/30 bg-white/70 px-8 py-3 text-base font-semibold text-primary backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary/5 sm:flex-none'
                 >
                   {translate('home.hero.trackCta')}
                 </Link>
@@ -181,7 +182,9 @@ const HomePage = () => {
                         </p>
                       </div>
                     </div>
-                    <span className='text-sm font-bold text-primary'>✓</span>
+                    <span className='flex size-8 items-center justify-center rounded-full bg-secondary/10 text-secondary'>
+                      <CheckIcon className='size-4' strokeWidth={2.5} />
+                    </span>
                   </div>
 
                   <div className='mt-6 h-2 w-full overflow-hidden rounded-full bg-gray-100'>
@@ -391,7 +394,7 @@ const HomePage = () => {
               <div className='mt-8'>
                 <Link
                   href='/booking'
-                  className='inline-flex items-center justify-center rounded-xl bg-white px-8 py-3.5 text-base font-bold text-primary shadow-lg transition-all duration-250 hover:-translate-y-0.5 hover:shadow-xl'
+                  className='inline-flex items-center justify-center rounded-full bg-white px-8 py-3.5 text-base font-bold text-primary shadow-[0_12px_32px_-12px_rgba(15,23,42,0.45)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-12px_rgba(15,23,42,0.55)]'
                 >
                   {translate('home.cta.button')}
                 </Link>

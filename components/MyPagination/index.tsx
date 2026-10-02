@@ -41,11 +41,13 @@ const MyPagination = ({ currentPage, totalPages, onPageChange, className }: MyPa
   }
 
   return (
-    <div className={cn('flex items-center justify-center gap-2', className)}>
+    <nav
+      className={cn('mx-auto flex w-fit items-center justify-center gap-1 rounded-full border border-border bg-white/80 p-1.5 shadow-card backdrop-blur', className)}
+    >
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className='px-3 py-2 rounded-lg text-sm font-medium text-text disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+        className='h-9 rounded-full px-4 text-sm font-medium text-text transition-colors hover:bg-primary/5 hover:text-primary disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-text'
       >
         {translate('common.back')}
       </button>
@@ -55,15 +57,18 @@ const MyPagination = ({ currentPage, totalPages, onPageChange, className }: MyPa
           <button
             key={index}
             onClick={() => onPageChange(page)}
+            aria-current={currentPage === page ? 'page' : undefined}
             className={cn(
-              'w-10 h-10 rounded-lg text-sm font-medium transition-colors',
-              currentPage === page ? 'bg-primary text-white' : 'text-text hover:bg-gray-100'
+              'size-9 rounded-full text-sm font-semibold transition-all duration-200',
+              currentPage === page
+                ? 'bg-gradient-to-br from-primary to-secondary text-white shadow-[0_6px_16px_-6px_rgba(10,111,135,0.6)]'
+                : 'text-text hover:bg-primary/5 hover:text-primary'
             )}
           >
             {page}
           </button>
         ) : (
-          <span key={index} className='px-2 text-gray-500'>
+          <span key={index} className='px-1.5 text-gray-400'>
             {page}
           </span>
         )
@@ -72,11 +77,11 @@ const MyPagination = ({ currentPage, totalPages, onPageChange, className }: MyPa
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className='px-3 py-2 rounded-lg text-sm font-medium text-text disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+        className='h-9 rounded-full px-4 text-sm font-medium text-text transition-colors hover:bg-primary/5 hover:text-primary disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-text'
       >
         {translate('common.next')}
       </button>
-    </div>
+    </nav>
   )
 }
 

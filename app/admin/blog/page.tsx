@@ -127,17 +127,17 @@ const AdminBlogPage = () => {
               <div className='overflow-x-auto'>
                 <table className='w-full text-sm'>
                   <thead>
-                    <tr className='border-b border-border'>
-                      <th className='text-left py-3 px-4 font-medium text-gray-500'>{translate('blog.title')}</th>
-                      <th className='text-center py-3 px-4 font-medium text-gray-500'>{translate('blog.category')}</th>
-                      <th className='text-center py-3 px-4 font-medium text-gray-500'>{translate('common.status')}</th>
-                      <th className='text-center py-3 px-4 font-medium text-gray-500'>{translate('common.date')}</th>
-                      <th className='text-center py-3 px-4 font-medium text-gray-500'>{translate('common.actions')}</th>
+                    <tr className='border-b border-border bg-gray-50/80'>
+                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('blog.title')}</th>
+                      <th className='text-center py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('blog.category')}</th>
+                      <th className='text-center py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.status')}</th>
+                      <th className='text-center py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.date')}</th>
+                      <th className='text-center py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {paginatedPosts.map((post) => (
-                      <tr key={post.id} className='border-b border-border'>
+                      <tr key={post.id} className='border-b border-border transition-colors hover:bg-primary/[0.03]'>
                         <td className='py-3 px-4 font-medium max-w-xs truncate'>{post.title}</td>
                         <td className='py-3 px-4 text-center'>
                           <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700'>

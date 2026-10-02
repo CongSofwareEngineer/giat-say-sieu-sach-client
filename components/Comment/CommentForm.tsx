@@ -8,6 +8,7 @@ import MyButton from '@/components/MyButton'
 import MySelect from '@/components/MySelect'
 import RatingInput from '@/components/Comment/RatingInput'
 import { CameraIcon } from '@/components/Icons/Camera'
+import { CheckIcon } from '@/components/Icons/Check'
 import { PlusIcon } from '@/components/Icons/Plus'
 import { TrashIcon } from '@/components/Icons/Trash'
 import { CommentItem } from '@/services/comment'
@@ -193,7 +194,9 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
   if (isSuccess) {
     return (
       <div className='flex w-full flex-col items-center gap-3 py-10 text-center'>
-        <div className='flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl text-green-600'>✓</div>
+        <div className='flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-secondary text-white shadow-[0_12px_28px_-10px_rgba(0,127,106,0.6)]'>
+          <CheckIcon className='size-8' strokeWidth={2.5} />
+        </div>
         <p className='text-lg font-bold text-text'>{translate('reviews.success')}</p>
       </div>
     )

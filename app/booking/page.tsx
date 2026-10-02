@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 
 import MyButton from '@/components/MyButton'
 import MyCard, { MyCardBody } from '@/components/MyCard'
+import { CheckIcon } from '@/components/Icons/Check'
 import SeoJsonLd from '@/components/SeoJsonLd'
 import LaundryForm from '@/components/Chat/LaundryForm'
 import useLanguage from '@/hooks/useLanguage'
@@ -48,8 +49,8 @@ const BookingPage = () => {
       <div className='min-h-[60vh] flex items-center justify-center py-12 px-4'>
         <MyCard className='max-w-md w-full'>
           <MyCardBody className='text-center'>
-            <div className='w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center'>
-              <span className='text-3xl'>✓</span>
+            <div className='mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-secondary text-white shadow-[0_12px_28px_-10px_rgba(0,127,106,0.6)]'>
+              <CheckIcon className='size-8' strokeWidth={2.5} />
             </div>
             <h2 className='text-2xl font-bold text-text mb-2'>{translate('booking.success.title')}</h2>
             <p className='text-gray-600 mb-4'>{translate('booking.success.message')}</p>

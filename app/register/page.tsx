@@ -100,8 +100,10 @@ const RegisterPage = () => {
   }
 
   return (
-    <div className='min-h-[60vh] flex items-center justify-center py-12 px-4'>
-      <MyCard className='w-full max-w-md'>
+    <div className='relative flex min-h-[60vh] items-center justify-center overflow-hidden px-4 py-12'>
+      <div className='pointer-events-none absolute -left-24 top-0 h-80 w-80 rounded-full bg-primary/10 blur-3xl' />
+      <div className='pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-secondary/10 blur-3xl' />
+      <MyCard className='relative w-full max-w-md rounded-3xl border-white/60 bg-white/90 shadow-card-hover backdrop-blur-xl'>
         <MyCardBody>
           <div className='text-center mb-8'>
             <h1 className='text-2xl font-bold text-text mb-2'>{translate('auth.register.title')}</h1>
@@ -170,7 +172,7 @@ const RegisterPage = () => {
               {errors.captcha && <p className='mt-1 text-sm text-red-600'>{errors.captcha}</p>}
             </div>
 
-            <MyButton type='submit' variant='primary' loading={isSubmitting} className='w-full'>
+            <MyButton type='submit' variant='default' size='large' loading={isSubmitting} className='w-full'>
               {translate('auth.register.submit')}
             </MyButton>
           </form>

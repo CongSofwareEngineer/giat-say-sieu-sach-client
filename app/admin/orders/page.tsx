@@ -14,6 +14,7 @@ import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
 import { toast } from '@/utils/toast'
 import { ORDER_STATUS } from '@/constants/app'
+import { ArrowDownIcon } from '@/components/Icons/ArrowDown'
 
 const statusConfig: Record<ORDER_STATUS, { label: string; variant: 'success' | 'warning' | 'info' | 'error' }> = {
   [ORDER_STATUS.PENDING]: { label: 'Chờ xác nhận', variant: 'info' },
@@ -139,35 +140,38 @@ const AdminOrdersPage = () => {
               <div className='overflow-x-auto'>
                 <table className='w-full text-sm'>
                   <thead>
-                    <tr className='border-b border-border'>
-                      <th className='text-left py-3 px-4 font-medium text-gray-500'>{translate('admin.orders.list.code')}</th>
-                      <th className='text-left py-3 px-4 font-medium text-gray-500'>{translate('admin.orders.list.customer')}</th>
-                      <th className='text-left py-3 px-4 font-medium text-gray-500'>{translate('admin.orders.list.service')}</th>
-                      <th className='text-left py-3 px-4 font-medium text-gray-500'>{translate('admin.orders.list.status')}</th>
-                      <th className='text-right py-3 px-4 font-medium text-gray-500'>{translate('admin.orders.list.price')}</th>
-                      <th className='text-left py-3 px-4 font-medium text-gray-500'>{translate('admin.orders.list.date')}</th>
-                      <th className='text-center py-3 px-4 font-medium text-gray-500'>{translate('common.actions')}</th>
+                    <tr className='border-b border-border bg-gray-50/80'>
+                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.orders.list.code')}</th>
+                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.orders.list.customer')}</th>
+                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.orders.list.service')}</th>
+                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.orders.list.status')}</th>
+                      <th className='text-right py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.orders.list.price')}</th>
+                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.orders.list.date')}</th>
+                      <th className='text-center py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {paginatedOrders.map((order) => (
-                      <tr key={order.id} className='border-b border-border'>
+                      <tr key={order.id} className='border-b border-border transition-colors hover:bg-primary/[0.03]'>
                         <td className='py-3 px-4 font-medium'>#{order.id.slice(-6).toUpperCase()}</td>
                         <td className='py-3 px-4'>{getUserIdDisplay(order)}</td>
                         <td className='py-3 px-4'>{getServiceName(order)}</td>
                         <td className='py-3 px-4'>
-                          <select
-                            className='px-2 py-1 border border-border rounded text-xs'
-                            value={order.status}
-                            onChange={(e) => handleStatusChange(order.id, e.target.value as ORDER_STATUS)}
-                            disabled={isUpdatingStatus}
-                          >
-                            {Object.values(ORDER_STATUS).map((status) => (
-                              <option key={status} value={status}>
-                                {statusConfig[status]?.label}
-                              </option>
-                            ))}
-                          </select>
+                          <div className='relative w-fit min-w-[140px]'>
+                            <select
+                              className='w-full cursor-pointer appearance-none rounded-full border border-border bg-white py-1.5 pl-3 pr-8 text-xs font-medium text-text transition-colors hover:border-primary/40 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60'
+                              value={order.status}
+                              onChange={(e) => handleStatusChange(order.id, e.target.value as ORDER_STATUS)}
+                              disabled={isUpdatingStatus}
+                            >
+                              {Object.values(ORDER_STATUS).map((status) => (
+                                <option key={status} value={status}>
+                                  {statusConfig[status]?.label}
+                                </option>
+                              ))}
+                            </select>
+                            <ArrowDownIcon className='pointer-events-none absolute right-2.5 top-1/2 size-3.5 -translate-y-1/2 text-gray-400' strokeWidth={2} />
+                          </div>
                         </td>
                         <td className='py-3 px-4 text-right'>{order.finalAmount.toLocaleString()}đ</td>
                         <td className='py-3 px-4'>{order.createdAt ? new Date(order.createdAt).toLocaleDateString('vi-VN') : '—'}</td>
@@ -176,7 +180,7 @@ const AdminOrdersPage = () => {
                             <button
                               type='button'
                               onClick={() => confirmDelete(order)}
-                              className='px-3 py-1 text-xs text-red-600 border border-red-600 rounded-lg'
+                              className='cursor-pointer rounded-full bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 ring-1 ring-inset ring-red-600/20 transition-colors hover:bg-red-100'
                             >
                               {translate('common.delete')}
                             </button>

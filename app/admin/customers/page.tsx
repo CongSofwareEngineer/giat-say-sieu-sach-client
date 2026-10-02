@@ -124,18 +124,18 @@ const AdminCustomersPage = () => {
               <div className='overflow-x-auto'>
                 <table className='w-full text-sm'>
                   <thead>
-                    <tr className='border-b border-border'>
-                      <th className='text-left py-3 px-4 font-medium text-gray-500'>{translate('admin.customers.name', {}, 'Họ tên')}</th>
-                      <th className='text-left py-3 px-4 font-medium text-gray-500'>{translate('common.phone')}</th>
-                      <th className='text-center py-3 px-4 font-medium text-gray-500'>{translate('admin.customers.role', {}, 'Vai trò')}</th>
-                      <th className='text-center py-3 px-4 font-medium text-gray-500'>{translate('admin.customers.status', {}, 'Trạng thái')}</th>
-                      <th className='text-left py-3 px-4 font-medium text-gray-500'>{translate('admin.customers.createdAt', {}, 'Ngày tạo')}</th>
-                      <th className='text-center py-3 px-4 font-medium text-gray-500'>{translate('common.actions')}</th>
+                    <tr className='border-b border-border bg-gray-50/80'>
+                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.customers.name', {}, 'Họ tên')}</th>
+                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.phone')}</th>
+                      <th className='text-center py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.customers.role', {}, 'Vai trò')}</th>
+                      <th className='text-center py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.customers.status', {}, 'Trạng thái')}</th>
+                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.customers.createdAt', {}, 'Ngày tạo')}</th>
+                      <th className='text-center py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {paginatedCustomers.map((customer) => (
-                      <tr key={customer._id} className='border-b border-border'>
+                      <tr key={customer._id} className='border-b border-border transition-colors hover:bg-primary/[0.03]'>
                         <td className='py-3 px-4 font-medium'>{customer.name}</td>
                         <td className='py-3 px-4'>{customer.phone}</td>
                         <td className='py-3 px-4 text-center'>

@@ -6,7 +6,7 @@ import { toast as toastStore } from '@/zustand/toast'
 
 const TOAST_STYLES: Record<string, any> = {
   default: {
-    border: 'border-l-primary',
+    tint: 'bg-primary/10',
     icon: (
       <svg className='w-5 h-5 text-primary' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={2}>
         <path strokeLinecap='round' strokeLinejoin='round' d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' />
@@ -14,7 +14,7 @@ const TOAST_STYLES: Record<string, any> = {
     ),
   },
   warning: {
-    border: 'border-l-amber-400',
+    tint: 'bg-amber-50',
     icon: (
       <svg className='w-5 h-5 text-amber-500' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={2}>
         <path
@@ -26,7 +26,7 @@ const TOAST_STYLES: Record<string, any> = {
     ),
   },
   error: {
-    border: 'border-l-red-500',
+    tint: 'bg-red-50',
     icon: (
       <svg className='w-5 h-5 text-red-500' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={2}>
         <path strokeLinecap='round' strokeLinejoin='round' d='M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z' />
@@ -61,11 +61,11 @@ const ToastItem = ({ item }: { item: { id: number; message: string; type?: strin
 
   return (
     <div
-      className={`flex items-start gap-3 bg-white rounded-xl shadow-lg border-l-4 ${style.border} p-4 min-w-[320px] max-w-[400px] ${
+      className={`flex items-center gap-3 rounded-2xl border border-white/60 bg-white/90 p-3 pr-4 shadow-[0_16px_40px_-12px_rgba(15,23,42,0.25)] ring-1 ring-black/5 backdrop-blur-xl min-w-[300px] max-w-[400px] ${
         isExiting ? 'animation-toast-out' : 'animation-toast-in'
       }`}
     >
-      <div className='flex-shrink-0 mt-0.5'>{style.icon}</div>
+      <div className={`flex size-9 flex-shrink-0 items-center justify-center rounded-xl ${style.tint}`}>{style.icon}</div>
       <p className='text-sm text-gray-700 leading-relaxed flex-1'>{item.message}</p>
     </div>
   )

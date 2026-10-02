@@ -144,11 +144,11 @@ const PriceForm = ({ plan }: PriceFormProps) => {
       />
       <div className='flex items-center gap-4'>
         <label className='flex items-center gap-2 text-sm'>
-          <input type='checkbox' checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className='rounded border-border' />
+          <input type='checkbox' checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className='size-4 rounded border-border accent-primary' />
           <span>{translate('admin.prices.active', {}, 'Đang hoạt động')}</span>
         </label>
         <label className='flex items-center gap-2 text-sm'>
-          <input type='checkbox' checked={popular} onChange={(e) => setPopular(e.target.checked)} className='rounded border-border' />
+          <input type='checkbox' checked={popular} onChange={(e) => setPopular(e.target.checked)} className='size-4 rounded border-border accent-primary' />
           <span>{translate('admin.prices.popular', {}, 'Phổ biến')}</span>
         </label>
       </div>

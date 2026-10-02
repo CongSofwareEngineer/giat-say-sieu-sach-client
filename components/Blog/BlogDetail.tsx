@@ -55,7 +55,7 @@ const BlogDetail = ({ post, children }: BlogDetailProps) => {
           {isAdmin && (
             <Link
               href={`/admin/blog/${post.id}`}
-              className='inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors'
+              className='inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-[0_6px_20px_-8px_rgba(10,111,135,0.6)] transition-all hover:-translate-y-0.5 hover:bg-primary/90'
             >
               <EditIcon className='h-4 w-4' />
               {translate('common.edit')}

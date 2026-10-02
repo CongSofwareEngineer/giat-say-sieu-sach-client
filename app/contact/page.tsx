@@ -7,6 +7,7 @@ import MyTextarea from '@/components/MyTextarea'
 import MyButton from '@/components/MyButton'
 import MyCard, { MyCardBody } from '@/components/MyCard'
 import { PhoneIcon } from '@/components/Icons/Phone'
+import { CheckIcon } from '@/components/Icons/Check'
 import { MailIcon } from '@/components/Icons/Mail'
 import { MapPinIcon } from '@/components/Icons/MapPin'
 import FacebookIcon from '@/components/Icons/SocialMedia/Facebook'
@@ -168,8 +169,8 @@ const ContactPage = () => {
 
                 {isSuccess ? (
                   <div className='text-center py-8'>
-                    <div className='w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center'>
-                      <span className='text-3xl'>✓</span>
+                    <div className='mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-secondary text-white shadow-[0_12px_28px_-10px_rgba(0,127,106,0.6)]'>
+                      <CheckIcon className='size-8' strokeWidth={2.5} />
                     </div>
                     <p className='text-lg font-semibold text-text mb-2'>{translate('contact.form.success')}</p>
                     <MyButton variant='default' onClick={() => setIsSuccess(false)}>

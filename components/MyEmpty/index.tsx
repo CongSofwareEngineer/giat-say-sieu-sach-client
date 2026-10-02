@@ -15,10 +15,10 @@ const MyEmpty = ({ message, action, className }: MyEmptyProps) => {
 
   return (
     <div className={`flex flex-col items-center justify-center py-12 px-4 ${className ?? ''}`}>
-      <div className='w-16 h-16 mb-4 text-gray-300'>
-        <InboxIcon className='w-full h-full' />
+      <div className='mb-4 flex size-20 items-center justify-center rounded-3xl bg-gradient-to-br from-primary/10 to-secondary/10 text-primary/60 ring-1 ring-primary/10'>
+        <InboxIcon className='size-10' />
       </div>
-      <p className='text-gray-500 text-center mb-4'>{message || translate('common.noData')}</p>
+      <p className='mb-4 text-center text-sm text-gray-500'>{message || translate('common.noData')}</p>
       {action}
     </div>
   )

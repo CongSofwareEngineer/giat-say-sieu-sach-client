@@ -214,7 +214,7 @@ const AdminBlogNewPage = () => {
                 id='isPublished'
                 checked={values.isPublished}
                 onChange={(e) => handleChange('isPublished', e.target.checked)}
-                className='h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary'
+                className='h-4 w-4 rounded border-gray-300 accent-primary'
               />
               <label htmlFor='isPublished' className='text-sm text-text'>
                 {translate('admin.blog.publish', {}, 'Xuất bản ngay')}

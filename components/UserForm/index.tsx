@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 
 import MyInput from '@/components/MyInput'
 import MyButton from '@/components/MyButton'
+import MySelect from '@/components/MySelect'
 import { User, UserRole } from '@/services/users/type'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
@@ -74,14 +75,20 @@ const UserForm = ({ user }: UserFormProps) => {
       )}
       <div className='flex items-center gap-4'>
         <label className='flex items-center gap-2 text-sm'>
-          <input type='checkbox' checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className='rounded border-border' />
+          <input type='checkbox' checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className='size-4 rounded border-border accent-primary' />
           <span>{translate('admin.customers.active', {}, 'Đang hoạt động')}</span>
         </label>
         {!isEdit && (
-          <select value={role} onChange={(e) => setRole(e.target.value as UserRole)} className='border border-border rounded px-2 py-1 text-sm'>
-            <option value={UserRole.CUSTOMER}>{translate('admin.customers.roleCustomer', {}, 'Khách hàng')}</option>
-            <option value={UserRole.ADMIN}>{translate('admin.customers.roleAdmin', {}, 'Admin')}</option>
-          </select>
+          <MySelect
+            data={[
+              { value: UserRole.CUSTOMER, label: translate('admin.customers.roleCustomer', {}, 'Khách hàng') },
+              { value: UserRole.ADMIN, label: translate('admin.customers.roleAdmin', {}, 'Admin') },
+            ]}
+            value={role}
+            search={false}
+            onChange={(item) => setRole(item.value as UserRole)}
+            className='w-44 text-sm'
+          />
         )}
       </div>
       {error && <p className='text-sm text-red-600'>{error}</p>}

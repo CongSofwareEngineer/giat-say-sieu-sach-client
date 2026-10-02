@@ -451,7 +451,7 @@ const AdminBlogEditPage = () => {
                 onStartEdit={() => handleFieldStartEdit('title')}
                 placeholder={translate('blog.title')}
                 className='block'
-                inputClassName='text-3xl font-bold text-text w-full p-0 border-0 border-b-2 border-primary focus:ring-0'
+                inputClassName='h-auto text-3xl font-bold text-text w-full p-0 rounded-none shadow-none border-0 border-b-2 border-primary focus:ring-0'
               />
             </div>
 

@@ -36,7 +36,7 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-100;
+  @apply bg-transparent;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -130,11 +130,11 @@ body {
 
 /* Shadow utilities */
 @utility shadow-card {
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  box-shadow: 0 1px 2px 0 rgb(16 24 40 / 0.04), 0 8px 24px -12px rgb(10 111 135 / 0.12);
 }
 
 @utility shadow-card-hover {
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  box-shadow: 0 2px 4px -2px rgb(16 24 40 / 0.06), 0 24px 48px -16px rgb(10 111 135 / 0.25);
 }
 
 /* Transition utilities */

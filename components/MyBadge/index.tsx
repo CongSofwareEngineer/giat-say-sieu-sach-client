@@ -11,18 +11,18 @@ export type MyBadgeProps = {
 }
 
 const variantStyles: Record<MyBadgeVariant, string> = {
-  default: 'bg-gray-100 text-gray-700',
-  primary: 'bg-primary/10 text-primary',
-  secondary: 'bg-secondary/10 text-secondary',
-  success: 'bg-green-100 text-green-700',
-  warning: 'bg-yellow-100 text-yellow-700',
-  error: 'bg-red-100 text-red-700',
-  info: 'bg-blue-100 text-blue-700',
+  default: 'bg-gray-50 text-gray-700 ring-gray-500/15',
+  primary: 'bg-primary/5 text-primary ring-primary/20',
+  secondary: 'bg-secondary/5 text-secondary ring-secondary/20',
+  success: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
+  warning: 'bg-amber-50 text-amber-700 ring-amber-600/20',
+  error: 'bg-red-50 text-red-700 ring-red-600/20',
+  info: 'bg-sky-50 text-sky-700 ring-sky-600/20',
 }
 
 const MyBadge = ({ variant = 'default', children, className }: MyBadgeProps) => {
   return (
-    <span className={cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', variantStyles[variant], className)}>
+    <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset', variantStyles[variant], className)}>
       {children}
     </span>
   )

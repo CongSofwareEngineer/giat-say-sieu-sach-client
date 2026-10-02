@@ -16,11 +16,12 @@ export type MyButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 }
 
 const variantStyles: Record<MyButtonVariant, string> = {
-  default: 'bg-gradient-to-br from-primary to-secondary text-primary-content shadow-[0px_6px_24px_rgba(10,111,135,0.35)]',
-  primary: 'bg-primary text-primary-content',
-  warning: 'bg-yellow-400 text-gray-900',
-  error: 'bg-red-600 text-white',
-  outline: 'bg-transparent border border-bright-cyan text-bright-cyan ',
+  default:
+    'bg-gradient-to-br from-primary to-secondary text-primary-content shadow-[0_8px_24px_-6px_rgba(10,111,135,0.45)] hover:shadow-[0_12px_28px_-6px_rgba(10,111,135,0.55)]',
+  primary: 'bg-primary text-primary-content shadow-[0_6px_20px_-8px_rgba(10,111,135,0.6)] hover:bg-primary/90',
+  warning: 'bg-amber-400 text-gray-900 shadow-[0_6px_20px_-8px_rgba(245,158,11,0.6)] hover:bg-amber-300',
+  error: 'bg-red-600 text-white shadow-[0_6px_20px_-8px_rgba(220,38,38,0.6)] hover:bg-red-500',
+  outline: 'bg-white/60 border border-primary/30 text-primary backdrop-blur hover:border-primary hover:bg-primary/5',
   ghost: 'bg-transparent text-text hover:bg-primary/10',
 }
 
@@ -37,7 +38,9 @@ export default function MyButton({ variant = 'default', size = 'default', loadin
       disabled={disabled || loading}
       aria-pressed={isActive || undefined}
       className={cn(
-        'relative inline-flex cursor-pointer items-center justify-center rounded-full transition-[transform] duration-[250ms] disabled:cursor-not-allowed disabled:opacity-60',
+        'relative inline-flex cursor-pointer items-center justify-center gap-2 rounded-full font-semibold outline-none transition-all duration-200',
+        'hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:ring-4 focus-visible:ring-primary/20',
+        'disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0',
         variantStyles[variant],
         sizeStyles[size],
         isActive && 'bg-primary/20 text-primary ring-2 ring-primary/40',

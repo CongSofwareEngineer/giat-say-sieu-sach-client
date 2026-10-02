@@ -164,17 +164,17 @@ const AdminCommentsPage = () => {
               <div className='overflow-x-auto'>
                 <table className='w-full text-sm'>
                   <thead>
-                    <tr className='border-b border-border'>
-                      <th className='py-3 px-4 text-left font-medium text-gray-500'>{translate('common.name')}</th>
-                      <th className='py-3 px-4 text-center font-medium text-gray-500'>{translate('reviews.form.rating')}</th>
-                      <th className='py-3 px-4 text-left font-medium text-gray-500'>{translate('common.content')}</th>
-                      <th className='py-3 px-4 text-center font-medium text-gray-500'>{translate('common.status')}</th>
-                      <th className='py-3 px-4 text-center font-medium text-gray-500'>{translate('common.actions')}</th>
+                    <tr className='border-b border-border bg-gray-50/80'>
+                      <th className='py-3 px-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.name')}</th>
+                      <th className='py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('reviews.form.rating')}</th>
+                      <th className='py-3 px-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.content')}</th>
+                      <th className='py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.status')}</th>
+                      <th className='py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {paginatedComments.map((comment) => (
-                      <tr key={comment.id} className='border-b border-border align-middle'>
+                      <tr key={comment.id} className='border-b border-border transition-colors hover:bg-primary/[0.03] align-middle'>
                         <td className='py-3 px-4'>
                           <div className='flex items-center gap-3'>
                             <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-xs font-bold text-white'>
