@@ -320,6 +320,12 @@
     }
   },
   "reviews": {
+    "services": {
+      "regular": "Giặt thường",
+      "express": "Giặt nhanh",
+      "dryClean": "Giặt khô",
+      "ironing": "Ủi đồ"
+    },
     "tag": "Đánh giá",
     "title": "Đánh giá dịch vụ",
     "subtitle": "Khách hàng chia sẻ trải nghiệm thực tế về dịch vụ của chúng tôi",

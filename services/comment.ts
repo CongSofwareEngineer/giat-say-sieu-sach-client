@@ -2,16 +2,6 @@ import type { CloudinaryImage } from '@/services/upload'
 
 import BaseAPI from '@/config/baseApi'
 
-export const COMMENT_SERVICES = [
-  { id: 'giat-thuong', name: 'Giặt Thường' },
-  { id: 'giat-nhanh', name: 'Giặt Nhanh' },
-  { id: 'giat-kho', name: 'Giặt Khô' },
-  { id: 'ui', name: 'Ủi' },
-  { id: 'giat-ui', name: 'Giặt + Ủi' },
-] as const
-
-export const getServiceName = (serviceId?: string) => COMMENT_SERVICES.find((s) => s.id === serviceId)?.name ?? ''
-
 export type CommentReply = {
   id: string
   content: string

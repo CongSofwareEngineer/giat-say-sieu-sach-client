@@ -12,12 +12,12 @@ import StarRating from '@/components/Comment/StarRating'
 import CommentCard from '@/components/Comment/CommentCard'
 import CommentForm from '@/components/Comment/CommentForm'
 import { PlusIcon } from '@/components/Icons/Plus'
-import { COMMENT_SERVICES, filterVisibleComments } from '@/services/comment'
+import { filterVisibleComments } from '@/services/comment'
+import { COMMENT_SERVICES } from '@/constants/app'
 import useGetListComments from '@/hooks/reactQuery/useGetListComments'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
 import { cn } from '@/utils/tailwind'
-import useGetListPrice from '@/hooks/reactQuery/useGetListPrice'
 
 const PAGE_SIZE = 6
 
@@ -38,15 +38,13 @@ const CommentSection = ({ serviceId, onServiceChange, tag, title, subtitle, head
   const [internalServiceId, setInternalServiceId] = useState('')
   const [page, setPage] = useState(1)
 
-  const { prices: plans } = useGetListPrice()
-
   const selectedServiceId = serviceId ?? internalServiceId
-  const activeServiceId = selectedServiceId === 'all' || !selectedServiceId ? plans[0]?.id : selectedServiceId
+  const activeServiceId = selectedServiceId === 'all' || !selectedServiceId ? COMMENT_SERVICES[0].id : selectedServiceId
 
   // Reset pagination whenever the active service changes (internal or external)
   useEffect(() => {
     setPage(1)
-  }, [selectedServiceId, plans])
+  }, [selectedServiceId])
 
   const { comments, isLoading } = useGetListComments(activeServiceId)
 
@@ -58,8 +56,8 @@ const CommentSection = ({ serviceId, onServiceChange, tag, title, subtitle, head
       value: 'all',
     }
 
-    return [allOption, ...plans.map((e) => ({ label: e.name, value: e.id }) as MySelectItem)]
-  }, [plans, translate])
+    return [allOption, ...COMMENT_SERVICES.map((s) => ({ label: translate(s.labelKey), value: s.id }) as MySelectItem)]
+  }, [translate])
 
   const displayValue = selectedServiceId === 'all' || !selectedServiceId ? 'all' : selectedServiceId
 

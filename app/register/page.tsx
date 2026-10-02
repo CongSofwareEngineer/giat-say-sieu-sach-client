@@ -89,7 +89,7 @@ const RegisterPage = () => {
     setErrors((prev) => ({ ...prev, general: '' }))
 
     try {
-      await registerAction(formData.name, formData.phone, formData.password, captchaToken)
+      await registerAction(formData.name, formatPhoneToE164(formData.phone) ?? formData.phone, formData.password, captchaToken)
 
       router.replace('/login')
     } catch {

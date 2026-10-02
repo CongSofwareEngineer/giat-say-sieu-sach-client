@@ -208,7 +208,9 @@ const AdminBlogEditPage = () => {
     if (id) {
       fetchPost()
     }
-  }, [id, getPostById, translate])
+    // translate is recreated every render: keeping it in deps refetches the post in an endless loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, getPostById])
 
   const handleFieldStartEdit = (field: string) => {
     setEditingField(field)

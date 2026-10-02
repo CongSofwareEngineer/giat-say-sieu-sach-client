@@ -13,21 +13,22 @@ import { EditIcon } from '@/components/Icons/Functions/Edit'
 import { CloseIcon } from '@/components/Icons/Functions/Close'
 import { TrashIcon } from '@/components/Icons/Trash'
 import ChatBubbleIcon from '@/components/Icons/ChatBubble'
-import { getServiceName } from '@/services/comment'
+import { COMMENT_SERVICES } from '@/constants/app'
 import useGetListComments from '@/hooks/reactQuery/useGetListComments'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
 import useUser from '@/hooks/useUser'
 import { cn } from '@/utils/tailwind'
+import { normalizeVnPhone } from '@/utils/phone'
 
 type CommentCardProps = {
   comment: CommentItem
   className?: string
 }
 
-// Mask phone for public display, e.g. 0901234567 -> 090•••••67
+// Mask phone for public display, e.g. 0901234567 / +84901234567 -> 090•••••67
 const maskPhone = (phone: string): string => {
-  const clean = (phone ?? '').replace(/\s/g, '')
+  const clean = normalizeVnPhone(phone ?? '')
 
   if (clean.length < 6) return phone
 
@@ -45,6 +46,7 @@ const CommentCard = ({ comment, className }: CommentCardProps) => {
   const isAdmin = hasHydrated && isLogin && !!user?.isAdmin
   const isOwnReview = hasHydrated && isLogin && !!comment.userId && comment.userId === user?.id
   const canManage = isAdmin || isOwnReview
+  const service = COMMENT_SERVICES.find((s) => s.id === (comment.serviceId || comment.categoryId))
 
   // Show one image enlarged inside a modal
   const viewImage = (src: string) => {
@@ -134,9 +136,9 @@ const CommentCard = ({ comment, className }: CommentCardProps) => {
         </div>
       </div>
 
-      {getServiceName(comment.serviceId) && (
+      {service && (
         <MyBadge variant='secondary' className='self-start'>
-          {getServiceName(comment.serviceId)}
+          {translate(service.labelKey)}
         </MyBadge>
       )}
 
@@ -145,13 +147,14 @@ const CommentCard = ({ comment, className }: CommentCardProps) => {
       <p className='whitespace-pre-line text-sm leading-relaxed text-gray-600'>{comment.content}</p>
 
       {comment.images.length > 0 && (
-        <div className={cn('grid gap-2', comment.images.length === 1 ? 'grid-cols-1' : comment.images.length === 2 ? 'grid-cols-2' : 'grid-cols-3')}>
+        // Small 56x56 thumbnails, click to view enlarged
+        <div className='flex flex-wrap gap-2'>
           {comment.images.map((image, index) => (
             <button
               key={`${image.publicId}-${index}`}
               type='button'
               onClick={() => viewImage(image.url)}
-              className='group relative aspect-square cursor-pointer overflow-hidden rounded-xl border border-border'
+              className='group relative h-10 w-10 shrink-0 cursor-pointer overflow-hidden rounded-lg border border-border'
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

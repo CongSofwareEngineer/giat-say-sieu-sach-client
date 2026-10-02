@@ -13,6 +13,7 @@ import { EyeIcon } from '@/components/Icons/Eye'
 import { EyeSlashIcon } from '@/components/Icons/EyeSlash'
 import useLanguage from '@/hooks/useLanguage'
 import useUser from '@/hooks/useUser'
+import { formatPhoneToE164, isValidVnPhone } from '@/utils/phone'
 
 const LoginPage = () => {
   const { translate } = useLanguage()
@@ -38,7 +39,7 @@ const LoginPage = () => {
     if (!formData.phone.trim()) {
       newErrors.phone = translate('booking.validation.phoneRequired')
       isValid = false
-    } else if (!/^(0[0-9]{9})$/.test(formData.phone.replace(/\s/g, ''))) {
+    } else if (!isValidVnPhone(formData.phone)) {
       newErrors.phone = translate('booking.validation.phoneInvalid')
       isValid = false
     }
@@ -82,7 +83,7 @@ const LoginPage = () => {
     setErrors((prev) => ({ ...prev, general: '' }))
 
     try {
-      const response = await loginAction(formData.phone, formData.password)
+      const response = await loginAction(formatPhoneToE164(formData.phone) ?? formData.phone, formData.password)
 
       login(response.user)
       await syncFcmToken()

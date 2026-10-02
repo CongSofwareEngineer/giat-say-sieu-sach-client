@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { QUERY_KEYS } from '@/constants/reactQuery'
@@ -27,9 +28,8 @@ const useAdminBlog = (params?: AdminBlogParams) => {
     staleTime: 30_000,
   })
 
-  const getPostById = async (id: string): Promise<BlogPost> => {
-    return await BlogService.getPostById(id)
-  }
+  // Stable reference so callers can safely use it in effect deps
+  const getPostById = useCallback((id: string): Promise<BlogPost> => BlogService.getPostById(id), [])
 
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.getListBlogs] })

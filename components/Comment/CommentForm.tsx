@@ -10,15 +10,16 @@ import RatingInput from '@/components/Comment/RatingInput'
 import { CameraIcon } from '@/components/Icons/Camera'
 import { PlusIcon } from '@/components/Icons/Plus'
 import { TrashIcon } from '@/components/Icons/Trash'
-import { COMMENT_SERVICES, CommentItem } from '@/services/comment'
+import { CommentItem } from '@/services/comment'
 import UploadService, { CloudinaryImage } from '@/services/upload'
-import { MAX_COMMENT_IMAGES, UPLOAD_IMAGE_TYPE } from '@/constants/app'
+import { COMMENT_SERVICES, MAX_COMMENT_IMAGES, UPLOAD_IMAGE_TYPE } from '@/constants/app'
 import useBase64Img from '@/hooks/useBase64Img'
 import useGetListComments from '@/hooks/reactQuery/useGetListComments'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
 import useUser from '@/hooks/useUser'
 import { cn } from '@/utils/tailwind'
+import { formatPhoneToE164, isValidVnPhone } from '@/utils/phone'
 
 type CommentFormProps = {
   defaultServiceId?: string
@@ -81,7 +82,7 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
 
   const serviceOptions = COMMENT_SERVICES.map((s) => ({
     value: s.id,
-    label: s.name,
+    label: translate(s.labelKey),
   }))
   const canAddImage = images.length < MAX_COMMENT_IMAGES
   // Name/phone come from the account when logged in, or from the existing review when editing
@@ -121,7 +122,7 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
 
     if (!formData.name.trim()) newErrors.name = translate('reviews.validation.nameRequired')
     if (!formData.phone.trim()) newErrors.phone = translate('reviews.validation.phoneRequired')
-    else if (!/^(0[0-9]{9})$/.test(formData.phone.replace(/\s/g, ''))) newErrors.phone = translate('reviews.validation.phoneInvalid')
+    else if (!isValidVnPhone(formData.phone)) newErrors.phone = translate('reviews.validation.phoneInvalid')
     if (!formData.serviceId) newErrors.serviceId = translate('reviews.validation.serviceRequired')
     if (isLogin && formData.rating < 1) newErrors.rating = translate('reviews.validation.ratingRequired')
     if (!formData.title.trim()) newErrors.title = translate('reviews.validation.titleRequired')
@@ -169,7 +170,7 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
       } else {
         await createComment({
           serviceId: formData.serviceId,
-          phone: formData.phone.trim(),
+          phone: formatPhoneToE164(formData.phone) ?? formData.phone.trim(),
           name: formData.name.trim(),
           title: formData.title.trim(),
           content: formData.content.trim(),

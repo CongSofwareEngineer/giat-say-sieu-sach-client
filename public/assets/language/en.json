@@ -320,6 +320,12 @@
     }
   },
   "reviews": {
+    "services": {
+      "regular": "Regular Wash",
+      "express": "Express Wash",
+      "dryClean": "Dry Cleaning",
+      "ironing": "Ironing"
+    },
     "tag": "Reviews",
     "title": "Service Reviews",
     "subtitle": "Real experiences shared by our customers",

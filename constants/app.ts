@@ -92,3 +92,14 @@ export enum BOOKING_SOURCE {
   CHAT = 'chat',
   PAGE = 'page',
 }
+
+// Review services, hardcoded to avoid an extra API call (ids must match server laundry-categories)
+export const COMMENT_SERVICES = [
+  { id: '6a814b764113b12195b721b4', labelKey: 'reviews.services.regular' },
+  { id: '6a814d17cb229e82586f4817', labelKey: 'reviews.services.express' },
+  { id: '6a814d17cb229e82586f481a', labelKey: 'reviews.services.dryClean' },
+  { id: '6a814b774113b12195b721bd', labelKey: 'reviews.services.ironing' },
+] as const
+
+// Vietnamese mobile phone in local form (0 + 9 digits)
+export const VN_LOCAL_PHONE_REGEX = /^0[0-9]{9}$/
