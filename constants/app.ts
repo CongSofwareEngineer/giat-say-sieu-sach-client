@@ -18,8 +18,8 @@ export enum INFO_CONTACT {
   Mail = 'mailto:hodiencong2000@gmail.com',
   Phone = '+84-392-225-405',
   Address = 'Tân Bình, Sài Gòn, Việt Nam',
-  Facebook = 'https://facebook.com/giatsaysieusach',
-  Zalo = 'https://zalo.me/giatsaysieusach',
+  Facebook = 'https://facebook.com/giatuisieusach',
+  Zalo = 'https://zalo.me/giatuisieusach',
 }
 
 export const IS_PRODUCTION = process.env.NEXT_PUBLIC_ENV === 'production'
