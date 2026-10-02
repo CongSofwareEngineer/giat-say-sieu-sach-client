@@ -1,6 +1,7 @@
 import type { CloudinaryImage } from '@/services/upload'
 
 import BaseAPI from '@/config/baseApi'
+import { API_CACHE_SECONDS } from '@/constants/app'
 
 export type BlogPost = {
   id: string
@@ -25,13 +26,18 @@ class BlogApi extends BaseAPI {
     if (params?.limit) query.set('limit', String(params.limit))
     if (params?.category) query.set('category', params.category)
 
-    const response = await this.get<{ data: BlogPost[] }>(query.toString() ? `?${query.toString()}` : '', { isUseAuth: false })
+    // Cached on the Next server (ignored in the browser)
+    const response = await this.get<{ data: BlogPost[] }>(query.toString() ? `?${query.toString()}` : '', {
+      isUseAuth: false,
+      next: { revalidate: API_CACHE_SECONDS },
+    })
 
     return response?.data ?? []
   }
 
   async getPostBySlug(slug: string): Promise<BlogPost> {
-    const response = await this.get<{ data: BlogPost }>(`/slug/${slug}`, { isUseAuth: false })
+    // Cached on the Next server (ignored in the browser)
+    const response = await this.get<{ data: BlogPost }>(`/slug/${slug}`, { isUseAuth: false, next: { revalidate: API_CACHE_SECONDS } })
 
     return response.data
   }

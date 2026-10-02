@@ -1,4 +1,5 @@
 import BaseAPI from '@/config/baseApi'
+import { API_CACHE_SECONDS } from '@/constants/app'
 import { LANGUAGE_SUPPORT } from '@/zustand/language'
 
 export type PricingPlan = {
@@ -36,7 +37,8 @@ export type UpdatePricingPlanPayload = {
 
 class PricingApi extends BaseAPI {
   async getPlans(): Promise<PricingPlan[]> {
-    const response = await this.get<{ data: PricingPlan[] }>('')
+    // Cached on the Next server (ignored in the browser)
+    const response = await this.get<{ data: PricingPlan[] }>('', { next: { revalidate: API_CACHE_SECONDS } })
 
     return response?.data
   }

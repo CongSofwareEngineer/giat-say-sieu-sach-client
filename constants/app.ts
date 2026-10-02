@@ -24,6 +24,9 @@ export enum INFO_CONTACT {
 
 export const IS_PRODUCTION = process.env.NEXT_PUBLIC_ENV === 'production'
 
+// Seconds the Next server caches public API GETs, so visits share one backend call (avoids 429 rate limits)
+export const API_CACHE_SECONDS = 60 as number
+
 // True only while `next build` prerenders pages (always false in the browser)
 export const IS_BUILD_PHASE = process.env.NEXT_PHASE === PHASE_PRODUCTION_BUILD
 

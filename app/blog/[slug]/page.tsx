@@ -13,14 +13,6 @@ type Props = {
   params: Promise<{ slug: string }>
 }
 
-// Regenerate the cached page at most once per minute so admin edits show up
-export const revalidate = 60
-
-// No posts at build time: each post is rendered on first visit, then cached (ISR)
-export async function generateStaticParams() {
-  return []
-}
-
 // Fetch a post on the server (fetch is memoized between metadata and page).
 // Only a 404 from the API becomes a not-found page; other errors throw so a
 // temporary API outage is not reported to search engines as a missing page.

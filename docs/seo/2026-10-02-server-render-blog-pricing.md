@@ -13,7 +13,7 @@
 1. `/blog/[slug]`: `generateMetadata` và page cùng gọi `BlogService.getPostBySlug` ở server. Next tự gộp 2 lần `fetch` giống nhau, nên chỉ có 1 request.
    - API trả 404 thì gọi `notFound()` và hiện `app/not-found.tsx`.
    - Lỗi khác (API sập, timeout) thì throw, để Google không xoá bài khỏi index.
-2. `/blog/[slug]` dùng ISR: `generateStaticParams` trả `[]` và `revalidate = 60`. Bài được render lần đầu khi có người vào, sau đó cache 60 giây.
+2. `/blog/[slug]` render theo từng request. Ban đầu có dùng ISR (`generateStaticParams` + `revalidate`), sau đó đã bỏ. Dữ liệu bài viết được cache ở bước 8.
 3. `/blog` và `/pricing` thành Server Component, có `revalidate = 60`. UI chuyển sang `app/blog/components/BlogList.tsx` và `app/pricing/components/PricingPlans.tsx` (client), nhận dữ liệu qua props.
 4. Khi `next build` mà API không kết nối được (`IS_BUILD_PHASE`), trang build ra danh sách rỗng thay vì làm hỏng build. ISR sẽ lấy lại dữ liệu sau 60 giây. Lúc chạy thật, lỗi vẫn được throw để giữ bản cache tốt gần nhất.
 5. JSON-LD lấy từ dữ liệu API:
@@ -25,9 +25,13 @@
    - Các field article của OG đặt đúng vị trí. Trước đây chúng nằm trong key `article` nên Next bỏ qua.
    - Title dùng `absolute` kèm `- <siteName>`. Lý do: layout `/blog` khai báo title dạng chuỗi, làm mất template của root, nên trang con `/blog/[slug]` bị thiếu tên site.
 7. `BaseAPI` throw `HttpError` có `status`, để phân biệt 404 với các lỗi khác.
+8. Sửa lỗi 500 trên production ở mọi trang `/blog/<slug>`. Log Vercel báo `HTTP error! status: 429`.
+   - Nguyên nhân: backend giới hạn số request theo IP. Throttler `login` (10 request/phút) được đăng ký global trong `forRoot`, nên áp dụng cho mọi route. Khi fetch chuyển sang server, mọi lượt truy cập đều đi ra từ vài IP của Vercel nên nhanh chóng vượt giới hạn.
+   - Cách sửa phía client: `getPostBySlug`, `getPosts` và `getPlans` gọi `fetch` với `next: { revalidate: API_CACHE_SECONDS }` (60 giây), nên nhiều lượt truy cập chỉ tốn 1 lần gọi backend mỗi phút. Đã đo local: 15 lượt tải trang, backend chỉ nhận 1 request. Option `next` bị trình duyệt bỏ qua.
 
 ## File liên quan
-- `app/blog/[slug]/page.tsx`: fetch bài ở server, `generateMetadata`, `notFound()`, ISR.
+- `app/blog/[slug]/page.tsx`: fetch bài ở server, `generateMetadata`, `notFound()`.
+- `services/blogClient.ts`, `services/pricing.ts`: các GET công khai được cache `API_CACHE_SECONDS` trên server Next.
 - `app/blog/[slug]/layout.tsx`: bỏ metadata đọc từ `BLOG_POSTS`.
 - `app/blog/page.tsx`, `app/blog/components/BlogList.tsx`: danh sách blog render ở server và lọc category ở client.
 - `app/pricing/page.tsx`, `app/pricing/components/PricingPlans.tsx`: bảng giá render ở server, phần review ở client.
@@ -35,13 +39,14 @@
 - `components/Blog/BlogDetail.tsx`: gọi `articleSchema(post)`.
 - `config/seo.ts`: các schema nhận dữ liệu API, thêm `toServiceOffers`, sửa `buildMetadata`.
 - `config/baseApi.ts`: class `HttpError`.
-- `constants/app.ts`: `HTTP_STATUS`, `IS_BUILD_PHASE`.
+- `constants/app.ts`: `HTTP_STATUS`, `IS_BUILD_PHASE`, `API_CACHE_SECONDS`.
 
 ## Constants / Translation keys mới
-- `HTTP_STATUS.NOT_FOUND`, `IS_BUILD_PHASE`
+- `HTTP_STATUS.NOT_FOUND`, `IS_BUILD_PHASE`, `API_CACHE_SECONDS`
 - `common.notFoundPage.title`, `common.notFoundPage.description`, `common.notFoundPage.backHome`
 
 ## Lưu ý
+- Backend vẫn để throttler `login` global (10 request/phút/IP cho mọi route). Cache chỉ giảm số lần gọi. Khi Google crawl nhiều bài khác nhau trong cùng 1 phút, hoặc có thêm route server khác gọi API, vẫn có thể gặp 429. Nên sửa ở backend: chỉ áp `login` cho `/auth/login`, hoặc bỏ qua giới hạn cho request nội bộ từ server Next.
 - Admin sửa bài hoặc giá thì tối đa 60 giây sau mới hiện trên site. Muốn hiện ngay thì gọi `revalidatePath` sau khi lưu (chưa làm).
 - Vì có `app/blog/[slug]/loading.tsx`, response được stream, nên slug sai trả HTTP 200 kèm `<meta name="robots" content="noindex">`. Google không index trang này, nhưng một số công cụ sẽ báo "soft 404". Muốn trả đúng mã 404 thì phải bỏ `loading.tsx`.
 - `BLOG_POSTS` (`config/seo.ts`) và hook `useBlogPosts` không còn được dùng. Chưa xoá, chờ xác nhận.
