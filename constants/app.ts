@@ -1,3 +1,5 @@
+import { PHASE_PRODUCTION_BUILD } from 'next/constants'
+
 export const SITE_CONFIG = {
   title: 'Giặt Ủi Siêu Sạch',
   description: 'Dịch vụ giặt ủi cao cấp, giao nhận tận nơi, siêu nhanh, đúng hẹn, chất lượng cao. Đặt lịch ngay!',
@@ -21,6 +23,9 @@ export enum INFO_CONTACT {
 }
 
 export const IS_PRODUCTION = process.env.NEXT_PUBLIC_ENV === 'production'
+
+// True only while `next build` prerenders pages (always false in the browser)
+export const IS_BUILD_PHASE = process.env.NEXT_PHASE === PHASE_PRODUCTION_BUILD
 
 // HTTP status codes checked on API errors
 export enum HTTP_STATUS {

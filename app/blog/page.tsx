@@ -4,12 +4,19 @@ import SeoJsonLd from '@/components/SeoJsonLd'
 import BlogService from '@/services/blogClient'
 import { blogSchema, breadcrumbSchema } from '@/config/seo'
 import { getBlogReadTime } from '@/utils/blogContent'
+import { IS_BUILD_PHASE } from '@/constants/app'
 
 // Regenerate the cached page at most once per minute so new posts show up
 export const revalidate = 60
 
 const BlogPage = async () => {
-  const posts = await BlogService.getPosts()
+  // Don't fail the build when the API is down; ISR refetches after `revalidate`.
+  // At runtime the error is rethrown so the last good cached page is kept.
+  const posts = await BlogService.getPosts().catch((error) => {
+    if (IS_BUILD_PHASE) return []
+
+    throw error
+  })
 
   // Compute read time on the server and drop content to keep the client payload small
   const items: BlogListItem[] = posts.map(({ content, ...post }) => ({ ...post, readTime: getBlogReadTime(content) }))

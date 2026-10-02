@@ -413,7 +413,9 @@ export const buildMetadata = ({
   const ogImage = image ? { url: image, alt: title } : { url: absolute(seo.thumbnail), width: 1200, height: 630, alt: title }
 
   return generateMetaBase({
-    title,
+    // Absolute title: a plain string in a parent layout (e.g. /blog) would drop the
+    // root `%s - siteName` template for nested pages like /blog/[slug]
+    title: { absolute: `${title} - ${seo.siteName}` },
     description,
     keywords,
     alternates: { canonical: pageUrl },
