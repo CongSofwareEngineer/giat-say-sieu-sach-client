@@ -1048,7 +1048,7 @@
       },
       "myOrders": {
         "header": "Your {count} most recent orders:",
-        "item": "- **#{code}** · {status}\n  {services} · {price}đ · {date}",
+        "item": "**Order #{code}**\nStatus: **{status}**\nServices: {services}\nTotal: {price}đ · Created: {date}",
         "empty": "No orders found. Please check the phone number you booked with.",
         "invalidPhone": "Invalid phone number."
       }

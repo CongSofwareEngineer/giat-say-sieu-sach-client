@@ -1048,7 +1048,7 @@
       },
       "myOrders": {
         "header": "{count} đơn gần nhất của bạn:",
-        "item": "- **#{code}** · {status}\n  {services} · {price}đ · {date}",
+        "item": "**Đơn #{code}**\nTình trạng: **{status}**\nDịch vụ: {services}\nTổng tiền: {price}đ · Ngày đặt: {date}",
         "empty": "Không tìm thấy đơn hàng nào. Vui lòng kiểm tra lại số điện thoại đã dùng khi đặt lịch.",
         "invalidPhone": "Số điện thoại không hợp lệ."
       }

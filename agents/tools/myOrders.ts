@@ -17,25 +17,26 @@ const formatDate = (value?: string): string => (value ? new Date(value).toLocale
 // Fields shared by the account orders and the public lookup orders
 type ListableOrder = Pick<OrderItem | PublicOrderItem, 'id' | 'status' | 'finalAmount' | 'createdAt' | 'items'>
 
-// One markdown line per order: code, status, services, amount, date
+// One markdown block per order (bold code + bold status on their own lines),
+// blocks separated by a blank line so each order renders as its own paragraph
 export const formatOrderList = (orders: ListableOrder[]): string => {
   if (orders.length === 0) return translate('agent.order.myOrders.empty', {}, 'Bạn chưa có đơn hàng nào.')
 
-  const lines = orders.map((o) =>
-    translate(
-      'agent.order.myOrders.item',
-      {
-        code: getOrderCode(o.id),
-        status: statusLabel(o.status),
-        services: o.items?.map((item) => `${item.categoryName} (${item.quantity} kg)`).join(', ') || '—',
-        price: o.finalAmount.toLocaleString('vi-VN'),
-        date: formatDate(o.createdAt),
-      },
-      `- **#${getOrderCode(o.id)}** · ${statusLabel(o.status)} · ${o.finalAmount.toLocaleString('vi-VN')}đ · ${formatDate(o.createdAt)}`
-    )
-  )
+  const blocks = orders.map((o) => {
+    const code = getOrderCode(o.id)
+    const status = statusLabel(o.status)
+    const services = o.items?.map((item) => `${item.categoryName} (${item.quantity} kg)`).join(', ') || '—'
+    const price = o.finalAmount.toLocaleString('vi-VN')
+    const date = formatDate(o.createdAt)
 
-  return [translate('agent.order.myOrders.header', { count: orders.length }, `${orders.length} đơn gần nhất của bạn:`), ...lines].join('\n')
+    return translate(
+      'agent.order.myOrders.item',
+      { code, status, services, price, date },
+      `**Đơn #${code}**\nTình trạng: **${status}**\nDịch vụ: ${services}\nTổng tiền: ${price}đ · Ngày đặt: ${date}`
+    )
+  })
+
+  return [translate('agent.order.myOrders.header', { count: orders.length }, `${orders.length} đơn gần nhất của bạn:`), ...blocks].join('\n\n')
 }
 
 // Logged-in users: latest orders from their account
