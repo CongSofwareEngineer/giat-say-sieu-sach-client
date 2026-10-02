@@ -14,8 +14,10 @@ import MyEmpty from '@/components/MyEmpty'
 import MyBadge from '@/components/MyBadge'
 import MyPagination from '@/components/MyPagination'
 import StarRating from '@/components/Comment/StarRating'
+import CommentCard from '@/components/Comment/CommentCard'
 import ReplyForm from '@/components/Comment/ReplyForm'
 import { EyeIcon } from '@/components/Icons/Eye'
+import { InfoIcon } from '@/components/Icons/Info'
 import { EyeSlashIcon } from '@/components/Icons/EyeSlash'
 import { TrashIcon } from '@/components/Icons/Trash'
 import ChatBubbleIcon from '@/components/Icons/ChatBubble'
@@ -23,7 +25,6 @@ import { PAGE_SIZE } from '@/constants/app'
 import useAdminComments from '@/hooks/admin/useAdminComments'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
-import { toast } from '@/utils/toast'
 
 const AdminCommentsPage = () => {
   const { translate } = useLanguage()
@@ -57,6 +58,16 @@ const AdminCommentsPage = () => {
 
     return filteredComments.slice(start, start + PAGE_SIZE)
   }, [filteredComments, currentPage])
+
+  // Show the full review (title, content, images, replies) in a modal
+  const openDetail = (comment: CommentItem) => {
+    open({
+      mode: 'modal',
+      title: translate('admin.comments.detail'),
+      classNames: { container: 'md:w-[640px]' },
+      children: <CommentCard comment={comment} className='w-full border-0 p-0' />,
+    })
+  }
 
   const openReply = (comment: CommentItem) => {
     open({
@@ -97,9 +108,8 @@ const AdminCommentsPage = () => {
   const handleToggleVisibility = async (comment: CommentItem) => {
     try {
       await toggleVisibility({ id: comment.id, isVisible: !comment.isVisible })
-      toast({ message: translate('admin.comments.toggled', {}, 'Cập nhật trạng thái đánh giá thành công'), type: 'default' })
     } catch {
-      toast({ message: translate('common.error'), type: 'error' })
+      // Toasts are handled inside useAdminComments
     }
   }
 
@@ -166,10 +176,18 @@ const AdminCommentsPage = () => {
                   <thead>
                     <tr className='border-b border-border bg-gray-50/80'>
                       <th className='py-3 px-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.name')}</th>
-                      <th className='py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('reviews.form.rating')}</th>
-                      <th className='py-3 px-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.content')}</th>
-                      <th className='py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.status')}</th>
-                      <th className='py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.actions')}</th>
+                      <th className='py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500'>
+                        {translate('reviews.form.rating')}
+                      </th>
+                      <th className='py-3 px-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500'>
+                        {translate('common.content')}
+                      </th>
+                      <th className='py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500'>
+                        {translate('common.status')}
+                      </th>
+                      <th className='py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500'>
+                        {translate('common.actions')}
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -193,8 +211,10 @@ const AdminCommentsPage = () => {
                           </div>
                         </td>
                         <td className='py-3 px-4'>
-                          <p className='max-w-[300px] truncate font-medium text-text'>{comment.content}</p>
-                          <p className='mt-1 text-xs text-gray-400'>{dayjs(comment.createdAt).format('DD/MM/YYYY HH:mm')}</p>
+                          <button type='button' onClick={() => openDetail(comment)} className='block max-w-[300px] cursor-pointer text-left'>
+                            <p className='truncate font-medium text-text hover:text-primary'>{comment.content}</p>
+                            <p className='mt-1 text-xs text-gray-400'>{dayjs(comment.createdAt).format('DD/MM/YYYY HH:mm')}</p>
+                          </button>
                         </td>
                         <td className='py-3 px-4 text-center'>
                           <MyBadge variant={comment.isVisible ? 'success' : 'warning'}>
@@ -205,6 +225,14 @@ const AdminCommentsPage = () => {
                         </td>
                         <td className='py-3 px-4'>
                           <div className='flex items-center justify-center gap-2'>
+                            <button
+                              type='button'
+                              aria-label={translate('admin.comments.detail')}
+                              onClick={() => openDetail(comment)}
+                              className='rounded-lg p-2 text-gray-500 transition-colors hover:bg-primary/10 hover:text-primary'
+                            >
+                              <InfoIcon className='h-5 w-5' />
+                            </button>
                             <button
                               type='button'
                               aria-label={

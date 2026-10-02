@@ -1,66 +1,66 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import dayjs from 'dayjs'
 
 import MyInput from '@/components/MyInput'
-import MyCard, { MyCardBody } from '@/components/MyCard'
+import MyCard, { MyCardBody, MyCardHeader } from '@/components/MyCard'
+import MySelect from '@/components/MySelect'
 import MyPagination from '@/components/MyPagination'
 import MyLoading from '@/components/MyLoading'
 import MyEmpty from '@/components/MyEmpty'
 import AdminDeleteConfirm from '@/components/admin/AdminDeleteConfirm'
-import { OrderItem } from '@/services/order'
+import { getOrderCode, OrderItem } from '@/services/order'
 import useAdminOrders from '@/hooks/admin/useAdminOrders'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
-import { toast } from '@/utils/toast'
-import { ORDER_STATUS } from '@/constants/app'
+import { ORDER_STATUS, PAGE_SIZE } from '@/constants/app'
 import { ArrowDownIcon } from '@/components/Icons/ArrowDown'
+import { TrashIcon } from '@/components/Icons/Trash'
 
-const statusConfig: Record<ORDER_STATUS, { label: string; variant: 'success' | 'warning' | 'info' | 'error' }> = {
-  [ORDER_STATUS.PENDING]: { label: 'Chờ xác nhận', variant: 'info' },
-  [ORDER_STATUS.RECEIVED]: { label: 'Đã nhận đồ', variant: 'info' },
-  [ORDER_STATUS.WASHING]: { label: 'Đang giặt', variant: 'warning' },
-  [ORDER_STATUS.DRYING]: { label: 'Đang sấy', variant: 'warning' },
-  [ORDER_STATUS.READY]: { label: 'Đã sẵn sàng', variant: 'success' },
-  [ORDER_STATUS.COMPLETED]: { label: 'Hoàn thành', variant: 'success' },
-  [ORDER_STATUS.CANCELLED]: { label: 'Đã hủy', variant: 'error' },
-}
+const ALL_STATUS = 'all'
 
 const AdminOrdersPage = () => {
   const { translate } = useLanguage()
   const { open } = useModalDrawer()
-  const { orders, meta, isLoading, updateOrderStatus, isUpdatingStatus, deleteOrder, isDeleting } = useAdminOrders()
+  const { orders, isLoading, updateOrderStatus, isUpdatingStatus, deleteOrder, isDeleting } = useAdminOrders()
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [statusFilter, setStatusFilter] = useState<string>(ALL_STATUS)
   const [currentPage, setCurrentPage] = useState(1)
-  const pageSize = 10
 
-  const filteredOrders = useMemo(
-    () =>
-      orders.filter((order) => {
-        const matchSearch =
-          order.id.toLowerCase().includes(search.toLowerCase()) ||
-          order.items?.some((item) => item.categoryName?.toLowerCase().includes(search.toLowerCase()))
-        const matchStatus = statusFilter === 'all' || order.status === statusFilter
-
-        return matchSearch && matchStatus
-      }),
-    [orders, search, statusFilter]
+  const statusOptions = useMemo(
+    () => [
+      { value: ALL_STATUS, label: translate('admin.orders.filters.all') },
+      ...Object.values(ORDER_STATUS).map((status) => ({ value: status, label: translate(`tracking.status.${status}`) })),
+    ],
+    [translate]
   )
 
-  const totalPages = meta?.totalPages || Math.max(1, Math.ceil(filteredOrders.length / pageSize))
-  const paginatedOrders = useMemo(() => {
-    const start = (currentPage - 1) * pageSize
+  const filteredOrders = useMemo(() => {
+    const kw = search.trim().toLowerCase()
 
-    return filteredOrders.slice(start, start + pageSize)
+    return orders.filter((order) => {
+      const matchSearch = !kw || order.id.toLowerCase().includes(kw) || order.items?.some((item) => item.categoryName?.toLowerCase().includes(kw))
+      const matchStatus = statusFilter === ALL_STATUS || order.status === statusFilter
+
+      return matchSearch && matchStatus
+    })
+  }, [orders, search, statusFilter])
+
+  // Paginate on the client so page count always matches the filtered list
+  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / PAGE_SIZE))
+  const paginatedOrders = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE
+
+    return filteredOrders.slice(start, start + PAGE_SIZE)
   }, [filteredOrders, currentPage])
 
+  // Success/error toasts are handled inside useAdminOrders
   const handleStatusChange = async (orderId: string, newStatus: ORDER_STATUS) => {
     try {
       await updateOrderStatus({ id: orderId, status: newStatus })
-      toast({ message: translate('admin.orders.statusUpdated', {}, 'Cập nhật trạng thái thành công'), type: 'default' })
     } catch {
-      toast({ message: translate('common.error'), type: 'error' })
+      // Error toast already shown by the hook
     }
   }
 
@@ -68,19 +68,13 @@ const AdminOrdersPage = () => {
     return order.items?.map((item) => item.categoryName).join(', ') || '—'
   }
 
-  const getUserIdDisplay = (order: OrderItem): string => {
-    const uid = order.userId
-
-    return typeof uid === 'string' ? uid : '—'
-  }
+  const formatPrice = (price: number) => translate('tracking.result.price', { price: (price ?? 0).toLocaleString('vi-VN') })
 
   const confirmDelete = (order: OrderItem) => {
     open({
       mode: 'modal',
       title: translate('admin.orders.delete'),
-      children: (
-        <AdminDeleteConfirm itemName={`#${order.id.slice(-6).toUpperCase()}`} onConfirm={() => deleteOrder(order.id)} isDeleting={isDeleting} />
-      ),
+      children: <AdminDeleteConfirm itemName={`#${getOrderCode(order.id)}`} onConfirm={() => deleteOrder(order.id)} isDeleting={isDeleting} />,
     })
   }
 
@@ -88,48 +82,33 @@ const AdminOrdersPage = () => {
     <div className='space-y-6'>
       <h1 className='text-2xl font-bold text-text'>{translate('admin.orders.title')}</h1>
 
-      {/* Filters */}
       <MyCard>
-        <MyCardBody>
-          <div className='flex flex-col sm:flex-row gap-4'>
-            <MyInput
-              placeholder={translate('common.search')}
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value)
-                setCurrentPage(1)
-              }}
-              className='flex-1'
-            />
-            <div className='flex gap-2 flex-wrap'>
-              <button
-                onClick={() => {
-                  setStatusFilter('all')
+        <MyCardHeader>
+          <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+            <h2 className='text-lg font-bold text-text'>{translate('admin.orders.list.title')}</h2>
+            <div className='flex flex-col gap-3 sm:flex-row'>
+              <MyInput
+                placeholder={translate('common.search')}
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value)
                   setCurrentPage(1)
                 }}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${statusFilter === 'all' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'}`}
-              >
-                {translate('admin.orders.filters.all')}
-              </button>
-              {Object.values(ORDER_STATUS).map((status) => (
-                <button
-                  key={status}
-                  onClick={() => {
-                    setStatusFilter(status)
-                    setCurrentPage(1)
-                  }}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${statusFilter === status ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'}`}
-                >
-                  {statusConfig[status]?.label}
-                </button>
-              ))}
+                className='sm:w-64'
+              />
+              <MySelect
+                data={statusOptions}
+                value={statusFilter}
+                placeholder={translate('admin.orders.status')}
+                search={false}
+                onChange={(item) => {
+                  setStatusFilter(item.value as string)
+                  setCurrentPage(1)
+                }}
+              />
             </div>
           </div>
-        </MyCardBody>
-      </MyCard>
-
-      {/* Orders Table */}
-      <MyCard>
+        </MyCardHeader>
         <MyCardBody>
           {isLoading ? (
             <MyLoading />
@@ -141,48 +120,77 @@ const AdminOrdersPage = () => {
                 <table className='w-full text-sm'>
                   <thead>
                     <tr className='border-b border-border bg-gray-50/80'>
-                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.orders.list.code')}</th>
-                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.orders.list.customer')}</th>
-                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.orders.list.service')}</th>
-                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.orders.list.status')}</th>
-                      <th className='text-right py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.orders.list.price')}</th>
-                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.orders.list.date')}</th>
-                      <th className='text-center py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.actions')}</th>
+                      <th className='whitespace-nowrap text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>
+                        {translate('admin.orders.list.code')}
+                      </th>
+                      <th className='whitespace-nowrap text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>
+                        {translate('admin.orders.list.customer')}
+                      </th>
+                      <th className='whitespace-nowrap text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>
+                        {translate('admin.orders.list.service')}
+                      </th>
+                      <th className='whitespace-nowrap text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>
+                        {translate('admin.orders.list.status')}
+                      </th>
+                      <th className='whitespace-nowrap text-right py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>
+                        {translate('admin.orders.list.price')}
+                      </th>
+                      <th className='whitespace-nowrap text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>
+                        {translate('admin.orders.list.date')}
+                      </th>
+                      <th className='whitespace-nowrap text-center py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>
+                        {translate('common.actions')}
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {paginatedOrders.map((order) => (
-                      <tr key={order.id} className='border-b border-border transition-colors hover:bg-primary/[0.03]'>
-                        <td className='py-3 px-4 font-medium'>#{order.id.slice(-6).toUpperCase()}</td>
-                        <td className='py-3 px-4'>{getUserIdDisplay(order)}</td>
-                        <td className='py-3 px-4'>{getServiceName(order)}</td>
+                      <tr key={order.id} className='border-b border-border align-middle transition-colors hover:bg-primary/[0.03]'>
+                        <td className='whitespace-nowrap py-3 px-4 font-medium'>#{getOrderCode(order.id)}</td>
+                        <td className='py-3 px-4'>
+                          <p className='max-w-[160px] truncate text-xs text-gray-500' title={order.userId}>
+                            {typeof order.userId === 'string' ? order.userId : '—'}
+                          </p>
+                        </td>
+                        <td className='py-3 px-4'>
+                          <p className='max-w-[220px] truncate' title={getServiceName(order)}>
+                            {getServiceName(order)}
+                          </p>
+                        </td>
                         <td className='py-3 px-4'>
                           <div className='relative w-fit min-w-[140px]'>
                             <select
                               className='w-full cursor-pointer appearance-none rounded-full border border-border bg-white py-1.5 pl-3 pr-8 text-xs font-medium text-text transition-colors hover:border-primary/40 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60'
                               value={order.status}
+                              aria-label={translate('admin.orders.updateStatus')}
                               onChange={(e) => handleStatusChange(order.id, e.target.value as ORDER_STATUS)}
                               disabled={isUpdatingStatus}
                             >
                               {Object.values(ORDER_STATUS).map((status) => (
                                 <option key={status} value={status}>
-                                  {statusConfig[status]?.label}
+                                  {translate(`tracking.status.${status}`)}
                                 </option>
                               ))}
                             </select>
-                            <ArrowDownIcon className='pointer-events-none absolute right-2.5 top-1/2 size-3.5 -translate-y-1/2 text-gray-400' strokeWidth={2} />
+                            <ArrowDownIcon
+                              className='pointer-events-none absolute right-2.5 top-1/2 size-3.5 -translate-y-1/2 text-gray-400'
+                              strokeWidth={2}
+                            />
                           </div>
                         </td>
-                        <td className='py-3 px-4 text-right'>{order.finalAmount.toLocaleString()}đ</td>
-                        <td className='py-3 px-4'>{order.createdAt ? new Date(order.createdAt).toLocaleDateString('vi-VN') : '—'}</td>
+                        <td className='whitespace-nowrap py-3 px-4 text-right font-medium'>{formatPrice(order.finalAmount)}</td>
+                        <td className='whitespace-nowrap py-3 px-4 text-gray-500'>
+                          {order.createdAt ? dayjs(order.createdAt).format('DD/MM/YYYY HH:mm') : '—'}
+                        </td>
                         <td className='py-3 px-4'>
                           <div className='flex items-center justify-center gap-2'>
                             <button
                               type='button'
+                              aria-label={translate('admin.orders.delete')}
                               onClick={() => confirmDelete(order)}
-                              className='cursor-pointer rounded-full bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 ring-1 ring-inset ring-red-600/20 transition-colors hover:bg-red-100'
+                              className='rounded-lg p-2 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600'
                             >
-                              {translate('common.delete')}
+                              <TrashIcon className='h-5 w-5' />
                             </button>
                           </div>
                         </td>
