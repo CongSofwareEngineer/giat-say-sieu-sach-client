@@ -6,26 +6,65 @@ import dayjs from 'dayjs'
 import MyInput from '@/components/MyInput'
 import MyCard, { MyCardBody, MyCardHeader } from '@/components/MyCard'
 import MySelect from '@/components/MySelect'
-import MyPagination from '@/components/MyPagination'
-import MyLoading from '@/components/MyLoading'
-import MyEmpty from '@/components/MyEmpty'
+import MyTable, { MyTableColumn } from '@/components/MyTable'
 import MyButton from '@/components/MyButton'
 import AdminDeleteConfirm from '@/components/admin/AdminDeleteConfirm'
-import { getOrderCode, OrderItem } from '@/services/order'
+import { getOrderCode, OrderItem, OrderUser } from '@/services/order'
 import useAdminOrders from '@/hooks/admin/useAdminOrders'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
-import { ORDER_EDITABLE_STATUSES, ORDER_STATUS, PAGE_SIZE, WEIGHT_DISCOUNT } from '@/constants/app'
+import { COPY_FEEDBACK_DURATION, ORDER_EDITABLE_STATUSES, ORDER_STATUS, PAGE_SIZE, WEIGHT_DISCOUNT } from '@/constants/app'
 import { ArrowDownIcon } from '@/components/Icons/ArrowDown'
+import { CheckIcon } from '@/components/Icons/Check'
+import { CopyIcon } from '@/components/Icons/Functions/Copy'
 import { EditIcon } from '@/components/Icons/Functions/Edit'
 import { LockIcon } from '@/components/Icons/Lock'
+import { PhoneIcon } from '@/components/Icons/Phone'
 import { TrashIcon } from '@/components/Icons/Trash'
 import { calculateOrderPricing } from '@/utils/orderPricing'
+import { copyToClipboard } from '@/utils/functions'
+import { toast } from '@/utils/toast'
 
 const ALL_STATUS = 'all'
 
 // Total weight (kg) of an order: every item quantity is in kg
 const getOrderWeight = (order: OrderItem): number => order.items?.reduce((sum, item) => sum + (item.quantity || 0), 0) ?? 0
+
+// Customer populated by the server; older responses may still send a raw id string
+const getOrderUser = (order: OrderItem): OrderUser | null => (order.userId && typeof order.userId === 'object' ? order.userId : null)
+
+type CopyButtonProps = {
+  value: string
+  label: string
+}
+
+// Small icon button that copies a value and briefly shows a check mark
+const CopyButton = ({ value, label }: CopyButtonProps) => {
+  const { translate } = useLanguage()
+  const [isCopied, setIsCopied] = useState(false)
+
+  const handleCopy = async () => {
+    try {
+      await copyToClipboard(value)
+      setIsCopied(true)
+      setTimeout(() => setIsCopied(false), COPY_FEEDBACK_DURATION)
+    } catch {
+      toast({ message: translate('common.error'), type: 'error' })
+    }
+  }
+
+  return (
+    <button
+      type='button'
+      aria-label={label}
+      title={isCopied ? translate('common.copied') : label}
+      onClick={handleCopy}
+      className='rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-primary/10 hover:text-primary'
+    >
+      {isCopied ? <CheckIcon className='size-4 text-emerald-600' strokeWidth={2.5} /> : <CopyIcon className='size-4' />}
+    </button>
+  )
+}
 
 type EditWeightFormProps = {
   order: OrderItem
@@ -123,7 +162,7 @@ const EditWeightForm = ({ order, onClose, onSave }: EditWeightFormProps) => {
 
 const AdminOrdersPage = () => {
   const { translate } = useLanguage()
-  const { open, close } = useModalDrawer()
+  const { open, close, isMobile } = useModalDrawer()
   const { orders, isLoading, updateOrderStatus, isUpdatingStatus, updateOrderItems, deleteOrder, isDeleting } = useAdminOrders()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>(ALL_STATUS)
@@ -141,7 +180,13 @@ const AdminOrdersPage = () => {
     const kw = search.trim().toLowerCase()
 
     return orders.filter((order) => {
-      const matchSearch = !kw || order.id.toLowerCase().includes(kw) || order.items?.some((item) => item.categoryName?.toLowerCase().includes(kw))
+      const user = getOrderUser(order)
+      const matchSearch =
+        !kw ||
+        order.id.toLowerCase().includes(kw) ||
+        !!user?.name?.toLowerCase().includes(kw) ||
+        !!user?.phone?.includes(kw) ||
+        order.items?.some((item) => item.categoryName?.toLowerCase().includes(kw))
       const matchStatus = statusFilter === ALL_STATUS || order.status === statusFilter
 
       return matchSearch && matchStatus
@@ -187,6 +232,147 @@ const AdminOrdersPage = () => {
     })
   }
 
+  const columns: MyTableColumn<OrderItem>[] = [
+    {
+      key: 'code',
+      title: translate('admin.orders.list.code'),
+      className: 'whitespace-nowrap font-medium',
+      render: (order) => (
+        <div className='flex items-center gap-1'>
+          <span>#{getOrderCode(order.id)}</span>
+          <CopyButton value={getOrderCode(order.id)} label={translate('admin.orders.list.copyCode')} />
+        </div>
+      ),
+    },
+    {
+      key: 'customer',
+      title: translate('admin.orders.list.customer'),
+      render: (order) => {
+        const user = getOrderUser(order)
+
+        return (
+          <p className='max-w-[180px] truncate font-medium' title={user?.name}>
+            {user?.name || '—'}
+          </p>
+        )
+      },
+    },
+    {
+      key: 'phone',
+      title: translate('admin.orders.list.phone'),
+      className: 'whitespace-nowrap',
+      render: (order) => {
+        const user = getOrderUser(order)
+
+        if (!user?.phone) return '—'
+
+        return (
+          <div className='flex items-center gap-1'>
+            <span>{user.phone}</span>
+            {isMobile ? (
+              <a
+                href={`tel:${user.phone}`}
+                aria-label={translate('admin.orders.list.callPhone')}
+                title={translate('admin.orders.list.callPhone')}
+                className='rounded-lg p-1.5 text-primary transition-colors hover:bg-primary/10'
+              >
+                <PhoneIcon className='size-4' />
+              </a>
+            ) : (
+              <CopyButton value={user.phone} label={translate('admin.orders.list.copyPhone')} />
+            )}
+          </div>
+        )
+      },
+    },
+    {
+      key: 'service',
+      title: translate('admin.orders.list.service'),
+      render: (order) => (
+        <p className='max-w-[220px] truncate' title={getServiceName(order)}>
+          {getServiceName(order)}
+        </p>
+      ),
+    },
+    {
+      key: 'weight',
+      title: translate('admin.orders.list.weight'),
+      className: 'whitespace-nowrap',
+      render: (order) => (
+        <div className='flex items-center gap-1.5'>
+          <span className='font-medium'>{translate('tracking.result.quantity', { quantity: getOrderWeight(order) })}</span>
+          {ORDER_EDITABLE_STATUSES.includes(order.status) ? (
+            <button
+              type='button'
+              aria-label={translate('admin.orders.editWeight')}
+              title={translate('admin.orders.editWeight')}
+              onClick={() => openEditWeight(order)}
+              className='rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-primary/10 hover:text-primary'
+            >
+              <EditIcon className='h-4 w-4' />
+            </button>
+          ) : (
+            <span title={translate('admin.orders.weightLocked')} className='p-1.5 text-gray-300'>
+              <LockIcon className='h-4 w-4' />
+            </span>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'status',
+      title: translate('admin.orders.list.status'),
+      render: (order) => (
+        <div className='relative w-fit min-w-[140px]'>
+          <select
+            className='w-full cursor-pointer appearance-none rounded-full border border-border bg-white py-1.5 pl-3 pr-8 text-xs font-medium text-text transition-colors hover:border-primary/40 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60'
+            value={order.status}
+            aria-label={translate('admin.orders.updateStatus')}
+            onChange={(e) => handleStatusChange(order.id, e.target.value as ORDER_STATUS)}
+            disabled={isUpdatingStatus}
+          >
+            {Object.values(ORDER_STATUS).map((status) => (
+              <option key={status} value={status}>
+                {translate(`tracking.status.${status}`)}
+              </option>
+            ))}
+          </select>
+          <ArrowDownIcon className='pointer-events-none absolute right-2.5 top-1/2 size-3.5 -translate-y-1/2 text-gray-400' strokeWidth={2} />
+        </div>
+      ),
+    },
+    {
+      key: 'price',
+      title: translate('admin.orders.list.price'),
+      align: 'right',
+      className: 'whitespace-nowrap font-medium',
+      render: (order) => formatPrice(order.finalAmount),
+    },
+    {
+      key: 'date',
+      title: translate('admin.orders.list.date'),
+      className: 'whitespace-nowrap text-gray-500',
+      render: (order) => (order.createdAt ? dayjs(order.createdAt).format('DD/MM/YYYY HH:mm') : '—'),
+    },
+    {
+      key: 'actions',
+      title: translate('common.actions'),
+      align: 'center',
+      render: (order) => (
+        <div className='flex items-center justify-center gap-2'>
+          <button
+            type='button'
+            aria-label={translate('admin.orders.delete')}
+            onClick={() => confirmDelete(order)}
+            className='rounded-lg p-2 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600'
+          >
+            <TrashIcon className='h-5 w-5' />
+          </button>
+        </div>
+      ),
+    },
+  ]
+
   return (
     <div className='space-y-6'>
       <h1 className='text-2xl font-bold text-text'>{translate('admin.orders.title')}</h1>
@@ -219,125 +405,14 @@ const AdminOrdersPage = () => {
           </div>
         </MyCardHeader>
         <MyCardBody>
-          {isLoading ? (
-            <MyLoading />
-          ) : paginatedOrders.length === 0 ? (
-            <MyEmpty message={translate('common.noData')} />
-          ) : (
-            <>
-              <div className='overflow-x-auto'>
-                <table className='w-full text-sm'>
-                  <thead>
-                    <tr className='border-b border-border bg-gray-50/80'>
-                      <th className='whitespace-nowrap text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>
-                        {translate('admin.orders.list.code')}
-                      </th>
-                      <th className='whitespace-nowrap text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>
-                        {translate('admin.orders.list.customer')}
-                      </th>
-                      <th className='whitespace-nowrap text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>
-                        {translate('admin.orders.list.service')}
-                      </th>
-                      <th className='whitespace-nowrap text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>
-                        {translate('admin.orders.list.weight')}
-                      </th>
-                      <th className='whitespace-nowrap text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>
-                        {translate('admin.orders.list.status')}
-                      </th>
-                      <th className='whitespace-nowrap text-right py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>
-                        {translate('admin.orders.list.price')}
-                      </th>
-                      <th className='whitespace-nowrap text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>
-                        {translate('admin.orders.list.date')}
-                      </th>
-                      <th className='whitespace-nowrap text-center py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>
-                        {translate('common.actions')}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedOrders.map((order) => (
-                      <tr key={order.id} className='border-b border-border align-middle transition-colors hover:bg-primary/[0.03]'>
-                        <td className='whitespace-nowrap py-3 px-4 font-medium'>#{getOrderCode(order.id)}</td>
-                        <td className='py-3 px-4'>
-                          <p className='max-w-[160px] truncate text-xs text-gray-500' title={order.userId}>
-                            {typeof order.userId === 'string' ? order.userId : '—'}
-                          </p>
-                        </td>
-                        <td className='py-3 px-4'>
-                          <p className='max-w-[220px] truncate' title={getServiceName(order)}>
-                            {getServiceName(order)}
-                          </p>
-                        </td>
-                        <td className='whitespace-nowrap py-3 px-4'>
-                          <div className='flex items-center gap-1.5'>
-                            <span className='font-medium'>{translate('tracking.result.quantity', { quantity: getOrderWeight(order) })}</span>
-                            {ORDER_EDITABLE_STATUSES.includes(order.status) ? (
-                              <button
-                                type='button'
-                                aria-label={translate('admin.orders.editWeight')}
-                                title={translate('admin.orders.editWeight')}
-                                onClick={() => openEditWeight(order)}
-                                className='rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-primary/10 hover:text-primary'
-                              >
-                                <EditIcon className='h-4 w-4' />
-                              </button>
-                            ) : (
-                              <span title={translate('admin.orders.weightLocked')} className='p-1.5 text-gray-300'>
-                                <LockIcon className='h-4 w-4' />
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className='py-3 px-4'>
-                          <div className='relative w-fit min-w-[140px]'>
-                            <select
-                              className='w-full cursor-pointer appearance-none rounded-full border border-border bg-white py-1.5 pl-3 pr-8 text-xs font-medium text-text transition-colors hover:border-primary/40 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60'
-                              value={order.status}
-                              aria-label={translate('admin.orders.updateStatus')}
-                              onChange={(e) => handleStatusChange(order.id, e.target.value as ORDER_STATUS)}
-                              disabled={isUpdatingStatus}
-                            >
-                              {Object.values(ORDER_STATUS).map((status) => (
-                                <option key={status} value={status}>
-                                  {translate(`tracking.status.${status}`)}
-                                </option>
-                              ))}
-                            </select>
-                            <ArrowDownIcon
-                              className='pointer-events-none absolute right-2.5 top-1/2 size-3.5 -translate-y-1/2 text-gray-400'
-                              strokeWidth={2}
-                            />
-                          </div>
-                        </td>
-                        <td className='whitespace-nowrap py-3 px-4 text-right font-medium'>{formatPrice(order.finalAmount)}</td>
-                        <td className='whitespace-nowrap py-3 px-4 text-gray-500'>
-                          {order.createdAt ? dayjs(order.createdAt).format('DD/MM/YYYY HH:mm') : '—'}
-                        </td>
-                        <td className='py-3 px-4'>
-                          <div className='flex items-center justify-center gap-2'>
-                            <button
-                              type='button'
-                              aria-label={translate('admin.orders.delete')}
-                              onClick={() => confirmDelete(order)}
-                              className='rounded-lg p-2 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600'
-                            >
-                              <TrashIcon className='h-5 w-5' />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              {totalPages > 1 && (
-                <div className='mt-4 flex justify-center'>
-                  <MyPagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-                </div>
-              )}
-            </>
-          )}
+          <MyTable
+            columns={columns}
+            data={paginatedOrders}
+            rowKey={(order) => order.id}
+            loading={isLoading}
+            emptyMessage={translate('common.noData')}
+            pagination={{ currentPage, totalPages, onPageChange: setCurrentPage }}
+          />
         </MyCardBody>
       </MyCard>
     </div>

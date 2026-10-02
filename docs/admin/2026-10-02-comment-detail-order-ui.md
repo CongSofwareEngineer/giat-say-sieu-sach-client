@@ -28,6 +28,27 @@
 - `admin.comments.detail` (vn/en)
 
 ## Lưu ý
-- Cột "Khách hàng" của đơn vẫn chỉ có `userId` vì API danh sách đơn chưa trả về tên/SĐT khách. Cần server populate user để hiện tên.
+- ~~Cột "Khách hàng" chỉ có `userId`~~ → đã xử lý, xem mục "Cập nhật: tên + SĐT khách hàng" bên dưới.
 - Danh sách đơn đang lấy trang mặc định của server (không truyền `page`/`limit`). Nếu số đơn vượt limit mặc định của server, cần chuyển sang phân trang server-side.
 - Trong modal chi tiết, SĐT hiển thị dạng che (logic sẵn có của `CommentCard`); SĐT đầy đủ vẫn xem ở bảng.
+
+## Cập nhật: tên + SĐT khách hàng, nút copy (2026-10-02)
+
+### Mục đích
+- Server đã populate `userId` thành object `{ _id, name, phone }` → cột "Khách hàng" đang hiện `[object Object]`.
+- Admin cần xem/gọi nhanh SĐT khách và copy mã đơn.
+
+### Luồng xử lý
+1. `getOrderUser(order)` trả về object user nếu `userId` đã populate, còn chuỗi id (response cũ) thì trả `null` → hiện `—`.
+2. Cột "Khách hàng" hiện `name`; thêm cột "SĐT" hiện `phone`.
+3. SĐT: mobile (`isMobile` từ `useModalDrawer`, ≤768px) hiện icon điện thoại, bấm mở `tel:` để gọi; desktop hiện icon copy.
+4. Mã đơn có icon copy (copy mã 6 ký tự, không kèm `#`).
+5. `CopyButton` (khai báo trong page) dùng `copyToClipboard`, đổi sang icon check trong `COPY_FEEDBACK_DURATION`; lỗi thì toast `common.error`.
+6. Ô tìm kiếm tìm thêm theo tên và SĐT khách.
+
+### File liên quan
+- `services/order.ts` — thêm type `OrderUser`, `OrderItem.userId: string | OrderUser | null`.
+- `app/admin/orders/page.tsx` — `getOrderUser`, `CopyButton`, cột SĐT, copy mã đơn, tìm kiếm theo khách.
+
+### Translation keys mới
+- `admin.orders.list.copyCode`, `admin.orders.list.copyPhone`, `admin.orders.list.callPhone` (vn/en)

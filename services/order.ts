@@ -1,9 +1,14 @@
+import type { User } from '@/services/users/type'
+
 import BaseAPI from '@/config/baseApi'
 import { ORDER_STATUS } from '@/constants/app'
 
+// Customer info populated by the admin order list API
+export type OrderUser = Pick<User, '_id' | 'name' | 'phone'>
+
 export type OrderItem = {
   id: string
-  userId: string
+  userId: string | OrderUser | null
   addressId?: string
   status: ORDER_STATUS
   totalAmount: number

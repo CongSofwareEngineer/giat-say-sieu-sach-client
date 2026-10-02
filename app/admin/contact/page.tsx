@@ -9,10 +9,8 @@ import MyInput from '@/components/MyInput'
 import MyButton from '@/components/MyButton'
 import MyCard, { MyCardBody, MyCardHeader } from '@/components/MyCard'
 import MySelect from '@/components/MySelect'
-import MyLoading from '@/components/MyLoading'
-import MyEmpty from '@/components/MyEmpty'
 import MyBadge from '@/components/MyBadge'
-import MyPagination from '@/components/MyPagination'
+import MyTable, { MyTableColumn } from '@/components/MyTable'
 import { TrashIcon } from '@/components/Icons/Trash'
 import { ArrowDownIcon } from '@/components/Icons/ArrowDown'
 import useAdminContacts from '@/hooks/admin/useAdminContacts'
@@ -101,6 +99,81 @@ const AdminContactPage = () => {
     }
   }
 
+  const columns: MyTableColumn<ContactItem>[] = [
+    {
+      key: 'name',
+      title: translate('common.name'),
+      className: 'font-medium',
+      render: (contact) => contact.name,
+    },
+    {
+      key: 'phone',
+      title: translate('common.phone'),
+      render: (contact) => contact.phone,
+    },
+    {
+      key: 'email',
+      title: translate('common.email'),
+      render: (contact) => contact.email || '—',
+    },
+    {
+      key: 'subject',
+      title: translate('common.title'),
+      render: (contact) => <p className='max-w-[180px] truncate font-medium'>{contact.subject}</p>,
+    },
+    {
+      key: 'message',
+      title: translate('common.content'),
+      render: (contact) => <p className='max-w-[220px] truncate text-gray-500'>{contact.message}</p>,
+    },
+    {
+      key: 'status',
+      title: translate('common.status'),
+      align: 'center',
+      render: (contact) => <MyBadge variant={getStatusVariant(contact.status)}>{contact.status}</MyBadge>,
+    },
+    {
+      key: 'time',
+      title: translate('common.time'),
+      align: 'center',
+      className: 'whitespace-nowrap text-gray-500',
+      render: (contact) => dayjs(contact.createdAt).format('DD/MM/YYYY HH:mm'),
+    },
+    {
+      key: 'actions',
+      title: translate('common.actions'),
+      align: 'center',
+      render: (contact) => (
+        <div className='flex items-center justify-center gap-2'>
+          <div className='relative min-w-[120px]'>
+            <select
+              value={contact.status}
+              onChange={(e) => updateContactStatus({ id: contact.id, status: e.target.value })}
+              disabled={isUpdatingStatus}
+              className='w-full cursor-pointer appearance-none rounded-full border border-border bg-white py-1.5 pl-3 pr-8 text-xs font-medium text-text transition-colors hover:border-primary/40 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60'
+            >
+              {statusOptions
+                .filter((s) => s.value)
+                .map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+            </select>
+            <ArrowDownIcon className='pointer-events-none absolute right-2.5 top-1/2 size-3.5 -translate-y-1/2 text-gray-400' strokeWidth={2} />
+          </div>
+          <button
+            type='button'
+            onClick={() => confirmDelete(contact)}
+            className='rounded-lg p-2 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600'
+          >
+            <TrashIcon className='h-5 w-5' />
+          </button>
+        </div>
+      ),
+    },
+  ]
+
   return (
     <div className='space-y-6'>
       <div className='flex items-center justify-between'>
@@ -135,82 +208,14 @@ const AdminContactPage = () => {
           </div>
         </MyCardHeader>
         <MyCardBody>
-          {isLoading ? (
-            <MyLoading />
-          ) : paginatedContacts.length === 0 ? (
-            <MyEmpty message={translate('common.noData')} />
-          ) : (
-            <>
-              <div className='overflow-x-auto'>
-                <table className='w-full text-sm'>
-                  <thead>
-                    <tr className='border-b border-border bg-gray-50/80'>
-                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.name')}</th>
-                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.phone')}</th>
-                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.email')}</th>
-                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.title')}</th>
-                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.content')}</th>
-                      <th className='text-center py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.status')}</th>
-                      <th className='text-center py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.time')}</th>
-                      <th className='text-center py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.actions')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedContacts.map((contact) => (
-                      <tr key={contact.id} className='border-b border-border transition-colors hover:bg-primary/[0.03] align-middle'>
-                        <td className='py-3 px-4 font-medium'>{contact.name}</td>
-                        <td className='py-3 px-4'>{contact.phone}</td>
-                        <td className='py-3 px-4'>{contact.email || '—'}</td>
-                        <td className='py-3 px-4'>
-                          <p className='max-w-[180px] truncate font-medium'>{contact.subject}</p>
-                        </td>
-                        <td className='py-3 px-4'>
-                          <p className='max-w-[220px] truncate text-gray-500'>{contact.message}</p>
-                        </td>
-                        <td className='py-3 px-4 text-center'>
-                          <MyBadge variant={getStatusVariant(contact.status)}>{contact.status}</MyBadge>
-                        </td>
-                        <td className='py-3 px-4 whitespace-nowrap text-gray-500'>{dayjs(contact.createdAt).format('DD/MM/YYYY HH:mm')}</td>
-                        <td className='py-3 px-4'>
-                          <div className='flex items-center justify-center gap-2'>
-                            <div className='relative min-w-[120px]'>
-                              <select
-                                value={contact.status}
-                                onChange={(e) => updateContactStatus({ id: contact.id, status: e.target.value })}
-                                disabled={isUpdatingStatus}
-                                className='w-full cursor-pointer appearance-none rounded-full border border-border bg-white py-1.5 pl-3 pr-8 text-xs font-medium text-text transition-colors hover:border-primary/40 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60'
-                              >
-                                {statusOptions
-                                  .filter((s) => s.value)
-                                  .map((option) => (
-                                    <option key={option.value} value={option.value}>
-                                      {option.label}
-                                    </option>
-                                  ))}
-                              </select>
-                              <ArrowDownIcon className='pointer-events-none absolute right-2.5 top-1/2 size-3.5 -translate-y-1/2 text-gray-400' strokeWidth={2} />
-                            </div>
-                            <button
-                              type='button'
-                              onClick={() => confirmDelete(contact)}
-                              className='rounded-lg p-2 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600'
-                            >
-                              <TrashIcon className='h-5 w-5' />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              {totalPages > 1 && (
-                <div className='mt-4 flex justify-center'>
-                  <MyPagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-                </div>
-              )}
-            </>
-          )}
+          <MyTable
+            columns={columns}
+            data={paginatedContacts}
+            rowKey={(contact) => contact.id}
+            loading={isLoading}
+            emptyMessage={translate('common.noData')}
+            pagination={{ currentPage, totalPages, onPageChange: setCurrentPage }}
+          />
         </MyCardBody>
       </MyCard>
     </div>

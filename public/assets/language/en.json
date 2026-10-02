@@ -810,7 +810,10 @@
         "status": "Status",
         "price": "Price",
         "date": "Created Date",
-        "weight": "Weight"
+        "weight": "Weight",
+        "copyCode": "Copy order code",
+        "copyPhone": "Copy phone number",
+        "callPhone": "Call customer"
       },
       "detail": "Order Details",
       "create": "Create Order",

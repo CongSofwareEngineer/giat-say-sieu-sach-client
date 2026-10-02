@@ -9,10 +9,8 @@ import MyInput from '@/components/MyInput'
 import MyButton from '@/components/MyButton'
 import MyCard, { MyCardBody, MyCardHeader } from '@/components/MyCard'
 import MySelect from '@/components/MySelect'
-import MyLoading from '@/components/MyLoading'
-import MyEmpty from '@/components/MyEmpty'
 import MyBadge from '@/components/MyBadge'
-import MyPagination from '@/components/MyPagination'
+import MyTable, { MyTableColumn } from '@/components/MyTable'
 import StarRating from '@/components/Comment/StarRating'
 import CommentCard from '@/components/Comment/CommentCard'
 import ReplyForm from '@/components/Comment/ReplyForm'
@@ -113,6 +111,99 @@ const AdminCommentsPage = () => {
     }
   }
 
+  const columns: MyTableColumn<CommentItem>[] = [
+    {
+      key: 'name',
+      title: translate('common.name'),
+      render: (comment) => (
+        <div className='flex items-center gap-3'>
+          <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-xs font-bold text-white'>
+            {comment.name?.charAt(0)?.toUpperCase() || '?'}
+          </div>
+          <div className='min-w-0'>
+            <p className='font-medium text-text'>{comment.name}</p>
+            <p className='text-xs text-gray-400'>{comment.phone}</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'rating',
+      title: translate('reviews.form.rating'),
+      align: 'center',
+      render: (comment) => (
+        <div className='flex items-center justify-center gap-1.5'>
+          <StarRating value={comment.rating ?? 0} />
+          <span className='text-xs font-semibold text-text'>{comment.rating ?? 0}</span>
+        </div>
+      ),
+    },
+    {
+      key: 'content',
+      title: translate('common.content'),
+      render: (comment) => (
+        <button type='button' onClick={() => openDetail(comment)} className='block max-w-[300px] cursor-pointer text-left'>
+          <p className='truncate font-medium text-text hover:text-primary'>{comment.content}</p>
+          <p className='mt-1 text-xs text-gray-400'>{dayjs(comment.createdAt).format('DD/MM/YYYY HH:mm')}</p>
+        </button>
+      ),
+    },
+    {
+      key: 'status',
+      title: translate('common.status'),
+      align: 'center',
+      render: (comment) => (
+        <MyBadge variant={comment.isVisible ? 'success' : 'warning'}>
+          {comment.isVisible
+            ? translate('admin.comments.statuses.visible', {}, 'Đang hiển thị')
+            : translate('admin.comments.statuses.hidden', {}, 'Đã ẩn')}
+        </MyBadge>
+      ),
+    },
+    {
+      key: 'actions',
+      title: translate('common.actions'),
+      align: 'center',
+      render: (comment) => (
+        <div className='flex items-center justify-center gap-2'>
+          <button
+            type='button'
+            aria-label={translate('admin.comments.detail')}
+            onClick={() => openDetail(comment)}
+            className='rounded-lg p-2 text-gray-500 transition-colors hover:bg-primary/10 hover:text-primary'
+          >
+            <InfoIcon className='h-5 w-5' />
+          </button>
+          <button
+            type='button'
+            aria-label={comment.isVisible ? translate('admin.comments.hide', {}, 'Ẩn') : translate('admin.comments.show', {}, 'Hiện')}
+            onClick={() => handleToggleVisibility(comment)}
+            disabled={isTogglingVisibility}
+            className='rounded-lg p-2 text-gray-500 transition-colors hover:bg-primary/10 hover:text-primary disabled:opacity-50'
+          >
+            {comment.isVisible ? <EyeSlashIcon className='h-5 w-5' /> : <EyeIcon className='h-5 w-5' />}
+          </button>
+          <button
+            type='button'
+            aria-label={translate('admin.comments.reply')}
+            onClick={() => openReply(comment)}
+            className='rounded-lg p-2 text-gray-500 transition-colors hover:bg-primary/10 hover:text-primary'
+          >
+            <ChatBubbleIcon className='h-5 w-5' />
+          </button>
+          <button
+            type='button'
+            aria-label={translate('admin.comments.delete')}
+            onClick={() => confirmDelete(comment)}
+            className='rounded-lg p-2 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600'
+          >
+            <TrashIcon className='h-5 w-5' />
+          </button>
+        </div>
+      ),
+    },
+  ]
+
   return (
     <div className='space-y-6'>
       <div className='flex items-center justify-between'>
@@ -160,120 +251,21 @@ const AdminCommentsPage = () => {
           </div>
         </MyCardHeader>
         <MyCardBody>
-          {isLoading ? (
-            <MyLoading />
-          ) : paginatedComments.length === 0 ? (
-            <MyEmpty message={translate('common.noData')} />
-          ) : (
-            <>
-              <div className='mb-4 text-sm text-gray-500'>
-                {translate('common.showing')} {(currentPage - 1) * PAGE_SIZE + 1} {translate('common.to')}{' '}
-                {Math.min(currentPage * PAGE_SIZE, filteredComments.length)} {translate('common.from')} {filteredComments.length}{' '}
-                {translate('common.results')}
-              </div>
-              <div className='overflow-x-auto'>
-                <table className='w-full text-sm'>
-                  <thead>
-                    <tr className='border-b border-border bg-gray-50/80'>
-                      <th className='py-3 px-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.name')}</th>
-                      <th className='py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500'>
-                        {translate('reviews.form.rating')}
-                      </th>
-                      <th className='py-3 px-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500'>
-                        {translate('common.content')}
-                      </th>
-                      <th className='py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500'>
-                        {translate('common.status')}
-                      </th>
-                      <th className='py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500'>
-                        {translate('common.actions')}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedComments.map((comment) => (
-                      <tr key={comment.id} className='border-b border-border transition-colors hover:bg-primary/[0.03] align-middle'>
-                        <td className='py-3 px-4'>
-                          <div className='flex items-center gap-3'>
-                            <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-xs font-bold text-white'>
-                              {comment.name?.charAt(0)?.toUpperCase() || '?'}
-                            </div>
-                            <div className='min-w-0'>
-                              <p className='font-medium text-text'>{comment.name}</p>
-                              <p className='text-xs text-gray-400'>{comment.phone}</p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className='py-3 px-4'>
-                          <div className='flex items-center justify-center gap-1.5'>
-                            <StarRating value={comment.rating ?? 0} />
-                            <span className='text-xs font-semibold text-text'>{comment.rating ?? 0}</span>
-                          </div>
-                        </td>
-                        <td className='py-3 px-4'>
-                          <button type='button' onClick={() => openDetail(comment)} className='block max-w-[300px] cursor-pointer text-left'>
-                            <p className='truncate font-medium text-text hover:text-primary'>{comment.content}</p>
-                            <p className='mt-1 text-xs text-gray-400'>{dayjs(comment.createdAt).format('DD/MM/YYYY HH:mm')}</p>
-                          </button>
-                        </td>
-                        <td className='py-3 px-4 text-center'>
-                          <MyBadge variant={comment.isVisible ? 'success' : 'warning'}>
-                            {comment.isVisible
-                              ? translate('admin.comments.statuses.visible', {}, 'Đang hiển thị')
-                              : translate('admin.comments.statuses.hidden', {}, 'Đã ẩn')}
-                          </MyBadge>
-                        </td>
-                        <td className='py-3 px-4'>
-                          <div className='flex items-center justify-center gap-2'>
-                            <button
-                              type='button'
-                              aria-label={translate('admin.comments.detail')}
-                              onClick={() => openDetail(comment)}
-                              className='rounded-lg p-2 text-gray-500 transition-colors hover:bg-primary/10 hover:text-primary'
-                            >
-                              <InfoIcon className='h-5 w-5' />
-                            </button>
-                            <button
-                              type='button'
-                              aria-label={
-                                comment.isVisible ? translate('admin.comments.hide', {}, 'Ẩn') : translate('admin.comments.show', {}, 'Hiện')
-                              }
-                              onClick={() => handleToggleVisibility(comment)}
-                              disabled={isTogglingVisibility}
-                              className='rounded-lg p-2 text-gray-500 transition-colors hover:bg-primary/10 hover:text-primary disabled:opacity-50'
-                            >
-                              {comment.isVisible ? <EyeSlashIcon className='h-5 w-5' /> : <EyeIcon className='h-5 w-5' />}
-                            </button>
-                            <button
-                              type='button'
-                              aria-label={translate('admin.comments.reply')}
-                              onClick={() => openReply(comment)}
-                              className='rounded-lg p-2 text-gray-500 transition-colors hover:bg-primary/10 hover:text-primary'
-                            >
-                              <ChatBubbleIcon className='h-5 w-5' />
-                            </button>
-                            <button
-                              type='button'
-                              aria-label={translate('admin.comments.delete')}
-                              onClick={() => confirmDelete(comment)}
-                              className='rounded-lg p-2 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600'
-                            >
-                              <TrashIcon className='h-5 w-5' />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              {totalPages > 1 && (
-                <div className='mt-6 flex justify-center'>
-                  <MyPagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-                </div>
-              )}
-            </>
+          {!isLoading && paginatedComments.length > 0 && (
+            <div className='mb-4 text-sm text-gray-500'>
+              {translate('common.showing')} {(currentPage - 1) * PAGE_SIZE + 1} {translate('common.to')}{' '}
+              {Math.min(currentPage * PAGE_SIZE, filteredComments.length)} {translate('common.from')} {filteredComments.length}{' '}
+              {translate('common.results')}
+            </div>
           )}
+          <MyTable
+            columns={columns}
+            data={paginatedComments}
+            rowKey={(comment) => comment.id}
+            loading={isLoading}
+            emptyMessage={translate('common.noData')}
+            pagination={{ currentPage, totalPages, onPageChange: setCurrentPage }}
+          />
         </MyCardBody>
       </MyCard>
     </div>

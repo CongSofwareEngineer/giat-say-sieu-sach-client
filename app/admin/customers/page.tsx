@@ -8,9 +8,7 @@ import { UserRole } from '@/services/users/type'
 import MyInput from '@/components/MyInput'
 import MyButton from '@/components/MyButton'
 import MyCard, { MyCardBody } from '@/components/MyCard'
-import MyPagination from '@/components/MyPagination'
-import MyLoading from '@/components/MyLoading'
-import MyEmpty from '@/components/MyEmpty'
+import MyTable, { MyTableColumn } from '@/components/MyTable'
 import MyBadge from '@/components/MyBadge'
 import MySelect from '@/components/MySelect'
 import AdminDeleteConfirm from '@/components/admin/AdminDeleteConfirm'
@@ -72,6 +70,56 @@ const AdminCustomersPage = () => {
     })
   }
 
+  const columns: MyTableColumn<User>[] = [
+    {
+      key: 'name',
+      title: translate('admin.customers.name', {}, 'Họ tên'),
+      className: 'font-medium',
+      render: (customer) => customer.name,
+    },
+    {
+      key: 'phone',
+      title: translate('common.phone'),
+      render: (customer) => customer.phone,
+    },
+    {
+      key: 'role',
+      title: translate('admin.customers.role', {}, 'Vai trò'),
+      align: 'center',
+      render: (customer) => (
+        <MyBadge variant={customer.role === UserRole.ADMIN ? 'primary' : 'default'}>
+          {customer.role === UserRole.ADMIN ? 'Admin' : 'Khách hàng'}
+        </MyBadge>
+      ),
+    },
+    {
+      key: 'status',
+      title: translate('admin.customers.status', {}, 'Trạng thái'),
+      align: 'center',
+      render: (customer) => <MyBadge variant={customer.isActive ? 'success' : 'warning'}>{customer.isActive ? 'Hoạt động' : 'Tạm khóa'}</MyBadge>,
+    },
+    {
+      key: 'createdAt',
+      title: translate('admin.customers.createdAt', {}, 'Ngày tạo'),
+      render: (customer) => (customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('vi-VN') : '—'),
+    },
+    {
+      key: 'actions',
+      title: translate('common.actions'),
+      align: 'center',
+      render: (customer) => (
+        <div className='flex items-center justify-center gap-2'>
+          <button type='button' onClick={() => openEdit(customer)} className='px-3 py-1 text-xs text-blue-600 border border-blue-600 rounded-lg'>
+            {translate('common.edit')}
+          </button>
+          <button type='button' onClick={() => confirmDelete(customer)} className='px-3 py-1 text-xs text-red-600 border border-red-600 rounded-lg'>
+            {translate('common.delete')}
+          </button>
+        </div>
+      ),
+    },
+  ]
+
   return (
     <div className='space-y-6'>
       <div className='flex items-center justify-between'>
@@ -115,68 +163,14 @@ const AdminCustomersPage = () => {
       {/* Customers Table */}
       <MyCard>
         <MyCardBody>
-          {isLoading ? (
-            <MyLoading />
-          ) : paginatedCustomers.length === 0 ? (
-            <MyEmpty message={translate('common.noData')} />
-          ) : (
-            <>
-              <div className='overflow-x-auto'>
-                <table className='w-full text-sm'>
-                  <thead>
-                    <tr className='border-b border-border bg-gray-50/80'>
-                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.customers.name', {}, 'Họ tên')}</th>
-                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.phone')}</th>
-                      <th className='text-center py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.customers.role', {}, 'Vai trò')}</th>
-                      <th className='text-center py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.customers.status', {}, 'Trạng thái')}</th>
-                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.customers.createdAt', {}, 'Ngày tạo')}</th>
-                      <th className='text-center py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.actions')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedCustomers.map((customer) => (
-                      <tr key={customer._id} className='border-b border-border transition-colors hover:bg-primary/[0.03]'>
-                        <td className='py-3 px-4 font-medium'>{customer.name}</td>
-                        <td className='py-3 px-4'>{customer.phone}</td>
-                        <td className='py-3 px-4 text-center'>
-                          <MyBadge variant={customer.role === UserRole.ADMIN ? 'primary' : 'default'}>
-                            {customer.role === UserRole.ADMIN ? 'Admin' : 'Khách hàng'}
-                          </MyBadge>
-                        </td>
-                        <td className='py-3 px-4 text-center'>
-                          <MyBadge variant={customer.isActive ? 'success' : 'warning'}>{customer.isActive ? 'Hoạt động' : 'Tạm khóa'}</MyBadge>
-                        </td>
-                        <td className='py-3 px-4'>{customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('vi-VN') : '—'}</td>
-                        <td className='py-3 px-4'>
-                          <div className='flex items-center justify-center gap-2'>
-                            <button
-                              type='button'
-                              onClick={() => openEdit(customer)}
-                              className='px-3 py-1 text-xs text-blue-600 border border-blue-600 rounded-lg'
-                            >
-                              {translate('common.edit')}
-                            </button>
-                            <button
-                              type='button'
-                              onClick={() => confirmDelete(customer)}
-                              className='px-3 py-1 text-xs text-red-600 border border-red-600 rounded-lg'
-                            >
-                              {translate('common.delete')}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              {totalPages > 1 && (
-                <div className='mt-4 flex justify-center'>
-                  <MyPagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-                </div>
-              )}
-            </>
-          )}
+          <MyTable
+            columns={columns}
+            data={paginatedCustomers}
+            rowKey={(customer) => customer._id}
+            loading={isLoading}
+            emptyMessage={translate('common.noData')}
+            pagination={{ currentPage, totalPages, onPageChange: setCurrentPage }}
+          />
         </MyCardBody>
       </MyCard>
     </div>

@@ -810,7 +810,10 @@
         "status": "Trạng thái",
         "price": "Giá",
         "date": "Ngày tạo",
-        "weight": "Số kg"
+        "weight": "Số kg",
+        "copyCode": "Sao chép mã đơn",
+        "copyPhone": "Sao chép SĐT",
+        "callPhone": "Gọi khách hàng"
       },
       "detail": "Chi tiết đơn hàng",
       "create": "Tạo đơn hàng",

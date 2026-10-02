@@ -4,9 +4,7 @@ import { useMemo, useState } from 'react'
 
 import MyButton from '@/components/MyButton'
 import MyCard, { MyCardBody } from '@/components/MyCard'
-import MyLoading from '@/components/MyLoading'
-import MyEmpty from '@/components/MyEmpty'
-import MyPagination from '@/components/MyPagination'
+import MyTable, { MyTableColumn } from '@/components/MyTable'
 import MyInput from '@/components/MyInput'
 import AdminDeleteConfirm from '@/components/admin/AdminDeleteConfirm'
 import PriceForm from '@/components/PriceForm'
@@ -58,6 +56,50 @@ const AdminPricesPage = () => {
     })
   }
 
+  const columns: MyTableColumn<PricingPlan>[] = [
+    {
+      key: 'name',
+      title: translate('admin.prices.name', {}, 'Tên dịch vụ'),
+      className: 'font-medium',
+      render: (service) => service.name,
+    },
+    {
+      key: 'price',
+      title: translate('admin.prices.price', {}, 'Đơn giá'),
+      align: 'right',
+      render: (service) => service.price.toLocaleString(),
+    },
+    {
+      key: 'status',
+      title: translate('common.status'),
+      align: 'center',
+      render: (service) => (
+        <span
+          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            service.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+          }`}
+        >
+          {service.isActive ? translate('admin.prices.active', {}, 'Đang hoạt động') : translate('admin.prices.inactive', {}, 'Không hoạt động')}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      title: translate('common.actions'),
+      align: 'center',
+      render: (service) => (
+        <div className='flex items-center justify-center gap-2'>
+          <button type='button' onClick={() => openEdit(service)} className='px-3 py-1 text-xs text-blue-600 border border-blue-600 rounded-lg'>
+            {translate('common.edit')}
+          </button>
+          <button type='button' onClick={() => confirmDelete(service)} className='px-3 py-1 text-xs text-red-600 border border-red-600 rounded-lg'>
+            {translate('common.delete')}
+          </button>
+        </div>
+      ),
+    },
+  ]
+
   return (
     <div className='space-y-6'>
       <div className='flex items-center justify-between'>
@@ -85,68 +127,14 @@ const AdminPricesPage = () => {
       {/* Services Table */}
       <MyCard>
         <MyCardBody>
-          {isLoading ? (
-            <MyLoading />
-          ) : paginatedPlans.length === 0 ? (
-            <MyEmpty message={translate('common.noData')} />
-          ) : (
-            <>
-              <div className='overflow-x-auto'>
-                <table className='w-full text-sm'>
-                  <thead>
-                    <tr className='border-b border-border bg-gray-50/80'>
-                      <th className='text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.prices.name', {}, 'Tên dịch vụ')}</th>
-                      <th className='text-right py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('admin.prices.price', {}, 'Đơn giá')}</th>
-                      <th className='text-center py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.status')}</th>
-                      <th className='text-center py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500'>{translate('common.actions')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedPlans.map((service) => (
-                      <tr key={service.id} className='border-b border-border transition-colors hover:bg-primary/[0.03]'>
-                        <td className='py-3 px-4 font-medium'>{service.name}</td>
-                        <td className='py-3 px-4 text-right'>{service.price.toLocaleString()}</td>
-                        <td className='py-3 px-4 text-center'>
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              service.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                            }`}
-                          >
-                            {service.isActive
-                              ? translate('admin.prices.active', {}, 'Đang hoạt động')
-                              : translate('admin.prices.inactive', {}, 'Không hoạt động')}
-                          </span>
-                        </td>
-                        <td className='py-3 px-4'>
-                          <div className='flex items-center justify-center gap-2'>
-                            <button
-                              type='button'
-                              onClick={() => openEdit(service)}
-                              className='px-3 py-1 text-xs text-blue-600 border border-blue-600 rounded-lg'
-                            >
-                              {translate('common.edit')}
-                            </button>
-                            <button
-                              type='button'
-                              onClick={() => confirmDelete(service)}
-                              className='px-3 py-1 text-xs text-red-600 border border-red-600 rounded-lg'
-                            >
-                              {translate('common.delete')}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              {totalPages > 1 && (
-                <div className='mt-4 flex justify-center'>
-                  <MyPagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-                </div>
-              )}
-            </>
-          )}
+          <MyTable
+            columns={columns}
+            data={paginatedPlans}
+            rowKey={(plan) => plan.id}
+            loading={isLoading}
+            emptyMessage={translate('common.noData')}
+            pagination={{ currentPage, totalPages, onPageChange: setCurrentPage }}
+          />
         </MyCardBody>
       </MyCard>
     </div>
