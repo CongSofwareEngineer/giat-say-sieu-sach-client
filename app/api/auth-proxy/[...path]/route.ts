@@ -33,8 +33,7 @@ async function proxy(request: NextRequest, method: string, params: Promise<{ pat
   if (response.status === 401 && accessToken && refreshToken) {
     const refreshResponse = await fetch(`${BACKEND_URL}/auth/refresh`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${refreshToken}` },
     })
 
     if (refreshResponse.ok) {

@@ -14,13 +14,14 @@
    - Ngược lại → `renewAccessToken()`.
 2. `renewAccessToken()`:
    - Không có `refreshToken` → `handleSessionExpired()` và trả `null`.
-   - Gọi `POST /auth/refresh` (dùng chung 1 promise khi nhiều request cùng refresh) → lưu token mới vào cookie → trả `accessToken` mới.
+   - Gọi `POST /auth/refresh` với header `Authorization: Bearer <refreshToken>` (server đọc token từ header; không gửi trong body nữa) — dùng chung 1 promise khi nhiều request cùng refresh → lưu token mới vào cookie → trả `accessToken` mới.
    - Refresh lỗi 401/403 → `handleSessionExpired()`. Lỗi mạng/lỗi khác → bỏ qua, không logout.
 3. Nếu API trả 401 (với request có `isUseAuth`) → gọi lại `renewAccessToken()` và retry 1 lần với token mới.
 4. `handleSessionExpired()` (chỉ chạy ở client, chỉ khi `isLogin = true` để tránh toast trùng): gọi `logout()` của zustand user + toast warning `auth.sessionExpired`. Không xóa cookie.
 
 ## File liên quan
 - `config/baseApi.ts` — logic lấy/refresh token, retry 401, xử lý hết hạn đăng nhập
+- `app/api/auth-proxy/[...path]/route.ts` — proxy cũng gửi `refreshToken` qua header `Authorization` khi refresh
 - `public/assets/language/vn.json`, `en.json` — thông báo hết hạn đăng nhập
 
 ## Constants / Translation keys mới
@@ -31,3 +32,4 @@
 - Vì không xóa cookie, nếu `refreshToken` đã bị server thu hồi thì mỗi request auth sau đó vẫn thử refresh 1 lần rồi thất bại (user đã ở trạng thái logout nên không hiện toast lặp lại).
 - Không tự redirect sang `/login`; các trang cần đăng nhập tự xử lý theo `isLogin`.
 - Ở server component, `handleSessionExpired()` không làm gì (không có `window`).
+- Trước đây chỉ gửi `refreshToken` trong body nên server luôn trả 401 `Missing authorization header` → refresh không bao giờ thành công.

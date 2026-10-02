@@ -143,12 +143,13 @@ class BaseAPI {
   private async executeRefresh(refreshToken: string): Promise<TokenResponse | null> {
     const url = `${this.baseUrl}/auth/refresh`
 
+    // The server reads the refresh token from the Authorization header, not the body
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${refreshToken}`,
       },
-      body: JSON.stringify({ refreshToken }),
     })
 
     if (!response.ok) {
