@@ -9,11 +9,12 @@ import ProfileSidebar, { ProfileTab } from './components/ProfileSidebar'
 
 import useLanguage from '@/hooks/useLanguage'
 import useUser from '@/hooks/useUser'
+import UserService from '@/services/users'
 
 const ProfilePage = () => {
   const { translate } = useLanguage()
   const router = useRouter()
-  const { isLogin, hasHydrated } = useUser()
+  const { isLogin, hasHydrated, updateUser } = useUser()
 
   const [activeTab, setActiveTab] = useState<ProfileTab>('info')
 
@@ -23,6 +24,17 @@ const ProfilePage = () => {
       router.replace('/login')
     }
   }, [hasHydrated, isLogin, router])
+
+  // Refresh profile so loyalty points earned from completed orders are up to date
+  useEffect(() => {
+    if (!hasHydrated || !isLogin) return
+
+    UserService.getProfile()
+      .then((profile) => {
+        if (profile) updateUser({ loyaltyPoints: profile.loyaltyPoints ?? 0 })
+      })
+      .catch(() => {})
+  }, [hasHydrated, isLogin, updateUser])
 
   if (!hasHydrated || !isLogin) return null
 

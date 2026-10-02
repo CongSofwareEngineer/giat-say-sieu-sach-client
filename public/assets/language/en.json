@@ -655,6 +655,18 @@
       "save": "Save Changes",
       "saved": "Changes saved!"
     },
+    "loyalty": {
+      "tier": "Membership tier",
+      "points": "points",
+      "tiers": {
+        "SILVER": "Silver",
+        "GOLD": "Gold",
+        "DIAMOND": "Diamond"
+      },
+      "toNextTier": "{points} more points to reach {tier}",
+      "topTier": "You are at the highest tier",
+      "earnRule": "Every 1,000đ of completed orders = 1 point"
+    },
     "avatar": {
       "change": "Change Avatar",
       "uploading": "Uploading...",

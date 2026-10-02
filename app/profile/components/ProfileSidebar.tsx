@@ -2,6 +2,8 @@
 
 import { useRef, useState } from 'react'
 
+import LoyaltyCard from './LoyaltyCard'
+
 import MyCard, { MyCardBody } from '@/components/MyCard'
 import MyImage from '@/components/MyImage'
 import { CameraIcon } from '@/components/Icons/Camera'
@@ -101,6 +103,10 @@ const ProfileSidebar = ({ activeTab, onChangeTab }: ProfileSidebarProps) => {
 
         <h2 className='mt-4 text-lg font-bold text-text'>{user?.name || translate('menu.profile')}</h2>
         <p className='text-sm text-gray-500'>{user?.phone}</p>
+
+        <div className='mt-5'>
+          <LoyaltyCard points={user?.loyaltyPoints} />
+        </div>
 
         <div className='mt-6 flex flex-col gap-1'>
           {tabs.map((tab) => (

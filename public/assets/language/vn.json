@@ -655,6 +655,18 @@
       "save": "Lưu thay đổi",
       "saved": "Đã lưu thay đổi!"
     },
+    "loyalty": {
+      "tier": "Hạng thành viên",
+      "points": "điểm",
+      "tiers": {
+        "SILVER": "Bạc",
+        "GOLD": "Vàng",
+        "DIAMOND": "Kim cương"
+      },
+      "toNextTier": "Còn {points} điểm nữa để lên hạng {tier}",
+      "topTier": "Bạn đang ở hạng cao nhất",
+      "earnRule": "Mỗi 1.000đ của đơn hoàn thành = 1 điểm"
+    },
     "avatar": {
       "change": "Đổi ảnh đại diện",
       "uploading": "Đang tải ảnh...",

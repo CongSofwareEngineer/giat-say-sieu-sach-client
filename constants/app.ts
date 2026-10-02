@@ -58,6 +58,20 @@ export enum ORDER_STATUS {
   CANCELLED = 'CANCELLED',
 }
 
+// Customer tiers, ranked from lowest to highest
+export enum CUSTOMER_TIER {
+  SILVER = 'SILVER',
+  GOLD = 'GOLD',
+  DIAMOND = 'DIAMOND',
+}
+
+// Min loyalty points per tier (server awards 1 point per 1,000 VND of completed orders)
+export const CUSTOMER_TIER_MIN_POINTS: Record<CUSTOMER_TIER, number> = {
+  [CUSTOMER_TIER.SILVER]: 0,
+  [CUSTOMER_TIER.GOLD]: 1000,
+  [CUSTOMER_TIER.DIAMOND]: 3000,
+}
+
 export const MAX_PIXEL_REDUCE = 300 as number
 export const MAX_COMMENT_IMAGES = 5 as number
 export const MAX_AVATAR_FILE_SIZE = (5 * 1024 * 1024) as number
