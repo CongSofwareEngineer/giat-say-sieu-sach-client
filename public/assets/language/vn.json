@@ -602,6 +602,7 @@
     }
   },
   "auth": {
+    "sessionExpired": "Phiên đăng nhập của bạn đã hết hạn. Vui lòng đăng nhập lại.",
     "login": {
       "title": "Đăng nhập",
       "subtitle": "Chào mừng bạn quay trở lại",

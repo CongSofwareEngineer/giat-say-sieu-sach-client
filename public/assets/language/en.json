@@ -602,6 +602,7 @@
     }
   },
   "auth": {
+    "sessionExpired": "Your login session has expired. Please login again.",
     "login": {
       "title": "Login",
       "subtitle": "Welcome back",

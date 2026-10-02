@@ -1,5 +1,8 @@
 import { COOKIES_KEY } from '@/constants/cookies'
-import { getCookie, setCookie, removeCookie } from '@/utils/cookie'
+import { getCookie, setCookie } from '@/utils/cookie'
+import { toast } from '@/utils/toast'
+import { user as userStore } from '@/zustand/user'
+import { language as languageStore } from '@/zustand/language'
 
 interface TokenResponse {
   accessToken: string
@@ -24,6 +27,26 @@ export class HttpError extends Error {
 
 let isRefreshing = false
 let refreshPromise: Promise<TokenResponse | null> | null = null
+
+// Status codes returned when the server rejects the refresh token
+const REFRESH_REJECTED_STATUS = [401, 403]
+
+// Log the user out in the client and tell them to login again.
+// Never removes the token cookies; only resets the user state.
+const handleSessionExpired = () => {
+  if (typeof window === 'undefined') return
+
+  const { isLogin, logout } = userStore.getState()
+
+  // Avoid duplicated toasts when several requests fail at the same time
+  if (!isLogin) return
+
+  logout()
+  toast({
+    type: 'warning',
+    message: languageStore.getState().language.messages.auth.sessionExpired,
+  })
+}
 
 // Read the `exp` (seconds) claim from a JWT without verifying the signature.
 // The access token cookie is httpOnly, so we cannot rely on its max-age to know if it expired.
@@ -55,11 +78,6 @@ class BaseAPI {
     await setCookie(COOKIES_KEY.refreshToken, tokens.refreshToken, tokens.refreshTokenExpiresIn)
   }
 
-  private async clearTokens(): Promise<void> {
-    await removeCookie(COOKIES_KEY.accessToken)
-    await removeCookie(COOKIES_KEY.refreshToken)
-  }
-
   async getAuthToken(): Promise<string | null> {
     const accessToken = await getCookie(COOKIES_KEY.accessToken)
 
@@ -73,9 +91,16 @@ class BaseAPI {
       }
     }
 
+    return this.renewAccessToken()
+  }
+
+  // Use the refresh token to get a new access token. Tokens are never removed here.
+  private async renewAccessToken(): Promise<string | null> {
     const refreshToken = await getCookie(COOKIES_KEY.refreshToken)
 
     if (!refreshToken) {
+      handleSessionExpired()
+
       return null
     }
 
@@ -87,8 +112,11 @@ class BaseAPI {
 
         return newTokens.accessToken
       }
-    } catch {
-      await this.clearTokens()
+    } catch (error) {
+      // Only a rejected refresh token means the login expired; network errors are ignored
+      if (error instanceof HttpError && REFRESH_REJECTED_STATUS.includes(error.status)) {
+        handleSessionExpired()
+      }
     }
 
     return null
@@ -124,7 +152,7 @@ class BaseAPI {
     })
 
     if (!response.ok) {
-      throw new Error('Refresh token failed')
+      throw new HttpError(response.status)
     }
 
     return response.json()
@@ -155,28 +183,18 @@ class BaseAPI {
       headers,
     })
 
-    if (response.status === 401) {
+    if (response.status === 401 && options?.isUseAuth) {
       // The proactive refresh in getAuthToken may have missed an already-expired token
       // (e.g. clock drift or concurrent requests). Fall back to a refresh + retry once.
-      const refreshToken = await getCookie(COOKIES_KEY.refreshToken)
+      const newAccessToken = await this.renewAccessToken()
 
-      if (refreshToken) {
-        try {
-          const newTokens = await this.refreshAccessToken(refreshToken)
+      if (newAccessToken) {
+        headers['Authorization'] = `Bearer ${newAccessToken}`
 
-          if (newTokens) {
-            await this.saveTokens(newTokens)
-
-            headers['Authorization'] = `Bearer ${newTokens.accessToken}`
-
-            response = await fetch(urlFinal, {
-              ...options,
-              headers,
-            })
-          }
-        } catch {
-          await this.clearTokens()
-        }
+        response = await fetch(urlFinal, {
+          ...options,
+          headers,
+        })
       }
     }
 
