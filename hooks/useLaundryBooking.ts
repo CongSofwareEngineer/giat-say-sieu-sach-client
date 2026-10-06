@@ -97,7 +97,7 @@ const useLaundryBooking = (source: BOOKING_SOURCE) => {
         ...(shouldFillAddress && { addressId: initial.addressId, address: initial.address, district: initial.district, city: initial.city }),
       }
     })
-  }, [buildInitialForm])
+  }, [])
 
   // Reset the service when plans load and the current selection is not an active plan
   useEffect(() => {
