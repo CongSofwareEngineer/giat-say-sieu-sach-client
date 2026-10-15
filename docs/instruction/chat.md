@@ -7,6 +7,8 @@ Chat nổi là trợ lý đa agent; chỉ lời gọi LLM rời trình duyệt (
 ## Dùng chung
 - `agents/index.ts` (router → chọn agent → `runAgent`), `agents/runAgent.ts` (tool loop, `MAX_TOOL_ROUNDS = 6`), `agents/llm.ts`, `agents/base.ts`.
 - `agents/tools/*` — booking, order, myOrders, faq, search...; `agents/agents/*` — faq, price, recommend, fallback, router.
+- Dữ liệu FAQ (tool `faq`, `search`): `FaqService.getFaqs()` lấy toàn bộ FAQ đang hiển thị (`?limit=FULL_LIST_LIMIT`), cache localStorage `LOCAL_STORAGE_KEY.faqs` trong `FAQ_CACHE_DURATION` (3 ngày). Admin quản lý ở `/admin/faqs` (xem `docs/instruction/admin.md` §4).
+- Danh sách chi nhánh (tool trong `agents/tools/order.ts`): tên, địa chỉ, giờ mở cửa (`openingHours`), SĐT.
 - `services/order.ts` — `getMyOrders`, `createGuestOrder`, `lookupOrdersByPhone`, `getOrderByCode`, `getOrderCode`, `normalizeOrderCode`.
 - Translation `chat.*`, `agent.*`; `TOOL_NAME`, `AGENT_NAME` (`constants/tools.ts`); `MAX_CHAT_ORDERS` (4).
 

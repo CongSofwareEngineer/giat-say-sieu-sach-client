@@ -1,5 +1,5 @@
 import BaseAPI from '@/config/baseApi'
-import { BRANCH_CACHE_DURATION, LOCAL_STORAGE_KEY } from '@/constants/app'
+import { BRANCH_CACHE_DURATION, BRANCH_SOCIAL, FULL_LIST_LIMIT, LOCAL_STORAGE_KEY } from '@/constants/app'
 
 export type BranchItem = {
   id: string
@@ -11,12 +11,29 @@ export type BranchItem = {
   // Province name, matches LocationApi province name
   city: string
   phone?: string
-  workingHours?: string
+  openingHours?: string
+  socialMedia?: Partial<Record<BRANCH_SOCIAL, string>>
+  isActive?: boolean
+}
+
+// Sent socialMedia replaces all links on update (empty link = removed)
+export type BranchPayload = {
+  name: string
+  address: string
+  district: string
+  city: string
+  phone: string
+  openingHours?: string
+  socialMedia?: Partial<Record<BRANCH_SOCIAL, string>>
+  isActive?: boolean
 }
 
 type ListResponse = { data: BranchItem[] }
 
-const getCachedBranches = (): { data: BranchItem[]; timestamp: number } | null => {
+const getCachedBranches = (): {
+  data: BranchItem[]
+  timestamp: number
+} | null => {
   if (typeof window === 'undefined') return null
 
   try {
@@ -38,6 +55,15 @@ const setCachedBranches = (data: BranchItem[]): void => {
   } catch {}
 }
 
+// Drop the local cache so this browser sees admin changes right away
+const clearCachedBranches = (): void => {
+  if (typeof window === 'undefined') return
+
+  try {
+    localStorage.removeItem(LOCAL_STORAGE_KEY.branches)
+  } catch {}
+}
+
 const isCacheValid = (timestamp: number): boolean => {
   return Date.now() - timestamp < BRANCH_CACHE_DURATION
 }
@@ -56,6 +82,39 @@ class BranchApi extends BaseAPI {
     setCachedBranches(response.data)
 
     return response.data
+  }
+
+  // Admin: all branches, hidden ones included
+  async getAdminBranches(): Promise<BranchItem[]> {
+    const response = await this.get<ListResponse>(`/admin?limit=${FULL_LIST_LIMIT}`, { isUseAuth: true })
+
+    return response?.data ?? []
+  }
+
+  async createBranch(payload: BranchPayload): Promise<BranchItem> {
+    const response = await this.post<{ data: BranchItem }>('', payload, {
+      isUseAuth: true,
+    })
+
+    clearCachedBranches()
+
+    return response.data
+  }
+
+  async updateBranch(id: string, payload: Partial<BranchPayload>): Promise<BranchItem> {
+    const response = await this.patch<{ data: BranchItem }>(`/${id}`, payload, {
+      isUseAuth: true,
+    })
+
+    clearCachedBranches()
+
+    return response.data
+  }
+
+  async deleteBranch(id: string): Promise<void> {
+    await this.delete<{ data: null }>(`/${id}`, { isUseAuth: true })
+
+    clearCachedBranches()
   }
 }
 

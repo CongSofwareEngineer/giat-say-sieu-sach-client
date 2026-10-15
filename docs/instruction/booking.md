@@ -8,7 +8,7 @@ Trang `/booking` và form trong Chat dùng **chung** một form và logic đặt
 - `hooks/useLaundryBooking.ts` — state form, prefill, giá ước tính, submit; nhận `BOOKING_SOURCE` (CHAT | PAGE).
 - `components/Chat/LaundryForm.tsx` — UI form (có `onCancel`/`showTitle`/`className` tùy chọn).
 - `utils/bookingAddress.ts` — đọc/ghi địa chỉ đặt lịch trong localStorage.
-- `services/branch.ts` — danh sách chi nhánh (cache localStorage 1 ngày, `getBranchCities`).
+- `services/branch.ts` — danh sách chi nhánh (cache localStorage 1 ngày, `getBranchCities`); admin sửa chi nhánh thì xoá cache localStorage của trình duyệt đó (xem `docs/instruction/admin.md` §3).
 - `agents/tools/booking.ts` — `createLaundryBooking` (nhận `note`, `source`, `pickupDate`, `pickupSlot`, `isWeightEstimated`) + helper khung giờ / số kg (§5, §6).
 - Constants: `LOCAL_STORAGE_KEY` (`branches`, `bookingAddress`), `BRANCH_CACHE_DURATION`, `MAX_BOOKING_NOTE_LENGTH`, `BOOKING_SOURCE`, `PICKUP_TIME_SLOTS`, `PICKUP_LEAD_HOURS`, `PICKUP_MAX_DAYS_AHEAD`, `INPUT_DATE_FORMAT`, `DISPLAY_DATE_FORMAT`, `DEFAULT_ESTIMATED_WEIGHT`.
 
@@ -70,7 +70,6 @@ Khách không phải tự chọn: form điền sẵn khung giờ trống sớm n
 - Chỉ lọc theo tỉnh, không lọc phường/xã. Chi nhánh cũ chưa có `city`/`district` → API trả rỗng; chưa chi nhánh nào có `city` → hiện tất cả tỉnh.
 - Trang Booking không còn email, địa chỉ trả đồ; key `booking.form.*`, `booking.validation.*` còn nhưng chưa dùng.
 - Ngày giờ lấy đồ chỉ nằm trong `notes` — muốn lọc/sắp xếp theo giờ lấy đồ ở admin cần BE thêm field riêng.
-- `BranchItem.workingHours` (client) chưa khớp `openingHours` (server) — lỗi có sẵn.
 - Server cache chi nhánh trong Redis; sau deploy chờ hết TTL hoặc sửa 1 chi nhánh để xóa cache.
 
 ## Liên quan

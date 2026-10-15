@@ -1,8 +1,8 @@
 # SEO (server render, metadata, JSON-LD)
-> Cập nhật: 2026-10-02
+> Cập nhật: 2026-10-15
 
 ## Tổng quan
-Các trang công khai quan trọng (blog, bảng giá) render ở server để crawler / mạng xã hội / AI đọc được nội dung; metadata và JSON-LD lấy từ dữ liệu API thật. Sub-logic: (1) Server render blog + pricing, (2) Metadata, (3) JSON-LD, (4) Cache chống 429, (5) Trang 404.
+Các trang công khai quan trọng (blog, bảng giá) render ở server để crawler / mạng xã hội / AI đọc được nội dung; metadata và JSON-LD lấy từ dữ liệu API thật. Sub-logic: (1) Server render blog + pricing, (2) Metadata, (3) JSON-LD, (4) Cache chống 429, (5) Trang 404, (6) Trang lỗi, (7) Sitemap + robots.txt.
 
 ## Dùng chung
 - `config/seo.ts` — `buildMetadata`, các schema builder, `toServiceOffers`; render bằng `components/SeoJsonLd`.
@@ -31,8 +31,23 @@ Các trang công khai quan trọng (blog, bảng giá) render ở server để c
 ## 5. Trang 404
 - `app/not-found.tsx` — trang 404 chung, text qua `translate()`, Next tự thêm `noindex`.
 
+## 6. Trang lỗi
+- `app/error.tsx` — error boundary cho mọi route trong root layout (vẫn có Header/Footer): tiêu đề, mô tả, mã lỗi (`error.digest`, nếu có), nút "Thử lại" (`unstable_retry()` của Next 16 — fetch + render lại segment) và "Về trang chủ".
+- `app/global-error.tsx` — thay root layout khi chính layout bị lỗi: tự render `<html>/<body>`, import `globals.css`, không có Header/providers; "Về trang chủ" reload toàn trang (`window.location.assign`) vì router client có thể đã hỏng.
+- Không log lỗi ra console ở client (Next đã log phía server; `console.*` bị xoá ở production).
+
+## 7. Sitemap + robots.txt (`next-sitemap.config.js`)
+- Chạy ở `postbuild` (`next-sitemap`) → sinh `public/sitemap.xml`, `public/sitemap-0.xml`, `public/robots.txt` (đều git-ignore).
+- Config tự load `.env*` bằng `@next/env` để có `NEXT_PUBLIC_API_APP` khi chạy local.
+- `exclude`: `/admin`, `/admin/*`, `/api/*`, `/login`, `/register`, `/profile`, `/manifest.json` (trang cần đăng nhập / không phải nội dung).
+- `additionalPaths`: gọi `GET /blogs?page=&limit=100` (API công khai chỉ trả bài đã publish) lặp theo `meta.totalPages` → thêm `/blog/<slug>` với `lastmod` = `updatedAt` (hoặc `publishedAt`), priority 0.7.
+- `robotsTxtOptions.policies`: `Disallow` `/admin/`, `/api/`, `/profile`.
+### Edge cases
+- API lỗi / không có `NEXT_PUBLIC_API_APP` → sitemap chỉ có trang tĩnh, build không hỏng (chỉ `console.warn`).
+- Sitemap sinh lúc build: bài mới đăng chỉ vào sitemap ở lần deploy sau.
+
 ## Translation / Constants
-- `HTTP_STATUS.NOT_FOUND`, `IS_BUILD_PHASE`, `API_CACHE_SECONDS`; `common.notFoundPage.{title,description,backHome}`.
+- `HTTP_STATUS.NOT_FOUND`, `IS_BUILD_PHASE`, `API_CACHE_SECONDS`; `common.notFoundPage.{title,description,backHome}`, `common.errorPage.{title,description,retry,code}`.
 
 ## Edge cases / nợ kỹ thuật
 - Throttler `login` ở BE vẫn global; Google crawl nhiều bài trong 1 phút vẫn có thể 429 → nên sửa ở BE (chỉ áp cho `/auth/login`).

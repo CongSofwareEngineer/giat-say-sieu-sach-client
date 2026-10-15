@@ -127,6 +127,6 @@ export const getBranchesTool: AgentTool = {
     const branches = await BranchService.getBranches()
     const noHours = translate('agent.order.branch.noHours', {}, 'Không có giờ')
 
-    return branches.map((b) => `- ${b.name}: ${formatAddress(b)} (${b.workingHours || noHours}) - ${b.phone || '—'}`).join('\n')
+    return branches.map((b) => `- ${b.name}: ${formatAddress(b)} (${b.openingHours || noHours}) - ${b.phone || '—'}`).join('\n')
   },
 }

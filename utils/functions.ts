@@ -119,6 +119,13 @@ export const getPromotionStatusBadgeVariant = (status: PROMOTION_STATUS): MyBadg
   }
 }
 
+// Translated FAQ category, falls back to the raw value for categories outside FAQ_CATEGORY
+export const getFaqCategoryLabel = (category: string | undefined, translate: (key: string) => string): string => {
+  if (!category) return ''
+
+  return translate(`admin.faqs.categories.${category}`) || category
+}
+
 export const getBase64 = (file: File) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()

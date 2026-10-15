@@ -73,7 +73,13 @@
       "description": "Trang bạn tìm không tồn tại hoặc đã bị xoá. Hãy quay lại trang chủ để tiếp tục.",
       "backHome": "Về trang chủ"
     },
-    "copied": "Đã sao chép"
+    "copied": "Đã sao chép",
+    "errorPage": {
+      "title": "Đã có lỗi xảy ra",
+      "description": "Trang gặp sự cố ngoài ý muốn. Bạn hãy thử lại, nếu vẫn lỗi vui lòng quay lại sau ít phút.",
+      "retry": "Thử lại",
+      "code": "Mã lỗi: {code}"
+    }
   },
   "menu": {
     "home": "Trang chủ",
@@ -972,7 +978,9 @@
       "contacts": "Liên hệ",
       "revenue": "Doanh thu",
       "logoutAdmin": "Thoát Admin",
-      "promotions": "Khuyến mãi"
+      "promotions": "Khuyến mãi",
+      "branches": "Chi nhánh",
+      "faqs": "Câu hỏi thường gặp"
     },
     "topbar": {
       "name": "Admin",
@@ -999,6 +1007,74 @@
       "dateInvalid": "Ngày kết thúc phải sau ngày bắt đầu",
       "percentInvalid": "Phần trăm giảm phải từ {min} đến {max}",
       "nameRequired": "Vui lòng nhập tên chương trình"
+    },
+    "branches": {
+      "title": "Quản lý chi nhánh",
+      "create": "Thêm chi nhánh",
+      "edit": "Sửa chi nhánh",
+      "delete": "Xóa chi nhánh",
+      "created": "Thêm chi nhánh thành công",
+      "updated": "Cập nhật chi nhánh thành công",
+      "deleted": "Xóa chi nhánh thành công",
+      "name": "Tên chi nhánh",
+      "namePlaceholder": "Ví dụ: Chi nhánh Tân Bình",
+      "phone": "Số điện thoại",
+      "phonePlaceholder": "Ví dụ: 0901234567",
+      "city": "Tỉnh/Thành phố",
+      "cityPlaceholder": "Chọn tỉnh/thành phố",
+      "district": "Phường/Xã",
+      "districtPlaceholder": "Chọn phường/xã",
+      "address": "Số nhà, tên đường",
+      "addressPlaceholder": "Ví dụ: 123 Nguyễn Huệ",
+      "openingHours": "Giờ mở cửa",
+      "openingHoursPlaceholder": "Ví dụ: 08:00 - 21:00",
+      "social": {
+        "facebook": "Facebook",
+        "googleMap": "Google Maps",
+        "tiktok": "TikTok",
+        "zalo": "Zalo"
+      },
+      "socialPlaceholder": "https://...",
+      "isActive": "Hiển thị cho khách hàng",
+      "active": "Đang hiển thị",
+      "hidden": "Đã ẩn",
+      "validation": {
+        "nameRequired": "Vui lòng nhập tên chi nhánh",
+        "phoneInvalid": "Số điện thoại phải gồm 10 số, bắt đầu bằng 0",
+        "addressRequired": "Vui lòng nhập số nhà, tên đường",
+        "cityRequired": "Vui lòng chọn tỉnh/thành phố",
+        "districtRequired": "Vui lòng chọn phường/xã"
+      }
+    },
+    "faqs": {
+      "title": "Quản lý câu hỏi thường gặp",
+      "create": "Thêm câu hỏi",
+      "edit": "Sửa câu hỏi",
+      "delete": "Xóa câu hỏi",
+      "created": "Thêm câu hỏi thành công",
+      "updated": "Cập nhật câu hỏi thành công",
+      "deleted": "Xóa câu hỏi thành công",
+      "question": "Câu hỏi",
+      "questionPlaceholder": "Ví dụ: Giặt sấy bao lâu thì xong?",
+      "answer": "Câu trả lời",
+      "answerPlaceholder": "Nhập câu trả lời cho khách hàng...",
+      "category": "Danh mục",
+      "tags": "Từ khóa",
+      "tagsPlaceholder": "Cách nhau bởi dấu phẩy, ví dụ: thời gian, giao hàng",
+      "isActive": "Hiển thị cho khách hàng và trợ lý AI",
+      "active": "Đang hiển thị",
+      "hidden": "Đã ẩn",
+      "categories": {
+        "dich-vu": "Dịch vụ",
+        "gia-ca": "Giá cả",
+        "giao-hang": "Giao nhận",
+        "khuyen-mai": "Khuyến mãi",
+        "khac": "Khác"
+      },
+      "validation": {
+        "questionRequired": "Vui lòng nhập câu hỏi",
+        "answerRequired": "Vui lòng nhập câu trả lời"
+      }
     }
   },
   "chat": {

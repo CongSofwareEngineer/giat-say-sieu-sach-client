@@ -15,6 +15,8 @@ import ChatBubbleIcon from '@/components/Icons/ChatBubble'
 import { ContactIcon } from '@/components/Icons/Contact'
 import { ClassIcon } from '@/components/Icons/Class'
 import GiftIcon from '@/components/Icons/Gift'
+import { MapPinIcon } from '@/components/Icons/MapPin'
+import { InfoIcon } from '@/components/Icons/Info'
 import MyImage from '@/components/MyImage'
 import { images } from '@/config/images'
 import useLanguage from '@/hooks/useLanguage'
@@ -51,6 +53,8 @@ const AdminShell = ({ children }: { children: React.ReactNode }) => {
     { href: '/admin/customers', label: translate('admin.sidebar.customers'), icon: UserCircleIcon },
     { href: '/admin/pricing', label: translate('admin.sidebar.prices'), icon: PaymentIcon },
     { href: '/admin/promotions', label: translate('admin.sidebar.promotions'), icon: GiftIcon },
+    { href: '/admin/branches', label: translate('admin.sidebar.branches'), icon: MapPinIcon },
+    { href: '/admin/faqs', label: translate('admin.sidebar.faqs'), icon: InfoIcon },
     { href: '/admin/blog', label: translate('admin.sidebar.blog'), icon: ClassIcon },
     { href: '/admin/comments', label: translate('admin.sidebar.comments'), icon: ChatBubbleIcon },
     { href: '/admin/contact', label: translate('admin.sidebar.contacts'), icon: ContactIcon },

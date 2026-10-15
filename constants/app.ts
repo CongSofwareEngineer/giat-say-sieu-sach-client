@@ -127,11 +127,36 @@ export const MAX_IMAGES_PER_UPLOAD = 10 as number
 // localStorage keys
 export enum LOCAL_STORAGE_KEY {
   branches = 'branches_cache',
+  // v2: old cache held only the first 20 FAQs
+  faqs = 'faqs_cache_v2',
   bookingAddress = 'booking_address',
 }
 
 // Branch list is refetched from the API once the local cache is older than this
 export const BRANCH_CACHE_DURATION = (24 * 60 * 60 * 1000) as number
+
+// FAQ list is refetched from the API once the local cache is older than this
+export const FAQ_CACHE_DURATION = (3 * 24 * 60 * 60 * 1000) as number
+
+// Small lists (FAQs, branches) are loaded in one request; matches the server FAQ cap
+export const FULL_LIST_LIMIT = 100 as number
+
+// FAQ categories (values are stored on the server, labels come from admin.faqs.categories.<value>)
+export enum FAQ_CATEGORY {
+  SERVICE = 'dich-vu',
+  PRICE = 'gia-ca',
+  DELIVERY = 'giao-hang',
+  PROMOTION = 'khuyen-mai',
+  OTHER = 'khac',
+}
+
+// Branch social links, keys match the server SocialMediaType
+export enum BRANCH_SOCIAL {
+  FACEBOOK = 'facebook',
+  GOOGLE_MAP = 'googleMap',
+  TIKTOK = 'tiktok',
+  ZALO = 'zalo',
+}
 
 // Max length of the note a customer leaves for the admin when booking
 export const MAX_BOOKING_NOTE_LENGTH = 300 as number

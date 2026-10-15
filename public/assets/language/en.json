@@ -73,7 +73,13 @@
       "description": "The page you are looking for does not exist or has been removed. Go back to the home page to continue.",
       "backHome": "Back to home"
     },
-    "copied": "Copied"
+    "copied": "Copied",
+    "errorPage": {
+      "title": "Something went wrong",
+      "description": "This page ran into an unexpected problem. Please try again, or come back in a few minutes.",
+      "retry": "Try again",
+      "code": "Error code: {code}"
+    }
   },
   "menu": {
     "home": "Home",
@@ -972,7 +978,9 @@
       "contacts": "Contacts",
       "revenue": "Revenue",
       "logoutAdmin": "Exit Admin",
-      "promotions": "Promotions"
+      "promotions": "Promotions",
+      "branches": "Branches",
+      "faqs": "FAQs"
     },
     "topbar": {
       "name": "Admin",
@@ -999,6 +1007,74 @@
       "dateInvalid": "The end date must be after the start date",
       "percentInvalid": "The discount must be between {min} and {max}%",
       "nameRequired": "Please enter the promotion name"
+    },
+    "branches": {
+      "title": "Branch management",
+      "create": "Add branch",
+      "edit": "Edit branch",
+      "delete": "Delete branch",
+      "created": "Branch added",
+      "updated": "Branch updated",
+      "deleted": "Branch deleted",
+      "name": "Branch name",
+      "namePlaceholder": "e.g. Tan Binh branch",
+      "phone": "Phone number",
+      "phonePlaceholder": "e.g. 0901234567",
+      "city": "Province/City",
+      "cityPlaceholder": "Select a province/city",
+      "district": "Ward",
+      "districtPlaceholder": "Select a ward",
+      "address": "Street address",
+      "addressPlaceholder": "e.g. 123 Nguyen Hue",
+      "openingHours": "Opening hours",
+      "openingHoursPlaceholder": "e.g. 08:00 - 21:00",
+      "social": {
+        "facebook": "Facebook",
+        "googleMap": "Google Maps",
+        "tiktok": "TikTok",
+        "zalo": "Zalo"
+      },
+      "socialPlaceholder": "https://...",
+      "isActive": "Visible to customers",
+      "active": "Visible",
+      "hidden": "Hidden",
+      "validation": {
+        "nameRequired": "Please enter the branch name",
+        "phoneInvalid": "Phone number must be 10 digits starting with 0",
+        "addressRequired": "Please enter the street address",
+        "cityRequired": "Please select a province/city",
+        "districtRequired": "Please select a ward"
+      }
+    },
+    "faqs": {
+      "title": "FAQ management",
+      "create": "Add question",
+      "edit": "Edit question",
+      "delete": "Delete question",
+      "created": "Question added",
+      "updated": "Question updated",
+      "deleted": "Question deleted",
+      "question": "Question",
+      "questionPlaceholder": "e.g. How long does washing take?",
+      "answer": "Answer",
+      "answerPlaceholder": "Write the answer for customers...",
+      "category": "Category",
+      "tags": "Keywords",
+      "tagsPlaceholder": "Comma separated, e.g. time, delivery",
+      "isActive": "Visible to customers and the AI assistant",
+      "active": "Visible",
+      "hidden": "Hidden",
+      "categories": {
+        "dich-vu": "Services",
+        "gia-ca": "Pricing",
+        "giao-hang": "Pickup & delivery",
+        "khuyen-mai": "Promotions",
+        "khac": "Other"
+      },
+      "validation": {
+        "questionRequired": "Please enter the question",
+        "answerRequired": "Please enter the answer"
+      }
     }
   },
   "chat": {
