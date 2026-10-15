@@ -12,12 +12,15 @@ import MyCard, { MyCardBody } from '@/components/MyCard'
 import { EyeIcon } from '@/components/Icons/Eye'
 import { EyeSlashIcon } from '@/components/Icons/EyeSlash'
 import HumanVerification from '@/components/HumanVerification'
+import { MIN_PASSWORD_LENGTH } from '@/constants/app'
 import { formatPhoneToE164 } from '@/utils/phone'
 import useLanguage from '@/hooks/useLanguage'
+import useUser from '@/hooks/useUser'
 
 const RegisterPage = () => {
   const { translate } = useLanguage()
   const router = useRouter()
+  const { login } = useUser()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isHumanVerified, setIsHumanVerified] = useState(false)
   const [captchaToken, setCaptchaToken] = useState<string | undefined>(undefined)
@@ -58,8 +61,9 @@ const RegisterPage = () => {
     if (!formData.password) {
       newErrors.password = translate('common.required')
       isValid = false
-    } else if (formData.password.length < 6) {
-      newErrors.password = translate('auth.register.passwordMin')
+    } else if (formData.password.length < MIN_PASSWORD_LENGTH) {
+      newErrors.password = translate('auth.register.passwordMin', { min: MIN_PASSWORD_LENGTH })
+      isValid = false
     }
 
     if (!formData.confirmPassword) {
@@ -89,9 +93,14 @@ const RegisterPage = () => {
     setErrors((prev) => ({ ...prev, general: '' }))
 
     try {
-      await registerAction(formData.name, formatPhoneToE164(formData.phone) ?? formData.phone, formData.password, captchaToken)
+      const response = await registerAction(formData.name, formatPhoneToE164(formData.phone) ?? formData.phone, formData.password, captchaToken)
 
-      router.replace('/login')
+      if (response?.accessToken && response.user) {
+        login(response.user)
+        router.replace('/')
+      } else {
+        router.replace('/login')
+      }
     } catch {
       setErrors((prev) => ({ ...prev, general: translate('auth.register.error') }))
     } finally {

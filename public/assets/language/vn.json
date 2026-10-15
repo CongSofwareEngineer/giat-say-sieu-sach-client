@@ -658,7 +658,7 @@
       "loginNow": "Đăng nhập ngay",
       "error": "Đăng ký thất bại, vui lòng thử lại",
       "passwordMismatch": "Mật khẩu không khớp",
-      "passwordMin": "Mật khẩu phải có ít nhất 6 ký tự",
+      "passwordMin": "Mật khẩu phải có ít nhất {min} ký tự",
       "otpHint": "Chúng tôi sẽ gửi mã OTP qua SMS để xác thực số điện thoại của bạn",
       "captchaLabel": "Tôi không phải robot",
       "captchaRequired": "Vui lòng xác nhận bạn không phải robot",

@@ -1,5 +1,7 @@
 'use server'
 
+import type { Auth } from '@/services/auth/type'
+
 import AuthService from '@/services/auth'
 import { setCookie } from '@/utils/cookie'
 import { COOKIES_KEY } from '@/constants/cookies'
@@ -7,14 +9,19 @@ import { COOKIES_KEY } from '@/constants/cookies'
 export async function loginAction(phone: string, password: string) {
   const response = await AuthService.login(phone, password)
 
-  const accessExpireInSeconds = parseExpireToSeconds(response.accessExpire)
-
-  const refreshExpireInSeconds = parseExpireToSeconds(response.refreshExpire)
-
-  await setCookie(COOKIES_KEY.accessToken, response.accessToken, accessExpireInSeconds)
-  await setCookie(COOKIES_KEY.refreshToken, response.refreshToken, refreshExpireInSeconds)
+  await saveAuthCookies(response)
 
   return response
+}
+
+// Store the access/refresh tokens in httpOnly cookies (shared by login and register)
+export async function saveAuthCookies(auth: Auth) {
+  const accessExpireInSeconds = parseExpireToSeconds(auth.accessExpire)
+
+  const refreshExpireInSeconds = parseExpireToSeconds(auth.refreshExpire)
+
+  await setCookie(COOKIES_KEY.accessToken, auth.accessToken, accessExpireInSeconds)
+  await setCookie(COOKIES_KEY.refreshToken, auth.refreshToken, refreshExpireInSeconds)
 }
 
 function parseExpireToSeconds(expire: string): number {

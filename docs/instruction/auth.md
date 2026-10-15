@@ -1,5 +1,5 @@
 # Auth (đăng ký / đăng nhập / token)
-> Cập nhật: 2026-10-02
+> Cập nhật: 2026-10-15
 
 ## Tổng quan
 Xác thực khách hàng bằng **họ tên + số điện thoại + mật khẩu**. Token (access/refresh) lưu ở httpOnly cookie, chỉ đọc/ghi qua server actions trong `utils/cookie.ts` (`COOKIES_KEY`). Trạng thái đăng nhập là store Zustand `zustand/user.ts` (`useUser`). Sub-logic: (1) Đăng ký, (2) Tự refresh token + báo hết hạn.
@@ -15,21 +15,18 @@ Xác thực khách hàng bằng **họ tên + số điện thoại + mật khẩ
 Khách tự tạo tài khoản, có reCAPTCHA của Firebase ("tôi không phải robot").
 ### Entry points
 - `app/register/page.tsx` — form, state, validate, submit; `app/register/layout.tsx` — metadata (`noindex`).
-- `app/register/actions.ts` — `registerAction` (bọc `AuthService.register`; chưa phải Server Action thật, chạy ở client).
+- `app/register/actions.ts` — `registerAction` (Server Action: gọi `AuthService.register` + lưu token vào cookie).
 - `components/HumanVerification/index.tsx` — khung reCAPTCHA (`config/firebase.ts` → `getFirebaseAuth`).
 ### Luồng xử lý
 1. Mở trang → render reCAPTCHA, khách nhập form + tick captcha (captcha hết hạn thì xóa token, tick lại).
-2. Bấm Đăng ký → validate (họ tên, SĐT hợp lệ VN, mật khẩu, xác nhận khớp, captcha).
-3. Gửi `POST /auth/register` `{ name, phone, password, captchaToken }` (`isUseAuth: false`).
-4. OK → `router.replace('/login')`. Lỗi → câu chung `auth.register.error`.
+2. Bấm Đăng ký → validate (họ tên, SĐT hợp lệ VN, mật khẩu ≥ `MIN_PASSWORD_LENGTH` (4, giống server và form đổi mật khẩu), xác nhận khớp, captcha). Sai bất kỳ mục nào → không gửi.
+3. Gửi `POST /auth/register` `{ name, phone (E.164), password, captchaToken }` (`isUseAuth: false`) qua Server Action `registerAction`.
+4. OK → server trả `{ accessToken, refreshToken, user, accessExpire, refreshExpire }` (giống login) → `registerAction` lưu token vào cookie (`saveAuthCookies`, dùng chung với login) → trang gọi `login(user)` và `router.replace('/')` (khách đã đăng nhập luôn). Response thiếu token → `router.replace('/login')`. Lỗi → câu chung `auth.register.error`.
 ### Translation / Constants
-- `auth.register.*`. Vào từ Header + link ở `/login`.
+- `auth.register.*` (`passwordMin` nhận `{min}`), `MIN_PASSWORD_LENGTH`. Vào từ Header + link ở `/login`.
 ### Edge cases / nợ kỹ thuật
-- Mật khẩu < 6 ký tự có hiện lỗi `passwordMin` nhưng **không chặn submit** (thiếu `isValid = false`).
-- SĐT gửi lên **đúng như khách gõ** (chưa chuẩn hóa E.164 ở bước này) — server cần tự chuẩn hóa.
-- Mọi lỗi server gộp chung một câu (do `BaseAPI` chỉ ném `status`).
-- API trả token nhưng client **không tự đăng nhập**.
-- Form register yêu cầu tối thiểu 6 ký tự trong khi server yêu cầu 8 → cần đồng bộ.
+- Mọi lỗi server gộp chung một câu (do `BaseAPI` chỉ ném `status`), VD SĐT đã tồn tại cũng chỉ thấy câu chung.
+- Sau đăng ký chưa đồng bộ FCM token như trang login (`syncFcmToken`).
 
 ## 2. Refresh token & hết hạn đăng nhập (`config/baseApi.ts`)
 ### Mục đích

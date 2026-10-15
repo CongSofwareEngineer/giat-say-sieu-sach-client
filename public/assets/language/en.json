@@ -658,7 +658,7 @@
       "loginNow": "Login now",
       "error": "Registration failed, please try again",
       "passwordMismatch": "Passwords do not match",
-      "passwordMin": "Password must be at least 6 characters",
+      "passwordMin": "Password must be at least {min} characters",
       "otpHint": "We will send an OTP via SMS to verify your phone number",
       "captchaLabel": "I'm not a robot",
       "captchaRequired": "Please verify that you are not a robot",

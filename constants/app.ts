@@ -102,7 +102,7 @@ export const ORDER_EDITABLE_STATUSES: ORDER_STATUS[] = [ORDER_STATUS.PENDING, OR
 export const CANCELLABLE_ORDER_STATUS = ORDER_STATUS.PENDING
 
 // Server rejects passwords shorter than this
-export const MIN_PASSWORD_LENGTH = 8 as number
+export const MIN_PASSWORD_LENGTH = 4 as number
 
 // How long the "Copied" state stays on a copy button (ms)
 export const COPY_FEEDBACK_DURATION = 2000 as number

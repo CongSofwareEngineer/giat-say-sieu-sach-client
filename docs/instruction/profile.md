@@ -1,5 +1,5 @@
 # Profile (khu vực khách hàng `/profile`)
-> Cập nhật: 2026-10-02
+> Cập nhật: 2026-10-15
 
 ## Tổng quan
 Trang cá nhân của khách đã đăng nhập: thông tin, avatar, sổ địa chỉ, đổi mật khẩu, đơn hàng của tôi, hạng + điểm tích lũy. Kèm chuông thông báo trên Header (mới làm UI). Sub-logic: (1) Hạng khách hàng & điểm, (2) Đổi mật khẩu, (3) Đơn hàng của tôi, (4) Chuông thông báo. Avatar xem `docs/instruction/upload.md`.
@@ -23,7 +23,7 @@ Trang cá nhân của khách đã đăng nhập: thông tin, avatar, sổ địa
 - Dùng điểm khi đặt / trừ điểm xem `docs/instruction/order.md`.
 
 ## 2. Đổi mật khẩu
-- `app/profile/components/ChangePasswordForm.tsx`: mật khẩu hiện tại, mới (≥ `MIN_PASSWORD_LENGTH` = 8, khác cũ), xác nhận → `PATCH /users/me/password { currentPassword, newPassword }`.
+- `app/profile/components/ChangePasswordForm.tsx`: mật khẩu hiện tại, mới (≥ `MIN_PASSWORD_LENGTH` = 4, khác cũ), xác nhận → `PATCH /users/me/password { currentPassword, newPassword }`.
 - Sai mật khẩu cũ BE trả **400** (không phải 401, tránh FE tự refresh + retry) → hiện "Mật khẩu hiện tại không đúng".
 - Tài khoản guest (tạo khi đặt không login) không có mật khẩu.
 
@@ -41,4 +41,4 @@ Trang cá nhân của khách đã đăng nhập: thông tin, avatar, sổ địa
 - Icon: `components/Icons/Bell.tsx`, `Lock.tsx`.
 
 ## Liên quan
-- `docs/instruction/order.md` (huỷ đơn, điểm), `docs/instruction/auth.md` (form đăng ký yêu cầu 6 ký tự, lệch với 8), `docs/instruction/upload.md` (avatar).
+- `docs/instruction/order.md` (huỷ đơn, điểm), `docs/instruction/auth.md` (đăng ký cũng yêu cầu `MIN_PASSWORD_LENGTH`), `docs/instruction/upload.md` (avatar).
