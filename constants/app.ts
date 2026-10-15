@@ -161,20 +161,18 @@ export enum BRANCH_SOCIAL {
 // Max length of the note a customer leaves for the admin when booking
 export const MAX_BOOKING_NOTE_LENGTH = 300 as number
 
-// Pickup time slots offered at booking, hours in local time ([start, end))
+// Pickup / return time slots (3 hours each) offered at booking, hours in local time ([start, end))
 export const PICKUP_TIME_SLOTS = [
-  { start: 8, end: 10 },
-  { start: 10, end: 12 },
-  { start: 12, end: 14 },
-  { start: 14, end: 16 },
-  { start: 16, end: 18 },
-  { start: 18, end: 20 },
+  { start: 8, end: 11 },
+  { start: 11, end: 14 },
+  { start: 14, end: 17 },
+  { start: 17, end: 20 },
 ] as const
 
 // Earliest pickup slot must start at least this many hours after booking
 export const PICKUP_LEAD_HOURS = 2 as number
 
-// Hours needed to wash: the receive date/slot starts at least this long after booking
+// Hours needed to wash: a return slot must start at least this long after the pickup slot ends
 export const WASH_DURATION_HOURS = 24 as number
 
 // Pickup can be scheduled up to this many days ahead (today included)

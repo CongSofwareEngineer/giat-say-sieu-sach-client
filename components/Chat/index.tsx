@@ -140,6 +140,7 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
         service: plan.name,
         weight: hasWeight ? translate('chat.laundryForm.weightValue', { kg: data.weight }) : translate('chat.laundryForm.weightUnknown'),
         pickup: formatPickupTime(data.pickupDate, data.pickupSlot),
+        returnTime: formatPickupTime(data.returnDate, data.returnSlot),
         price: hasWeight
           ? translate('tracking.result.price', { price: price.toLocaleString('vi-VN') })
           : translate('chat.laundryForm.priceAfterWeighing'),

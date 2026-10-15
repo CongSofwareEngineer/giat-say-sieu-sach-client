@@ -17,12 +17,25 @@ import useGetWards from '@/hooks/reactQuery/useGetWards'
 import useGetListBranches from '@/hooks/reactQuery/useGetListBranches'
 import { formatAddress } from '@/services/address'
 import { getBranchCities } from '@/services/branch'
-import { getAvailablePickupSlots, getDefaultPickup, getPickupSlotKey, isPickupValid, isWeightValid } from '@/agents/tools/booking'
 import {
-  DISPLAY_DATE_FORMAT,
+  getAvailablePickupSlots,
+  getAvailableReturnSlots,
+  getDefaultPickup,
+  getDefaultReturn,
+  getPickupDates,
+  getPickupSlotKey,
+  getReturnDates,
+  isPickupValid,
+  isReturnValid,
+  isWeightValid,
+  type PickupSlot,
+} from '@/agents/tools/booking'
+import {
+  INPUT_DATE_FORMAT,
   LOYALTY_REDEEM,
   MAX_BOOKING_NOTE_LENGTH,
   PICKUP_REFRESH_INTERVAL,
+  SHORT_DATE_FORMAT,
   WASH_DURATION_HOURS,
   WEIGHT_DISCOUNT,
 } from '@/constants/app'
@@ -134,25 +147,56 @@ const LaundryForm = ({
   }, [])
 
   const now = isMounted ? dayjs() : null
-  // Receive date is fixed to now + wash time (see getDefaultPickup), the customer only picks the slot
-  const pickupDateLabel = isMounted && formData.pickupDate ? dayjs(formData.pickupDate).format(DISPLAY_DATE_FORMAT) : ''
-  const pickupSlotOptions = (now && formData.pickupDate ? getAvailablePickupSlots(formData.pickupDate, now) : []).map((slot) => ({
+  const today = now?.format(INPUT_DATE_FORMAT)
+  const tomorrow = now?.add(1, 'day').format(INPUT_DATE_FORMAT)
+
+  const toDateOption = (date: string) => {
+    const label = dayjs(date).format(SHORT_DATE_FORMAT)
+
+    if (date === today) return { value: date, label: translate('booking.pickup.today', { date: label }) }
+    if (date === tomorrow) return { value: date, label: translate('booking.pickup.tomorrow', { date: label }) }
+
+    return { value: date, label }
+  }
+  const toSlotOption = (slot: PickupSlot) => ({
     value: getPickupSlotKey(slot),
     label: translate('booking.pickup.slot', { start: slot.start, end: slot.end }),
-  }))
+  })
+
+  const { pickupDate, pickupSlot, returnDate, returnSlot } = formData
+  const pickupDateOptions = (now ? getPickupDates(now) : []).map(toDateOption)
+  const pickupSlotOptions = (now && pickupDate ? getAvailablePickupSlots(pickupDate, now) : []).map(toSlotOption)
+  const returnDateOptions = (isMounted ? getReturnDates(pickupDate, pickupSlot) : []).map(toDateOption)
+  const returnSlotOptions = (isMounted && returnDate ? getAvailableReturnSlots(returnDate, pickupDate, pickupSlot) : []).map(toSlotOption)
+
+  // New date: keep the picked slot when that day still has it, else take the day's first slot
+  const handlePickupDateChange = (date: string) => {
+    const slots = getAvailablePickupSlots(date)
+
+    setIsPickupMoved(false)
+    onChange('pickupDate', date)
+    if (!slots.some((slot) => getPickupSlotKey(slot) === pickupSlot)) onChange('pickupSlot', slots[0] ? getPickupSlotKey(slots[0]) : '')
+  }
 
   const handlePickupSlotChange = (slotKey: string) => {
     setIsPickupMoved(false)
     onChange('pickupSlot', slotKey)
   }
 
+  const handleReturnDateChange = (date: string) => {
+    const slots = getAvailableReturnSlots(date, pickupDate, pickupSlot)
+
+    onChange('returnDate', date)
+    if (!slots.some((slot) => getPickupSlotKey(slot) === returnSlot)) onChange('returnSlot', slots[0] ? getPickupSlotKey(slots[0]) : '')
+  }
+
   // Picked slot expired while the form was open: move to the first slot left and tell the customer
-  const isPickupStale = isMounted && !!formData.pickupDate && !isPickupValid(formData.pickupDate, formData.pickupSlot)
+  const isPickupStale = isMounted && !!pickupDate && !isPickupValid(pickupDate, pickupSlot)
 
   useEffect(() => {
     if (!isPickupStale) return
 
-    const [firstSlot] = getAvailablePickupSlots(formData.pickupDate)
+    const [firstSlot] = getAvailablePickupSlots(pickupDate)
 
     setIsPickupMoved(true)
 
@@ -166,7 +210,27 @@ const LaundryForm = ({
 
     onChange('pickupDate', fallback.pickupDate)
     onChange('pickupSlot', fallback.pickupSlot)
-  }, [isPickupStale, formData.pickupDate, onChange])
+  }, [isPickupStale, pickupDate, onChange])
+
+  // Pickup moved later than the return allows: keep the return day when it still has a slot, else take the earliest return
+  const isReturnStale = isMounted && !isPickupStale && !!pickupDate && !isReturnValid(returnDate, returnSlot, pickupDate, pickupSlot)
+
+  useEffect(() => {
+    if (!isReturnStale) return
+
+    const [firstSlot] = returnDate ? getAvailableReturnSlots(returnDate, pickupDate, pickupSlot) : []
+
+    if (firstSlot) {
+      onChange('returnSlot', getPickupSlotKey(firstSlot))
+
+      return
+    }
+
+    const fallback = getDefaultReturn(pickupDate, pickupSlot)
+
+    onChange('returnDate', fallback.returnDate)
+    onChange('returnSlot', fallback.returnSlot)
+  }, [isReturnStale, returnDate, pickupDate, pickupSlot, onChange])
 
   const activePlans = plans.filter((p) => p.isActive)
   const serviceOptions =
@@ -192,7 +256,8 @@ const LaundryForm = ({
     formData.city &&
     !isPrefilledCityOutside &&
     isWeightValid(formData.weight) &&
-    isPickupValid(formData.pickupDate, formData.pickupSlot)
+    isPickupValid(pickupDate, pickupSlot) &&
+    isReturnValid(returnDate, returnSlot, pickupDate, pickupSlot)
 
   const formatPrice = (price: number) => translate('tracking.result.price', { price: price.toLocaleString('vi-VN') })
   const canRedeemPoints = !!onToggleUsePoints && pointsBalance >= LOYALTY_REDEEM.POINTS_STEP
@@ -286,18 +351,24 @@ const LaundryForm = ({
           <div className='grid grid-cols-2 gap-2'>
             <div className='min-w-0'>
               <label className='block text-xs font-medium text-gray-700 mb-1'>{translate('chat.laundryForm.pickupDate')}</label>
-              <div className='w-full px-3 py-2.5 text-sm border border-border rounded-xl bg-gray-50 text-text'>
-                {pickupDateLabel || translate('common.select')}
-              </div>
+              <MySelect
+                data={pickupDateOptions}
+                value={pickupDate}
+                search={false}
+                placeholder={translate('common.select')}
+                onChange={(item) => handlePickupDateChange(item.value as string)}
+                className='text-sm'
+                style={{ width: '100%' }}
+              />
             </div>
             <div className='min-w-0'>
               <label className='block text-xs font-medium text-gray-700 mb-1'>{translate('chat.laundryForm.pickupTime')}</label>
               <MySelect
                 data={pickupSlotOptions}
-                value={formData.pickupSlot}
+                value={pickupSlot}
                 search={false}
                 placeholder={translate('common.select')}
-                disabled={!formData.pickupDate}
+                disabled={!pickupDate}
                 onChange={(item) => handlePickupSlotChange(item.value as string)}
                 className='text-sm'
                 style={{ width: '100%' }}
@@ -307,8 +378,39 @@ const LaundryForm = ({
           {isPickupMoved ? (
             <p className='mt-1 text-xs font-medium text-amber-700'>{translate('chat.laundryForm.pickupMoved')}</p>
           ) : (
-            <p className='mt-1 text-xs text-gray-500'>{translate('chat.laundryForm.pickupHint', { hours: WASH_DURATION_HOURS })}</p>
+            <p className='mt-1 text-xs text-gray-500'>{translate('chat.laundryForm.pickupHint')}</p>
           )}
+        </div>
+
+        <div>
+          <div className='grid grid-cols-2 gap-2'>
+            <div className='min-w-0'>
+              <label className='block text-xs font-medium text-gray-700 mb-1'>{translate('chat.laundryForm.returnDate')}</label>
+              <MySelect
+                data={returnDateOptions}
+                value={returnDate}
+                search={false}
+                placeholder={translate('common.select')}
+                onChange={(item) => handleReturnDateChange(item.value as string)}
+                className='text-sm'
+                style={{ width: '100%' }}
+              />
+            </div>
+            <div className='min-w-0'>
+              <label className='block text-xs font-medium text-gray-700 mb-1'>{translate('chat.laundryForm.returnTime')}</label>
+              <MySelect
+                data={returnSlotOptions}
+                value={returnSlot}
+                search={false}
+                placeholder={translate('common.select')}
+                disabled={!returnDate}
+                onChange={(item) => onChange('returnSlot', item.value as string)}
+                className='text-sm'
+                style={{ width: '100%' }}
+              />
+            </div>
+          </div>
+          <p className='mt-1 text-xs text-gray-500'>{translate('chat.laundryForm.returnHint', { hours: WASH_DURATION_HOURS })}</p>
         </div>
 
         <div>

@@ -18,7 +18,7 @@ Chat nổi là trợ lý đa agent; chỉ lời gọi LLM rời trình duyệt (
 ### Luồng xử lý
 1. User điền form → mọi user đều gọi `POST /laundry-orders/guest` với `phone` (E.164), `name`, `address`, `district`, `city`, `items`, `notes`, `notificationToken` (nếu có). (Khi dùng điểm tích lũy thì gọi API có token — xem `docs/instruction/order.md`.)
 2. Server tìm user theo SĐT (chưa có thì tạo), lưu địa chỉ thẳng vào đơn; thiếu địa chỉ → 400.
-3. Tắt form, hiện tin xác nhận (`chat.orderConfirmation`: tên, SĐT, địa chỉ, dịch vụ, giờ nhận đồ, khối lượng, giá tham khảo — chưa nhập kg thì "Chưa ước lượng" / "Tính sau khi shipper cân") rồi "Đặt lịch thành công! Mã đơn: #XXXXXX" (6 ký tự cuối ID, `getOrderCode`). Giờ nhận đồ + số kg ước lượng xem `docs/instruction/booking.md` §5, §6.
+3. Tắt form, hiện tin xác nhận (`chat.orderConfirmation`: tên, SĐT, địa chỉ, dịch vụ, giờ lấy đồ, giờ trả đồ, khối lượng, giá tham khảo — chưa nhập kg thì "Chưa ước lượng" / "Tính sau khi shipper cân") rồi "Đặt lịch thành công! Mã đơn: #XXXXXX" (6 ký tự cuối ID, `getOrderCode`). Giờ lấy/trả đồ + số kg ước lượng xem `docs/instruction/booking.md` §5, §6.
 ### Edge cases
 - KHÔNG lưu đơn/SĐT ở localStorage (bảo mật). User login nhưng đặt bằng SĐT khác → đơn vào tài khoản của SĐT đó.
 - Tool `get_promotions` (agent `price`) chỉ trả khuyến mãi chưa hết hạn — xem `docs/instruction/promotion.md` §4.

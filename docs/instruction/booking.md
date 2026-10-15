@@ -2,15 +2,15 @@
 > Cập nhật: 2026-10-15
 
 ## Tổng quan
-Trang `/booking` và form trong Chat dùng **chung** một form và logic đặt lịch thật (`useLaundryBooking`). Khách chỉ chọn tỉnh nơi có chi nhánh phục vụ; đặt xong thì nhớ thông tin cho lần sau. Sub-logic: (1) Form + logic dùng chung, (2) Lọc tỉnh theo chi nhánh, (3) Prefill + nhớ địa chỉ, (4) Ghi chú cho cửa hàng, (5) Ngày giờ nhận đồ, (6) Số kg ước lượng, (7) Thời gian giặt dự kiến. Tính tiền / điểm / giảm giá xem `docs/instruction/order.md`.
+Trang `/booking` và form trong Chat dùng **chung** một form và logic đặt lịch thật (`useLaundryBooking`). Khách chỉ chọn tỉnh nơi có chi nhánh phục vụ; đặt xong thì nhớ thông tin cho lần sau. Sub-logic: (1) Form + logic dùng chung, (2) Lọc tỉnh theo chi nhánh, (3) Prefill + nhớ địa chỉ, (4) Ghi chú cho cửa hàng, (5) Ngày giờ lấy + trả đồ, (6) Số kg ước lượng, (7) Thời gian giặt dự kiến. Tính tiền / điểm / giảm giá xem `docs/instruction/order.md`.
 
 ## Dùng chung
 - `hooks/useLaundryBooking.ts` — state form, prefill, giá ước tính, submit; nhận `BOOKING_SOURCE` (CHAT | PAGE).
 - `components/Chat/LaundryForm.tsx` — UI form (có `onCancel`/`showTitle`/`className` tùy chọn).
 - `utils/bookingAddress.ts` — đọc/ghi địa chỉ đặt lịch trong localStorage.
 - `services/branch.ts` — danh sách chi nhánh (cache localStorage 1 ngày, `getBranchCities`); admin sửa chi nhánh thì xoá cache localStorage của trình duyệt đó (xem `docs/instruction/admin.md` §3).
-- `agents/tools/booking.ts` — `createLaundryBooking` (nhận `note`, `source`, `pickupDate`, `pickupSlot`, `isWeightEstimated`) + helper khung giờ / số kg (§5, §6).
-- Constants: `LOCAL_STORAGE_KEY` (`branches`, `bookingAddress`), `BRANCH_CACHE_DURATION`, `MAX_BOOKING_NOTE_LENGTH`, `BOOKING_SOURCE`, `PICKUP_TIME_SLOTS`, `WASH_DURATION_HOURS`, `PICKUP_MAX_DAYS_AHEAD`, `INPUT_DATE_FORMAT`, `DISPLAY_DATE_FORMAT`, `DEFAULT_ESTIMATED_WEIGHT`.
+- `agents/tools/booking.ts` — `createLaundryBooking` (nhận `note`, `source`, `pickupDate`, `pickupSlot`, `returnDate`, `returnSlot`, `isWeightEstimated`) + helper khung giờ / số kg (§5, §6).
+- Constants: `LOCAL_STORAGE_KEY` (`branches`, `bookingAddress`), `BRANCH_CACHE_DURATION`, `MAX_BOOKING_NOTE_LENGTH`, `BOOKING_SOURCE`, `PICKUP_TIME_SLOTS`, `PICKUP_LEAD_HOURS`, `WASH_DURATION_HOURS`, `PICKUP_MAX_DAYS_AHEAD`, `INPUT_DATE_FORMAT`, `DISPLAY_DATE_FORMAT`, `DEFAULT_ESTIMATED_WEIGHT`.
 
 ## 1. Form + logic dùng chung
 ### Entry points
@@ -36,21 +36,24 @@ Trang `/booking` và form trong Chat dùng **chung** một form và logic đặt
 ## 4. Ghi chú cho cửa hàng
 - Ô "Ghi chú" (tùy chọn, tối đa `MAX_BOOKING_NOTE_LENGTH`) ở cả Chat và Booking. Ghi chú nối vào `notes` của đơn sau dòng nguồn đặt (`chat.serviceTypeLabel` / `booking.serviceTypeLabel` theo `BOOKING_SOURCE`).
 
-## 5. Ngày giờ nhận đồ
+## 5. Ngày giờ lấy + trả đồ
 ### Mục đích
-Ngày khách nhận đồ được tính sẵn = thời điểm hiện tại + thời gian giặt; khách chỉ chọn khung giờ nhận trong ngày đó. (Trong code state vẫn tên `pickupDate`/`pickupSlot`.)
+Khách chọn khi nào shipper đến lấy đồ và khi nào trả đồ. Cả hai được điền sẵn khung sớm nhất, chỉ đổi khi cần.
 ### Luồng xử lý
-- Khung giờ cố định `PICKUP_TIME_SLOTS` (8–10, 10–12, …, 18–20). Một khung hợp lệ khi giờ bắt đầu ≥ hiện tại + `WASH_DURATION_HOURS` (24h) — `getAvailablePickupSlots`.
-- Ngày nhận (`getDefaultPickup`): ngày đầu tiên (trong `PICKUP_MAX_DAYS_AHEAD` ngày) còn khung hợp lệ + khung đầu tiên của ngày đó. VD đặt 10:00 ngày 15 → 16/10, khung 10–12; đặt 19:00 ngày 15 → 17/10, khung 8–10. Điền trong effect prefill của `useLaundryBooking` và sau `resetForm`.
-- `LaundryForm`: ô "Ngày nhận đồ" chỉ hiển thị (`DISPLAY_DATE_FORMAT`), không chọn được; `MySelect` "Khung giờ nhận đồ" liệt kê khung hợp lệ của ngày đó. Hiển thị chỉ sau khi mount (`isMounted`) để tránh lệch hydration (server Vercel chạy UTC). Hint `chat.laundryForm.pickupHint` có `{hours}` = `WASH_DURATION_HOURS`.
-- Khung hết hạn khi form đang mở: form re-render mỗi `PICKUP_REFRESH_INTERVAL` (60s); `submitBooking` gặp khung hết hạn cũng ép re-render và trả `null`. Khi đó form tự chuyển sang khung đầu tiên còn lại của ngày (hết khung → tính lại ngày nhận mặc định) và hiện `chat.laundryForm.pickupMoved` thay cho gợi ý.
-- Submit: API chưa có field ngày giờ → ghi vào `notes` dòng `booking.pickup.note` ("Thời gian nhận đồ: 10:00 – 12:00, ngày 16/10/2026"). Tin xác nhận trong Chat có dòng "Nhận đồ".
+- Khung giờ dùng chung `PICKUP_TIME_SLOTS`, mỗi khung 3 tiếng: 8–11, 11–14, 14–17, 17–20. Ngày chọn được: tối đa `PICKUP_MAX_DAYS_AHEAD` (7) ngày, bỏ ngày không còn khung hợp lệ.
+- **Lấy đồ** (`getPickupDates`, `getAvailablePickupSlots`, `isPickupValid`): khung hợp lệ khi giờ bắt đầu ≥ hiện tại + `PICKUP_LEAD_HOURS` (2h). Ngày liệt kê từ hôm nay.
+- **Trả đồ** (`getReturnDates`, `getAvailableReturnSlots`, `isReturnValid`): khung hợp lệ khi giờ bắt đầu ≥ **giờ kết thúc khung lấy đồ** + `WASH_DURATION_HOURS` (24h). Ngày liệt kê từ ngày lấy đồ. Chưa có khung lấy đồ hợp lệ → không có lựa chọn.
+- Mặc định (`getDefaultPickup` → gồm cả `getDefaultReturn`): khung lấy đồ sớm nhất (hôm nay nếu còn) + khung trả sớm nhất. VD 10:00 ngày 15 → lấy 14–17 ngày 15, trả 17–20 ngày 16; 19:00 ngày 15 → lấy 8–11 ngày 16, trả 11–14 ngày 17. Điền trong effect prefill của `useLaundryBooking` và sau `resetForm`.
+- `LaundryForm`: 2 hàng `MySelect` (Ngày + Khung giờ lấy đồ; Ngày + Khung giờ trả đồ). Nhãn ngày "Hôm nay (dd/mm)"/"Ngày mai (dd/mm)" theo `SHORT_DATE_FORMAT`. Options chỉ dựng sau khi mount (`isMounted`) để tránh lệch hydration (server Vercel chạy UTC).
+- Đổi ngày (lấy hoặc trả): giữ khung đang chọn nếu ngày mới còn khung đó, không thì lấy khung đầu của ngày.
+- Đổi lấy đồ làm trả đồ không còn hợp lệ → effect tự chỉnh: giữ ngày trả nếu còn khung (lấy khung đầu), không thì về trả đồ mặc định. Dòng gợi ý `chat.laundryForm.returnHint` ({hours} = `WASH_DURATION_HOURS`).
+- Khung lấy đồ hết hạn khi form đang mở: form re-render mỗi `PICKUP_REFRESH_INTERVAL` (60s); `submitBooking` gặp khung lấy/trả không hợp lệ cũng ép re-render và trả `null`. Form tự chuyển sang khung đầu còn lại (hết khung → mặc định) và hiện `chat.laundryForm.pickupMoved`, tới khi khách tự chọn lại.
+- Submit: API chưa có field ngày giờ → ghi vào `notes` 2 dòng `booking.pickup.note` ("Thời gian lấy đồ: 14:00 – 17:00, ngày 15/10/2026") và `booking.pickup.returnNote` ("Thời gian trả đồ: …"). Tin xác nhận trong Chat có dòng "Lấy đồ" và "Trả đồ".
 ### Translation
-- `chat.laundryForm.{pickupDate,pickupTime,pickupHint,pickupMoved}`, `booking.pickup.{slot,time,note}`; constants `WASH_DURATION_HOURS`, `PICKUP_REFRESH_INTERVAL`, `DISPLAY_DATE_FORMAT`.
+- `chat.laundryForm.{pickupDate,pickupTime,pickupHint,pickupMoved,returnDate,returnTime,returnHint}`, `booking.pickup.{today,tomorrow,slot,time,note,returnNote}`; constants `SHORT_DATE_FORMAT`, `PICKUP_REFRESH_INTERVAL`.
 ### Edge cases
-- Giờ tính theo máy khách (giả định múi giờ VN). Server không kiểm tra giờ nhận đồ.
-- Số giờ giặt là một con số chung cho mọi dịch vụ (plan từ API chưa có field thời gian giặt).
-- `PICKUP_LEAD_HOURS`, `SHORT_DATE_FORMAT`, `booking.pickup.{today,tomorrow}` hiện không còn dùng.
+- Giờ tính theo máy khách (giả định múi giờ VN). Server không kiểm tra giờ lấy/trả.
+- Số giờ giặt là một con số chung cho mọi dịch vụ (plan từ API chưa có field thời gian giặt) — giặt nhanh vẫn phải chờ 24h.
 
 ## 6. Số kg ước lượng (không bắt buộc)
 - Ô "Ước lượng số kg (không bắt buộc)" + gợi ý "shipper sẽ cân lại". Để trống hợp lệ; nhập thì phải > 0 (`isWeightValid`).
@@ -61,7 +64,8 @@ Ngày khách nhận đồ được tính sẵn = thời điểm hiện tại + t
 - Translation: `chat.laundryForm.{weight,weightPlaceholder,weightHint,weightValue,weightUnknown,estimatedPrice,priceHint,priceAfterWeighing}`, `booking.weightNotEstimated`, `booking.points.needWeight`, `chat.orderConfirmation`.
 
 ## 7. Thời gian giặt dự kiến (ghi chú)
-- Chỉ là ghi chú tĩnh, không ảnh hưởng đơn. Trang `/pricing` (`PricingPlans.tsx`) có card "Thời gian giặt dự kiến" đọc mảng `pricing.washTime.items` (`{ service, time }`) trong file ngôn ngữ — sửa nội dung chỉ cần sửa `vn.json`/`en.json`.
+- Chỉ là ghi chú tĩnh, không ảnh hưởng đơn (khung trả đồ dùng `WASH_DURATION_HOURS`, §5). Trang `/pricing` (`PricingPlans.tsx`) có section "Thời gian giặt dự kiến" đọc mảng `pricing.washTime.items` (`{ service, time }`) trong file ngôn ngữ — sửa nội dung chỉ cần sửa `vn.json`/`en.json`.
+- UI: section nền `bg-linear-default` bo góc, tiêu đề + icon lịch ở giữa; lưới thẻ 1/2/3 cột (mobile/sm/lg), mỗi thẻ có số thứ tự, tên dịch vụ, badge thời gian (màu `secondary`); `pricing.washTime.subtitle` hiện ở cuối như ghi chú kèm `InfoIcon`.
 - Form đặt lịch có dòng nhắc dưới ô dịch vụ, link sang Bảng giá (`chat.laundryForm.washTimeHint`) mở **tab mới** — trong drawer chat trên mobile, đổi route cùng tab sẽ bị drawer che và đóng drawer thì mất dữ liệu form.
 
 ## Translation / Constants
@@ -70,7 +74,7 @@ Ngày khách nhận đồ được tính sẵn = thời điểm hiện tại + t
 ## Edge cases / nợ kỹ thuật
 - Chỉ lọc theo tỉnh, không lọc phường/xã. Chi nhánh cũ chưa có `city`/`district` → API trả rỗng; chưa chi nhánh nào có `city` → hiện tất cả tỉnh.
 - Trang Booking không còn email, địa chỉ trả đồ; key `booking.form.*`, `booking.validation.*` còn nhưng chưa dùng.
-- Ngày giờ nhận đồ chỉ nằm trong `notes` — muốn lọc/sắp xếp theo giờ nhận đồ ở admin cần BE thêm field riêng.
+- Ngày giờ lấy/trả đồ chỉ nằm trong `notes` — muốn lọc/sắp xếp theo giờ lấy/trả ở admin cần BE thêm field riêng.
 - Server cache chi nhánh trong Redis; sau deploy chờ hết TTL hoặc sửa 1 chi nhánh để xóa cache.
 
 ## Liên quan

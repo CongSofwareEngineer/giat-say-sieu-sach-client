@@ -358,7 +358,8 @@
       "tomorrow": "Ngày mai ({date})",
       "slot": "{start}:00 – {end}:00",
       "time": "{slot}, ngày {date}",
-      "note": "Thời gian nhận đồ: {time}"
+      "note": "Thời gian lấy đồ: {time}",
+      "returnNote": "Thời gian trả đồ: {time}"
     },
     "weightNotEstimated": "Khách chưa ước lượng số kg — shipper cân khi lấy đồ, cập nhật lại số kg cho đơn."
   },
@@ -1105,7 +1106,7 @@
     "serviceTypeLabel": "Đặt qua chat: {serviceType}",
     "serviceNotFound": "Không tìm thấy dịch vụ phù hợp, vui lòng thử lại.",
     "orderSuccess": "Bạn đã đặt thành công, chúng tôi sẽ liên hệ bạn",
-    "orderConfirmation": "Đặt dịch vụ giặt đồ:\n\n• Họ tên: {name}\n• SĐT: {phone}\n• Địa chỉ: {address}\n• Loại: {service}\n• Nhận đồ: {pickup}\n• Khối lượng: {weight}\n• Giá tham khảo: {price}",
+    "orderConfirmation": "Đặt dịch vụ giặt đồ:\n\n• Họ tên: {name}\n• SĐT: {phone}\n• Địa chỉ: {address}\n• Loại: {service}\n• Lấy đồ: {pickup}\n• Trả đồ: {returnTime}\n• Khối lượng: {weight}\n• Giá tham khảo: {price}",
     "laundryForm": {
       "title": "Đặt dịch vụ giặt đồ",
       "chatAddress": "Địa chỉ chat",
@@ -1137,9 +1138,12 @@
       "weightUnknown": "Chưa ước lượng (shipper cân khi lấy đồ)",
       "priceHint": "Giá cuối cùng tính theo số kg thực tế shipper cân.",
       "priceAfterWeighing": "Tính sau khi shipper cân",
-      "pickupDate": "Ngày nhận đồ",
-      "pickupTime": "Khung giờ nhận đồ",
-      "pickupHint": "Ngày nhận đồ = hiện tại + {hours} giờ giặt. Đã chọn sẵn khung giờ sớm nhất, bạn có thể đổi nếu cần.",
+      "pickupDate": "Ngày lấy đồ",
+      "pickupTime": "Khung giờ lấy đồ",
+      "returnDate": "Ngày trả đồ",
+      "returnTime": "Khung giờ trả đồ",
+      "returnHint": "Đồ được trả sau khung giờ lấy đồ ít nhất {hours} giờ giặt.",
+      "pickupHint": "Đã chọn sẵn khung giờ sớm nhất, bạn có thể đổi nếu cần.",
       "washTimeHint": "Xem thời gian giặt dự kiến của từng dịch vụ tại <link>Bảng giá</link>.",
       "pickupMoved": "Khung giờ bạn chọn vừa hết, đã chuyển sang khung trống kế tiếp. Vui lòng kiểm tra lại."
     },

@@ -12,6 +12,7 @@ import CommentSection from '@/components/Comment/CommentSection'
 import { CheckBadgeIcon } from '@/components/Icons/CheckBadge'
 import ChatBubbleIcon from '@/components/Icons/ChatBubble'
 import CalendarIcon from '@/components/Icons/Calendar'
+import { InfoIcon } from '@/components/Icons/Info'
 import useLanguage from '@/hooks/useLanguage'
 import { cn } from '@/utils/tailwind'
 import { convertPriceToCurrent } from '@/utils/functions'
@@ -115,27 +116,36 @@ const PricingPlans = ({ plans }: PricingPlansProps) => {
           </MyCardBody>
         </MyCard> */}
 
-        <MyCard className='mt-14'>
-          <MyCardBody className='p-6 lg:p-8'>
-            <div className='flex items-center gap-3'>
-              <div className='flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary'>
-                <CalendarIcon className='size-5' />
-              </div>
-              <div>
-                <h2 className='text-lg font-bold text-text lg:text-xl'>{translate('pricing.washTime.title')}</h2>
-                <p className='text-sm text-gray-500'>{translate('pricing.washTime.subtitle')}</p>
-              </div>
+        <section className='mt-16 overflow-hidden rounded-3xl border border-border bg-linear-default p-6 shadow-card sm:p-8 lg:p-10'>
+          <div className='mx-auto max-w-2xl text-center'>
+            <div className='mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary text-white shadow-md'>
+              <CalendarIcon className='size-6' />
             </div>
-            <div className='mt-5 grid grid-cols-1 gap-x-10 gap-y-3 sm:grid-cols-2 lg:grid-cols-3'>
-              {washTimes.map((item) => (
-                <div key={item.service} className='flex items-center justify-between gap-4 border-b border-border pb-3'>
-                  <span className='text-sm text-gray-600'>{item.service}</span>
-                  <span className='shrink-0 text-sm font-semibold text-primary'>{item.time}</span>
+            <h2 className='mt-4 text-2xl font-extrabold text-text lg:text-3xl'>{translate('pricing.washTime.title')}</h2>
+          </div>
+
+          <div className='mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+            {washTimes.map((item, index) => (
+              <div
+                key={item.service}
+                className='group flex items-center gap-4 rounded-2xl border border-border bg-white p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-card-hover sm:p-5'
+              >
+                <span className='flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-sm font-bold text-primary transition-colors group-hover:bg-primary group-hover:text-white'>
+                  {index + 1}
+                </span>
+                <div className='min-w-0 flex-1'>
+                  <p className='text-sm font-semibold leading-snug text-text sm:text-base'>{item.service}</p>
+                  <span className='mt-1.5 inline-flex rounded-full bg-secondary/10 px-3 py-1 text-sm font-bold text-secondary'>{item.time}</span>
                 </div>
-              ))}
-            </div>
-          </MyCardBody>
-        </MyCard>
+              </div>
+            ))}
+          </div>
+
+          <div className='mt-6 flex items-start gap-2 rounded-2xl bg-white/70 px-4 py-3 text-sm text-gray-600'>
+            <InfoIcon className='mt-0.5 size-4 shrink-0 text-primary' />
+            <p>{translate('pricing.washTime.subtitle')}</p>
+          </div>
+        </section>
 
         <p className='mt-10 text-center text-sm text-gray-500'>{translate('pricing.note')}</p>
       </div>

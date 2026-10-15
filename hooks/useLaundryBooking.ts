@@ -11,7 +11,7 @@ import useUser from '@/hooks/useUser'
 import useGetListAddress from '@/hooks/reactQuery/useGetListAddress'
 import PricingService, { PricingPlan } from '@/services/pricing'
 import { OrderItem } from '@/services/order'
-import { createLaundryBooking, getDefaultPickup, isPickupValid, isWeightValid } from '@/agents/tools/booking'
+import { createLaundryBooking, getDefaultPickup, isPickupValid, isReturnValid, isWeightValid } from '@/agents/tools/booking'
 import { getSavedBookingAddress, saveBookingAddress } from '@/utils/bookingAddress'
 import { calculateOrderPricing } from '@/utils/orderPricing'
 
@@ -34,6 +34,8 @@ const EMPTY_FORM: LaundryFormData = {
   weight: '',
   pickupDate: '',
   pickupSlot: '',
+  returnDate: '',
+  returnSlot: '',
   note: '',
 }
 
@@ -49,7 +51,8 @@ const isFormComplete = (data: LaundryFormData): boolean =>
     data.district &&
     data.city &&
     isWeightValid(data.weight) &&
-    isPickupValid(data.pickupDate, data.pickupSlot)
+    isPickupValid(data.pickupDate, data.pickupSlot) &&
+    isReturnValid(data.returnDate, data.returnSlot, data.pickupDate, data.pickupSlot)
   )
 
 // Shared laundry booking form state + submit, used by the chat form and the booking page
@@ -106,7 +109,12 @@ const useLaundryBooking = (source: BOOKING_SOURCE) => {
         ...prev,
         name: prev.name || initial.name,
         phone: prev.phone || initial.phone,
-        ...(!prev.pickupDate && { pickupDate: initial.pickupDate, pickupSlot: initial.pickupSlot }),
+        ...(!prev.pickupDate && {
+          pickupDate: initial.pickupDate,
+          pickupSlot: initial.pickupSlot,
+          returnDate: initial.returnDate,
+          returnSlot: initial.returnSlot,
+        }),
         ...(shouldFillAddress && { addressId: initial.addressId, address: initial.address, district: initial.district, city: initial.city }),
       }
     })
@@ -143,8 +151,12 @@ const useLaundryBooking = (source: BOOKING_SOURCE) => {
     if (isBooking || !selectedPlan) return null
 
     if (!isFormComplete(formData)) {
-      // The picked slot may have expired since the last render: re-render so the form moves it and shows a hint
-      if (!isPickupValid(formData.pickupDate, formData.pickupSlot)) setFormData((prev) => ({ ...prev }))
+      // The picked slots may have expired since the last render: re-render so the form moves them and shows a hint
+      if (
+        !isPickupValid(formData.pickupDate, formData.pickupSlot) ||
+        !isReturnValid(formData.returnDate, formData.returnSlot, formData.pickupDate, formData.pickupSlot)
+      )
+        setFormData((prev) => ({ ...prev }))
 
       return null
     }
@@ -168,6 +180,8 @@ const useLaundryBooking = (source: BOOKING_SOURCE) => {
         isWeightEstimated: hasWeight,
         pickupDate: formData.pickupDate,
         pickupSlot: formData.pickupSlot,
+        returnDate: formData.returnDate,
+        returnSlot: formData.returnSlot,
         note: formData.note,
         source,
         usePoints: shouldUsePoints,
