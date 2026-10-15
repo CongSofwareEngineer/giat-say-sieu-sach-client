@@ -13,7 +13,11 @@ export type LaundryFormData = {
   // Province (tỉnh/thành phố), picked from LocationApi
   city: string
   serviceType: string
+  // Estimated kg, optional: the shipper weighs the laundry at pickup
   weight: string
+  // Pickup date (INPUT_DATE_FORMAT) and slot key (`${start}-${end}` of PICKUP_TIME_SLOTS)
+  pickupDate: string
+  pickupSlot: string
   // Optional note for the admin
   note: string
 }

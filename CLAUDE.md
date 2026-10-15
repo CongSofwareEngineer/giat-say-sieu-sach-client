@@ -78,6 +78,7 @@ Docs gom theo **main feature**, KHÔNG theo từng logic nhỏ. Mỗi feature c�
 | `comment` | reviews / comments, phone validation |
 | `chat` | AI multi-agent assistant, agents, tools, router |
 | `admin` | admin dashboards, `AdminShell`, `MyTable` |
+| `promotion` | public `/promotions` page, admin promotion CRUD, `get_promotions` chat tool |
 | `notifications` | Firebase Cloud Messaging push |
 | `seo` | metadata, JSON-LD, sitemap, robots |
 | `upload` | Cloudinary image upload, avatar crop |

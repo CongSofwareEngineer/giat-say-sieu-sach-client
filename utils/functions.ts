@@ -1,7 +1,7 @@
 import type { MyBadgeVariant } from '@/components/MyBadge'
 
 import { images } from '@/config/images'
-import { COLORS, ORDER_STATUS } from '@/constants/app'
+import { COLORS, ORDER_STATUS, PROMOTION_STATUS } from '@/constants/app'
 
 export const viewExternal = (url: string) => {
   window.open(url, '_blank')
@@ -105,6 +105,17 @@ export const getOrderStatusBadgeVariant = (status: ORDER_STATUS): MyBadgeVariant
       return 'error'
     default:
       return 'info'
+  }
+}
+
+export const getPromotionStatusBadgeVariant = (status: PROMOTION_STATUS): MyBadgeVariant => {
+  switch (status) {
+    case PROMOTION_STATUS.ACTIVE:
+      return 'success'
+    case PROMOTION_STATUS.UPCOMING:
+      return 'info'
+    default:
+      return 'default'
   }
 }
 

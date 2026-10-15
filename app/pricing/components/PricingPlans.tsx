@@ -11,6 +11,7 @@ import MyButton from '@/components/MyButton'
 import CommentSection from '@/components/Comment/CommentSection'
 import { CheckBadgeIcon } from '@/components/Icons/CheckBadge'
 import ChatBubbleIcon from '@/components/Icons/ChatBubble'
+import CalendarIcon from '@/components/Icons/Calendar'
 import useLanguage from '@/hooks/useLanguage'
 import { cn } from '@/utils/tailwind'
 import { convertPriceToCurrent } from '@/utils/functions'
@@ -34,6 +35,10 @@ const PricingPlans = ({ plans }: PricingPlansProps) => {
   const { translate, lang } = useLanguage()
   const [reviewServiceId, setReviewServiceId] = useState(plans[0]?.id ?? '')
   const reviewRef = useRef<HTMLDivElement>(null)
+
+  // Expected washing time per service, a static note kept in the language files
+  const rawWashTimes = translate('pricing.washTime.items')
+  const washTimes: { service: string; time: string }[] = Array.isArray(rawWashTimes) ? rawWashTimes : []
 
   const scrollToReviews = (serviceId: string) => {
     setReviewServiceId(serviceId)
@@ -109,6 +114,28 @@ const PricingPlans = ({ plans }: PricingPlansProps) => {
             </div>
           </MyCardBody>
         </MyCard> */}
+
+        <MyCard className='mt-14'>
+          <MyCardBody className='p-6 lg:p-8'>
+            <div className='flex items-center gap-3'>
+              <div className='flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary'>
+                <CalendarIcon className='size-5' />
+              </div>
+              <div>
+                <h2 className='text-lg font-bold text-text lg:text-xl'>{translate('pricing.washTime.title')}</h2>
+                <p className='text-sm text-gray-500'>{translate('pricing.washTime.subtitle')}</p>
+              </div>
+            </div>
+            <div className='mt-5 grid grid-cols-1 gap-x-10 gap-y-3 sm:grid-cols-2 lg:grid-cols-3'>
+              {washTimes.map((item) => (
+                <div key={item.service} className='flex items-center justify-between gap-4 border-b border-border pb-3'>
+                  <span className='text-sm text-gray-600'>{item.service}</span>
+                  <span className='shrink-0 text-sm font-semibold text-primary'>{item.time}</span>
+                </div>
+              ))}
+            </div>
+          </MyCardBody>
+        </MyCard>
 
         <p className='mt-10 text-center text-sm text-gray-500'>{translate('pricing.note')}</p>
       </div>

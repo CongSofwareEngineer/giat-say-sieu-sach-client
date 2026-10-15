@@ -66,6 +66,7 @@ const Header = () => {
   ]
 
   const dropdownNavItems = [
+    { href: '/promotions', label: translate('menu.promotions') },
     { href: '/reviews', label: translate('menu.reviews') },
     { href: '/blog', label: translate('menu.blog') },
     { href: '/about', label: translate('menu.about') },

@@ -5,13 +5,13 @@ import type { LaundryFormData } from '@/components/Chat/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 
-import { BOOKING_SOURCE } from '@/constants/app'
+import { BOOKING_SOURCE, DEFAULT_ESTIMATED_WEIGHT } from '@/constants/app'
 import { QUERY_KEYS } from '@/constants/reactQuery'
 import useUser from '@/hooks/useUser'
 import useGetListAddress from '@/hooks/reactQuery/useGetListAddress'
 import PricingService, { PricingPlan } from '@/services/pricing'
 import { OrderItem } from '@/services/order'
-import { createLaundryBooking } from '@/agents/tools/booking'
+import { createLaundryBooking, getDefaultPickup, isPickupValid, isWeightValid } from '@/agents/tools/booking'
 import { getSavedBookingAddress, saveBookingAddress } from '@/utils/bookingAddress'
 import { calculateOrderPricing } from '@/utils/orderPricing'
 
@@ -32,6 +32,8 @@ const EMPTY_FORM: LaundryFormData = {
   city: '',
   serviceType: '',
   weight: '',
+  pickupDate: '',
+  pickupSlot: '',
   note: '',
 }
 
@@ -40,7 +42,15 @@ const getDefaultServiceType = (plans: PricingPlan[]): string =>
   plans.find((p) => p.name.toLowerCase().includes('thường'))?.id || plans[0]?.id || 'quan-ao'
 
 const isFormComplete = (data: LaundryFormData): boolean =>
-  !!(data.name.trim() && data.phone.trim() && data.address.trim() && data.district && data.city && parseFloat(data.weight) > 0)
+  !!(
+    data.name.trim() &&
+    data.phone.trim() &&
+    data.address.trim() &&
+    data.district &&
+    data.city &&
+    isWeightValid(data.weight) &&
+    isPickupValid(data.pickupDate, data.pickupSlot)
+  )
 
 // Shared laundry booking form state + submit, used by the chat form and the booking page
 const useLaundryBooking = (source: BOOKING_SOURCE) => {
@@ -61,9 +71,10 @@ const useLaundryBooking = (source: BOOKING_SOURCE) => {
   const [isBooking, setIsBooking] = useState(false)
   const [usePoints, setUsePoints] = useState(false)
 
-  // Points can only be redeemed by a logged-in customer (the server checks it again)
+  // Points can only be redeemed by a logged-in customer (the server checks it again).
+  // They also need a typed weight: with the placeholder kg the server would reserve too few points.
   const pointsBalance = isLogin ? (user?.loyaltyPoints ?? 0) : 0
-  const shouldUsePoints = usePoints && pointsBalance > 0
+  const shouldUsePoints = usePoints && pointsBalance > 0 && parseFloat(formData.weight) > 0
 
   // Logged-in profile + default address first, then the last booking saved locally
   const buildInitialForm = useCallback((): LaundryFormData => {
@@ -79,6 +90,7 @@ const useLaundryBooking = (source: BOOKING_SOURCE) => {
       district: addressSource?.district || '',
       city: addressSource?.city || '',
       serviceType: getDefaultServiceType(activePlans),
+      ...getDefaultPickup(),
     }
   }, [user?.name, user?.phone, defaultAddress, activePlans])
 
@@ -94,6 +106,7 @@ const useLaundryBooking = (source: BOOKING_SOURCE) => {
         ...prev,
         name: prev.name || initial.name,
         phone: prev.phone || initial.phone,
+        ...(!prev.pickupDate && { pickupDate: initial.pickupDate, pickupSlot: initial.pickupSlot }),
         ...(shouldFillAddress && { addressId: initial.addressId, address: initial.address, district: initial.district, city: initial.city }),
       }
     })
@@ -127,9 +140,20 @@ const useLaundryBooking = (source: BOOKING_SOURCE) => {
   // Create the order, then remember the contact + address locally for the next booking.
   // Returns null when the form is incomplete or no plan matches; throws on API error.
   const submitBooking = useCallback(async (): Promise<LaundryBookingResult | null> => {
-    if (isBooking || !selectedPlan || !isFormComplete(formData)) return null
+    if (isBooking || !selectedPlan) return null
+
+    if (!isFormComplete(formData)) {
+      // The picked slot may have expired since the last render: re-render so the form moves it and shows a hint
+      if (!isPickupValid(formData.pickupDate, formData.pickupSlot)) setFormData((prev) => ({ ...prev }))
+
+      return null
+    }
 
     setIsBooking(true)
+
+    // No estimate typed: send a placeholder weight, the admin sets the real one after the shipper weighs it
+    const estimatedWeight = parseFloat(formData.weight)
+    const hasWeight = estimatedWeight > 0
 
     try {
       const order = await createLaundryBooking({
@@ -140,7 +164,10 @@ const useLaundryBooking = (source: BOOKING_SOURCE) => {
         city: formData.city,
         planId: selectedPlan.id,
         planName: selectedPlan.name,
-        weight: parseFloat(formData.weight),
+        weight: hasWeight ? estimatedWeight : DEFAULT_ESTIMATED_WEIGHT,
+        isWeightEstimated: hasWeight,
+        pickupDate: formData.pickupDate,
+        pickupSlot: formData.pickupSlot,
         note: formData.note,
         source,
         usePoints: shouldUsePoints,

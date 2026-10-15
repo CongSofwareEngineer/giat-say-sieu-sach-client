@@ -8,6 +8,7 @@ import { PaymentIcon } from '@/components/Icons/Payment'
 import { UserCircleIcon } from '@/components/Icons/UserCircle'
 import ChatBubbleIcon from '@/components/Icons/ChatBubble'
 import { ContactIcon } from '@/components/Icons/Contact'
+import GiftIcon from '@/components/Icons/Gift'
 import useLanguage from '@/hooks/useLanguage'
 
 const AdminDashboardPage = () => {
@@ -17,6 +18,7 @@ const AdminDashboardPage = () => {
     { label: translate('admin.sidebar.orders'), href: '/admin/orders', icon: InboxIcon, color: 'from-blue-500 to-blue-600' },
     { label: translate('admin.sidebar.customers'), href: '/admin/customers', icon: UserCircleIcon, color: 'from-purple-500 to-purple-600' },
     { label: translate('admin.sidebar.prices'), href: '/admin/pricing', icon: PaymentIcon, color: 'from-green-500 to-green-600' },
+    { label: translate('admin.sidebar.promotions'), href: '/admin/promotions', icon: GiftIcon, color: 'from-orange-500 to-orange-600' },
     { label: translate('admin.sidebar.comments'), href: '/admin/comments', icon: ChatBubbleIcon, color: 'from-yellow-500 to-yellow-600' },
     { label: translate('admin.sidebar.contacts'), href: '/admin/contact', icon: ContactIcon, color: 'from-pink-500 to-pink-600' },
   ]
@@ -28,7 +30,7 @@ const AdminDashboardPage = () => {
         <p className='mt-1 text-sm text-gray-500'>{translate('admin.dashboard.subtitle')}</p>
       </div>
 
-      <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5'>
+      <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6'>
         {stats.map((stat) => (
           <Link key={stat.href} href={stat.href}>
             <MyCard className='hover:shadow-md transition-shadow cursor-pointer h-full'>

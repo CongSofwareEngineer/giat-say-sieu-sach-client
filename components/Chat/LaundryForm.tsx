@@ -5,7 +5,9 @@ import type { PricingPlan } from '@/services/pricing'
 import type { OrderPricing } from '@/utils/orderPricing'
 import type { LaundryFormData } from './types'
 
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
+import dayjs from 'dayjs'
 
 import MyButton from '@/components/MyButton'
 import MySelect from '@/components/MySelect'
@@ -15,7 +17,15 @@ import useGetWards from '@/hooks/reactQuery/useGetWards'
 import useGetListBranches from '@/hooks/reactQuery/useGetListBranches'
 import { formatAddress } from '@/services/address'
 import { getBranchCities } from '@/services/branch'
-import { LOYALTY_REDEEM, MAX_BOOKING_NOTE_LENGTH, WEIGHT_DISCOUNT } from '@/constants/app'
+import { getAvailablePickupSlots, getDefaultPickup, getPickupDates, getPickupSlotKey, isPickupValid, isWeightValid } from '@/agents/tools/booking'
+import {
+  INPUT_DATE_FORMAT,
+  LOYALTY_REDEEM,
+  MAX_BOOKING_NOTE_LENGTH,
+  PICKUP_REFRESH_INTERVAL,
+  SHORT_DATE_FORMAT,
+  WEIGHT_DISCOUNT,
+} from '@/constants/app'
 import { cn } from '@/utils/tailwind'
 import { isValidVnPhone } from '@/utils/phone'
 
@@ -108,6 +118,75 @@ const LaundryForm = ({
     onChange('district', '')
   }, [isPrefilledCityOutside, onChange])
 
+  // Pickup options depend on the current time: build them only on the client to avoid a hydration mismatch
+  const [isMounted, setIsMounted] = useState(false)
+  const [, setRefreshTick] = useState(0)
+  // True after the picked slot expired and was moved automatically, so the customer notices the change
+  const [isPickupMoved, setIsPickupMoved] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+
+    // Re-render periodically so a slot that just expired is noticed while the form stays open
+    const timer = setInterval(() => setRefreshTick((tick) => tick + 1), PICKUP_REFRESH_INTERVAL)
+
+    return () => clearInterval(timer)
+  }, [])
+
+  const now = isMounted ? dayjs() : null
+  const today = now?.format(INPUT_DATE_FORMAT)
+  const tomorrow = now?.add(1, 'day').format(INPUT_DATE_FORMAT)
+
+  const pickupDateOptions = (now ? getPickupDates(now) : []).map((date) => {
+    const label = dayjs(date).format(SHORT_DATE_FORMAT)
+
+    if (date === today) return { value: date, label: translate('booking.pickup.today', { date: label }) }
+    if (date === tomorrow) return { value: date, label: translate('booking.pickup.tomorrow', { date: label }) }
+
+    return { value: date, label }
+  })
+  const pickupSlotOptions = (now && formData.pickupDate ? getAvailablePickupSlots(formData.pickupDate, now) : []).map((slot) => ({
+    value: getPickupSlotKey(slot),
+    label: translate('booking.pickup.slot', { start: slot.start, end: slot.end }),
+  }))
+
+  // New date: keep the picked slot when that day still has it, else take the day's first slot
+  const handlePickupDateChange = (date: string) => {
+    const slots = getAvailablePickupSlots(date)
+    const keepSlot = slots.some((slot) => getPickupSlotKey(slot) === formData.pickupSlot)
+
+    setIsPickupMoved(false)
+    onChange('pickupDate', date)
+    if (!keepSlot) onChange('pickupSlot', slots[0] ? getPickupSlotKey(slots[0]) : '')
+  }
+
+  const handlePickupSlotChange = (slotKey: string) => {
+    setIsPickupMoved(false)
+    onChange('pickupSlot', slotKey)
+  }
+
+  // Picked slot expired while the form was open: move to the first slot left and tell the customer
+  const isPickupStale = isMounted && !!formData.pickupDate && !isPickupValid(formData.pickupDate, formData.pickupSlot)
+
+  useEffect(() => {
+    if (!isPickupStale) return
+
+    const [firstSlot] = getAvailablePickupSlots(formData.pickupDate)
+
+    setIsPickupMoved(true)
+
+    if (firstSlot) {
+      onChange('pickupSlot', getPickupSlotKey(firstSlot))
+
+      return
+    }
+
+    const fallback = getDefaultPickup()
+
+    onChange('pickupDate', fallback.pickupDate)
+    onChange('pickupSlot', fallback.pickupSlot)
+  }, [isPickupStale, formData.pickupDate, onChange])
+
   const activePlans = plans.filter((p) => p.isActive)
   const serviceOptions =
     activePlans.length > 0
@@ -131,12 +210,14 @@ const LaundryForm = ({
     formData.district &&
     formData.city &&
     !isPrefilledCityOutside &&
-    formData.weight.trim() &&
-    parseFloat(formData.weight) > 0
+    isWeightValid(formData.weight) &&
+    isPickupValid(formData.pickupDate, formData.pickupSlot)
 
   const formatPrice = (price: number) => translate('tracking.result.price', { price: price.toLocaleString('vi-VN') })
   const canRedeemPoints = !!onToggleUsePoints && pointsBalance >= LOYALTY_REDEEM.POINTS_STEP
   const weight = parseFloat(formData.weight)
+  // Points are reserved from the order amount, so they need a real weight estimate (not the placeholder kg)
+  const hasWeight = weight > 0
   const showWeightHint = weight > 0 && weight <= WEIGHT_DISCOUNT.MIN_KG
 
   return (
@@ -221,6 +302,41 @@ const LaundryForm = ({
         </div>
 
         <div>
+          <div className='grid grid-cols-2 gap-2'>
+            <div className='min-w-0'>
+              <label className='block text-xs font-medium text-gray-700 mb-1'>{translate('chat.laundryForm.pickupDate')}</label>
+              <MySelect
+                data={pickupDateOptions}
+                value={formData.pickupDate}
+                search={false}
+                placeholder={translate('common.select')}
+                onChange={(item) => handlePickupDateChange(item.value as string)}
+                className='text-sm'
+                style={{ width: '100%' }}
+              />
+            </div>
+            <div className='min-w-0'>
+              <label className='block text-xs font-medium text-gray-700 mb-1'>{translate('chat.laundryForm.pickupTime')}</label>
+              <MySelect
+                data={pickupSlotOptions}
+                value={formData.pickupSlot}
+                search={false}
+                placeholder={translate('common.select')}
+                disabled={!formData.pickupDate}
+                onChange={(item) => handlePickupSlotChange(item.value as string)}
+                className='text-sm'
+                style={{ width: '100%' }}
+              />
+            </div>
+          </div>
+          {isPickupMoved ? (
+            <p className='mt-1 text-xs font-medium text-amber-700'>{translate('chat.laundryForm.pickupMoved')}</p>
+          ) : (
+            <p className='mt-1 text-xs text-gray-500'>{translate('chat.laundryForm.pickupHint')}</p>
+          )}
+        </div>
+
+        <div>
           <label className='block text-xs font-medium text-gray-700 mb-1'>{translate('chat.laundryForm.serviceType')}</label>
           <MySelect
             data={serviceOptions.map((option) => ({ value: option.key, label: option.label }))}
@@ -230,6 +346,21 @@ const LaundryForm = ({
             className='text-sm'
             style={{ width: '100%' }}
           />
+          <p className='mt-1 text-xs text-gray-500'>
+            {translate('chat.laundryForm.washTimeHint', {
+              link: (text) => (
+                // New tab: in the mobile chat drawer a same-tab route change would hide behind the drawer
+                <Link
+                  href='/pricing'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='font-medium text-primary underline-offset-2 hover:underline'
+                >
+                  {text}
+                </Link>
+              ),
+            })}
+          </p>
         </div>
 
         <div>
@@ -243,6 +374,7 @@ const LaundryForm = ({
             step={1}
             className='w-full px-3 py-2.5 text-sm border border-border rounded-xl bg-white transition-[border-color,box-shadow] hover:border-primary/40 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10'
           />
+          <p className='mt-1 text-xs text-gray-500'>{translate('chat.laundryForm.weightHint')}</p>
         </div>
 
         <div>
@@ -258,10 +390,16 @@ const LaundryForm = ({
         </div>
 
         {canRedeemPoints && (
-          <label className='flex cursor-pointer items-start gap-3 rounded-xl border border-accent/40 bg-accent/10 p-3 transition-colors hover:bg-accent/15'>
+          <label
+            className={cn(
+              'flex items-start gap-3 rounded-xl border border-accent/40 bg-accent/10 p-3 transition-colors',
+              hasWeight ? 'cursor-pointer hover:bg-accent/15' : 'cursor-not-allowed opacity-70'
+            )}
+          >
             <input
               type='checkbox'
-              checked={usePoints}
+              checked={usePoints && hasWeight}
+              disabled={!hasWeight}
               onChange={(e) => onToggleUsePoints?.(e.target.checked)}
               className='mt-0.5 size-4 shrink-0 rounded border-gray-300 accent-primary'
             />
@@ -274,7 +412,7 @@ const LaundryForm = ({
                   value: LOYALTY_REDEEM.VND_PER_STEP.toLocaleString('vi-VN'),
                 })}
               </span>
-              <span className='block text-xs text-gray-500'>{translate('booking.points.deductNote')}</span>
+              <span className='block text-xs text-gray-500'>{translate(hasWeight ? 'booking.points.deductNote' : 'booking.points.needWeight')}</span>
             </span>
           </label>
         )}
@@ -309,6 +447,7 @@ const LaundryForm = ({
               <span className='font-semibold text-primary'>{translate('chat.laundryForm.estimatedPrice')}</span>
               <span className='text-base font-bold text-primary'>{formatPrice(pricing.finalAmount)}</span>
             </div>
+            <p className='text-xs text-gray-500'>{translate('chat.laundryForm.priceHint')}</p>
             {showWeightHint && (
               <p className='text-xs text-gray-500'>
                 {translate('booking.pricing.weightHint', { kg: WEIGHT_DISCOUNT.MIN_KG, amount: formatPrice(WEIGHT_DISCOUNT.AMOUNT) })}

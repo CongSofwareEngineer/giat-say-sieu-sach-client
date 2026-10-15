@@ -1,8 +1,8 @@
 # Admin (`/admin`)
-> Cập nhật: 2026-10-02
+> Cập nhật: 2026-10-15
 
 ## Tổng quan
-Dashboard quản trị (client-only, `force-dynamic`, `noindex`): đơn hàng, khách hàng, bảng giá, blog, đánh giá, liên hệ. Mọi bảng dùng `MyTable` (xem `docs/instruction/ui.md`). Sub-logic: (1) Quản lý đơn hàng, (2) Quản lý đánh giá. Blog admin xem `docs/instruction/blog.md`; sửa số kg xem `docs/instruction/order.md`.
+Dashboard quản trị (client-only, `force-dynamic`, `noindex`): đơn hàng, khách hàng, bảng giá, khuyến mãi, blog, đánh giá, liên hệ. Mọi bảng dùng `MyTable` (xem `docs/instruction/ui.md`). Sub-logic: (1) Quản lý đơn hàng, (2) Quản lý đánh giá. Blog admin xem `docs/instruction/blog.md`; sửa số kg xem `docs/instruction/order.md`; khuyến mãi xem `docs/instruction/promotion.md` §3.
 
 ## Dùng chung
 - `app/admin/AdminShell.tsx` — client shell.

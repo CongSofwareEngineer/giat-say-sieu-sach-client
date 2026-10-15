@@ -1,7 +1,8 @@
 import type { AgentTool } from '../base'
 
 import { TOOL_NAME } from '@/constants/tools'
-import PromotionService from '@/services/promotion'
+import { PROMOTION_STATUS } from '@/constants/app'
+import PromotionService, { getPromotionStatus } from '@/services/promotion'
 
 // Fetch promotions from the real API
 export const getPromotionsTool: AgentTool = {
@@ -13,7 +14,8 @@ export const getPromotionsTool: AgentTool = {
     required: [],
   },
   execute: async () => {
-    const promotions = await PromotionService.getPromotions()
+    // Ended promotions stay in the API until an admin deletes them
+    const promotions = (await PromotionService.getPromotions()).filter((p) => getPromotionStatus(p) !== PROMOTION_STATUS.EXPIRED)
 
     if (promotions.length === 0) return 'Hiện tại chưa có chương trình khuyến mãi nào.'
 

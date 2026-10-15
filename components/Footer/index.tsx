@@ -19,6 +19,7 @@ const Footer = () => {
   const quickLinks = [
     { href: '/', label: translate('menu.home') },
     { href: '/pricing', label: translate('menu.priceList') },
+    { href: '/promotions', label: translate('menu.promotions') },
     { href: '/blog', label: translate('menu.blog') },
     { href: '/about', label: translate('menu.about') },
     { href: '/contact', label: translate('menu.contact') },
@@ -27,6 +28,7 @@ const Footer = () => {
   const serviceLinks = [
     { href: '/booking', label: translate('menu.booking') },
     { href: '/track-order', label: translate('menu.tracking') },
+    { href: '/policy', label: translate('menu.policy') },
   ]
 
   return (

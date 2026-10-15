@@ -136,6 +136,53 @@ export const BRANCH_CACHE_DURATION = (24 * 60 * 60 * 1000) as number
 // Max length of the note a customer leaves for the admin when booking
 export const MAX_BOOKING_NOTE_LENGTH = 300 as number
 
+// Pickup time slots offered at booking, hours in local time ([start, end))
+export const PICKUP_TIME_SLOTS = [
+  { start: 8, end: 10 },
+  { start: 10, end: 12 },
+  { start: 12, end: 14 },
+  { start: 14, end: 16 },
+  { start: 16, end: 18 },
+  { start: 18, end: 20 },
+] as const
+
+// Earliest pickup slot must start at least this many hours after booking
+export const PICKUP_LEAD_HOURS = 2 as number
+
+// Pickup can be scheduled up to this many days ahead (today included)
+export const PICKUP_MAX_DAYS_AHEAD = 7 as number
+
+// Date-only value stored in forms (same as <input type='date'>)
+export const INPUT_DATE_FORMAT = 'YYYY-MM-DD'
+
+// Date shown to users and written into the order notes
+export const DISPLAY_DATE_FORMAT = 'DD/MM/YYYY'
+
+// Compact date for narrow selects (pickup date options)
+export const SHORT_DATE_FORMAT = 'DD/MM'
+
+// How often (ms) the open booking form re-checks that the picked pickup slot has not expired
+export const PICKUP_REFRESH_INTERVAL = (60 * 1000) as number
+
+// Shop time zone: promotion dates are compared in it, whatever the server/browser zone is
+export const SHOP_TIMEZONE = 'Asia/Ho_Chi_Minh'
+
+// Weight (kg) sent when the customer leaves it empty; the shipper weighs and the admin updates it
+export const DEFAULT_ESTIMATED_WEIGHT = 1 as number
+
+// Promotion state, derived from its start/end dates on the client
+export enum PROMOTION_STATUS {
+  ACTIVE = 'ACTIVE',
+  UPCOMING = 'UPCOMING',
+  EXPIRED = 'EXPIRED',
+}
+
+// Allowed discount percent of a promotion
+export const PROMOTION_DISCOUNT_RANGE = {
+  MIN: 1,
+  MAX: 100,
+} as const
+
 // Where a laundry booking was placed, written into the order notes
 export enum BOOKING_SOURCE {
   CHAT = 'chat',

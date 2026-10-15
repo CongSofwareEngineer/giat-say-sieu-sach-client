@@ -94,7 +94,9 @@
     "confirmDelete": "Bạn có chắc chắn muốn xóa",
     "confirmDeleteDefault": "Bạn có chắc chắn muốn xóa mục này?",
     "passwordRequired": "Vui lòng nhập mật khẩu",
-    "actions": "Thao tác"
+    "actions": "Thao tác",
+    "promotions": "Khuyến mãi",
+    "policy": "Chính sách"
   },
   "language": {
     "vi": "Tiếng Việt",
@@ -272,7 +274,19 @@
       { "name": "Đánh giày da", "price": "30.000đ/đôi" },
       { "name": "Giao hàng nhanh (trong 2h)", "price": "+ 30.000đ" }
     ],
-    "note": "* Giá có thể thay đổi theo từng loại vải và mức độ bẩn. Tư vấn miễn phí: 0901 234 567"
+    "note": "* Giá có thể thay đổi theo từng loại vải và mức độ bẩn. Tư vấn miễn phí: 0901 234 567",
+    "washTime": {
+      "title": "Thời gian giặt dự kiến",
+      "subtitle": "Tính từ lúc shipper lấy đồ. Chỉ mang tính tham khảo, có thể lâu hơn vào ngày cao điểm.",
+      "items": [
+        { "service": "Giặt thường (giặt, sấy, gấp)", "time": "24 – 48 giờ" },
+        { "service": "Giặt nhanh", "time": "4 – 6 giờ" },
+        { "service": "Giặt + Ủi", "time": "24 – 36 giờ" },
+        { "service": "Ủi", "time": "24 giờ" },
+        { "service": "Giặt khô / giặt hấp (vest, áo dài)", "time": "2 – 3 ngày" },
+        { "service": "Chăn mền, rèm, gấu bông", "time": "2 – 3 ngày" }
+      ]
+    }
   },
   "booking": {
     "serviceTypeLabel": "Đặt qua trang đặt lịch: {serviceType}",
@@ -324,14 +338,23 @@
     "points": {
       "label": "Dùng điểm tích lũy để giảm giá",
       "balance": "Bạn có {points} điểm · {step} điểm = {value}đ",
-      "deductNote": "Điểm chỉ bị trừ khi đơn hoàn thành, huỷ đơn không mất điểm."
+      "deductNote": "Điểm chỉ bị trừ khi đơn hoàn thành, huỷ đơn không mất điểm.",
+      "needWeight": "Nhập số kg ước lượng để dùng điểm."
     },
     "pricing": {
       "subtotal": "Tạm tính",
       "weightDiscount": "Giảm giá đơn trên {kg}kg",
       "pointsDiscount": "Dùng {points} điểm",
       "weightHint": "Đặt trên {kg}kg để được giảm {amount}"
-    }
+    },
+    "pickup": {
+      "today": "Hôm nay ({date})",
+      "tomorrow": "Ngày mai ({date})",
+      "slot": "{start}:00 – {end}:00",
+      "time": "{slot}, ngày {date}",
+      "note": "Thời gian lấy đồ: {time}"
+    },
+    "weightNotEstimated": "Khách chưa ước lượng số kg — shipper cân khi lấy đồ, cập nhật lại số kg cho đơn."
   },
   "reviews": {
     "services": {
@@ -948,12 +971,34 @@
       "comments": "Đánh giá",
       "contacts": "Liên hệ",
       "revenue": "Doanh thu",
-      "logoutAdmin": "Thoát Admin"
+      "logoutAdmin": "Thoát Admin",
+      "promotions": "Khuyến mãi"
     },
     "topbar": {
       "name": "Admin",
       "role": "Quản trị viên",
       "backHome": "← Về trang chủ"
+    },
+    "promotions": {
+      "title": "Quản lý khuyến mãi",
+      "create": "Thêm khuyến mãi",
+      "edit": "Sửa khuyến mãi",
+      "delete": "Xóa khuyến mãi",
+      "created": "Thêm khuyến mãi thành công",
+      "updated": "Cập nhật khuyến mãi thành công",
+      "deleted": "Xóa khuyến mãi thành công",
+      "name": "Tên chương trình",
+      "namePlaceholder": "Ví dụ: Giảm 20% đơn đầu tiên",
+      "description": "Mô tả",
+      "descriptionPlaceholder": "Điều kiện áp dụng, đối tượng khách hàng...",
+      "discountPercent": "Giảm (%)",
+      "startDate": "Ngày bắt đầu",
+      "endDate": "Ngày kết thúc",
+      "dateHint": "Bỏ trống ngày bắt đầu = áp dụng ngay, bỏ trống ngày kết thúc = không giới hạn.",
+      "period": "Thời gian áp dụng",
+      "dateInvalid": "Ngày kết thúc phải sau ngày bắt đầu",
+      "percentInvalid": "Phần trăm giảm phải từ {min} đến {max}",
+      "nameRequired": "Vui lòng nhập tên chương trình"
     }
   },
   "chat": {
@@ -984,7 +1029,7 @@
     "serviceTypeLabel": "Đặt qua chat: {serviceType}",
     "serviceNotFound": "Không tìm thấy dịch vụ phù hợp, vui lòng thử lại.",
     "orderSuccess": "Bạn đã đặt thành công, chúng tôi sẽ liên hệ bạn",
-    "orderConfirmation": "Đặt dịch vụ giặt đồ:\n\n• Họ tên: {name}\n• SĐT: {phone}\n• Địa chỉ: {address}\n• Loại: {service}\n• Khối lượng: {weight} kg\n• Giá ước tính: {price}đ",
+    "orderConfirmation": "Đặt dịch vụ giặt đồ:\n\n• Họ tên: {name}\n• SĐT: {phone}\n• Địa chỉ: {address}\n• Loại: {service}\n• Lấy đồ: {pickup}\n• Khối lượng: {weight}\n• Giá tham khảo: {price}",
     "laundryForm": {
       "title": "Đặt dịch vụ giặt đồ",
       "chatAddress": "Địa chỉ chat",
@@ -997,11 +1042,11 @@
       "addressDetail": "Địa chỉ cụ thể",
       "addressDetailPlaceholder": "Số nhà, tên đường...",
       "serviceType": "Loại dịch vụ",
-      "weight": "Khối lượng (kg)",
-      "weightPlaceholder": "Nhập số kg",
+      "weight": "Ước lượng số kg (không bắt buộc)",
+      "weightPlaceholder": "Ví dụ: 5",
       "note": "Ghi chú cho cửa hàng",
       "notePlaceholder": "Ví dụ: đồ trắng giặt riêng, gọi trước khi đến...",
-      "estimatedPrice": "Giá ước tính",
+      "estimatedPrice": "Giá tham khảo",
       "submit": "Đặt lịch",
       "orderConfirmed": "Cảm ơn bạn đã đặt dịch vụ! Chúng tôi sẽ liên hệ xác nhận sớm nhất.",
       "serviceOptions": {
@@ -1010,7 +1055,17 @@
         "dryClean": "Vest/Áo dài (giặt khô)",
         "express": "Giặt nhanh",
         "washIron": "Giặt + Ủi"
-      }
+      },
+      "weightHint": "Không cần chính xác — shipper sẽ cân lại khi đến lấy đồ.",
+      "weightValue": "{kg} kg",
+      "weightUnknown": "Chưa ước lượng (shipper cân khi lấy đồ)",
+      "priceHint": "Giá cuối cùng tính theo số kg thực tế shipper cân.",
+      "priceAfterWeighing": "Tính sau khi shipper cân",
+      "pickupDate": "Ngày lấy đồ",
+      "pickupTime": "Khung giờ lấy đồ",
+      "pickupHint": "Đã chọn sẵn khung giờ sớm nhất, bạn có thể đổi nếu cần.",
+      "washTimeHint": "Xem thời gian giặt dự kiến của từng dịch vụ tại <link>Bảng giá</link>.",
+      "pickupMoved": "Khung giờ bạn chọn vừa hết, đã chuyển sang khung trống kế tiếp. Vui lòng kiểm tra lại."
     },
     "orderSuccessWithCode": "Đặt lịch thành công! Mã đơn của bạn: **#{code}**\n\nHãy lưu lại mã này. Bạn có thể hỏi \"đơn hàng của tôi\" để kiểm tra tình trạng đơn bất cứ lúc nào.",
     "orderLookup": {
@@ -1150,5 +1205,87 @@
       "sameAsCurrent": "Mật khẩu mới phải khác mật khẩu hiện tại",
       "currentInvalid": "Mật khẩu hiện tại không đúng"
     }
+  },
+  "promotions": {
+    "seo": {
+      "title": "Khuyến mãi giặt ủi",
+      "description": "Các chương trình khuyến mãi, ưu đãi giặt ủi đang áp dụng tại Giặt Ủi Siêu Sạch. Đặt lịch ngay để nhận ưu đãi!",
+      "keywords": "khuyến mãi giặt ủi, ưu đãi giặt ủi, giảm giá giặt sấy, giặt ủi siêu sạch"
+    },
+    "tag": "Ưu đãi",
+    "title": "Chương trình khuyến mãi",
+    "subtitle": "Các ưu đãi đang và sắp áp dụng tại Giặt Ủi Siêu Sạch. Đặt lịch ngay để không bỏ lỡ!",
+    "discount": "Giảm {percent}%",
+    "validRange": "{from} – {to}",
+    "validUntil": "Đến hết {date}",
+    "validFrom": "Từ {date}",
+    "alwaysOn": "Không giới hạn thời gian",
+    "active": "Đang diễn ra",
+    "upcoming": "Sắp diễn ra",
+    "expired": "Đã kết thúc",
+    "bookNow": "Đặt lịch ngay",
+    "empty": "Hiện chưa có chương trình khuyến mãi nào. Hãy quay lại sau nhé!",
+    "note": "Ghi tên chương trình vào ô \"Ghi chú cho cửa hàng\" khi đặt lịch để được áp dụng ưu đãi."
+  },
+  "policy": {
+    "seo": {
+      "title": "Chính sách & Điều khoản",
+      "description": "Điều khoản dịch vụ, chính sách bồi thường, thanh toán, huỷ đơn và bảo mật thông tin của Giặt Ủi Siêu Sạch.",
+      "keywords": "chính sách giặt ủi, điều khoản dịch vụ, chính sách bồi thường, bảo mật thông tin"
+    },
+    "tag": "Chính sách",
+    "title": "Chính sách & Điều khoản",
+    "subtitle": "Minh bạch để bạn yên tâm gửi đồ cho chúng tôi.",
+    "updatedAt": "Cập nhật lần cuối: 15/10/2026",
+    "toc": "Mục lục chính sách",
+    "contact": "Có thắc mắc về chính sách? <link>Liên hệ với chúng tôi</link>",
+    "sections": [
+      {
+        "id": "terms",
+        "title": "Điều khoản dịch vụ",
+        "items": [
+          "Vui lòng kiểm tra túi áo quần và lấy ra tiền, giấy tờ, đồ có giá trị trước khi giao. Cửa hàng không chịu trách nhiệm với tài sản để quên trong đồ giặt.",
+          "Số kg và giá cuối cùng được tính theo cân thực tế khi shipper lấy đồ. Giá hiển thị trên web chỉ mang tính tham khảo.",
+          "Đồ dễ phai màu, co rút hoặc không có nhãn hướng dẫn giặt sẽ được tư vấn trước khi xử lý.",
+          "Thời gian giặt dự kiến của từng dịch vụ được ghi tại trang Bảng giá và có thể lâu hơn vào ngày cao điểm."
+        ]
+      },
+      {
+        "id": "compensation",
+        "title": "Chính sách bồi thường",
+        "items": [
+          "Vui lòng kiểm tra đồ và báo cho chúng tôi trong vòng 24 giờ kể từ khi nhận lại đồ nếu phát hiện thiếu, mất hoặc hư hỏng.",
+          "Lỗi do cửa hàng: giặt lại miễn phí. Nếu không khắc phục được, bồi thường tối đa 10 lần phí dịch vụ của món đồ đó.",
+          "Không áp dụng bồi thường với hư hỏng do chất lượng vải, phụ kiện (cúc, khóa kéo, đá đính) hoặc vết bẩn, vết rách có sẵn trước khi giao."
+        ]
+      },
+      {
+        "id": "payment",
+        "title": "Thanh toán",
+        "items": [
+          "Thanh toán bằng tiền mặt hoặc chuyển khoản khi nhận lại đồ.",
+          "Các ưu đãi (giảm giá theo khối lượng, điểm tích lũy, khuyến mãi) được trừ trực tiếp vào số tiền cần trả.",
+          "Mọi khoản phí đều được báo trước, không phát sinh phí ẩn."
+        ]
+      },
+      {
+        "id": "cancellation",
+        "title": "Huỷ và thay đổi đơn",
+        "items": [
+          "Đơn đang chờ xác nhận có thể huỷ miễn phí tại mục \"Đơn hàng của tôi\" hoặc qua hotline.",
+          "Sau khi shipper đã lấy đồ, đơn không thể huỷ trên web. Vui lòng liên hệ hotline để được hỗ trợ.",
+          "Muốn đổi giờ lấy đồ, vui lòng gọi hotline hoặc nhắn qua khung chat."
+        ]
+      },
+      {
+        "id": "privacy",
+        "title": "Bảo mật thông tin",
+        "items": [
+          "Họ tên, số điện thoại và địa chỉ chỉ được dùng để giao nhận đồ và chăm sóc khách hàng.",
+          "Chúng tôi không bán hoặc chia sẻ thông tin cá nhân cho bên thứ ba, trừ khi pháp luật yêu cầu.",
+          "Bạn có thể yêu cầu chỉnh sửa hoặc xóa thông tin cá nhân bất cứ lúc nào qua hotline hoặc email."
+        ]
+      }
+    ]
   }
 }

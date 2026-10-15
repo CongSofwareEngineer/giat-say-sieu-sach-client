@@ -11,6 +11,7 @@ export const QUERY_KEYS = {
   getListAddresses: 'getListAddresses',
   getListBranches: 'getListBranches',
   getListFaqs: 'getListFaqs',
+  getListPromotions: 'getListPromotions',
   getListBlogs: 'getListBlogs',
   getProvinces: 'getProvinces',
   getWards: 'getWards',

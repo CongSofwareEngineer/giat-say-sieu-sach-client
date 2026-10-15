@@ -94,7 +94,9 @@
     "confirmDelete": "Are you sure you want to delete",
     "confirmDeleteDefault": "Are you sure you want to delete this item?",
     "passwordRequired": "Please enter your password",
-    "actions": "Actions"
+    "actions": "Actions",
+    "promotions": "Promotions",
+    "policy": "Policies"
   },
   "language": {
     "vi": "Tiếng Việt",
@@ -272,7 +274,19 @@
       { "name": "Leather shoe polishing", "price": "30,000đ/pair" },
       { "name": "Express delivery (within 2h)", "price": "+ 30,000đ" }
     ],
-    "note": "* Prices may vary depending on fabric type and level of dirt. Free consultation: 0901 234 567"
+    "note": "* Prices may vary depending on fabric type and level of dirt. Free consultation: 0901 234 567",
+    "washTime": {
+      "title": "Expected washing time",
+      "subtitle": "Counted from pickup. For reference only, it may take longer on peak days.",
+      "items": [
+        { "service": "Regular wash (wash, dry, fold)", "time": "24 – 48 hours" },
+        { "service": "Express wash", "time": "4 – 6 hours" },
+        { "service": "Wash + Iron", "time": "24 – 36 hours" },
+        { "service": "Ironing", "time": "24 hours" },
+        { "service": "Dry clean (suits, áo dài)", "time": "2 – 3 days" },
+        { "service": "Blankets, curtains, plush toys", "time": "2 – 3 days" }
+      ]
+    }
   },
   "booking": {
     "serviceTypeLabel": "Booked via booking page: {serviceType}",
@@ -324,14 +338,23 @@
     "points": {
       "label": "Use loyalty points for a discount",
       "balance": "You have {points} points · {step} points = {value} VND",
-      "deductNote": "Points are only deducted when the order is completed; cancelling keeps them."
+      "deductNote": "Points are only deducted when the order is completed; cancelling keeps them.",
+      "needWeight": "Enter an estimated weight to use points."
     },
     "pricing": {
       "subtotal": "Subtotal",
       "weightDiscount": "Order over {kg}kg discount",
       "pointsDiscount": "{points} points used",
       "weightHint": "Book over {kg}kg to get {amount} off"
-    }
+    },
+    "pickup": {
+      "today": "Today ({date})",
+      "tomorrow": "Tomorrow ({date})",
+      "slot": "{start}:00 – {end}:00",
+      "time": "{slot}, {date}",
+      "note": "Pickup time: {time}"
+    },
+    "weightNotEstimated": "Customer did not estimate the weight — weigh at pickup and update the order weight."
   },
   "reviews": {
     "services": {
@@ -948,12 +971,34 @@
       "comments": "Reviews",
       "contacts": "Contacts",
       "revenue": "Revenue",
-      "logoutAdmin": "Exit Admin"
+      "logoutAdmin": "Exit Admin",
+      "promotions": "Promotions"
     },
     "topbar": {
       "name": "Admin",
       "role": "Administrator",
       "backHome": "← Back to home"
+    },
+    "promotions": {
+      "title": "Promotion management",
+      "create": "Add promotion",
+      "edit": "Edit promotion",
+      "delete": "Delete promotion",
+      "created": "Promotion added",
+      "updated": "Promotion updated",
+      "deleted": "Promotion deleted",
+      "name": "Promotion name",
+      "namePlaceholder": "E.g. 20% off your first order",
+      "description": "Description",
+      "descriptionPlaceholder": "Conditions, eligible customers...",
+      "discountPercent": "Discount (%)",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "dateHint": "Leave the start date empty to start now, leave the end date empty for no end date.",
+      "period": "Valid period",
+      "dateInvalid": "The end date must be after the start date",
+      "percentInvalid": "The discount must be between {min} and {max}%",
+      "nameRequired": "Please enter the promotion name"
     }
   },
   "chat": {
@@ -984,7 +1029,7 @@
     "serviceTypeLabel": "Booked via chat: {serviceType}",
     "serviceNotFound": "No matching service found, please try again.",
     "orderSuccess": "Your order has been placed successfully, we will contact you",
-    "orderConfirmation": "Book laundry service:\n\n• Name: {name}\n• Phone: {phone}\n• Address: {address}\n• Type: {service}\n• Weight: {weight} kg\n• Estimated price: {price}đ",
+    "orderConfirmation": "Book laundry service:\n\n• Name: {name}\n• Phone: {phone}\n• Address: {address}\n• Type: {service}\n• Pickup: {pickup}\n• Weight: {weight}\n• Reference price: {price}",
     "laundryForm": {
       "title": "Book Laundry Service",
       "chatAddress": "Chat address",
@@ -997,11 +1042,11 @@
       "addressDetail": "Street address",
       "addressDetailPlaceholder": "House number, street...",
       "serviceType": "Service Type",
-      "weight": "Weight (kg)",
-      "weightPlaceholder": "Enter weight in kg",
+      "weight": "Estimated weight in kg (optional)",
+      "weightPlaceholder": "E.g. 5",
       "note": "Note for the shop",
       "notePlaceholder": "E.g. wash whites separately, call before pickup...",
-      "estimatedPrice": "Estimated Price",
+      "estimatedPrice": "Reference price",
       "submit": "Book Now",
       "orderConfirmed": "Thank you for booking! We will contact you soon to confirm.",
       "serviceOptions": {
@@ -1010,7 +1055,17 @@
         "dryClean": "Suit/Dress (Dry Clean)",
         "express": "Express Wash",
         "washIron": "Wash + Iron"
-      }
+      },
+      "weightHint": "No need to be exact — the shipper weighs it again at pickup.",
+      "weightValue": "{kg} kg",
+      "weightUnknown": "Not estimated (weighed at pickup)",
+      "priceHint": "The final price uses the actual weight measured by the shipper.",
+      "priceAfterWeighing": "Calculated after weighing",
+      "pickupDate": "Pickup date",
+      "pickupTime": "Pickup time",
+      "pickupHint": "The earliest slot is preselected, change it if needed.",
+      "washTimeHint": "See the expected washing time of each service on the <link>Price list</link>.",
+      "pickupMoved": "Your pickup slot just passed, so we moved it to the next free slot. Please check it."
     },
     "orderSuccessWithCode": "Booking confirmed! Your order code: **#{code}**\n\nPlease keep this code. Ask \"my orders\" anytime to check the order status.",
     "orderLookup": {
@@ -1150,5 +1205,87 @@
       "sameAsCurrent": "The new password must differ from the current one",
       "currentInvalid": "Current password is incorrect"
     }
+  },
+  "promotions": {
+    "seo": {
+      "title": "Laundry promotions",
+      "description": "Current laundry promotions and deals at Giặt Ủi Siêu Sạch. Book now to get the offer!",
+      "keywords": "laundry promotions, laundry deals, laundry discount, giat ui sieu sach"
+    },
+    "tag": "Deals",
+    "title": "Promotions",
+    "subtitle": "Current and upcoming deals at Giặt Ủi Siêu Sạch. Book now so you don't miss out!",
+    "discount": "{percent}% off",
+    "validRange": "{from} – {to}",
+    "validUntil": "Until {date}",
+    "validFrom": "From {date}",
+    "alwaysOn": "No end date",
+    "active": "Running",
+    "upcoming": "Upcoming",
+    "expired": "Ended",
+    "bookNow": "Book now",
+    "empty": "There are no promotions right now. Please check back later!",
+    "note": "Write the promotion name in the \"Note for the shop\" field when booking to get the deal."
+  },
+  "policy": {
+    "seo": {
+      "title": "Policies & Terms",
+      "description": "Terms of service, compensation, payment, cancellation and privacy policies of Giặt Ủi Siêu Sạch.",
+      "keywords": "laundry policy, terms of service, compensation policy, privacy"
+    },
+    "tag": "Policies",
+    "title": "Policies & Terms",
+    "subtitle": "Clear rules so you can hand us your laundry with peace of mind.",
+    "updatedAt": "Last updated: 15/10/2026",
+    "toc": "Policy sections",
+    "contact": "Questions about our policies? <link>Contact us</link>",
+    "sections": [
+      {
+        "id": "terms",
+        "title": "Terms of service",
+        "items": [
+          "Please check your pockets and remove cash, documents and valuables before handing over your laundry. We are not responsible for items left inside.",
+          "The final weight and price are based on the actual weight measured at pickup. Prices shown on the website are for reference only.",
+          "Items that may fade, shrink or have no care label will be discussed with you before cleaning.",
+          "The expected washing time of each service is listed on the Price list page and may be longer on peak days."
+        ]
+      },
+      {
+        "id": "compensation",
+        "title": "Compensation policy",
+        "items": [
+          "Please check your laundry and tell us within 24 hours of receiving it if anything is missing, lost or damaged.",
+          "Our fault: we clean it again for free. If it cannot be fixed, we compensate up to 10 times the service fee of that item.",
+          "Compensation does not cover damage caused by fabric quality, accessories (buttons, zippers, rhinestones) or stains and tears that existed before pickup."
+        ]
+      },
+      {
+        "id": "payment",
+        "title": "Payment",
+        "items": [
+          "Pay in cash or by bank transfer when you receive your laundry.",
+          "Discounts (weight discount, loyalty points, promotions) are deducted directly from the amount to pay.",
+          "All fees are announced in advance, with no hidden charges."
+        ]
+      },
+      {
+        "id": "cancellation",
+        "title": "Cancellation and changes",
+        "items": [
+          "Orders waiting for confirmation can be cancelled for free in \"My orders\" or via the hotline.",
+          "Once the shipper has picked up your laundry, the order cannot be cancelled on the website. Please call the hotline for help.",
+          "To change the pickup time, please call the hotline or message us in the chat."
+        ]
+      },
+      {
+        "id": "privacy",
+        "title": "Privacy",
+        "items": [
+          "Your name, phone number and address are only used for pickup, delivery and customer care.",
+          "We never sell or share your personal data with third parties, unless required by law.",
+          "You can ask us to edit or delete your personal data at any time via the hotline or email."
+        ]
+      }
+    ]
   }
 }

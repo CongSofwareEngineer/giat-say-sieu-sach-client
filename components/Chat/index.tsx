@@ -14,6 +14,7 @@ import useUser from '@/hooks/useUser'
 import useLaundryBooking from '@/hooks/useLaundryBooking'
 import { chatAgent } from '@/agents'
 import { LAUNDRY_FORM_MARKER } from '@/agents/tools/laundry'
+import { formatPickupTime } from '@/agents/tools/booking'
 import { notifyUnreadMessage } from '@/utils/notification'
 import { formatAddress } from '@/services/address'
 import { chat } from '@/zustand/chat'
@@ -130,13 +131,18 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
         setLaundryFormMessageId(null)
       }
 
+      // No estimated weight: the amount is only a placeholder until the shipper weighs the laundry
+      const hasWeight = parseFloat(data.weight) > 0
       const orderMessage = translate('chat.orderConfirmation', {
         name: data.name,
         phone: data.phone,
         address: formatAddress({ ...data, address: data.address.trim() }),
         service: plan.name,
-        weight: data.weight,
-        price: price.toLocaleString(),
+        weight: hasWeight ? translate('chat.laundryForm.weightValue', { kg: data.weight }) : translate('chat.laundryForm.weightUnknown'),
+        pickup: formatPickupTime(data.pickupDate, data.pickupSlot),
+        price: hasWeight
+          ? translate('tracking.result.price', { price: price.toLocaleString('vi-VN') })
+          : translate('chat.laundryForm.priceAfterWeighing'),
       })
 
       addMessage({
