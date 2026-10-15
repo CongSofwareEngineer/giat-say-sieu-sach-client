@@ -17,13 +17,13 @@ import useGetWards from '@/hooks/reactQuery/useGetWards'
 import useGetListBranches from '@/hooks/reactQuery/useGetListBranches'
 import { formatAddress } from '@/services/address'
 import { getBranchCities } from '@/services/branch'
-import { getAvailablePickupSlots, getDefaultPickup, getPickupDates, getPickupSlotKey, isPickupValid, isWeightValid } from '@/agents/tools/booking'
+import { getAvailablePickupSlots, getDefaultPickup, getPickupSlotKey, isPickupValid, isWeightValid } from '@/agents/tools/booking'
 import {
-  INPUT_DATE_FORMAT,
+  DISPLAY_DATE_FORMAT,
   LOYALTY_REDEEM,
   MAX_BOOKING_NOTE_LENGTH,
   PICKUP_REFRESH_INTERVAL,
-  SHORT_DATE_FORMAT,
+  WASH_DURATION_HOURS,
   WEIGHT_DISCOUNT,
 } from '@/constants/app'
 import { cn } from '@/utils/tailwind'
@@ -134,31 +134,12 @@ const LaundryForm = ({
   }, [])
 
   const now = isMounted ? dayjs() : null
-  const today = now?.format(INPUT_DATE_FORMAT)
-  const tomorrow = now?.add(1, 'day').format(INPUT_DATE_FORMAT)
-
-  const pickupDateOptions = (now ? getPickupDates(now) : []).map((date) => {
-    const label = dayjs(date).format(SHORT_DATE_FORMAT)
-
-    if (date === today) return { value: date, label: translate('booking.pickup.today', { date: label }) }
-    if (date === tomorrow) return { value: date, label: translate('booking.pickup.tomorrow', { date: label }) }
-
-    return { value: date, label }
-  })
+  // Receive date is fixed to now + wash time (see getDefaultPickup), the customer only picks the slot
+  const pickupDateLabel = isMounted && formData.pickupDate ? dayjs(formData.pickupDate).format(DISPLAY_DATE_FORMAT) : ''
   const pickupSlotOptions = (now && formData.pickupDate ? getAvailablePickupSlots(formData.pickupDate, now) : []).map((slot) => ({
     value: getPickupSlotKey(slot),
     label: translate('booking.pickup.slot', { start: slot.start, end: slot.end }),
   }))
-
-  // New date: keep the picked slot when that day still has it, else take the day's first slot
-  const handlePickupDateChange = (date: string) => {
-    const slots = getAvailablePickupSlots(date)
-    const keepSlot = slots.some((slot) => getPickupSlotKey(slot) === formData.pickupSlot)
-
-    setIsPickupMoved(false)
-    onChange('pickupDate', date)
-    if (!keepSlot) onChange('pickupSlot', slots[0] ? getPickupSlotKey(slots[0]) : '')
-  }
 
   const handlePickupSlotChange = (slotKey: string) => {
     setIsPickupMoved(false)
@@ -305,15 +286,9 @@ const LaundryForm = ({
           <div className='grid grid-cols-2 gap-2'>
             <div className='min-w-0'>
               <label className='block text-xs font-medium text-gray-700 mb-1'>{translate('chat.laundryForm.pickupDate')}</label>
-              <MySelect
-                data={pickupDateOptions}
-                value={formData.pickupDate}
-                search={false}
-                placeholder={translate('common.select')}
-                onChange={(item) => handlePickupDateChange(item.value as string)}
-                className='text-sm'
-                style={{ width: '100%' }}
-              />
+              <div className='w-full px-3 py-2.5 text-sm border border-border rounded-xl bg-gray-50 text-text'>
+                {pickupDateLabel || translate('common.select')}
+              </div>
             </div>
             <div className='min-w-0'>
               <label className='block text-xs font-medium text-gray-700 mb-1'>{translate('chat.laundryForm.pickupTime')}</label>
@@ -332,7 +307,7 @@ const LaundryForm = ({
           {isPickupMoved ? (
             <p className='mt-1 text-xs font-medium text-amber-700'>{translate('chat.laundryForm.pickupMoved')}</p>
           ) : (
-            <p className='mt-1 text-xs text-gray-500'>{translate('chat.laundryForm.pickupHint')}</p>
+            <p className='mt-1 text-xs text-gray-500'>{translate('chat.laundryForm.pickupHint', { hours: WASH_DURATION_HOURS })}</p>
           )}
         </div>
 

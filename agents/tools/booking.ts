@@ -1,6 +1,13 @@
 import dayjs, { type Dayjs } from 'dayjs'
 
-import { BOOKING_SOURCE, INPUT_DATE_FORMAT, PICKUP_LEAD_HOURS, PICKUP_MAX_DAYS_AHEAD, DISPLAY_DATE_FORMAT, PICKUP_TIME_SLOTS } from '@/constants/app'
+import {
+  BOOKING_SOURCE,
+  INPUT_DATE_FORMAT,
+  PICKUP_MAX_DAYS_AHEAD,
+  DISPLAY_DATE_FORMAT,
+  PICKUP_TIME_SLOTS,
+  WASH_DURATION_HOURS,
+} from '@/constants/app'
 import { FCM_TOKEN_KEY } from '@/hooks/useNotifications'
 import OrderService, { OrderItem } from '@/services/order'
 import { formatPhoneToE164 } from '@/utils/phone'
@@ -39,21 +46,21 @@ export const getPickupSlotKey = (slot: PickupSlot): string => `${slot.start}-${s
 
 export const findPickupSlot = (key: string): PickupSlot | undefined => PICKUP_TIME_SLOTS.find((slot) => getPickupSlotKey(slot) === key)
 
-// Slots of a day that start at least PICKUP_LEAD_HOURS from now
+// Receive slots of a day that start at least WASH_DURATION_HOURS from now
 export const getAvailablePickupSlots = (date: string, now: Dayjs = dayjs()): PickupSlot[] => {
   const day = dayjs(date)
-  const earliest = now.add(PICKUP_LEAD_HOURS, 'hour')
+  const earliest = now.add(WASH_DURATION_HOURS, 'hour')
 
   return PICKUP_TIME_SLOTS.filter((slot) => !day.hour(slot.start).startOf('hour').isBefore(earliest))
 }
 
-// Bookable pickup days from today, skipping days with no slot left
+// Bookable receive days from today, skipping days with no slot left (the first one is now + wash time)
 export const getPickupDates = (now: Dayjs = dayjs()): string[] =>
   Array.from({ length: PICKUP_MAX_DAYS_AHEAD }, (_, i) => now.add(i, 'day').format(INPUT_DATE_FORMAT)).filter(
     (date) => getAvailablePickupSlots(date, now).length > 0
   )
 
-// Earliest available slot, prefilled so the customer only changes it when needed
+// Receive date = first day with a slot after the wash time; its earliest slot is prefilled
 export const getDefaultPickup = (now: Dayjs = dayjs()): { pickupDate: string; pickupSlot: string } => {
   const pickupDate = getPickupDates(now)[0] ?? ''
   const slot = pickupDate ? getAvailablePickupSlots(pickupDate, now)[0] : undefined

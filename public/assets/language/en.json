@@ -358,7 +358,7 @@
       "tomorrow": "Tomorrow ({date})",
       "slot": "{start}:00 – {end}:00",
       "time": "{slot}, {date}",
-      "note": "Pickup time: {time}"
+      "note": "Receive time: {time}"
     },
     "weightNotEstimated": "Customer did not estimate the weight — weigh at pickup and update the order weight."
   },
@@ -1105,7 +1105,7 @@
     "serviceTypeLabel": "Booked via chat: {serviceType}",
     "serviceNotFound": "No matching service found, please try again.",
     "orderSuccess": "Your order has been placed successfully, we will contact you",
-    "orderConfirmation": "Book laundry service:\n\n• Name: {name}\n• Phone: {phone}\n• Address: {address}\n• Type: {service}\n• Pickup: {pickup}\n• Weight: {weight}\n• Reference price: {price}",
+    "orderConfirmation": "Book laundry service:\n\n• Name: {name}\n• Phone: {phone}\n• Address: {address}\n• Type: {service}\n• Receive: {pickup}\n• Weight: {weight}\n• Reference price: {price}",
     "laundryForm": {
       "title": "Book Laundry Service",
       "chatAddress": "Chat address",
@@ -1137,11 +1137,11 @@
       "weightUnknown": "Not estimated (weighed at pickup)",
       "priceHint": "The final price uses the actual weight measured by the shipper.",
       "priceAfterWeighing": "Calculated after weighing",
-      "pickupDate": "Pickup date",
-      "pickupTime": "Pickup time",
-      "pickupHint": "The earliest slot is preselected, change it if needed.",
+      "pickupDate": "Receive date",
+      "pickupTime": "Receive time",
+      "pickupHint": "Receive date = now + {hours} hours of washing. The earliest slot is preselected, change it if needed.",
       "washTimeHint": "See the expected washing time of each service on the <link>Price list</link>.",
-      "pickupMoved": "Your pickup slot just passed, so we moved it to the next free slot. Please check it."
+      "pickupMoved": "Your slot just passed, so we moved it to the next free slot. Please check it."
     },
     "orderSuccessWithCode": "Booking confirmed! Your order code: **#{code}**\n\nPlease keep this code. Ask \"my orders\" anytime to check the order status.",
     "orderLookup": {

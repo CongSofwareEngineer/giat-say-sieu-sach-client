@@ -174,6 +174,9 @@ export const PICKUP_TIME_SLOTS = [
 // Earliest pickup slot must start at least this many hours after booking
 export const PICKUP_LEAD_HOURS = 2 as number
 
+// Hours needed to wash: the receive date/slot starts at least this long after booking
+export const WASH_DURATION_HOURS = 24 as number
+
 // Pickup can be scheduled up to this many days ahead (today included)
 export const PICKUP_MAX_DAYS_AHEAD = 7 as number
 
