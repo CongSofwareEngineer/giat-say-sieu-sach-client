@@ -182,8 +182,8 @@ export const PICKUP_TIME_SLOTS = [
   { start: 22, end: 23 },
 ] as const
 
-// Earliest pickup slot must start at least this many hours after booking
-export const PICKUP_LEAD_HOURS = 2 as number
+// Pickup slot must still be running this many hours from now (0 = the current slot is offered, the shipper comes right away)
+export const PICKUP_LEAD_HOURS = 0 as number
 
 // Min gap: a return slot must start at least this many hours after the pickup slot starts (same day allowed)
 export const WASH_DURATION_HOURS = 1 as number

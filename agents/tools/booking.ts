@@ -49,26 +49,29 @@ export const getPickupSlotKey = (slot: PickupSlot): string => `${slot.start}-${s
 
 export const findPickupSlot = (key: string): PickupSlot | undefined => PICKUP_TIME_SLOTS.find((slot) => getPickupSlotKey(slot) === key)
 
-// Slots of a day that start at or after `earliest`
-const getSlotsFrom = (date: string, earliest: Dayjs): PickupSlot[] => {
+// Slots of a day that start at or after `earliest`; with `isOngoingAllowed`, the slot running at `earliest` counts too
+const getSlotsFrom = (date: string, earliest: Dayjs, isOngoingAllowed = false): PickupSlot[] => {
   const day = dayjs(date)
 
-  return PICKUP_TIME_SLOTS.filter((slot) => !day.hour(slot.start).startOf('hour').isBefore(earliest))
+  return PICKUP_TIME_SLOTS.filter((slot) =>
+    isOngoingAllowed ? day.hour(slot.end).startOf('hour').isAfter(earliest) : !day.hour(slot.start).startOf('hour').isBefore(earliest)
+  )
 }
 
-// PICKUP_MAX_DAYS_AHEAD days from `from`, skipping days with no slot at or after `earliest`
-const getDatesFrom = (from: Dayjs, earliest: Dayjs): string[] =>
+// PICKUP_MAX_DAYS_AHEAD days from `from`, skipping days with no slot left
+const getDatesFrom = (from: Dayjs, earliest: Dayjs, isOngoingAllowed = false): string[] =>
   Array.from({ length: PICKUP_MAX_DAYS_AHEAD }, (_, i) => from.add(i, 'day').format(INPUT_DATE_FORMAT)).filter(
-    (date) => getSlotsFrom(date, earliest).length > 0
+    (date) => getSlotsFrom(date, earliest, isOngoingAllowed).length > 0
   )
 
 const hasSlot = (slots: PickupSlot[], slotKey: string): boolean => slots.some((slot) => getPickupSlotKey(slot) === slotKey)
 
-// Pickup slots of a day that start at least PICKUP_LEAD_HOURS from now
-export const getAvailablePickupSlots = (date: string, now: Dayjs = dayjs()): PickupSlot[] => getSlotsFrom(date, now.add(PICKUP_LEAD_HOURS, 'hour'))
+// Pickup slots of a day that have not ended yet: the slot running now is offered so the shipper comes right away
+export const getAvailablePickupSlots = (date: string, now: Dayjs = dayjs()): PickupSlot[] =>
+  getSlotsFrom(date, now.add(PICKUP_LEAD_HOURS, 'hour'), true)
 
 // Bookable pickup days from today, skipping days with no slot left
-export const getPickupDates = (now: Dayjs = dayjs()): string[] => getDatesFrom(now, now.add(PICKUP_LEAD_HOURS, 'hour'))
+export const getPickupDates = (now: Dayjs = dayjs()): string[] => getDatesFrom(now, now.add(PICKUP_LEAD_HOURS, 'hour'), true)
 
 export const isPickupValid = (date: string, slotKey: string, now: Dayjs = dayjs()): boolean =>
   !!date && hasSlot(getAvailablePickupSlots(date, now), slotKey)
@@ -105,7 +108,7 @@ export const getDefaultReturn = (pickupDate: string, pickupSlot: string): { retu
   return { returnDate, returnSlot: slot ? getPickupSlotKey(slot) : '' }
 }
 
-// Earliest pickup slot (today when one is left) + its earliest return slot, prefilled so the customer only changes them when needed
+// Current pickup slot (or the next one when the shop is closed) + its earliest return slot, prefilled so the customer only changes them when needed
 export const getDefaultPickup = (now: Dayjs = dayjs()): { pickupDate: string; pickupSlot: string; returnDate: string; returnSlot: string } => {
   const pickupDate = getPickupDates(now)[0] ?? ''
   const slot = pickupDate ? getAvailablePickupSlots(pickupDate, now)[0] : undefined
