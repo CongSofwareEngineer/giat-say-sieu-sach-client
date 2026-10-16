@@ -1,5 +1,5 @@
 # Booking (đặt lịch giặt)
-> Cập nhật: 2026-10-15
+> Cập nhật: 2026-10-16
 
 ## Tổng quan
 Trang `/booking` và form trong Chat dùng **chung** một form và logic đặt lịch thật (`useLaundryBooking`). Khách chỉ chọn tỉnh nơi có chi nhánh phục vụ; đặt xong thì nhớ thông tin cho lần sau. Sub-logic: (1) Form + logic dùng chung, (2) Lọc tỉnh theo chi nhánh, (3) Prefill + nhớ địa chỉ, (4) Ghi chú cho cửa hàng, (5) Ngày giờ lấy + trả đồ, (6) Số kg ước lượng, (7) Thời gian giặt dự kiến. Tính tiền / điểm / giảm giá xem `docs/instruction/order.md`.
@@ -40,20 +40,20 @@ Trang `/booking` và form trong Chat dùng **chung** một form và logic đặt
 ### Mục đích
 Khách chọn khi nào shipper đến lấy đồ và khi nào trả đồ. Cả hai được điền sẵn khung sớm nhất, chỉ đổi khi cần.
 ### Luồng xử lý
-- Khung giờ dùng chung `PICKUP_TIME_SLOTS`, mỗi khung 3 tiếng: 8–11, 11–14, 14–17, 17–20. Ngày chọn được: tối đa `PICKUP_MAX_DAYS_AHEAD` (7) ngày, bỏ ngày không còn khung hợp lệ.
+- Khung giờ dùng chung `PICKUP_TIME_SLOTS`, mỗi khung 1 tiếng, phủ giờ hoạt động của cửa hàng 6:00–23:00 (6–7, 7–8, …, 22–23). Dòng gợi ý lấy đồ `chat.laundryForm.pickupHint` hiện giờ mở/đóng cửa ({open}/{close} lấy từ khung đầu/cuối của `PICKUP_TIME_SLOTS`). Ngày chọn được: tối đa `PICKUP_MAX_DAYS_AHEAD` (7) ngày, bỏ ngày không còn khung hợp lệ.
 - **Lấy đồ** (`getPickupDates`, `getAvailablePickupSlots`, `isPickupValid`): khung hợp lệ khi giờ bắt đầu ≥ hiện tại + `PICKUP_LEAD_HOURS` (2h). Ngày liệt kê từ hôm nay.
-- **Trả đồ** (`getReturnDates`, `getAvailableReturnSlots`, `isReturnValid`): khung hợp lệ khi giờ bắt đầu ≥ **giờ kết thúc khung lấy đồ** + `WASH_DURATION_HOURS` (24h). Ngày liệt kê từ ngày lấy đồ. Chưa có khung lấy đồ hợp lệ → không có lựa chọn.
-- Mặc định (`getDefaultPickup` → gồm cả `getDefaultReturn`): khung lấy đồ sớm nhất (hôm nay nếu còn) + khung trả sớm nhất. VD 10:00 ngày 15 → lấy 14–17 ngày 15, trả 17–20 ngày 16; 19:00 ngày 15 → lấy 8–11 ngày 16, trả 11–14 ngày 17. Điền trong effect prefill của `useLaundryBooking` và sau `resetForm`.
+- **Trả đồ** (`getReturnDates`, `getAvailableReturnSlots`, `isReturnValid`): khung hợp lệ khi giờ bắt đầu ≥ **giờ bắt đầu khung lấy đồ** + `WASH_DURATION_HOURS` (1h) — tức trả được ngay khung kế tiếp, cùng ngày. Ngày liệt kê từ ngày lấy đồ. Chưa có khung lấy đồ hợp lệ → không có lựa chọn.
+- Mặc định (`getDefaultPickup` → gồm cả `getDefaultReturn`): khung lấy đồ sớm nhất (hôm nay nếu còn) + khung trả sớm nhất, **cùng ngày với ngày lấy** khi còn khung. VD 10:00 ngày 15 → lấy 12–13, trả 13–14 ngày 15; 21:30 ngày 15 → lấy 6–7, trả 7–8 ngày 16; chọn lấy 22–23 → trả 6–7 ngày hôm sau. Điền trong effect prefill của `useLaundryBooking` và sau `resetForm`.
 - `LaundryForm`: 2 hàng `MySelect` (Ngày + Khung giờ lấy đồ; Ngày + Khung giờ trả đồ). Nhãn ngày "Hôm nay (dd/mm)"/"Ngày mai (dd/mm)" theo `SHORT_DATE_FORMAT`. Options chỉ dựng sau khi mount (`isMounted`) để tránh lệch hydration (server Vercel chạy UTC).
 - Đổi ngày (lấy hoặc trả): giữ khung đang chọn nếu ngày mới còn khung đó, không thì lấy khung đầu của ngày.
-- Đổi lấy đồ làm trả đồ không còn hợp lệ → effect tự chỉnh: giữ ngày trả nếu còn khung (lấy khung đầu), không thì về trả đồ mặc định. Dòng gợi ý `chat.laundryForm.returnHint` ({hours} = `WASH_DURATION_HOURS`).
+- Đổi lấy đồ làm trả đồ không còn hợp lệ → effect tự chỉnh: giữ ngày trả nếu còn khung (lấy khung đầu), không thì về trả đồ mặc định. Dòng gợi ý `chat.laundryForm.returnHint` ({hours} = `WASH_DURATION_HOURS`), nói rõ trả được trong cùng ngày.
 - Khung lấy đồ hết hạn khi form đang mở: form re-render mỗi `PICKUP_REFRESH_INTERVAL` (60s); `submitBooking` gặp khung lấy/trả không hợp lệ cũng ép re-render và trả `null`. Form tự chuyển sang khung đầu còn lại (hết khung → mặc định) và hiện `chat.laundryForm.pickupMoved`, tới khi khách tự chọn lại.
 - Submit: API chưa có field ngày giờ → ghi vào `notes` 2 dòng `booking.pickup.note` ("Thời gian lấy đồ: 14:00 – 17:00, ngày 15/10/2026") và `booking.pickup.returnNote` ("Thời gian trả đồ: …"). Tin xác nhận trong Chat có dòng "Lấy đồ" và "Trả đồ".
 ### Translation
 - `chat.laundryForm.{pickupDate,pickupTime,pickupHint,pickupMoved,returnDate,returnTime,returnHint}`, `booking.pickup.{today,tomorrow,slot,time,note,returnNote}`; constants `SHORT_DATE_FORMAT`, `PICKUP_REFRESH_INTERVAL`.
 ### Edge cases
 - Giờ tính theo máy khách (giả định múi giờ VN). Server không kiểm tra giờ lấy/trả.
-- Số giờ giặt là một con số chung cho mọi dịch vụ (plan từ API chưa có field thời gian giặt) — giặt nhanh vẫn phải chờ 24h.
+- Khoảng cách lấy → trả chỉ là tối thiểu 1h, không theo thời gian giặt thực tế của dịch vụ (xem §7) — khách tự chọn giờ trả phù hợp.
 
 ## 6. Số kg ước lượng (không bắt buộc)
 - Ô "Ước lượng số kg (không bắt buộc)" + gợi ý "shipper sẽ cân lại". Để trống hợp lệ; nhập thì phải > 0 (`isWeightValid`).
@@ -64,7 +64,7 @@ Khách chọn khi nào shipper đến lấy đồ và khi nào trả đồ. Cả
 - Translation: `chat.laundryForm.{weight,weightPlaceholder,weightHint,weightValue,weightUnknown,estimatedPrice,priceHint,priceAfterWeighing}`, `booking.weightNotEstimated`, `booking.points.needWeight`, `chat.orderConfirmation`.
 
 ## 7. Thời gian giặt dự kiến (ghi chú)
-- Chỉ là ghi chú tĩnh, không ảnh hưởng đơn (khung trả đồ dùng `WASH_DURATION_HOURS`, §5). Trang `/pricing` (`PricingPlans.tsx`) có section "Thời gian giặt dự kiến" đọc mảng `pricing.washTime.items` (`{ service, time }`) trong file ngôn ngữ — sửa nội dung chỉ cần sửa `vn.json`/`en.json`.
+- Chỉ là ghi chú tĩnh, không ảnh hưởng đơn (khung trả đồ chỉ cần cách lấy đồ `WASH_DURATION_HOURS`, §5). Trang `/pricing` (`PricingPlans.tsx`) có section "Thời gian giặt dự kiến" đọc mảng `pricing.washTime.items` (`{ service, time }`) trong file ngôn ngữ — sửa nội dung chỉ cần sửa `vn.json`/`en.json`.
 - UI: section nền `bg-linear-default` bo góc, tiêu đề + icon lịch ở giữa; lưới thẻ 1/2/3 cột (mobile/sm/lg), mỗi thẻ có số thứ tự, tên dịch vụ, badge thời gian (màu `secondary`); `pricing.washTime.subtitle` hiện ở cuối như ghi chú kèm `InfoIcon`.
 - Form đặt lịch có dòng nhắc dưới ô dịch vụ, link sang Bảng giá (`chat.laundryForm.washTimeHint`) mở **tab mới** — trong drawer chat trên mobile, đổi route cùng tab sẽ bị drawer che và đóng drawer thì mất dữ liệu form.
 

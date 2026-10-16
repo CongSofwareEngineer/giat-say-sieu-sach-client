@@ -73,21 +73,21 @@ export const getPickupDates = (now: Dayjs = dayjs()): string[] => getDatesFrom(n
 export const isPickupValid = (date: string, slotKey: string, now: Dayjs = dayjs()): boolean =>
   !!date && hasSlot(getAvailablePickupSlots(date, now), slotKey)
 
-// Earliest return time: the pickup slot end + WASH_DURATION_HOURS, null without a valid pickup slot
+// Earliest return time: the pickup slot start + WASH_DURATION_HOURS, null without a valid pickup slot
 const getEarliestReturn = (pickupDate: string, pickupSlot: string): Dayjs | null => {
   const slot = findPickupSlot(pickupSlot)
 
-  return pickupDate && slot ? dayjs(pickupDate).hour(slot.end).startOf('hour').add(WASH_DURATION_HOURS, 'hour') : null
+  return pickupDate && slot ? dayjs(pickupDate).hour(slot.start).startOf('hour').add(WASH_DURATION_HOURS, 'hour') : null
 }
 
-// Return slots of a day that leave enough wash time after the pickup slot
+// Return slots of a day that start at least WASH_DURATION_HOURS after the pickup slot
 export const getAvailableReturnSlots = (date: string, pickupDate: string, pickupSlot: string): PickupSlot[] => {
   const earliest = getEarliestReturn(pickupDate, pickupSlot)
 
   return earliest ? getSlotsFrom(date, earliest) : []
 }
 
-// Return days listed from the pickup day, skipping days with no slot after the wash time
+// Return days listed from the pickup day, skipping days with no slot left after the gap
 export const getReturnDates = (pickupDate: string, pickupSlot: string): string[] => {
   const earliest = getEarliestReturn(pickupDate, pickupSlot)
 
@@ -97,7 +97,7 @@ export const getReturnDates = (pickupDate: string, pickupSlot: string): string[]
 export const isReturnValid = (date: string, slotKey: string, pickupDate: string, pickupSlot: string): boolean =>
   !!date && hasSlot(getAvailableReturnSlots(date, pickupDate, pickupSlot), slotKey)
 
-// Earliest return slot for a pickup slot
+// Earliest return slot for a pickup slot (same day when one is left)
 export const getDefaultReturn = (pickupDate: string, pickupSlot: string): { returnDate: string; returnSlot: string } => {
   const returnDate = getReturnDates(pickupDate, pickupSlot)[0] ?? ''
   const slot = returnDate ? getAvailableReturnSlots(returnDate, pickupDate, pickupSlot)[0] : undefined

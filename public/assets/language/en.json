@@ -1142,8 +1142,8 @@
       "pickupTime": "Pickup time",
       "returnDate": "Return date",
       "returnTime": "Return time",
-      "returnHint": "Laundry is returned at least {hours} hours of washing after the pickup slot.",
-      "pickupHint": "The earliest slot is preselected, change it if needed.",
+      "returnHint": "The return time only needs to be at least {hours} hour(s) after pickup, same day is fine.",
+      "pickupHint": "We serve daily from {open}:00 to {close}:00. The earliest slot is preselected, change it if needed.",
       "washTimeHint": "See the expected washing time of each service on the <link>Price list</link>.",
       "pickupMoved": "Your pickup slot just passed, so we moved it to the next free slot. Please check it."
     },

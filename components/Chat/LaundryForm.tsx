@@ -35,6 +35,7 @@ import {
   LOYALTY_REDEEM,
   MAX_BOOKING_NOTE_LENGTH,
   PICKUP_REFRESH_INTERVAL,
+  PICKUP_TIME_SLOTS,
   SHORT_DATE_FORMAT,
   WASH_DURATION_HOURS,
   WEIGHT_DISCOUNT,
@@ -164,6 +165,7 @@ const LaundryForm = ({
   })
 
   const { pickupDate, pickupSlot, returnDate, returnSlot } = formData
+  const openingHours = { open: PICKUP_TIME_SLOTS[0].start, close: PICKUP_TIME_SLOTS[PICKUP_TIME_SLOTS.length - 1].end }
   const pickupDateOptions = (now ? getPickupDates(now) : []).map(toDateOption)
   const pickupSlotOptions = (now && pickupDate ? getAvailablePickupSlots(pickupDate, now) : []).map(toSlotOption)
   const returnDateOptions = (isMounted ? getReturnDates(pickupDate, pickupSlot) : []).map(toDateOption)
@@ -378,7 +380,7 @@ const LaundryForm = ({
           {isPickupMoved ? (
             <p className='mt-1 text-xs font-medium text-amber-700'>{translate('chat.laundryForm.pickupMoved')}</p>
           ) : (
-            <p className='mt-1 text-xs text-gray-500'>{translate('chat.laundryForm.pickupHint')}</p>
+            <p className='mt-1 text-xs text-gray-500'>{translate('chat.laundryForm.pickupHint', openingHours)}</p>
           )}
         </div>
 

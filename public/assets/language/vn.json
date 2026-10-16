@@ -1142,8 +1142,8 @@
       "pickupTime": "Khung giờ lấy đồ",
       "returnDate": "Ngày trả đồ",
       "returnTime": "Khung giờ trả đồ",
-      "returnHint": "Đồ được trả sau khung giờ lấy đồ ít nhất {hours} giờ giặt.",
-      "pickupHint": "Đã chọn sẵn khung giờ sớm nhất, bạn có thể đổi nếu cần.",
+      "returnHint": "Giờ trả đồ chỉ cần sau giờ lấy đồ ít nhất {hours} tiếng, có thể trả trong cùng ngày.",
+      "pickupHint": "Cửa hàng phục vụ từ {open}:00 đến {close}:00 hằng ngày. Đã chọn sẵn khung giờ sớm nhất, bạn có thể đổi nếu cần.",
       "washTimeHint": "Xem thời gian giặt dự kiến của từng dịch vụ tại <link>Bảng giá</link>.",
       "pickupMoved": "Khung giờ bạn chọn vừa hết, đã chuyển sang khung trống kế tiếp. Vui lòng kiểm tra lại."
     },
