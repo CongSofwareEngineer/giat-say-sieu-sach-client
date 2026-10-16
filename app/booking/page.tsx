@@ -61,7 +61,7 @@ const BookingPage = () => {
 
       if (!result) return
 
-      setOrderCode(getOrderCode(result.order.id))
+      setOrderCode(getOrderCode(result.order))
       resetForm()
     } catch {
       toast({ message: translate('booking.error'), type: 'error' })

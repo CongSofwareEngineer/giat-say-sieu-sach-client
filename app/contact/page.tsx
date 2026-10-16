@@ -15,11 +15,14 @@ import ZaloIcon from '@/components/Icons/SocialMedia/Zalo'
 import { INFO_CONTACT } from '@/constants/app'
 import SeoJsonLd from '@/components/SeoJsonLd'
 import useLanguage from '@/hooks/useLanguage'
+import useGetListBranches from '@/hooks/reactQuery/useGetListBranches'
+import { formatAddress } from '@/services/address'
 import { breadcrumbSchema, contactPageSchema, localBusinessSchema } from '@/config/seo'
 import ContactService from '@/services/contact'
 
 const ContactPage = () => {
   const { translate } = useLanguage()
+  const { branches } = useGetListBranches()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState('')
@@ -108,7 +111,19 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <p className='font-semibold text-text mb-1'>{translate('contact.info.address')}</p>
-                  <p className='text-gray-600'>{INFO_CONTACT.Address}</p>
+                  {/* Shop addresses come from the branch API */}
+                  {branches.length > 0 ? (
+                    <ul className='space-y-1'>
+                      {branches.map((branch) => (
+                        <li key={branch.id} className='text-gray-600'>
+                          <span className='font-medium text-text'>{branch.name}</span>: {formatAddress(branch)}
+                          {branch.openingHours && <span className='text-gray-500'> ({branch.openingHours})</span>}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className='text-gray-600'>{translate('contact.info.addressUpdating')}</p>
+                  )}
                 </div>
               </div>
 

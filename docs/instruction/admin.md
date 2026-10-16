@@ -1,5 +1,5 @@
 # Admin (`/admin`)
-> Cập nhật: 2026-10-15
+> Cập nhật: 2026-10-16
 
 ## Tổng quan
 Dashboard quản trị (client-only, `force-dynamic`, `noindex`): đơn hàng, khách hàng, bảng giá, khuyến mãi, chi nhánh, FAQ, blog, đánh giá, liên hệ. Mọi bảng dùng `MyTable` (xem `docs/instruction/ui.md`). Sub-logic: (1) Quản lý đơn hàng, (2) Quản lý đánh giá, (3) Quản lý chi nhánh, (4) Quản lý FAQ. Blog admin xem `docs/instruction/blog.md`; sửa số kg xem `docs/instruction/order.md`; khuyến mãi xem `docs/instruction/promotion.md` §3.
@@ -16,7 +16,7 @@ Dashboard quản trị (client-only, `force-dynamic`, `noindex`): đơn hàng, k
 - Header card giống trang Đánh giá/Liên hệ: tiêu đề + ô tìm kiếm + `MySelect` lọc trạng thái.
 - Nhãn trạng thái từ `tracking.status.<STATUS>`; giá `tracking.result.price`; ngày `dayjs` `DD/MM/YYYY HH:mm`.
 - Cột "Khách hàng"/"SĐT": `getOrderUser(order)` trả user nếu `userId` đã populate `{ _id, name, phone }`, chuỗi id cũ → `—`.
-- SĐT: mobile (`isMobile` của `useModalDrawer`, ≤ 768px) hiện icon gọi `tel:`; desktop hiện icon copy. Mã đơn có icon copy (6 ký tự, không `#`). `CopyButton` dùng `copyToClipboard`, đổi icon check trong `COPY_FEEDBACK_DURATION`, lỗi → `common.error`.
+- SĐT: mobile (`isMobile` của `useModalDrawer`, ≤ 768px) hiện icon gọi `tel:`; desktop hiện icon copy. Mã đơn có icon copy (mã ngẫu nhiên 8 ký tự, không `#` — xem `tracking.md` §1). `CopyButton` dùng `copyToClipboard`, đổi icon check trong `COPY_FEEDBACK_DURATION`, lỗi → `common.error`.
 - Tìm kiếm theo mã, tên và SĐT khách. Nút xoá dạng icon giống các trang admin khác.
 ### Edge cases
 - Danh sách đơn lấy trang mặc định của server (không truyền `page`/`limit`); nếu đơn vượt limit server cần chuyển sang phân trang server-side.

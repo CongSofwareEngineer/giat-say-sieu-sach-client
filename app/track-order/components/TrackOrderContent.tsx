@@ -59,7 +59,7 @@ const TrackOrderContent = () => {
     setOrders((prev) => prev.map((order) => (order.id === orderId ? { ...order, status: ORDER_STATUS.CANCELLED } : order)))
   }, [])
 
-  // Arriving with ?code=XXXXXX (e.g. from the booking page) tracks it right away
+  // Arriving with ?code=XXXXXXXX (e.g. from the booking page) tracks it right away
   useEffect(() => {
     if (initialCode) handleTrack({ code: initialCode, phone: '' })
   }, [initialCode, handleTrack])

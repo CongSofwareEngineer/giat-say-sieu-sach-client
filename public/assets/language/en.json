@@ -433,7 +433,7 @@
       "tracking": "Searching...",
       "requireOne": "Please enter an order code or phone number",
       "invalidPhone": "Invalid phone number",
-      "hint": "Enter the order code (6 characters, e.g. #XXXXXX) or the phone number you booked with to see your recent orders"
+      "hint": "Enter the order code (8 characters, e.g. #XXXXXXXX) or the phone number you booked with to see your recent orders"
     },
     "result": {
       "title": "Order Information",
@@ -602,7 +602,8 @@
       "address": "Address",
       "facebook": "Facebook",
       "zalo": "Zalo",
-      "workingHours": "Working Hours"
+      "workingHours": "Working Hours",
+      "addressUpdating": "Updating"
     },
     "quick": {
       "title": "Quick contact",
@@ -1098,10 +1099,11 @@
     "quickOptions": {
       "title": "How can we help you?",
       "priceList": "Pricing",
-      "address": "Address",
+      "address": "Branches",
       "promotions": "Promotions",
       "orderInfo": "Check order",
-      "laundry": "Order laundry"
+      "laundry": "Order laundry",
+      "addressMessage": "Show me the addresses of your branches"
     },
     "serviceTypeLabel": "Booked via chat: {serviceType}",
     "serviceNotFound": "No matching service found, please try again.",
@@ -1166,7 +1168,7 @@
         "CANCELLED": "Cancelled"
       },
       "track": {
-        "noCode": "Please provide an order code to track. Order codes have 6 characters, like #XXXXXX.",
+        "noCode": "Please provide an order code to track. Order codes have 8 characters, like #XXXXXXXX.",
         "notFound": "No order found for \"{code}\".",
         "summary": "Order #{code}: {status}\nService: {services}\nTotal: {price}\nCreated: {date}"
       },
@@ -1179,7 +1181,9 @@
         "summary": "Phone: {phone}\nEmail: {email}\nAddress: {address}\nFacebook: {facebook}\nZalo: {zalo}"
       },
       "branch": {
-        "noHours": "No hours"
+        "noHours": "No hours",
+        "empty": "There are no branches yet.",
+        "map": "Map: {url}"
       },
       "myOrders": {
         "header": "Your {count} most recent orders:",
@@ -1190,7 +1194,8 @@
     },
     "address": {
       "empty": "You have no saved addresses in your profile.",
-      "item": "{index}. {label}: {address} ({name}, {phone})"
+      "requireLogin": "Please log in to see your saved addresses.",
+      "item": "{index}. {address} ({phone})"
     },
     "fallback": {
       "message": "I could not finish that request. Please try again."

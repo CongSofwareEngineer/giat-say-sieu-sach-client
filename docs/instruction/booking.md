@@ -17,12 +17,13 @@ Trang `/booking` và form trong Chat dùng **chung** một form và logic đặt
 - `app/booking/page.tsx` — viết bằng `LaundryForm` + `useLaundryBooking(BOOKING_SOURCE.PAGE)`.
 - `components/Chat/index.tsx` — `useLaundryBooking(BOOKING_SOURCE.CHAT)`.
 ### Luồng xử lý
-- Submit (`submitBooking`) → `createLaundryBooking` (API guest order). Trang Booking: thành công hiện mã đơn (`getOrderCode`) + nút theo dõi; lỗi → toast `booking.error`.
+- Submit (`submitBooking`) → `createLaundryBooking` (API guest order). Trang Booking: thành công hiện mã đơn ngẫu nhiên (`getOrderCode` → `order.code`, xem `tracking.md` §1) + nút theo dõi; lỗi → toast `booking.error`.
 - Form khởi tạo rỗng rồi prefill trong effect (tránh lỗi hydration ở `/booking`).
 
 ## 2. Lọc tỉnh theo chi nhánh
 ### Luồng xử lý
 - Khi app load, `components/ReactQuery` prefetch chi nhánh (`useGetListBranches` `staleTime` 1 ngày). `BranchService.getBranches()` đọc cache localStorage, quá `BRANCH_CACHE_DURATION` (1 ngày) thì gọi lại API.
+- `getBranches()` chỉ trả chi nhánh `isActive !== false`; **không lưu cache khi danh sách rỗng** và bỏ qua cache rỗng cũ → chi nhánh admin vừa tạo hiện ngay, không bị kẹt list rỗng 1 ngày. Danh sách này cũng là nguồn địa chỉ cửa hàng cho Chat (xem `docs/instruction/chat.md` §5), Footer và trang Liên hệ (xem `docs/instruction/ui.md` §4).
 - `LaundryForm` lấy `city` các chi nhánh (`getBranchCities`) → chỉ hiện tỉnh trùng tên (so sánh trim + lowercase với `name` LocationApi). Không có chi nhánh / API lỗi / không khớp → hiện tất cả tỉnh.
 ### Cấu trúc địa chỉ chi nhánh
 3 phần như `AddressItem`: `city` (tỉnh, tên theo LocationApi, VD `Hồ Chí Minh`), `district` (phường/xã), `address` (số nhà + đường). Server bắt buộc cả 3.

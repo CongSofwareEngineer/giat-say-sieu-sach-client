@@ -12,9 +12,12 @@ import ZaloIcon from '../Icons/SocialMedia/Zalo'
 import { images } from '@/config/images'
 import { INFO_CONTACT } from '@/constants/app'
 import useLanguage from '@/hooks/useLanguage'
+import useGetListBranches from '@/hooks/reactQuery/useGetListBranches'
+import { formatAddress } from '@/services/address'
 
 const Footer = () => {
   const { translate } = useLanguage()
+  const { branches } = useGetListBranches()
 
   const quickLinks = [
     { href: '/', label: translate('menu.home') },
@@ -108,10 +111,22 @@ const Footer = () => {
                 <MailIcon className='w-5 h-5 text-bright-cyan mt-0.5 flex-shrink-0' />
                 <span className='text-gray-400 text-sm'>hodiencong2000@gmail.com</span>
               </li>
-              <li className='flex items-start gap-3'>
-                <MapPinIcon className='w-5 h-5 text-bright-cyan mt-0.5 flex-shrink-0' />
-                <span className='text-gray-400 text-sm'>{INFO_CONTACT.Address}</span>
-              </li>
+              {/* Shop addresses come from the branch API */}
+              {branches.length > 0 ? (
+                branches.map((branch) => (
+                  <li key={branch.id} className='flex items-start gap-3'>
+                    <MapPinIcon className='w-5 h-5 text-bright-cyan mt-0.5 flex-shrink-0' />
+                    <span className='text-gray-400 text-sm'>
+                      <span className='text-gray-300 font-medium'>{branch.name}</span>: {formatAddress(branch)}
+                    </span>
+                  </li>
+                ))
+              ) : (
+                <li className='flex items-start gap-3'>
+                  <MapPinIcon className='w-5 h-5 text-bright-cyan mt-0.5 flex-shrink-0' />
+                  <span className='text-gray-400 text-sm'>{translate('contact.info.addressUpdating')}</span>
+                </li>
+              )}
             </ul>
           </div>
         </div>

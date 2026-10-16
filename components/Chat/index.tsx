@@ -159,8 +159,8 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
       setTimeout(() => {
         addMessage({
           id: Date.now() + 1,
-          text: translate('chat.orderSuccessWithCode', { code: getOrderCode(order.id) }),
-          orderCode: getOrderCode(order.id),
+          text: translate('chat.orderSuccessWithCode', { code: getOrderCode(order) }),
+          orderCode: getOrderCode(order),
           isUser: false,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         })

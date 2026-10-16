@@ -105,7 +105,7 @@ const EditWeightForm = ({ order, onClose, onSave }: EditWeightFormProps) => {
 
   return (
     <div className='w-full space-y-4'>
-      <p className='text-sm text-gray-600'>{translate('admin.orders.weightEditDesc', { code: getOrderCode(order.id) })}</p>
+      <p className='text-sm text-gray-600'>{translate('admin.orders.weightEditDesc', { code: getOrderCode(order) })}</p>
 
       {order.items.map((item, index) => (
         <MyInput
@@ -220,7 +220,7 @@ const AdminOrdersPage = () => {
     open({
       mode: 'modal',
       title: translate('admin.orders.delete'),
-      children: <AdminDeleteConfirm itemName={`#${getOrderCode(order.id)}`} onConfirm={() => deleteOrder(order.id)} isDeleting={isDeleting} />,
+      children: <AdminDeleteConfirm itemName={`#${getOrderCode(order)}`} onConfirm={() => deleteOrder(order.id)} isDeleting={isDeleting} />,
     })
   }
 
@@ -239,8 +239,8 @@ const AdminOrdersPage = () => {
       className: 'whitespace-nowrap font-medium',
       render: (order) => (
         <div className='flex items-center gap-1'>
-          <span>#{getOrderCode(order.id)}</span>
-          <CopyButton value={getOrderCode(order.id)} label={translate('admin.orders.list.copyCode')} />
+          <span>#{getOrderCode(order)}</span>
+          <CopyButton value={getOrderCode(order)} label={translate('admin.orders.list.copyCode')} />
         </div>
       ),
     },

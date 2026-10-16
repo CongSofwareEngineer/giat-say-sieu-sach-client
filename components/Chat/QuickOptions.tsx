@@ -12,9 +12,14 @@ type QuickOptionsProps = {
 const QuickOptions = ({ onOptionClick, onLaundryClick }: QuickOptionsProps) => {
   const { translate } = useLanguage()
   const { isSending } = useChat()
-  const options = [
+  const options: { key: string; label: string; message?: string }[] = [
     { key: 'priceList', label: translate('chat.quickOptions.priceList') },
-    { key: 'address', label: translate('chat.quickOptions.address') },
+    // Send a clear question so the agent lists the shop branches instead of guessing
+    {
+      key: 'address',
+      label: translate('chat.quickOptions.address'),
+      message: translate('chat.quickOptions.addressMessage'),
+    },
     { key: 'promotions', label: translate('chat.quickOptions.promotions') },
     { key: 'orderInfo', label: translate('chat.quickOptions.orderInfo') },
     { key: 'laundry', label: translate('chat.quickOptions.laundry') },
@@ -32,7 +37,7 @@ const QuickOptions = ({ onOptionClick, onLaundryClick }: QuickOptionsProps) => {
             if (option.key === 'laundry' && onLaundryClick) {
               onLaundryClick()
             } else {
-              onOptionClick(option.label)
+              onOptionClick(option.message ?? option.label)
             }
           }}
           className={cn(

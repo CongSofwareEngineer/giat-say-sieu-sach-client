@@ -433,7 +433,7 @@
       "tracking": "Đang tìm kiếm...",
       "requireOne": "Vui lòng nhập mã đơn hàng hoặc số điện thoại",
       "invalidPhone": "Số điện thoại không hợp lệ",
-      "hint": "Nhập mã đơn (6 ký tự, dạng #XXXXXX) hoặc số điện thoại đã đặt để xem các đơn gần nhất"
+      "hint": "Nhập mã đơn (8 ký tự, dạng #XXXXXXXX) hoặc số điện thoại đã đặt để xem các đơn gần nhất"
     },
     "result": {
       "title": "Thông tin đơn hàng",
@@ -602,7 +602,8 @@
       "address": "Địa chỉ",
       "facebook": "Facebook",
       "zalo": "Zalo",
-      "workingHours": "Giờ làm việc"
+      "workingHours": "Giờ làm việc",
+      "addressUpdating": "Đang cập nhật"
     },
     "quick": {
       "title": "Liên hệ nhanh",
@@ -1098,10 +1099,11 @@
     "quickOptions": {
       "title": "Bạn cần giúp gì?",
       "priceList": "Bảng giá",
-      "address": "Địa chỉ",
+      "address": "Chi nhánh",
       "promotions": "Khuyến mãi",
       "orderInfo": "Check đơn hàng",
-      "laundry": "đặt giặt đồ"
+      "laundry": "đặt giặt đồ",
+      "addressMessage": "Cho tôi xem địa chỉ các chi nhánh của cửa hàng"
     },
     "serviceTypeLabel": "Đặt qua chat: {serviceType}",
     "serviceNotFound": "Không tìm thấy dịch vụ phù hợp, vui lòng thử lại.",
@@ -1166,7 +1168,7 @@
         "CANCELLED": "Đã hủy"
       },
       "track": {
-        "noCode": "Vui lòng cung cấp mã đơn hàng để tra cứu. Mã đơn hàng gồm 6 ký tự, dạng #XXXXXX.",
+        "noCode": "Vui lòng cung cấp mã đơn hàng để tra cứu. Mã đơn hàng gồm 8 ký tự, dạng #XXXXXXXX.",
         "notFound": "Không tìm thấy đơn hàng nào cho \"{code}\".",
         "summary": "Đơn #{code}: {status}\nDịch vụ: {services}\nTổng tiền: {price}đ\nNgày tạo: {date}"
       },
@@ -1179,7 +1181,9 @@
         "summary": "Điện thoại: {phone}\nEmail: {email}\nĐịa chỉ: {address}\nFacebook: {facebook}\nZalo: {zalo}"
       },
       "branch": {
-        "noHours": "Không có giờ"
+        "noHours": "Không có giờ",
+        "empty": "Hiện chưa có chi nhánh nào.",
+        "map": "Bản đồ: {url}"
       },
       "myOrders": {
         "header": "{count} đơn gần nhất của bạn:",
@@ -1190,7 +1194,8 @@
     },
     "address": {
       "empty": "Bạn chưa có địa chỉ nào được lưu trong hồ sơ.",
-      "item": "{index}. {label}: {address} ({name}, {phone})"
+      "requireLogin": "Bạn cần đăng nhập để xem địa chỉ đã lưu.",
+      "item": "{index}. {address} ({phone})"
     },
     "fallback": {
       "message": "I could not finish that request. Please try again."

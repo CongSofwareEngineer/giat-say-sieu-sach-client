@@ -33,7 +33,7 @@ const MyOrders = () => {
       title: translate('myOrders.cancel.title'),
       children: (
         <CancelOrderConfirm
-          orderCode={getOrderCode(order.id)}
+          orderCode={getOrderCode(order)}
           onClose={close}
           onConfirm={async () => {
             await cancelOrder(order.id)
@@ -75,7 +75,7 @@ const MyOrders = () => {
         ) : (
           <div className='space-y-4'>
             {orders.map((order) => {
-              const orderCode = getOrderCode(order.id)
+              const orderCode = getOrderCode(order)
               const hasDiscount = (order.discountAmount ?? 0) > 0
 
               return (

@@ -73,15 +73,17 @@ class BranchApi extends BaseAPI {
   async getBranches(): Promise<BranchItem[]> {
     const cached = getCachedBranches()
 
-    if (cached && isCacheValid(cached.timestamp)) {
+    // An empty cache (saved before any branch existed) is ignored so new branches show up right away
+    if (cached && cached.data?.length > 0 && isCacheValid(cached.timestamp)) {
       return cached.data
     }
 
     const response = await this.get<ListResponse>('')
+    const branches = (response?.data ?? []).filter((b) => b.isActive !== false)
 
-    setCachedBranches(response.data)
+    if (branches.length > 0) setCachedBranches(branches)
 
-    return response.data
+    return branches
   }
 
   // Admin: all branches, hidden ones included

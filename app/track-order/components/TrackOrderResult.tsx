@@ -47,7 +47,7 @@ const TrackOrderResult = ({ order, onCancelled }: TrackOrderResultProps) => {
   const { open, close } = useModalDrawer()
   const { isLogin, user } = useUser()
 
-  const orderCode = getOrderCode(order.id)
+  const orderCode = getOrderCode(order)
   const isCancelled = order.status === ORDER_STATUS.CANCELLED
   const currentIndex = ORDER_STATUS_STEPS.indexOf(order.status)
   const progress = currentIndex < 0 ? 0 : Math.round(((currentIndex + 1) / ORDER_STATUS_STEPS.length) * 100)

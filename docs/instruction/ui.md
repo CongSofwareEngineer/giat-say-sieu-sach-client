@@ -1,5 +1,5 @@
 # UI dùng chung (`components/My*`, theme, layout)
-> Cập nhật: 2026-10-15
+> Cập nhật: 2026-10-16
 
 ## Tổng quan
 Bộ primitive `components/My*` + Header/Footer + token style trong `app/globals.css` (Tailwind v4 + daisyUI theme `giat-say-sieu-sach`). Phong cách: bo tròn lớn, glassmorphism nhẹ, shadow nhuốm màu primary, focus ring mềm; giữ tông sáng, không đổi cấu trúc heading/text/metadata (an toàn SEO). Sub-logic: (1) MySelect, (2) Form input/button & primitive khác, (3) MyTable, (4) Header/Footer, (5) Trang chính sách `/policy`.
@@ -31,6 +31,7 @@ Bộ primitive `components/My*` + Header/Footer + token style trong `app/globals
 ## 4. Header / Footer
 - Header: nav dạng pill, dropdown kính mờ có animation, nút Đăng ký gradient, chuông thông báo (xem `docs/instruction/profile.md`).
 - Footer: đường sáng phía trên, glow, nút mạng xã hội mới.
+- Địa chỉ (Footer "Thông tin liên hệ" + trang `/contact`): lấy từ chi nhánh API qua `useGetListBranches` (mỗi chi nhánh: tên + `formatAddress`; trang Liên hệ kèm `openingHours`). Chưa có chi nhánh → `contact.info.addressUpdating`. Không còn dùng `INFO_CONTACT.Address` ở UI. Cache chi nhánh xem `docs/instruction/booking.md` §2.
 - Link: Header dropdown "Thêm" có Khuyến mãi (`/promotions`); Footer "Liên kết nhanh" có Khuyến mãi, "Dịch vụ" có Chính sách (`/policy`).
 
 ## 5. Trang chính sách `/policy`

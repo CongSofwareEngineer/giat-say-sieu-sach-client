@@ -1,6 +1,6 @@
 import type { AgentTool } from '../base'
 
-import { INFO_CONTACT, ORDER_STATUS } from '@/constants/app'
+import { BRANCH_SOCIAL, INFO_CONTACT, ORDER_STATUS } from '@/constants/app'
 import { TOOL_NAME } from '@/constants/tools'
 import OrderService, { getOrderCode, normalizeOrderCode, PublicOrderItem } from '@/services/order'
 import BranchService from '@/services/branch'
@@ -30,7 +30,7 @@ export const trackOrderTool: AgentTool = {
     properties: {
       orderCode: {
         type: 'string',
-        description: 'Order code shown after booking: 6 characters, e.g. "A1B2C3" or "#A1B2C3" (a full order ID also works).',
+        description: 'Order code shown after booking: 8 characters, e.g. "K7QH3MZP" or "#K7QH3MZP".',
       },
       phone: {
         type: 'string',
@@ -44,13 +44,13 @@ export const trackOrderTool: AgentTool = {
     const phone = String(args?.phone ?? '').trim()
 
     if (!code && phone) {
-      return translate('agent.order.track.noCode', {}, 'Vui lòng cung cấp mã đơn hàng để tra cứu. Mã đơn hàng gồm 6 ký tự, dạng #XXXXXX.')
+      return translate('agent.order.track.noCode', {}, 'Vui lòng cung cấp mã đơn hàng để tra cứu. Mã đơn hàng gồm 8 ký tự, dạng #XXXXXXXX.')
     }
 
     let order: PublicOrderItem | undefined
 
     if (code) {
-      // Public lookup by short code / full ID, works with or without login
+      // Public lookup by random code, works with or without login
       order = await OrderService.getOrderByCode(code).catch(() => undefined)
     }
 
@@ -66,14 +66,14 @@ export const trackOrderTool: AgentTool = {
     return translate(
       'agent.order.track.summary',
       {
-        code: getOrderCode(order.id),
+        code: getOrderCode(order),
         status: statusLabel(order.status),
         services: serviceNames,
         price: order.finalAmount.toLocaleString('vi-VN'),
         date: order.createdAt ? new Date(order.createdAt).toLocaleDateString('vi-VN') : '—',
       },
       [
-        `Đơn #${getOrderCode(order.id)}: ${statusLabel(order.status)}`,
+        `Đơn #${getOrderCode(order)}: ${statusLabel(order.status)}`,
         `Dịch vụ: ${serviceNames}`,
         `Tổng tiền: ${order.finalAmount.toLocaleString('vi-VN')}đ`,
         `Ngày tạo: ${order.createdAt ? new Date(order.createdAt).toLocaleDateString('vi-VN') : '—'}`,
@@ -93,20 +93,26 @@ export const getContactInfoTool: AgentTool = {
   },
   execute: async () => {
     const phone = INFO_CONTACT.Phone.replace('+84', '0').replace(/-/g, '')
+    // Real shop addresses come from the branch API
+    const branches = await BranchService.getBranches().catch(() => [])
+    const address =
+      branches.length > 0
+        ? branches.map((b) => formatAddress(b)).join('; ')
+        : translate('agent.order.branch.empty', {}, 'Hiện chưa có chi nhánh nào.')
 
     return translate(
       'agent.order.contact.summary',
       {
         phone,
         email: INFO_CONTACT.Mail.replace('mailto:', ''),
-        address: INFO_CONTACT.Address,
+        address,
         facebook: INFO_CONTACT.Facebook,
         zalo: INFO_CONTACT.Zalo,
       },
       [
         `Điện thoại: ${phone}`,
         `Email: ${INFO_CONTACT.Mail.replace('mailto:', '')}`,
-        `Địa chỉ: ${INFO_CONTACT.Address}`,
+        `Địa chỉ: ${address}`,
         `Facebook: ${INFO_CONTACT.Facebook}`,
         `Zalo: ${INFO_CONTACT.Zalo}`,
       ].join('\n')
@@ -117,7 +123,8 @@ export const getContactInfoTool: AgentTool = {
 // List laundry branches
 export const getBranchesTool: AgentTool = {
   name: TOOL_NAME.getBranches,
-  description: 'List the laundry branches with address and working hours.',
+  description:
+    'List the shop laundry branches (store addresses / locations) with working hours, phone and map link. Use it whenever the user asks for the shop address ("địa chỉ", "chi nhánh", "cửa hàng ở đâu").',
   parameters: {
     type: 'object',
     properties: {},
@@ -125,8 +132,18 @@ export const getBranchesTool: AgentTool = {
   },
   execute: async () => {
     const branches = await BranchService.getBranches()
+
+    if (branches.length === 0) return translate('agent.order.branch.empty', {}, 'Hiện chưa có chi nhánh nào.')
+
     const noHours = translate('agent.order.branch.noHours', {}, 'Không có giờ')
 
-    return branches.map((b) => `- ${b.name}: ${formatAddress(b)} (${b.openingHours || noHours}) - ${b.phone || '—'}`).join('\n')
+    return branches
+      .map((b) => {
+        const line = `- **${b.name}**: ${formatAddress(b)} (${b.openingHours || noHours}) - ${b.phone || '—'}`
+        const mapUrl = b.socialMedia?.[BRANCH_SOCIAL.GOOGLE_MAP]
+
+        return mapUrl ? `${line}\n  ${translate('agent.order.branch.map', { url: mapUrl }, `Bản đồ: ${mapUrl}`)}` : line
+      })
+      .join('\n')
   },
 }
