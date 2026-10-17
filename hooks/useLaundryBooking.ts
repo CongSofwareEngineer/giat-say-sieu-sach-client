@@ -13,6 +13,7 @@ import PricingService, { PricingPlan } from '@/services/pricing'
 import { OrderItem } from '@/services/order'
 import { createLaundryBooking, getDefaultPickup, isPickupValid, isReturnValid, isWeightValid } from '@/agents/tools/booking'
 import { getSavedBookingAddress, saveBookingAddress } from '@/utils/bookingAddress'
+import { loadRecaptcha } from '@/utils/recaptcha'
 import { calculateOrderPricing } from '@/utils/orderPricing'
 
 export type LaundryBookingResult = {
@@ -118,6 +119,11 @@ const useLaundryBooking = (source: BOOKING_SOURCE) => {
         ...(shouldFillAddress && { addressId: initial.addressId, address: initial.address, district: initial.district, city: initial.city }),
       }
     })
+  }, [])
+
+  // Preload reCAPTCHA v3 while the customer fills the form: the score uses page activity and submit is faster
+  useEffect(() => {
+    loadRecaptcha()
   }, [])
 
   // Reset the service when plans load and the current selection is not an active plan

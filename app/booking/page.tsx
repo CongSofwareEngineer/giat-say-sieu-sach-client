@@ -14,6 +14,7 @@ import useLaundryBooking from '@/hooks/useLaundryBooking'
 import { breadcrumbSchema, webPageSchema } from '@/config/seo'
 import { BOOKING_SOURCE, COPY_FEEDBACK_DURATION } from '@/constants/app'
 import { getOrderCode } from '@/services/order'
+import { getBookingErrorMessage } from '@/agents/tools/booking'
 import { copyToClipboard } from '@/utils/functions'
 import { toast } from '@/utils/toast'
 
@@ -63,8 +64,8 @@ const BookingPage = () => {
 
       setOrderCode(getOrderCode(result.order))
       resetForm()
-    } catch {
-      toast({ message: translate('booking.error'), type: 'error' })
+    } catch (error) {
+      toast({ message: getBookingErrorMessage(error, 'booking.error'), type: 'error' })
     }
   }
 

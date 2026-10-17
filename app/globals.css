@@ -147,3 +147,8 @@ body {
 @utility bg-linear-default {
   background: linear-gradient(135deg, rgb(198, 232, 243), rgb(175, 226, 231));
 }
+
+/* reCAPTCHA v3 badge would cover the floating contact buttons; the booking form shows the required notice instead */
+.grecaptcha-badge {
+  visibility: hidden;
+}

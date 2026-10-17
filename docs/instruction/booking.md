@@ -1,8 +1,8 @@
 # Booking (đặt lịch giặt)
-> Cập nhật: 2026-10-16
+> Cập nhật: 2026-10-17
 
 ## Tổng quan
-Trang `/booking` và form trong Chat dùng **chung** một form và logic đặt lịch thật (`useLaundryBooking`). Khách chỉ chọn tỉnh nơi có chi nhánh phục vụ; đặt xong thì nhớ thông tin cho lần sau. Sub-logic: (1) Form + logic dùng chung, (2) Lọc tỉnh theo chi nhánh, (3) Prefill + nhớ địa chỉ, (4) Ghi chú cho cửa hàng, (5) Ngày giờ lấy + trả đồ, (6) Số kg ước lượng, (7) Thời gian giặt dự kiến. Tính tiền / điểm / giảm giá xem `docs/instruction/order.md`.
+Trang `/booking` và form trong Chat dùng **chung** một form và logic đặt lịch thật (`useLaundryBooking`). Khách chỉ chọn tỉnh nơi có chi nhánh phục vụ; đặt xong thì nhớ thông tin cho lần sau. Sub-logic: (1) Form + logic dùng chung, (2) Lọc tỉnh theo chi nhánh, (3) Prefill + nhớ địa chỉ, (4) Ghi chú cho cửa hàng, (5) Ngày giờ lấy + trả đồ, (6) Số kg ước lượng, (7) Thời gian giặt dự kiến, (8) Chống spam (reCAPTCHA v3 + báo lỗi 429). Tính tiền / điểm / giảm giá xem `docs/instruction/order.md`.
 
 ## Dùng chung
 - `hooks/useLaundryBooking.ts` — state form, prefill, giá ước tính, submit; nhận `BOOKING_SOURCE` (CHAT | PAGE).
@@ -17,7 +17,7 @@ Trang `/booking` và form trong Chat dùng **chung** một form và logic đặt
 - `app/booking/page.tsx` — viết bằng `LaundryForm` + `useLaundryBooking(BOOKING_SOURCE.PAGE)`.
 - `components/Chat/index.tsx` — `useLaundryBooking(BOOKING_SOURCE.CHAT)`.
 ### Luồng xử lý
-- Submit (`submitBooking`) → `createLaundryBooking` (API guest order). Trang Booking: thành công hiện mã đơn ngẫu nhiên (`getOrderCode` → `order.code`, xem `tracking.md` §1) + nút theo dõi; lỗi → toast `booking.error`.
+- Submit (`submitBooking`) → `createLaundryBooking` (API guest order). Trang Booking: thành công hiện mã đơn ngẫu nhiên (`getOrderCode` → `order.code`, xem `tracking.md` §1) + nút theo dõi; lỗi → toast `getBookingErrorMessage(error, 'booking.error')` (429 có thông báo riêng, xem §8).
 - Form khởi tạo rỗng rồi prefill trong effect (tránh lỗi hydration ở `/booking`).
 
 ## 2. Lọc tỉnh theo chi nhánh
@@ -69,8 +69,50 @@ Khách chọn khi nào shipper đến lấy đồ và khi nào trả đồ. Cả
 - UI: section nền `bg-linear-default` bo góc, tiêu đề + icon lịch ở giữa; lưới thẻ 1/2/3 cột (mobile/sm/lg), mỗi thẻ có số thứ tự, tên dịch vụ, badge thời gian (màu `secondary`); `pricing.washTime.subtitle` hiện ở cuối như ghi chú kèm `InfoIcon`.
 - Form đặt lịch có dòng nhắc dưới ô dịch vụ, link sang Bảng giá (`chat.laundryForm.washTimeHint`) mở **tab mới** — trong drawer chat trên mobile, đổi route cùng tab sẽ bị drawer che và đóng drawer thì mất dữ liệu form.
 
+## 8. Chống spam (reCAPTCHA v3 + báo lỗi 429)
+### Mục đích
+Server chặn spam `POST /laundry-orders/guest` bằng 3 lớp (xem server `docs/instruction/order.md` §3):
+- 3 đơn / phút / IP;
+- reCAPTCHA v3;
+- mỗi SĐT tối đa 3 đơn chưa hoàn tất.
+
+Client gửi token reCAPTCHA và báo lỗi dễ hiểu khi bị chặn. Tất cả đều miễn phí: free tier reCAPTCHA là 10.000 lượt / tháng.
+
+### Entry points
+- `utils/recaptcha.ts`:
+  - `loadRecaptcha()` chèn script `api.js?render=<site key>` một lần;
+  - `getRecaptchaToken(action)` trả token hoặc `undefined`.
+- `hooks/useLaundryBooking.ts`: preload script khi form mount, vì reCAPTCHA chấm điểm dựa vào hoạt động trên trang và preload giúp submit nhanh hơn.
+- `agents/tools/booking.ts`:
+  - `createLaundryBooking` lấy token `RECAPTCHA_ACTION.GUEST_ORDER` ngay trước khi gọi `createGuestOrder`, vì token chỉ sống 2 phút;
+  - `getBookingErrorMessage(error, fallbackKey)` đổi lỗi thành câu thông báo.
+- `components/Chat/LaundryForm.tsx`: hiện dòng "Được bảo vệ bởi reCAPTCHA" kèm link Privacy / Terms (chỉ khi có site key).
+- `app/globals.css`: ẩn `.grecaptcha-badge`, vì badge đè lên nút liên hệ nổi. Google cho phép ẩn badge nếu form có dòng ghi chú trên.
+
+### Luồng xử lý
+1. Form mount → `loadRecaptcha()`.
+2. Submit → `getRecaptchaToken()`. Chờ tối đa `RECAPTCHA.TIMEOUT` (10s); lỗi / timeout / không có site key → gửi request không kèm token, server quyết định.
+3. Lỗi API:
+   - `HttpError.status === HTTP_STATUS.TOO_MANY_REQUESTS` (429) → `booking.tooManyOrders` (`{max}` = `MAX_ACTIVE_ORDERS_PER_PHONE`, `{phone}` = `INFO_CONTACT.Phone`);
+   - lỗi khác → `chat.error` (Chat) / `booking.error` (trang Booking).
+4. Đặt bằng điểm (đã login, `usePoints`) đi endpoint có JWT → không cần token.
+
+### Edge cases
+- Trang đăng ký dùng Firebase `RecaptchaVerifier`, xoá mọi script `recaptcha/api.js`. Khi quay lại form đặt lịch, `loadRecaptcha()` thấy mất thẻ `#recaptcha-v3-script` thì nạp lại.
+- Không set `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` → không nạp script, không hiện dòng ghi chú, không gửi token.
+- 429 gộp 2 nguyên nhân (đặt quá nhanh / SĐT có quá nhiều đơn chưa xong) vì `HttpError` chỉ giữ status.
+
 ## Translation / Constants
-- `chat.laundryForm.note`, `chat.laundryForm.notePlaceholder`, `booking.serviceTypeLabel`, `booking.error`, `pricing.washTime.{title,subtitle,items}`.
+- Translation keys:
+  - `chat.laundryForm.note`, `chat.laundryForm.notePlaceholder`;
+  - `booking.serviceTypeLabel`, `booking.error`, `booking.tooManyOrders`;
+  - `chat.laundryForm.recaptcha{Notice,Privacy,Terms}`;
+  - `pricing.washTime.{title,subtitle,items}`.
+- Constants:
+  - `RECAPTCHA`, `RECAPTCHA_ACTION`;
+  - `MAX_ACTIVE_ORDERS_PER_PHONE` (khớp server);
+  - `HTTP_STATUS.TOO_MANY_REQUESTS`.
+- Env: `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`.
 
 ## Edge cases / nợ kỹ thuật
 - Chỉ lọc theo tỉnh, không lọc phường/xã. Chi nhánh cũ chưa có `city`/`district` → API trả rỗng; chưa chi nhánh nào có `city` → hiện tất cả tỉnh.

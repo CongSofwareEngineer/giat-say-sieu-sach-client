@@ -34,6 +34,7 @@ export const IS_BUILD_PHASE = process.env.NEXT_PHASE === PHASE_PRODUCTION_BUILD
 export enum HTTP_STATUS {
   BAD_REQUEST = 400,
   NOT_FOUND = 404,
+  TOO_MANY_REQUESTS = 429,
 }
 
 // Primary colors
@@ -221,6 +222,25 @@ export const PROMOTION_DISCOUNT_RANGE = {
   MIN: 1,
   MAX: 100,
 } as const
+
+// Max unfinished orders per phone on the guest booking endpoint (must match server MAX_ACTIVE_ORDERS_PER_PHONE)
+export const MAX_ACTIVE_ORDERS_PER_PHONE = 3 as number
+
+// reCAPTCHA v3 (invisible, free tier) protecting the guest booking endpoint; disabled when the site key is empty
+export const RECAPTCHA = {
+  SITE_KEY: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? '',
+  SCRIPT_URL: 'https://www.google.com/recaptcha/api.js',
+  SCRIPT_ID: 'recaptcha-v3-script',
+  // Give up waiting for the script / token after this (ms), the server then decides
+  TIMEOUT: 10000,
+  PRIVACY_URL: 'https://policies.google.com/privacy',
+  TERMS_URL: 'https://policies.google.com/terms',
+} as const
+
+// reCAPTCHA v3 action names (must match server RecaptchaAction)
+export enum RECAPTCHA_ACTION {
+  GUEST_ORDER = 'guest_order',
+}
 
 // Where a laundry booking was placed, written into the order notes
 export enum BOOKING_SOURCE {

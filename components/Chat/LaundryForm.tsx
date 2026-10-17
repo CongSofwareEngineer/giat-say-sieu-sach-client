@@ -36,6 +36,7 @@ import {
   MAX_BOOKING_NOTE_LENGTH,
   PICKUP_REFRESH_INTERVAL,
   PICKUP_TIME_SLOTS,
+  RECAPTCHA,
   SHORT_DATE_FORMAT,
   WASH_DURATION_HOURS,
   WEIGHT_DISCOUNT,
@@ -533,6 +534,19 @@ const LaundryForm = ({
               </p>
             )}
           </div>
+        )}
+
+        {RECAPTCHA.SITE_KEY && (
+          <p className='text-[11px] leading-snug text-gray-400'>
+            {translate('chat.laundryForm.recaptchaNotice')}{' '}
+            <a href={RECAPTCHA.PRIVACY_URL} target='_blank' rel='noopener noreferrer' className='underline'>
+              {translate('chat.laundryForm.recaptchaPrivacy')}
+            </a>
+            {' · '}
+            <a href={RECAPTCHA.TERMS_URL} target='_blank' rel='noopener noreferrer' className='underline'>
+              {translate('chat.laundryForm.recaptchaTerms')}
+            </a>
+          </p>
         )}
 
         <div className='flex gap-2 pt-2'>

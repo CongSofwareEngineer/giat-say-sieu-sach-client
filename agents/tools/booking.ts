@@ -2,17 +2,23 @@ import dayjs, { type Dayjs } from 'dayjs'
 
 import {
   BOOKING_SOURCE,
+  HTTP_STATUS,
+  INFO_CONTACT,
   INPUT_DATE_FORMAT,
+  MAX_ACTIVE_ORDERS_PER_PHONE,
+  RECAPTCHA_ACTION,
   PICKUP_LEAD_HOURS,
   PICKUP_MAX_DAYS_AHEAD,
   DISPLAY_DATE_FORMAT,
   PICKUP_TIME_SLOTS,
   WASH_DURATION_HOURS,
 } from '@/constants/app'
+import { HttpError } from '@/config/baseApi'
 import { FCM_TOKEN_KEY } from '@/hooks/useNotifications'
 import OrderService, { OrderItem } from '@/services/order'
 import { formatPhoneToE164 } from '@/utils/phone'
 import { translate } from '@/utils/language'
+import { getRecaptchaToken } from '@/utils/recaptcha'
 
 export type LaundryBookingInput = {
   name: string
@@ -180,5 +186,12 @@ export const createLaundryBooking = async (input: LaundryBookingInput): Promise<
     city: input.city,
     items,
     notes,
+    captchaToken: await getRecaptchaToken(RECAPTCHA_ACTION.GUEST_ORDER),
   })
 }
+
+// Message for a failed booking: 429 = the phone already has too many unfinished orders, or too many bookings from this device
+export const getBookingErrorMessage = (error: unknown, fallbackKey: string): string =>
+  error instanceof HttpError && error.status === HTTP_STATUS.TOO_MANY_REQUESTS
+    ? translate('booking.tooManyOrders', { max: MAX_ACTIVE_ORDERS_PER_PHONE, phone: INFO_CONTACT.Phone })
+    : translate(fallbackKey)
