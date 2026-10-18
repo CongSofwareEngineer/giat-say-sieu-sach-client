@@ -258,3 +258,15 @@ export const COMMENT_SERVICES = [
 
 // Vietnamese mobile phone in local form (0 + 9 digits)
 export const VN_LOCAL_PHONE_REGEX = /^0[0-9]{9}$/
+
+// Origins allowed to call the internal API proxies (app/api/*)
+export const ALLOWED_ORIGINS: readonly string[] = [SITE_CONFIG.url, 'http://localhost:3000', 'http://localhost:3001']
+
+// Province/ward data: upstream esgoo API is proxied through our own route (esgoo sends no CORS headers)
+export const LOCATION_API = {
+  upstream: 'https://esgoo.net/api-tinhthanh-new',
+  proxy: '/api/location',
+  // Allowed proxy paths: `<level>/<id>.htm` (1 provinces, 2 wards, 4 full data, 5 name lookup)
+  pathRegex: /^[1245]\/\d{1,6}\.htm$/,
+  cacheSeconds: 24 * 60 * 60,
+} as const

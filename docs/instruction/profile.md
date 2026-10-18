@@ -1,8 +1,8 @@
 # Profile (khu vực khách hàng `/profile`)
-> Cập nhật: 2026-10-15
+> Cập nhật: 2026-10-18
 
 ## Tổng quan
-Trang cá nhân của khách đã đăng nhập: thông tin, avatar, sổ địa chỉ, đổi mật khẩu, đơn hàng của tôi, hạng + điểm tích lũy. Kèm chuông thông báo trên Header (mới làm UI). Sub-logic: (1) Hạng khách hàng & điểm, (2) Đổi mật khẩu, (3) Đơn hàng của tôi, (4) Chuông thông báo. Avatar xem `docs/instruction/upload.md`.
+Trang cá nhân của khách đã đăng nhập: thông tin, avatar, sổ địa chỉ, đổi mật khẩu, đơn hàng của tôi, hạng + điểm tích lũy. Kèm chuông thông báo trên Header (mới làm UI). Sub-logic: (1) Hạng khách hàng & điểm, (2) Đổi mật khẩu, (3) Đơn hàng của tôi, (4) Chuông thông báo, (5) Dữ liệu Tỉnh/Xã (proxy esgoo). Avatar xem `docs/instruction/upload.md`.
 
 ## Dùng chung
 - `app/profile/page.tsx` — làm mới profile khi vào trang (`GET /users/me` → cập nhật `loyaltyPoints` vào store).
@@ -35,7 +35,25 @@ Trang cá nhân của khách đã đăng nhập: thông tin, avatar, sổ địa
 - `components/NotificationBell/index.tsx` (gắn ở `components/Header`): badge chưa đọc (tối đa "9+"), dropdown, empty state, "Đánh dấu đã đọc", click ngoài để đóng.
 - Hiện Header truyền `notifications={[]}` → luôn empty. Việc tiếp: BE thêm collection Notification + API; FE viết hook truyền `notifications`, `onMarkAllRead`, `onItemClick`.
 
+## 5. Dữ liệu Tỉnh/Xã (proxy esgoo)
+### Mục đích
+- API esgoo (`LOCATION_API.upstream`) không trả header CORS → browser không gọi thẳng được. Client gọi route nội bộ `/api/location/...`, server Next gọi esgoo thay.
+### Entry points
+- `services/location/index.ts` (`LocationService`: `getProvinces`, `getDistricts`, `getFullData`, `getLocationName`) — base là `LOCATION_API.proxy`.
+- `app/api/location/[...path]/route.ts` — chỉ `GET`.
+- Dùng bởi `useGetProvinces`, `useGetWards`, `app/profile/components/AddressForm.tsx`, form đặt lịch trong chat (xem `docs/instruction/chat.md` §3).
+### Luồng xử lý
+1. Kiểm tra request: `Sec-Fetch-Site` phải là `same-origin` và origin (lấy từ `Origin`, không có thì từ `Referer`) thuộc `ALLOWED_ORIGINS` → sai trả 403.
+2. Path phải khớp `LOCATION_API.pathRegex` (`<1|2|4|5>/<id>.htm`) → sai trả 404 (không cho dùng làm open proxy).
+3. Fetch esgoo với `next.revalidate = LOCATION_API.cacheSeconds` (24h) → mỗi path chỉ gọi esgoo tối đa 1 lần/24h dù bao nhiêu client.
+4. Trả JSON với `Cache-Control: private, max-age=24h` (browser cache; `private` để CDN không trả bản cache cho request chưa qua kiểm tra).
+### Edge cases
+- esgoo lỗi / mạng lỗi → 502.
+- Chặn được web khác gọi qua browser và bot không giả header. Server cố tình giả `Sec-Fetch-Site`/`Referer` vẫn qua được, nhưng nhờ cache esgoo không bị quá tải.
+- `LocationService` dùng URL tương đối → chỉ gọi ở client.
+
 ## Translation / Constants
+- `ALLOWED_ORIGINS`, `LOCATION_API`
 - `CUSTOMER_TIER`, `CUSTOMER_TIER_MIN_POINTS`, `MIN_PASSWORD_LENGTH`
 - `profile.loyalty.*`, `profile.menu.{orders,password}`, `changePassword.*`, `myOrders.*`, `notification.{title,markAllRead,empty,emptyDesc}`
 - Icon: `components/Icons/Bell.tsx`, `Lock.tsx`.
