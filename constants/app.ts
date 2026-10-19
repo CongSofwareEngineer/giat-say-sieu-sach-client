@@ -132,6 +132,8 @@ export enum LOCAL_STORAGE_KEY {
   // v2: old cache held only the first 20 FAQs
   faqs = 'faqs_cache_v2',
   bookingAddress = 'booking_address',
+  // Firebase Installation ID of this device, the push notification target
+  fcmFid = 'fcm_fid',
 }
 
 // Branch list is refetched from the API once the local cache is older than this

@@ -14,7 +14,7 @@ import {
   WASH_DURATION_HOURS,
 } from '@/constants/app'
 import { HttpError } from '@/config/baseApi'
-import { FCM_TOKEN_KEY } from '@/hooks/useNotifications'
+import { getStoredFcmFid } from '@/hooks/useNotifications'
 import OrderService, { OrderItem } from '@/services/order'
 import { formatPhoneToE164 } from '@/utils/phone'
 import { translate } from '@/utils/language'
@@ -138,14 +138,6 @@ export const formatPickupTime = (pickupDate?: string, pickupSlot?: string): stri
   })
 }
 
-const getStoredFcmToken = (): string | undefined => {
-  try {
-    return localStorage.getItem(FCM_TOKEN_KEY) || undefined
-  } catch {
-    return undefined
-  }
-}
-
 // Place a laundry order from the chat form or the booking page. No login needed: the server finds
 // (or registers) the customer by phone and stores the address on the order.
 // Redeeming points needs the authenticated endpoint, since the guest one cannot prove who owns the points.
@@ -180,7 +172,7 @@ export const createLaundryBooking = async (input: LaundryBookingInput): Promise<
   return OrderService.createGuestOrder({
     phone: formatPhoneToE164(input.phone) ?? input.phone,
     name: input.name.trim(),
-    notificationToken: getStoredFcmToken(),
+    notificationFid: getStoredFcmFid() || undefined,
     address: input.address.trim(),
     district: input.district,
     city: input.city,

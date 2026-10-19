@@ -54,7 +54,7 @@ export type CreateOrderPayload = {
 export type CreateGuestOrderPayload = {
   phone: string
   name: string
-  notificationToken?: string
+  notificationFid?: string
   address: string
   district: string
   city: string

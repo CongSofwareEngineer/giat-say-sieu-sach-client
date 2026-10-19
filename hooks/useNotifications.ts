@@ -1,32 +1,61 @@
 import type { MessagePayload } from 'firebase/messaging'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { LOCAL_STORAGE_KEY } from '@/constants/app'
 import { initNotificationService } from '@/services/notification'
-
-export const FCM_TOKEN_KEY = 'fcm_token'
 
 interface UseNotificationsReturn {
   permission: NotificationPermission | null
-  token: string | null
+  fid: string | null
   isSupported: boolean
   requestPermission: () => Promise<NotificationPermission>
-  getFCMToken: () => Promise<string | null>
+  getFid: () => Promise<string | null>
   onMessage: (callback: (payload: MessagePayload) => void) => () => void
-  getStoredToken: () => string | null
-  clearToken: () => void
+  getStoredFid: () => string | null
+  clearFid: () => void
+}
+
+// Read the device FID saved by the last successful FCM register
+export const getStoredFcmFid = (): string | null => {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  try {
+    return localStorage.getItem(LOCAL_STORAGE_KEY.fcmFid)
+  } catch {
+    return null
+  }
 }
 
 const useNotifications = (vapidKey?: string): UseNotificationsReturn => {
   const [permission, setPermission] = useState<NotificationPermission | null>(null)
-  const [token, setToken] = useState<string | null>(null)
+  const [fid, setFid] = useState<string | null>(null)
   const [isSupported, setIsSupported] = useState(false)
   const serviceRef = useRef<ReturnType<typeof initNotificationService> | null>(null)
 
   useEffect(() => {
-    if (vapidKey) {
-      serviceRef.current = initNotificationService(vapidKey)
+    if (!vapidKey) {
+      return
     }
+
+    const service = initNotificationService(vapidKey)
+
+    serviceRef.current = service
+
+    // Persist every FID Firebase delivers (first register and later rotations)
+    service.setFidListener((registeredFid) => {
+      setFid(registeredFid)
+
+      try {
+        localStorage.setItem(LOCAL_STORAGE_KEY.fcmFid, registeredFid)
+      } catch {
+        // Storage blocked: the FID is still kept in state for this session
+      }
+    })
+
+    return () => service.setFidListener(null)
   }, [vapidKey])
 
   useEffect(() => {
@@ -43,10 +72,10 @@ const useNotifications = (vapidKey?: string): UseNotificationsReturn => {
     setIsSupported(true)
     setPermission(Notification.permission)
 
-    const storedToken = localStorage.getItem(FCM_TOKEN_KEY)
+    const storedFid = getStoredFcmFid()
 
-    if (storedToken) {
-      setToken(storedToken)
+    if (storedFid) {
+      setFid(storedFid)
     }
 
     if ('serviceWorker' in navigator && navigator.serviceWorker) {
@@ -56,24 +85,18 @@ const useNotifications = (vapidKey?: string): UseNotificationsReturn => {
     }
   }, [])
 
-  const getStoredToken = (): string | null => {
-    if (typeof window === 'undefined') {
-      return null
-    }
+  const getStoredFid = useCallback((): string | null => getStoredFcmFid(), [])
 
-    return localStorage.getItem(FCM_TOKEN_KEY)
-  }
-
-  const clearToken = (): void => {
+  const clearFid = useCallback((): void => {
     if (typeof window === 'undefined') {
       return
     }
 
-    localStorage.removeItem(FCM_TOKEN_KEY)
-    setToken(null)
-  }
+    localStorage.removeItem(LOCAL_STORAGE_KEY.fcmFid)
+    setFid(null)
+  }, [])
 
-  const requestPermission = async (): Promise<NotificationPermission> => {
+  const requestPermission = useCallback(async (): Promise<NotificationPermission> => {
     const service = serviceRef.current
 
     if (!service) {
@@ -85,29 +108,20 @@ const useNotifications = (vapidKey?: string): UseNotificationsReturn => {
     setPermission(result)
 
     return result
-  }
+  }, [])
 
-  const getFCMToken = async (): Promise<string | null> => {
+  // The FID is saved by the listener above, this only triggers the register
+  const getFid = useCallback(async (): Promise<string | null> => {
     const service = serviceRef.current
 
     if (!service) {
       return null
     }
 
-    const fcmToken = await service.getToken()
+    return service.getFid()
+  }, [])
 
-    if (fcmToken) {
-      setToken(fcmToken)
-
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(FCM_TOKEN_KEY, fcmToken)
-      }
-    }
-
-    return fcmToken
-  }
-
-  const onMessage = (callback: (payload: MessagePayload) => void): (() => void) => {
+  const onMessage = useCallback((callback: (payload: MessagePayload) => void): (() => void) => {
     const service = serviceRef.current
 
     if (!service) {
@@ -115,17 +129,17 @@ const useNotifications = (vapidKey?: string): UseNotificationsReturn => {
     }
 
     return service.onMessage(callback)
-  }
+  }, [])
 
   return {
     permission,
-    token,
+    fid,
     isSupported,
     requestPermission,
-    getFCMToken,
+    getFid,
     onMessage,
-    getStoredToken,
-    clearToken,
+    getStoredFid,
+    clearFid,
   }
 }
 

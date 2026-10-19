@@ -16,7 +16,7 @@ Chat nổi là trợ lý đa agent; chỉ lời gọi LLM rời trình duyệt (
 ### Entry points
 - `agents/tools/booking.ts` — `createLaundryBooking`; `components/Chat/index.tsx`, `components/Chat/LaundryForm.tsx`.
 ### Luồng xử lý
-1. User điền form → mọi user đều gọi `POST /laundry-orders/guest` với `phone` (E.164), `name`, `address`, `district`, `city`, `items`, `notes`, `notificationToken` (nếu có). (Khi dùng điểm tích lũy thì gọi API có token — xem `docs/instruction/order.md`.)
+1. User điền form → mọi user đều gọi `POST /laundry-orders/guest` với `phone` (E.164), `name`, `address`, `district`, `city`, `items`, `notes`, `notificationFid` (nếu có — FID thiết bị, xem `docs/instruction/notifications.md`). (Khi dùng điểm tích lũy thì gọi API có token — xem `docs/instruction/order.md`.)
 2. Server tìm user theo SĐT (chưa có thì tạo), lưu địa chỉ thẳng vào đơn; thiếu địa chỉ → 400.
 3. Tắt form, hiện tin xác nhận (`chat.orderConfirmation`: tên, SĐT, địa chỉ, dịch vụ, giờ lấy đồ, giờ trả đồ, khối lượng, giá tham khảo — chưa nhập kg thì "Chưa ước lượng" / "Tính sau khi shipper cân") rồi "Đặt lịch thành công! Mã đơn: #XXXXXXXX" (mã ngẫu nhiên do server sinh, `getOrderCode` — xem `tracking.md` §1). Giờ lấy/trả đồ + số kg ước lượng xem `docs/instruction/booking.md` §5, §6.
 ### Edge cases

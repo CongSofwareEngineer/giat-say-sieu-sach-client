@@ -1,9 +1,12 @@
-import { getToken, onMessage, type MessagePayload } from 'firebase/messaging'
+import { onMessage, onRegistered, register, type MessagePayload, type Messaging } from 'firebase/messaging'
 
 import { getFirebaseMessaging } from '@/config/firebase'
 
 class NotificationService {
   private vapidKey: string
+  private fid: string | null = null
+  private isRegisteredHandlerAttached = false
+  private fidListener: ((fid: string) => void) | null = null
 
   constructor(vapidKey: string) {
     this.vapidKey = vapidKey
@@ -19,17 +22,25 @@ class NotificationService {
     return permission
   }
 
-  async getToken(): Promise<string | null> {
+  // Called with every FID Firebase delivers, including a rotated FID after the first register
+  setFidListener(listener: ((fid: string) => void) | null): void {
+    this.fidListener = listener
+  }
+
+  // Register the device with FCM by Firebase Installation ID; the FID arrives via onRegistered
+  async getFid(): Promise<string | null> {
     const messaging = getFirebaseMessaging()
 
     if (!messaging) {
       return null
     }
 
-    try {
-      const token = await getToken(messaging, { vapidKey: this.vapidKey })
+    this.attachRegisteredHandler(messaging)
 
-      return token
+    try {
+      await register(messaging, { vapidKey: this.vapidKey })
+
+      return this.fid
     } catch {
       return null
     }
@@ -45,6 +56,20 @@ class NotificationService {
     const unsubscribe = onMessage(messaging, callback)
 
     return unsubscribe
+  }
+
+  // Keep one handler for the app lifetime so Firebase can re-register when the FID rotates
+  private attachRegisteredHandler(messaging: Messaging): void {
+    if (this.isRegisteredHandlerAttached) {
+      return
+    }
+
+    onRegistered(messaging, (fid) => {
+      this.fid = fid
+      this.fidListener?.(fid)
+    })
+
+    this.isRegisteredHandlerAttached = true
   }
 }
 

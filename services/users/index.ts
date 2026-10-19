@@ -32,8 +32,9 @@ class UserApi extends BaseAPI {
     return response.data
   }
 
-  async updateFcmToken(fcmToken: string): Promise<any> {
-    const response = await this.patch<{ data: any }>('/me', { fcmToken }, { isUseAuth: true })
+  // Add this device FID to the user push targets on the server
+  async updateFcmFid(fid: string): Promise<any> {
+    const response = await this.patch<{ data: any }>('/me', { fid }, { isUseAuth: true })
 
     return response.data
   }

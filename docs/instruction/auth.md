@@ -26,7 +26,7 @@ Khách tự tạo tài khoản, có reCAPTCHA của Firebase ("tôi không phả
 - `auth.register.*` (`passwordMin` nhận `{min}`), `MIN_PASSWORD_LENGTH`. Vào từ Header + link ở `/login`.
 ### Edge cases / nợ kỹ thuật
 - Mọi lỗi server gộp chung một câu (do `BaseAPI` chỉ ném `status`), VD SĐT đã tồn tại cũng chỉ thấy câu chung.
-- Sau đăng ký chưa đồng bộ FCM token như trang login (`syncFcmToken`).
+- Sau đăng ký chưa đồng bộ FID thông báo như trang login (`syncFcmFid`, xem `docs/instruction/notifications.md`).
 
 ## 2. Refresh token & hết hạn đăng nhập (`config/baseApi.ts`)
 ### Mục đích

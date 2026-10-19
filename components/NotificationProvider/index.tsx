@@ -13,9 +13,7 @@ const NotificationProvider = () => {
   const { translate } = useLanguage()
   const { isLogin, hasHydrated } = useUser()
   const [status, setStatus] = useState<'idle' | 'loading' | 'granted' | 'denied' | 'unsupported'>('idle')
-  const { permission, isSupported, requestPermission, getFCMToken, getStoredToken, onMessage } = useNotifications(
-    process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY
-  )
+  const { permission, isSupported, requestPermission, getFid, getStoredFid, onMessage } = useNotifications(process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY)
 
   useEffect(() => {
     if (!isSupported) {
@@ -25,9 +23,9 @@ const NotificationProvider = () => {
     }
 
     if (permission === 'granted') {
-      getFCMToken()
-        .then((token) => {
-          setStatus(token ? 'granted' : 'idle')
+      getFid()
+        .then((fid) => {
+          setStatus(fid ? 'granted' : 'idle')
         })
         .catch(() => {
           setStatus('idle')
@@ -35,23 +33,23 @@ const NotificationProvider = () => {
     } else if (permission === 'denied') {
       setStatus('denied')
     }
-  }, [isSupported, permission, getFCMToken])
+  }, [isSupported, permission, getFid])
 
   useEffect(() => {
     if (!isSupported || !hasHydrated || !isLogin) {
       return
     }
 
-    const storedToken = getStoredToken()
+    const storedFid = getStoredFid()
 
-    if (!storedToken) {
+    if (!storedFid) {
       return
     }
 
-    UserService.updateFcmToken(storedToken).catch(() => {
-      // Silent fail for FCM token sync
+    UserService.updateFcmFid(storedFid).catch(() => {
+      // Silent fail for FCM FID sync
     })
-  }, [isSupported, hasHydrated, isLogin, getStoredToken])
+  }, [isSupported, hasHydrated, isLogin, getStoredFid])
 
   useEffect(() => {
     if (!isSupported) {
@@ -80,14 +78,14 @@ const NotificationProvider = () => {
       const result = await requestPermission()
 
       if (result === 'granted') {
-        const token = await getFCMToken()
+        const fid = await getFid()
 
-        if (token) {
+        if (fid) {
           setStatus('granted')
 
           if (isLogin) {
-            UserService.updateFcmToken(token).catch(() => {
-              // Silent fail for FCM token sync
+            UserService.updateFcmFid(fid).catch(() => {
+              // Silent fail for FCM FID sync
             })
           }
         } else {

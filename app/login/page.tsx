@@ -13,6 +13,7 @@ import { EyeIcon } from '@/components/Icons/Eye'
 import { EyeSlashIcon } from '@/components/Icons/EyeSlash'
 import useLanguage from '@/hooks/useLanguage'
 import useUser from '@/hooks/useUser'
+import { getStoredFcmFid } from '@/hooks/useNotifications'
 import { formatPhoneToE164, isValidVnPhone } from '@/utils/phone'
 
 const LoginPage = () => {
@@ -54,21 +55,17 @@ const LoginPage = () => {
     return isValid
   }
 
-  const syncFcmToken = async () => {
-    if (typeof window === 'undefined') {
-      return
-    }
+  const syncFcmFid = async () => {
+    const storedFid = getStoredFcmFid()
 
-    const storedToken = localStorage.getItem('fcm_token')
-
-    if (!storedToken) {
+    if (!storedFid) {
       return
     }
 
     try {
       const UserService = (await import('@/services/users')).default
 
-      await UserService.updateFcmToken(storedToken)
+      await UserService.updateFcmFid(storedFid)
     } catch {
       // Silent fail for FCM token sync
     }
@@ -86,7 +83,7 @@ const LoginPage = () => {
       const response = await loginAction(formatPhoneToE164(formData.phone) ?? formData.phone, formData.password, formData.rememberMe)
 
       login(response.user, formData.rememberMe)
-      await syncFcmToken()
+      await syncFcmFid()
       router.replace(response.user.role === 'ADMIN' ? '/admin' : '/')
     } catch {
       setErrors((prev) => ({ ...prev, general: translate('auth.login.error') }))
