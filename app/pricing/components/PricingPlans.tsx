@@ -117,34 +117,49 @@ const PricingPlans = ({ plans }: PricingPlansProps) => {
           </MyCardBody>
         </MyCard> */}
 
-        <section className='mt-16 overflow-hidden rounded-3xl border border-border bg-linear-default p-6 shadow-card sm:p-8 lg:p-10'>
-          <div className='mx-auto max-w-2xl text-center'>
-            <div className='mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary text-white shadow-md'>
+        <section className='relative isolate mt-16 overflow-hidden rounded-3xl bg-footer p-6 shadow-card-hover sm:p-8 lg:p-10'>
+          {/* Decorative layers: grid + soft glows */}
+          <div aria-hidden className='bg-tech-grid pointer-events-none absolute inset-0 -z-10' />
+          <div
+            aria-hidden
+            className='pointer-events-none absolute -top-24 left-1/2 -z-10 h-64 w-[36rem] -translate-x-1/2 rounded-full bg-bright-cyan/20 blur-3xl'
+          />
+          <div aria-hidden className='pointer-events-none absolute -right-20 -bottom-24 -z-10 size-72 rounded-full bg-secondary/25 blur-3xl' />
+
+          <div className='flex flex-col gap-4 sm:flex-row sm:items-center'>
+            <div className='flex size-12 shrink-0 items-center justify-center rounded-2xl border border-bright-cyan/30 bg-bright-cyan/10 text-bright-cyan shadow-[0_0_24px_-4px_var(--color-bright-cyan)]'>
               <CalendarIcon className='size-6' />
             </div>
-            <h2 className='mt-4 text-2xl font-extrabold text-text lg:text-3xl'>{translate('pricing.washTime.title')}</h2>
+            <div className='min-w-0'>
+              <h2 className='text-2xl font-extrabold tracking-tight text-white lg:text-3xl'>{translate('pricing.washTime.title')}</h2>
+              <p className='mt-1 flex items-start gap-1.5 text-sm text-white/60'>
+                <InfoIcon className='mt-0.5 size-4 shrink-0 text-bright-cyan' />
+                <span>{translate('pricing.washTime.subtitle')}</span>
+              </p>
+            </div>
           </div>
 
-          <div className='mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+          <div className='mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3'>
             {washTimes.map((item, index) => (
               <div
                 key={item.service}
-                className='group flex items-center gap-4 rounded-2xl border border-border bg-white p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-card-hover sm:p-5'
+                className='group relative flex flex-col justify-between gap-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-bright-cyan/40 hover:bg-white/[0.07]'
               >
-                <span className='flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-sm font-bold text-primary transition-colors group-hover:bg-primary group-hover:text-white'>
-                  {index + 1}
-                </span>
-                <div className='min-w-0 flex-1'>
-                  <p className='text-sm font-semibold leading-snug text-text sm:text-base'>{item.service}</p>
-                  <span className='mt-1.5 inline-flex rounded-full bg-secondary/10 px-3 py-1 text-sm font-bold text-secondary'>{item.time}</span>
+                {/* Top light line shown on hover */}
+                <span
+                  aria-hidden
+                  className='absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-bright-cyan to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100'
+                />
+                <div className='flex items-start justify-between gap-3'>
+                  <p className='text-[15px] font-medium leading-snug text-white/85'>{item.service}</p>
+                  <span className='shrink-0 font-mono text-xs font-semibold text-bright-cyan/70'>{String(index + 1).padStart(2, '0')}</span>
+                </div>
+                <div className='flex items-center gap-2.5'>
+                  <span className='size-1.5 rounded-full bg-bright-cyan shadow-[0_0_8px_var(--color-bright-cyan)]' />
+                  <span className='text-2xl font-bold tabular-nums tracking-tight text-white'>{item.time}</span>
                 </div>
               </div>
             ))}
-          </div>
-
-          <div className='mt-6 flex items-start gap-2 rounded-2xl bg-white/70 px-4 py-3 text-sm text-gray-600'>
-            <InfoIcon className='mt-0.5 size-4 shrink-0 text-primary' />
-            <p>{translate('pricing.washTime.subtitle')}</p>
           </div>
         </section>
 

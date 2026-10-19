@@ -1,5 +1,5 @@
 # Booking (đặt lịch giặt)
-> Cập nhật: 2026-10-17
+> Cập nhật: 2026-10-19
 
 ## Tổng quan
 Trang `/booking` và form trong Chat dùng **chung** một form và logic đặt lịch thật (`useLaundryBooking`). Khách chỉ chọn tỉnh nơi có chi nhánh phục vụ; đặt xong thì nhớ thông tin cho lần sau. Sub-logic: (1) Form + logic dùng chung, (2) Lọc tỉnh theo chi nhánh, (3) Prefill + nhớ địa chỉ, (4) Ghi chú cho cửa hàng, (5) Ngày giờ lấy + trả đồ, (6) Số kg ước lượng, (7) Thời gian giặt dự kiến, (8) Chống spam (reCAPTCHA v3 + báo lỗi 429). Tính tiền / điểm / giảm giá xem `docs/instruction/order.md`.
@@ -66,7 +66,7 @@ Khách chọn khi nào shipper đến lấy đồ và khi nào trả đồ. Cả
 
 ## 7. Thời gian giặt dự kiến (ghi chú)
 - Chỉ là ghi chú tĩnh, không ảnh hưởng đơn (khung trả đồ chỉ cần cách lấy đồ `WASH_DURATION_HOURS`, §5). Trang `/pricing` (`PricingPlans.tsx`) có section "Thời gian giặt dự kiến" đọc mảng `pricing.washTime.items` (`{ service, time }`) trong file ngôn ngữ — sửa nội dung chỉ cần sửa `vn.json`/`en.json`.
-- UI: section nền `bg-linear-default` bo góc, tiêu đề + icon lịch ở giữa; lưới thẻ 1/2/3 cột (mobile/sm/lg), mỗi thẻ có số thứ tự, tên dịch vụ, badge thời gian (màu `secondary`); `pricing.washTime.subtitle` hiện ở cuối như ghi chú kèm `InfoIcon`.
+- UI (phong cách dark-tech): section nền tối `bg-footer` bo góc, có lưới mờ (`bg-tech-grid` trong `app/globals.css`) + 2 quầng sáng cyan/secondary trang trí. Header canh trái: icon lịch phát sáng, tiêu đề trắng, `pricing.washTime.subtitle` ngay dưới kèm `InfoIcon`. Lưới thẻ kính 1/2/3 cột (mobile/sm/lg): tên dịch vụ + số thứ tự dạng `01` (mono) ở trên, thời gian chữ lớn màu trắng ở dưới; hover hiện vạch sáng cyan trên đỉnh thẻ.
 - Form đặt lịch có dòng nhắc dưới ô dịch vụ, link sang Bảng giá (`chat.laundryForm.washTimeHint`) mở **tab mới** — trong drawer chat trên mobile, đổi route cùng tab sẽ bị drawer che và đóng drawer thì mất dữ liệu form.
 
 ## 8. Chống spam (reCAPTCHA v3 + báo lỗi 429)
