@@ -1,8 +1,8 @@
 # Admin (`/admin`)
-> Cập nhật: 2026-10-16
+> Cập nhật: 2026-10-19
 
 ## Tổng quan
-Dashboard quản trị (client-only, `force-dynamic`, `noindex`): đơn hàng, khách hàng, bảng giá, khuyến mãi, chi nhánh, FAQ, blog, đánh giá, liên hệ. Mọi bảng dùng `MyTable` (xem `docs/instruction/ui.md`). Sub-logic: (1) Quản lý đơn hàng, (2) Quản lý đánh giá, (3) Quản lý chi nhánh, (4) Quản lý FAQ. Blog admin xem `docs/instruction/blog.md`; sửa số kg xem `docs/instruction/order.md`; khuyến mãi xem `docs/instruction/promotion.md` §3.
+Dashboard quản trị (client-only, `force-dynamic`, `noindex`): đơn hàng, khách hàng, bảng giá, khuyến mãi, chi nhánh, FAQ, blog, đánh giá, liên hệ. Mọi bảng dùng `MyTable` (xem `docs/instruction/ui.md`). Sub-logic: (1) Quản lý đơn hàng, (2) Quản lý đánh giá, (3) Quản lý chi nhánh, (4) Quản lý FAQ, (5) Bảng giá — gói phổ biến. Blog admin xem `docs/instruction/blog.md`; sửa số kg xem `docs/instruction/order.md`; khuyến mãi xem `docs/instruction/promotion.md` §3.
 
 ## Dùng chung
 - `app/admin/AdminShell.tsx` — client shell.
@@ -50,6 +50,18 @@ Dashboard quản trị (client-only, `force-dynamic`, `noindex`): đơn hàng, k
 ### Edge cases
 - Danh mục cũ không thuộc `FAQ_CATEGORY` vẫn hiện trong select khi sửa (giữ nguyên), nhãn hiển thị là giá trị gốc.
 - Tối đa `FULL_LIST_LIMIT` (100) FAQ mỗi danh sách — server cũng chặn ở 100.
+
+## 5. Bảng giá — gói phổ biến (`app/admin/pricing/page.tsx`)
+### Mục đích
+Admin chọn gói nào là "Phổ biến"; trang `/pricing` hiện badge + viền sáng chạy cho gói đó (xem `docs/instruction/ui.md` §6).
+### Luồng xử lý
+- Bảng có cột "Phổ biến" dạng công tắc (`toggle`): bật/tắt gọi `updatePlan({ id, payload: { popular } })` → `PATCH /laundry-categories/:id` → invalidate `QUERY_KEYS.getListPrice` + toast. Đang lưu thì khóa công tắc.
+- Vẫn sửa được trong form `PriceForm` (checkbox "Phổ biến").
+- Server đã có field `popular` (schema, DTO, response) và xóa cache Redis khi sửa.
+### Edge cases
+- Có thể bật nhiều gói cùng lúc, mỗi gói đều được highlight.
+- Trang `/pricing` cache ISR 60s nên có thể chậm tối đa ~1 phút mới thấy.
+- Trang chủ dùng bảng giá hardcode trong `app/page.tsx`, không theo cờ này.
 
 ## Translation / Constants
 - `admin.sidebar.{branches,faqs}`, `admin.branches.*`, `admin.faqs.*`; `QUERY_KEYS.{getAdminBranches,getAdminFaqs}`, `FULL_LIST_LIMIT`, `FAQ_CATEGORY`, `BRANCH_SOCIAL`, `FAQ_CACHE_DURATION`, `LOCAL_STORAGE_KEY.faqs`.

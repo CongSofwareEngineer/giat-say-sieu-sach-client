@@ -16,7 +16,7 @@ import useModalDrawer from '@/hooks/useModalDrawer'
 const AdminPricesPage = () => {
   const { translate } = useLanguage()
   const { open } = useModalDrawer()
-  const { plans, isLoading, deletePlan, isDeleting } = useAdminPricing()
+  const { plans, isLoading, updatePlan, isUpdating, deletePlan, isDeleting } = useAdminPricing()
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 10
@@ -81,6 +81,23 @@ const AdminPricesPage = () => {
         >
           {service.isActive ? translate('admin.prices.active', {}, 'Đang hoạt động') : translate('admin.prices.inactive', {}, 'Không hoạt động')}
         </span>
+      ),
+    },
+    {
+      key: 'popular',
+      title: translate('admin.prices.popular'),
+      align: 'center',
+      // Quick switch: the public pricing page highlights popular plans (badge + glow)
+      render: (service) => (
+        <input
+          type='checkbox'
+          className='toggle toggle-primary toggle-sm'
+          aria-label={translate('admin.prices.popular')}
+          checked={!!service.popular}
+          disabled={isUpdating}
+          // Error toast is shown by the hook
+          onChange={(e) => updatePlan({ id: service.id, payload: { popular: e.target.checked } }).catch(() => undefined)}
+        />
       ),
     },
     {
