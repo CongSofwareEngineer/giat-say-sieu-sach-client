@@ -148,11 +148,11 @@ body {
   background: linear-gradient(135deg, rgb(198, 232, 243), rgb(175, 226, 231));
 }
 
-/* Dark tech panel: faint grid lines fading out toward the bottom */
+/* Tech panel: faint grid lines (tinted by currentColor) fading out toward the bottom */
 @utility bg-tech-grid {
   background-image:
-    linear-gradient(to right, rgb(255 255 255 / 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(255 255 255 / 0.05) 1px, transparent 1px);
+    linear-gradient(to right, color-mix(in srgb, currentColor 8%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, currentColor 8%, transparent) 1px, transparent 1px);
   background-size: 32px 32px;
   mask-image: radial-gradient(ellipse at top, black 30%, transparent 75%);
 }

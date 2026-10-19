@@ -117,23 +117,23 @@ const PricingPlans = ({ plans }: PricingPlansProps) => {
           </MyCardBody>
         </MyCard> */}
 
-        <section className='relative isolate mt-16 overflow-hidden rounded-3xl bg-footer p-6 shadow-card-hover sm:p-8 lg:p-10'>
+        <section className='relative isolate mt-16 overflow-hidden rounded-3xl border border-border bg-background p-6 shadow-card sm:p-8 lg:p-10'>
           {/* Decorative layers: grid + soft glows */}
-          <div aria-hidden className='bg-tech-grid pointer-events-none absolute inset-0 -z-10' />
+          <div aria-hidden className='bg-tech-grid pointer-events-none absolute inset-0 -z-10 text-primary' />
           <div
             aria-hidden
-            className='pointer-events-none absolute -top-24 left-1/2 -z-10 h-64 w-[36rem] -translate-x-1/2 rounded-full bg-bright-cyan/20 blur-3xl'
+            className='pointer-events-none absolute -top-24 left-1/2 -z-10 h-64 w-[36rem] -translate-x-1/2 rounded-full bg-bright-cyan/15 blur-3xl'
           />
-          <div aria-hidden className='pointer-events-none absolute -right-20 -bottom-24 -z-10 size-72 rounded-full bg-secondary/25 blur-3xl' />
+          <div aria-hidden className='pointer-events-none absolute -right-20 -bottom-24 -z-10 size-72 rounded-full bg-secondary/10 blur-3xl' />
 
           <div className='flex flex-col gap-4 sm:flex-row sm:items-center'>
-            <div className='flex size-12 shrink-0 items-center justify-center rounded-2xl border border-bright-cyan/30 bg-bright-cyan/10 text-bright-cyan shadow-[0_0_24px_-4px_var(--color-bright-cyan)]'>
+            <div className='flex size-12 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary shadow-[0_0_24px_-6px_var(--color-primary)]'>
               <CalendarIcon className='size-6' />
             </div>
             <div className='min-w-0'>
-              <h2 className='text-2xl font-extrabold tracking-tight text-white lg:text-3xl'>{translate('pricing.washTime.title')}</h2>
-              <p className='mt-1 flex items-start gap-1.5 text-sm text-white/60'>
-                <InfoIcon className='mt-0.5 size-4 shrink-0 text-bright-cyan' />
+              <h2 className='text-2xl font-extrabold tracking-tight text-text lg:text-3xl'>{translate('pricing.washTime.title')}</h2>
+              <p className='mt-1 flex items-start gap-1.5 text-sm text-gray-500'>
+                <InfoIcon className='mt-0.5 size-4 shrink-0 text-primary' />
                 <span>{translate('pricing.washTime.subtitle')}</span>
               </p>
             </div>
@@ -143,20 +143,20 @@ const PricingPlans = ({ plans }: PricingPlansProps) => {
             {washTimes.map((item, index) => (
               <div
                 key={item.service}
-                className='group relative flex flex-col justify-between gap-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-bright-cyan/40 hover:bg-white/[0.07]'
+                className='group relative flex flex-col justify-between gap-4 overflow-hidden rounded-2xl border border-border bg-white/80 p-5 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-card-hover'
               >
                 {/* Top light line shown on hover */}
                 <span
                   aria-hidden
-                  className='absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-bright-cyan to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100'
+                  className='absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-bright-cyan to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100'
                 />
                 <div className='flex items-start justify-between gap-3'>
-                  <p className='text-[15px] font-medium leading-snug text-white/85'>{item.service}</p>
-                  <span className='shrink-0 font-mono text-xs font-semibold text-bright-cyan/70'>{String(index + 1).padStart(2, '0')}</span>
+                  <p className='text-[15px] font-medium leading-snug text-gray-600'>{item.service}</p>
+                  <span className='shrink-0 font-mono text-xs font-semibold text-primary/60'>{String(index + 1).padStart(2, '0')}</span>
                 </div>
                 <div className='flex items-center gap-2.5'>
                   <span className='size-1.5 rounded-full bg-bright-cyan shadow-[0_0_8px_var(--color-bright-cyan)]' />
-                  <span className='text-2xl font-bold tabular-nums tracking-tight text-white'>{item.time}</span>
+                  <span className='text-2xl font-bold tabular-nums tracking-tight text-text'>{item.time}</span>
                 </div>
               </div>
             ))}

@@ -66,7 +66,7 @@ Khách chọn khi nào shipper đến lấy đồ và khi nào trả đồ. Cả
 
 ## 7. Thời gian giặt dự kiến (ghi chú)
 - Chỉ là ghi chú tĩnh, không ảnh hưởng đơn (khung trả đồ chỉ cần cách lấy đồ `WASH_DURATION_HOURS`, §5). Trang `/pricing` (`PricingPlans.tsx`) có section "Thời gian giặt dự kiến" đọc mảng `pricing.washTime.items` (`{ service, time }`) trong file ngôn ngữ — sửa nội dung chỉ cần sửa `vn.json`/`en.json`.
-- UI (phong cách dark-tech): section nền tối `bg-footer` bo góc, có lưới mờ (`bg-tech-grid` trong `app/globals.css`) + 2 quầng sáng cyan/secondary trang trí. Header canh trái: icon lịch phát sáng, tiêu đề trắng, `pricing.washTime.subtitle` ngay dưới kèm `InfoIcon`. Lưới thẻ kính 1/2/3 cột (mobile/sm/lg): tên dịch vụ + số thứ tự dạng `01` (mono) ở trên, thời gian chữ lớn màu trắng ở dưới; hover hiện vạch sáng cyan trên đỉnh thẻ.
+- UI (phong cách tech, tông sáng): section nền `bg-background` viền `border` bo góc, có lưới mờ (`bg-tech-grid` trong `app/globals.css`, màu lưới theo `currentColor` — ở đây `text-primary`) + 2 quầng sáng cyan/secondary nhạt. Header canh trái: icon lịch phát sáng màu `primary`, tiêu đề `text-text`, `pricing.washTime.subtitle` ngay dưới kèm `InfoIcon`. Lưới thẻ kính 1/2/3 cột (mobile/sm/lg): tên dịch vụ + số thứ tự dạng `01` (mono) ở trên, thời gian chữ lớn màu `text-text` ở dưới; hover hiện vạch sáng cyan trên đỉnh thẻ.
 - Form đặt lịch có dòng nhắc dưới ô dịch vụ, link sang Bảng giá (`chat.laundryForm.washTimeHint`) mở **tab mới** — trong drawer chat trên mobile, đổi route cùng tab sẽ bị drawer che và đóng drawer thì mất dữ liệu form.
 
 ## 8. Chống spam (reCAPTCHA v3 + báo lỗi 429)
