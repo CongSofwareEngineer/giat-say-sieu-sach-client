@@ -60,6 +60,8 @@ export type CreateGuestOrderPayload = {
   city: string
   items: { categoryId: string; quantity: number }[]
   notes?: string
+  // Invisible reCAPTCHA v3 token (anti-spam), omitted when reCAPTCHA is not configured
+  captchaToken?: string
 }
 
 // Public order view returned by the no-auth lookups (no address/notes/user)

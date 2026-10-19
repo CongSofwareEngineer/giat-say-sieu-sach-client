@@ -297,6 +297,7 @@
   "booking": {
     "serviceTypeLabel": "Booked via booking page: {serviceType}",
     "error": "Booking failed, please try again later",
+    "tooManyOrders": "This phone number already has {max} unfinished orders, or you are booking too fast. Please try again in a few minutes or call {phone}.",
     "title": "Book Laundry Service",
     "subtitle": "Fill in your information to schedule pickup",
     "form": {
@@ -1113,6 +1114,9 @@
     "orderConfirmation": "Book laundry service:\n\n• Name: {name}\n• Phone: {phone}\n• Address: {address}\n• Type: {service}\n• Pickup: {pickup}\n• Return: {returnTime}\n• Weight: {weight}\n• Reference price: {price}",
     "laundryForm": {
       "title": "Book Laundry Service",
+      "recaptchaNotice": "Protected by Google reCAPTCHA:",
+      "recaptchaPrivacy": "Privacy Policy",
+      "recaptchaTerms": "Terms",
       "chatAddress": "Chat address",
       "namePlaceholder": "Enter your name",
       "phonePlaceholder": "Enter your phone",

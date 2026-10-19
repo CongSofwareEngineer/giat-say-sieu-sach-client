@@ -14,7 +14,7 @@ import useUser from '@/hooks/useUser'
 import useLaundryBooking from '@/hooks/useLaundryBooking'
 import { chatAgent } from '@/agents'
 import { LAUNDRY_FORM_MARKER } from '@/agents/tools/laundry'
-import { formatPickupTime } from '@/agents/tools/booking'
+import { formatPickupTime, getBookingErrorMessage } from '@/agents/tools/booking'
 import { notifyUnreadMessage } from '@/utils/notification'
 import { formatAddress } from '@/services/address'
 import { chat } from '@/zustand/chat'
@@ -165,10 +165,10 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         })
       }, 500)
-    } catch {
+    } catch (error) {
       addMessage({
         id: Date.now(),
-        text: translate('chat.error'),
+        text: getBookingErrorMessage(error, 'chat.error'),
         isUser: false,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       })

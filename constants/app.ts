@@ -34,6 +34,7 @@ export const IS_BUILD_PHASE = process.env.NEXT_PHASE === PHASE_PRODUCTION_BUILD
 export enum HTTP_STATUS {
   BAD_REQUEST = 400,
   NOT_FOUND = 404,
+  TOO_MANY_REQUESTS = 429,
 }
 
 // Primary colors
@@ -223,6 +224,25 @@ export const PROMOTION_DISCOUNT_RANGE = {
   MAX: 100,
 } as const
 
+// Max unfinished orders per phone on the guest booking endpoint (must match server MAX_ACTIVE_ORDERS_PER_PHONE)
+export const MAX_ACTIVE_ORDERS_PER_PHONE = 3 as number
+
+// reCAPTCHA v3 (invisible, free tier) protecting the guest booking endpoint; disabled when the site key is empty
+export const RECAPTCHA = {
+  SITE_KEY: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? '',
+  SCRIPT_URL: 'https://www.google.com/recaptcha/api.js',
+  SCRIPT_ID: 'recaptcha-v3-script',
+  // Give up waiting for the script / token after this (ms), the server then decides
+  TIMEOUT: 10000,
+  PRIVACY_URL: 'https://policies.google.com/privacy',
+  TERMS_URL: 'https://policies.google.com/terms',
+} as const
+
+// reCAPTCHA v3 action names (must match server RecaptchaAction)
+export enum RECAPTCHA_ACTION {
+  GUEST_ORDER = 'guest_order',
+}
+
 // Where a laundry booking was placed, written into the order notes
 export enum BOOKING_SOURCE {
   CHAT = 'chat',
@@ -239,3 +259,15 @@ export const COMMENT_SERVICES = [
 
 // Vietnamese mobile phone in local form (0 + 9 digits)
 export const VN_LOCAL_PHONE_REGEX = /^0[0-9]{9}$/
+
+// Origins allowed to call the internal API proxies (app/api/*)
+export const ALLOWED_ORIGINS: readonly string[] = [SITE_CONFIG.url, 'http://localhost:3000', 'http://localhost:3001']
+
+// Province/ward data: upstream esgoo API is proxied through our own route (esgoo sends no CORS headers)
+export const LOCATION_API = {
+  upstream: 'https://esgoo.net/api-tinhthanh-new',
+  proxy: '/api/location',
+  // Allowed proxy paths: `<level>/<id>.htm` (1 provinces, 2 wards, 4 full data, 5 name lookup)
+  pathRegex: /^[1245]\/\d{1,6}\.htm$/,
+  cacheSeconds: 24 * 60 * 60,
+} as const

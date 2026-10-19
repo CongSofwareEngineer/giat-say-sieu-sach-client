@@ -185,3 +185,8 @@ body {
     animation: none;
   }
 }
+
+/* reCAPTCHA v3 badge would cover the floating contact buttons; the booking form shows the required notice instead */
+.grecaptcha-badge {
+  visibility: hidden;
+}

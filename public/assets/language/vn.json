@@ -297,6 +297,7 @@
   "booking": {
     "serviceTypeLabel": "Đặt qua trang đặt lịch: {serviceType}",
     "error": "Đặt lịch thất bại, vui lòng thử lại sau",
+    "tooManyOrders": "Số điện thoại này đã có {max} đơn chưa hoàn tất hoặc bạn đặt quá nhanh. Vui lòng thử lại sau ít phút hoặc gọi {phone}.",
     "title": "Đặt lịch giặt ủi",
     "subtitle": "Điền thông tin để đặt lịch giao nhận đồ",
     "form": {
@@ -1113,6 +1114,9 @@
     "orderConfirmation": "Đặt dịch vụ giặt đồ:\n\n• Họ tên: {name}\n• SĐT: {phone}\n• Địa chỉ: {address}\n• Loại: {service}\n• Lấy đồ: {pickup}\n• Trả đồ: {returnTime}\n• Khối lượng: {weight}\n• Giá tham khảo: {price}",
     "laundryForm": {
       "title": "Đặt dịch vụ giặt đồ",
+      "recaptchaNotice": "Được bảo vệ bởi reCAPTCHA của Google:",
+      "recaptchaPrivacy": "Chính sách bảo mật",
+      "recaptchaTerms": "Điều khoản",
       "chatAddress": "Địa chỉ chat",
       "namePlaceholder": "Nhập họ tên",
       "phonePlaceholder": "Nhập số điện thoại",

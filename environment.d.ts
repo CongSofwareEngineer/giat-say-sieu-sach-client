@@ -20,6 +20,8 @@ interface EnvironmentVariables {
   readonly NEXT_PUBLIC_FIREBASE_APP_ID?: string
   readonly NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID?: string
   readonly NEXT_PUBLIC_FIREBASE_VAPID_KEY?: string
+  // reCAPTCHA v3 site key (anti-spam on guest booking), empty = disabled
+  readonly NEXT_PUBLIC_RECAPTCHA_SITE_KEY?: string
 
   // System One
   readonly SYSTEM_ONE_API_URL: string

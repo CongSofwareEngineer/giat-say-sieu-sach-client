@@ -1,6 +1,8 @@
+import { LOCATION_API } from '@/constants/app'
 import { LocationResponse, Province, District } from './type'
 
-const ESGOO_BASE = 'https://esgoo.net/api-tinhthanh-new'
+// Same-origin proxy (app/api/location) — esgoo blocks direct browser calls via CORS
+const ESGOO_BASE = LOCATION_API.proxy
 
 class LocationApi {
   private async fetchJson<T>(url: string): Promise<T> {
