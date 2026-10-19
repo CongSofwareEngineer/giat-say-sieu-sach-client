@@ -108,7 +108,8 @@ export const MIN_PASSWORD_LENGTH = 4 as number
 export const COPY_FEEDBACK_DURATION = 2000 as number
 
 export const MAX_PIXEL_REDUCE = 300 as number
-export const MAX_COMMENT_IMAGES = 5 as number
+export const MAX_COMMENT_IMAGES = 3 as number
+export const MAX_COMMENT_CONTENT_LENGTH = 200 as number
 export const MAX_AVATAR_FILE_SIZE = (5 * 1024 * 1024) as number
 export const PAGE_SIZE = 10 as number
 // Recent orders shown in the chat order list

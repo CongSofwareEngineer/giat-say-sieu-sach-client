@@ -6,22 +6,23 @@ import AuthService from '@/services/auth'
 import { setCookie } from '@/utils/cookie'
 import { COOKIES_KEY } from '@/constants/cookies'
 
-export async function loginAction(phone: string, password: string) {
+export async function loginAction(phone: string, password: string, rememberMe: boolean = true) {
   const response = await AuthService.login(phone, password)
 
-  await saveAuthCookies(response)
+  await saveAuthCookies(response, rememberMe)
 
   return response
 }
 
-// Store the access/refresh tokens in httpOnly cookies (shared by login and register)
-export async function saveAuthCookies(auth: Auth) {
+// Store the access/refresh tokens in httpOnly cookies (shared by login and register).
+// Not remembered -> session cookies (no maxAge), gone when the browser closes.
+export async function saveAuthCookies(auth: Auth, rememberMe: boolean = true) {
   const accessExpireInSeconds = parseExpireToSeconds(auth.accessExpire)
 
   const refreshExpireInSeconds = parseExpireToSeconds(auth.refreshExpire)
 
-  await setCookie(COOKIES_KEY.accessToken, auth.accessToken, accessExpireInSeconds)
-  await setCookie(COOKIES_KEY.refreshToken, auth.refreshToken, refreshExpireInSeconds)
+  await setCookie(COOKIES_KEY.accessToken, auth.accessToken, rememberMe ? accessExpireInSeconds : undefined)
+  await setCookie(COOKIES_KEY.refreshToken, auth.refreshToken, rememberMe ? refreshExpireInSeconds : undefined)
 }
 
 function parseExpireToSeconds(expire: string): number {

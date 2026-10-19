@@ -407,6 +407,7 @@
       "contentPlaceholder": "Share details about your experience",
       "images": "Photos",
       "maxImages": "Up to {max} photos",
+      "contentCounter": "{count}/{max} characters",
       "submit": "Submit review"
     },
     "validation": {
@@ -417,6 +418,7 @@
       "ratingRequired": "Please select a star rating",
       "titleRequired": "Please enter a title",
       "contentRequired": "Please enter content",
+      "contentTooLong": "Content must be at most {max} characters",
       "replyRequired": "Please enter your reply",
       "loginToRate": "Please login to rate"
     }

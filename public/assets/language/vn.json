@@ -407,6 +407,7 @@
       "contentPlaceholder": "Chia sẻ chi tiết trải nghiệm của bạn",
       "images": "Hình ảnh",
       "maxImages": "Tối đa {max} ảnh",
+      "contentCounter": "{count}/{max} ký tự",
       "submit": "Gửi đánh giá"
     },
     "validation": {
@@ -417,6 +418,7 @@
       "ratingRequired": "Vui lòng chọn số sao",
       "titleRequired": "Vui lòng nhập tiêu đề",
       "contentRequired": "Vui lòng nhập nội dung",
+      "contentTooLong": "Nội dung tối đa {max} ký tự",
       "replyRequired": "Vui lòng nhập nội dung phản hồi",
       "loginToRate": "Vui lòng đăng nhập để đánh giá"
     }

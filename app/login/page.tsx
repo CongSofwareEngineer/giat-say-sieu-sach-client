@@ -83,9 +83,9 @@ const LoginPage = () => {
     setErrors((prev) => ({ ...prev, general: '' }))
 
     try {
-      const response = await loginAction(formatPhoneToE164(formData.phone) ?? formData.phone, formData.password)
+      const response = await loginAction(formatPhoneToE164(formData.phone) ?? formData.phone, formData.password, formData.rememberMe)
 
-      login(response.user)
+      login(response.user, formData.rememberMe)
       await syncFcmToken()
       router.replace(response.user.role === 'ADMIN' ? '/admin' : '/')
     } catch {

@@ -20,6 +20,7 @@ export type CommentItem = {
   parentComment: string | null
   createdAt: string
   name?: string
+  // Masked by the API as "first 3 digits...last 3 digits", e.g. 090...567
   phone?: string
   title?: string
   serviceId?: string

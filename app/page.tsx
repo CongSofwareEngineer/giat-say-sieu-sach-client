@@ -261,7 +261,7 @@ const HomePage = () => {
                 key={plan.name}
                 className={cn(
                   'relative text-center transition-transform duration-300 hover:-translate-y-1',
-                  plan.popular && 'border-primary shadow-card-hover ring-2 ring-primary lg:-translate-y-3 lg:hover:-translate-y-4'
+                  plan.popular && 'plan-popular-glow border-primary shadow-card-hover ring-2 ring-primary lg:-translate-y-3 lg:hover:-translate-y-4'
                 )}
               >
                 <MyCardBody className='p-6 lg:p-7'>

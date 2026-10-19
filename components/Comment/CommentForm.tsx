@@ -13,7 +13,7 @@ import { PlusIcon } from '@/components/Icons/Plus'
 import { TrashIcon } from '@/components/Icons/Trash'
 import { CommentItem } from '@/services/comment'
 import UploadService, { CloudinaryImage } from '@/services/upload'
-import { COMMENT_SERVICES, MAX_COMMENT_IMAGES, UPLOAD_IMAGE_TYPE } from '@/constants/app'
+import { COMMENT_SERVICES, MAX_COMMENT_CONTENT_LENGTH, MAX_COMMENT_IMAGES, UPLOAD_IMAGE_TYPE } from '@/constants/app'
 import useBase64Img from '@/hooks/useBase64Img'
 import useGetListComments from '@/hooks/reactQuery/useGetListComments'
 import useLanguage from '@/hooks/useLanguage'
@@ -128,6 +128,9 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
     if (isLogin && formData.rating < 1) newErrors.rating = translate('reviews.validation.ratingRequired')
     if (!formData.title.trim()) newErrors.title = translate('reviews.validation.titleRequired')
     if (!formData.content.trim()) newErrors.content = translate('reviews.validation.contentRequired')
+    else if (formData.content.trim().length > MAX_COMMENT_CONTENT_LENGTH) {
+      newErrors.content = translate('reviews.validation.contentTooLong', { max: MAX_COMMENT_CONTENT_LENGTH })
+    }
 
     setErrors(newErrors)
 
@@ -260,14 +263,20 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
         error={errors.title}
       />
 
-      <MyTextarea
-        label={translate('reviews.form.content')}
-        placeholder={translate('reviews.form.contentPlaceholder')}
-        required
-        value={formData.content}
-        onChange={(e) => handleChange('content', e.target.value)}
-        error={errors.content}
-      />
+      <div>
+        <MyTextarea
+          label={translate('reviews.form.content')}
+          placeholder={translate('reviews.form.contentPlaceholder')}
+          required
+          maxLength={MAX_COMMENT_CONTENT_LENGTH}
+          value={formData.content}
+          onChange={(e) => handleChange('content', e.target.value)}
+          error={errors.content}
+        />
+        <p className='mt-1 text-right text-xs text-gray-400'>
+          {translate('reviews.form.contentCounter', { count: formData.content.length, max: MAX_COMMENT_CONTENT_LENGTH })}
+        </p>
+      </div>
 
       <div>
         <label className='mb-1.5 block text-sm font-medium text-text'>{translate('reviews.form.images')}</label>

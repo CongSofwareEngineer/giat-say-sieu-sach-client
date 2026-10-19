@@ -1,5 +1,5 @@
 # UI dùng chung (`components/My*`, theme, layout)
-> Cập nhật: 2026-10-16
+> Cập nhật: 2026-10-19
 
 ## Tổng quan
 Bộ primitive `components/My*` + Header/Footer + token style trong `app/globals.css` (Tailwind v4 + daisyUI theme `giat-say-sieu-sach`). Phong cách: bo tròn lớn, glassmorphism nhẹ, shadow nhuốm màu primary, focus ring mềm; giữ tông sáng, không đổi cấu trúc heading/text/metadata (an toàn SEO). Sub-logic: (1) MySelect, (2) Form input/button & primitive khác, (3) MyTable, (4) Header/Footer, (5) Trang chính sách `/policy`.
@@ -48,6 +48,18 @@ Một trang gom điều khoản dịch vụ, bồi thường, thanh toán, huỷ
 - `policy.{seo.*,tag,title,subtitle,updatedAt,toc,contact,sections}`, `menu.policy`.
 ### Edge cases
 - Nội dung hiện là **bản nháp** theo mức phổ biến (báo trong 24h, bồi thường tối đa 10 lần phí dịch vụ…) — cần chủ cửa hàng xác nhận lại. Đổi nội dung thì cập nhật `policy.updatedAt`.
+
+## 6. Thẻ gói "Phổ biến" có viền sáng chạy (trang chủ + `/pricing`)
+### Mục đích
+Làm nổi bật gói được nhiều người chọn (`plan.popular`) bằng một vòng sáng chạy quanh thẻ.
+### Entry points
+- `app/globals.css` — class `.plan-popular-glow` (pseudo `::before` vẽ vòng `conic-gradient` xoay, `@property --glow-angle`, keyframes `glowSpin` 3s vô hạn).
+- Gắn class khi `plan.popular`: `app/page.tsx` (mục bảng giá trang chủ), `app/pricing/components/PricingPlans.tsx`.
+### Luồng xử lý
+- Vòng sáng chỉ là viền 3px nằm ngoài thẻ (`mask` exclude), không che nội dung và không đổi layout.
+- Màu lấy từ theme `accent` → `primary`. `prefers-reduced-motion: reduce` tắt animation.
+### Edge cases
+- `MyCard` không có `overflow-hidden` nên vòng không bị cắt; badge "Phổ biến" vẫn nằm trên viền như trước.
 
 ## Translation / Constants
 - Dùng lại `common.close`, `common.search`, `common.select`, `common.notFound`.

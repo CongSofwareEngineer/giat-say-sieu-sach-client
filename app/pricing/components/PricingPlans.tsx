@@ -61,7 +61,8 @@ const PricingPlans = ({ plans }: PricingPlansProps) => {
               key={plan.name}
               className={cn(
                 'relative transition-transform duration-300 hover:-translate-y-1',
-                plan.popular && 'bg-linear-default border-primary shadow-card-hover ring-2 ring-primary xl:-translate-y-3 xl:hover:-translate-y-4'
+                plan.popular &&
+                  'plan-popular-glow bg-linear-default border-primary shadow-card-hover ring-2 ring-primary xl:-translate-y-3 xl:hover:-translate-y-4'
               )}
             >
               <MyCardBody className='flex h-full flex-col p-6 lg:p-7'>

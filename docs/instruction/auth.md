@@ -1,5 +1,5 @@
 # Auth (đăng ký / đăng nhập / token)
-> Cập nhật: 2026-10-15
+> Cập nhật: 2026-10-19
 
 ## Tổng quan
 Xác thực khách hàng bằng **họ tên + số điện thoại + mật khẩu**. Token (access/refresh) lưu ở httpOnly cookie, chỉ đọc/ghi qua server actions trong `utils/cookie.ts` (`COOKIES_KEY`). Trạng thái đăng nhập là store Zustand `zustand/user.ts` (`useUser`). Sub-logic: (1) Đăng ký, (2) Tự refresh token + báo hết hạn.
@@ -45,6 +45,26 @@ Mọi API `isUseAuth` luôn gắn `accessToken`; thiếu/hết hạn thì dùng 
 - Refresh lỗi 401/403 → session expired; lỗi mạng/khác → bỏ qua, không logout.
 - Refresh token bị thu hồi: mỗi request auth sau đó vẫn thử refresh 1 lần rồi thất bại (user đã logout nên không toast lặp).
 - Server component: `handleSessionExpired` không làm gì (không có `window`). Không tự redirect `/login`.
+
+## 3. Ghi nhớ đăng nhập (`/login`, `zustand/user.ts`)
+### Mục đích
+Checkbox "Ghi nhớ đăng nhập" (mặc định tích) quyết định phiên có còn sau khi reload trang hay không.
+### Entry points
+- `app/login/page.tsx` — `formData.rememberMe` (mặc định `true`) → `loginAction(phone, password, rememberMe)` và `login(user, rememberMe)`.
+- `app/login/actions.ts` — `saveAuthCookies(auth, rememberMe)`: tích → cookie có `maxAge` theo `accessExpire`/`refreshExpire`; không tích → session cookie (không `maxAge`).
+- `zustand/user.ts` — `isRemembered` trong state (không tích = `false`); `login`, `logout`, `setItem`, `onRehydrateStorage`.
+### Luồng xử lý
+1. **Tích**: như cũ — user lưu localStorage (`user-zustand`), cookie có hạn, reload vẫn đăng nhập.
+2. **Không tích**: cookie token là session cookie; user KHÔNG được ghi vào localStorage (`setItem` xóa key thay vì ghi). Đồng thời đặt cờ `sessionStorage[SESSION_ONLY_LOGIN_KEY]`.
+3. **Reload trang**: store khởi tạo lại ở trạng thái chưa đăng nhập → `onRehydrateStorage` thấy cờ trong sessionStorage → xóa cờ, xóa cookie `accessToken`/`refreshToken` (`removeCookie`) → coi như đã logout.
+4. **Đóng tab/trình duyệt**: sessionStorage mất, session cookie cũng mất.
+5. Đăng nhập lại có tích → xóa cờ. `logout()` xóa cờ và đặt `isRemembered` về `true`.
+### Translation / Constants
+- `auth.login.rememberMe`; `SESSION_ONLY_LOGIN_KEY`, `COOKIES_KEY` (`constants/cookies.ts`).
+### Edge cases
+- Đăng ký (`registerAction`) không có checkbox nên luôn lưu như "ghi nhớ".
+- Người dùng lưu từ phiên cũ (chưa có `isRemembered`) được coi là ghi nhớ (giá trị mặc định `true`).
+- Ở server render, `onRehydrateStorage` không đụng `sessionStorage` (guard `typeof window`).
 
 ## Liên quan
 - `docs/instruction/profile.md` (đổi mật khẩu), `docs/instruction/booking.md` (đặt lịch dùng SĐT E.164).

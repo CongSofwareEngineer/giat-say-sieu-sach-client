@@ -19,20 +19,10 @@ import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
 import useUser from '@/hooks/useUser'
 import { cn } from '@/utils/tailwind'
-import { normalizeVnPhone } from '@/utils/phone'
 
 type CommentCardProps = {
   comment: CommentItem
   className?: string
-}
-
-// Mask phone for public display, e.g. 0901234567 / +84901234567 -> 090•••••67
-const maskPhone = (phone: string): string => {
-  const clean = normalizeVnPhone(phone ?? '')
-
-  if (clean.length < 6) return phone
-
-  return `${clean.slice(0, 3)}•••••${clean.slice(-2)}`
 }
 
 // Render a single review card with stars, content, image thumbnails and owner/admin actions
@@ -127,7 +117,8 @@ const CommentCard = ({ comment, className }: CommentCardProps) => {
           </div>
           <div>
             <p className='font-semibold text-text'>{comment.name}</p>
-            <p className='text-xs text-gray-400'>{maskPhone(comment.phone ?? '')}</p>
+            {/* Phone is already masked by the API, e.g. 090...567 */}
+            <p className='text-xs text-gray-400'>{comment.phone}</p>
           </div>
         </div>
         <div className='flex flex-col items-end gap-1'>
