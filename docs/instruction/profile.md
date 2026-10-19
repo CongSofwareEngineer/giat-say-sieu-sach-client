@@ -1,8 +1,8 @@
 # Profile (khu vực khách hàng `/profile`)
-> Cập nhật: 2026-10-18
+> Cập nhật: 2026-10-19
 
 ## Tổng quan
-Trang cá nhân của khách đã đăng nhập: thông tin, avatar, sổ địa chỉ, đổi mật khẩu, đơn hàng của tôi, hạng + điểm tích lũy. Kèm chuông thông báo trên Header (mới làm UI). Sub-logic: (1) Hạng khách hàng & điểm, (2) Đổi mật khẩu, (3) Đơn hàng của tôi, (4) Chuông thông báo, (5) Dữ liệu Tỉnh/Xã (proxy esgoo). Avatar xem `docs/instruction/upload.md`.
+Trang cá nhân của khách đã đăng nhập: thông tin, avatar, sổ địa chỉ, đổi mật khẩu, đơn hàng của tôi, hạng + điểm tích lũy. Kèm chuông thông báo trên Header (mới làm UI). Sub-logic: (1) Hạng khách hàng & điểm, (2) Đổi mật khẩu, (3) Đơn hàng của tôi, (4) Chuông thông báo, (5) Dữ liệu Tỉnh/Xã (proxy esgoo), (6) Sổ địa chỉ. Avatar xem `docs/instruction/upload.md`.
 
 ## Dùng chung
 - `app/profile/page.tsx` — làm mới profile khi vào trang (`GET /users/me` → cập nhật `loyaltyPoints` vào store).
@@ -52,10 +52,25 @@ Trang cá nhân của khách đã đăng nhập: thông tin, avatar, sổ địa
 - Chặn được web khác gọi qua browser và bot không giả header. Server cố tình giả `Sec-Fetch-Site`/`Referer` vẫn qua được, nhưng nhờ cache esgoo không bị quá tải.
 - `LocationService` dùng URL tương đối → chỉ gọi ở client.
 
+## 6. Sổ địa chỉ
+### Mục đích
+Khách thêm / sửa / xoá / đặt mặc định địa chỉ giao nhận đồ, dùng lại khi đặt lịch.
+### Entry points
+- `app/profile/components/AddressBook.tsx` (danh sách + mở modal qua `useModalDrawer`), `AddressForm.tsx` (form thêm/sửa dùng chung), `AddressCard.tsx`, `DeleteAddressConfirm.tsx`.
+- Hook `hooks/reactQuery/useGetListAddress.ts` (`QUERY_KEYS.getListAddresses`, sync vào store `zustand/address.ts`), service `services/address` (`/addresses/me`, auth).
+### Luồng xử lý
+1. Form gửi `{ phone, address, district, city, isDefault }` — **không có `recipientName`** (server để optional).
+2. `phone` được chuẩn hoá bằng `normalizeVnPhone` (về dạng `0xxxxxxxxx`) trước khi gửi, vì server (`IsPhoneNumber('VN')`) từ chối dạng `84xxx` không có dấu `+`.
+3. `POST /addresses/me` (thêm) hoặc `PATCH /addresses/me/:id` (sửa) → thành công thì invalidate `getListAddresses` và đóng modal.
+### Edge cases
+- Lỗi request → hiện `profile.addresses.errors.save` trong form, modal không đóng.
+- Địa chỉ đầu tiên luôn được server đặt mặc định; địa chỉ đang mặc định thì checkbox "mặc định" bị khoá.
+- Tỉnh/Xã lấy từ §5; nếu tên tỉnh cũ không còn trong danh sách mới thì select trống, cần chọn lại.
+
 ## Translation / Constants
 - `ALLOWED_ORIGINS`, `LOCATION_API`
 - `CUSTOMER_TIER`, `CUSTOMER_TIER_MIN_POINTS`, `MIN_PASSWORD_LENGTH`
-- `profile.loyalty.*`, `profile.menu.{orders,password}`, `changePassword.*`, `myOrders.*`, `notification.{title,markAllRead,empty,emptyDesc}`
+- `profile.addresses.*`, `profile.loyalty.*`, `profile.menu.{orders,password}`, `changePassword.*`, `myOrders.*`, `notification.{title,markAllRead,empty,emptyDesc}`
 - Icon: `components/Icons/Bell.tsx`, `Lock.tsx`.
 
 ## Liên quan

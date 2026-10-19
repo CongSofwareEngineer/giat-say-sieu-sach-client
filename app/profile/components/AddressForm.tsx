@@ -6,7 +6,7 @@ import MyButton from '@/components/MyButton'
 import MyInput from '@/components/MyInput'
 import MySelect from '@/components/MySelect'
 import useLanguage from '@/hooks/useLanguage'
-import { isValidVnPhone } from '@/utils/phone'
+import { isValidVnPhone, normalizeVnPhone } from '@/utils/phone'
 import { AddressItem, CreateAddressPayload } from '@/services/address/type'
 import LocationService from '@/services/location'
 import { Province, District } from '@/services/location/type'
@@ -141,7 +141,8 @@ const AddressForm = ({ address, onSubmit }: AddressFormProps) => {
 
     try {
       await onSubmit({
-        phone: formData.phone.replace(/\s/g, ''),
+        // Send the 0xxx form, the server rejects a bare 84xxx prefix
+        phone: normalizeVnPhone(formData.phone),
         address: formData.address.trim(),
         district: formData.district,
         city: formData.city,
