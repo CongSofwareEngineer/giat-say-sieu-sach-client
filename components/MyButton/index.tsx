@@ -4,7 +4,7 @@ import { ButtonHTMLAttributes, ReactNode } from 'react'
 
 import { cn } from '@/utils/tailwind'
 
-export type MyButtonVariant = 'default' | 'primary' | 'warning' | 'error' | 'outline' | 'ghost'
+export type MyButtonVariant = 'default' | 'cta' | 'primary' | 'warning' | 'error' | 'outline' | 'ghost'
 export type MyButtonSize = 'default' | 'small' | 'large' | 'sm'
 
 export type MyButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -18,6 +18,7 @@ export type MyButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 const variantStyles: Record<MyButtonVariant, string> = {
   default:
     'bg-gradient-to-br from-primary to-secondary text-primary-content shadow-[0_8px_24px_-6px_rgba(10,111,135,0.45)] hover:shadow-[0_12px_28px_-6px_rgba(10,111,135,0.55)]',
+  cta: 'bg-accent text-accent-content font-bold shadow-[0_10px_28px_-8px_rgba(245,158,11,0.7)] hover:brightness-105 hover:shadow-[0_14px_32px_-8px_rgba(245,158,11,0.8)]',
   primary: 'bg-primary text-primary-content shadow-[0_6px_20px_-8px_rgba(10,111,135,0.6)] hover:bg-primary/90',
   warning: 'bg-amber-400 text-gray-900 shadow-[0_6px_20px_-8px_rgba(245,158,11,0.6)] hover:bg-amber-300',
   error: 'bg-red-600 text-white shadow-[0_6px_20px_-8px_rgba(220,38,38,0.6)] hover:bg-red-500',

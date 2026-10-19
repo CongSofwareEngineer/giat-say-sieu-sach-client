@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 
 import MyCard, { MyCardBody } from '@/components/MyCard'
@@ -18,6 +18,7 @@ import SmartPhoneIcon from '@/components/Icons/Home/SmartPhone'
 import ChatBubbleIcon from '@/components/Icons/ChatBubble'
 import AwardIcon from '@/components/Icons/Home/Award'
 import SeoJsonLd from '@/components/SeoJsonLd'
+import BookingStickyBar from '@/components/BookingStickyBar'
 import useLanguage from '@/hooks/useLanguage'
 import useGetListFaqs from '@/hooks/reactQuery/useGetListFaqs'
 import { breadcrumbSchema, faqSchema, localBusinessSchema, SERVICE_OFFERS } from '@/config/seo'
@@ -53,6 +54,9 @@ const HomePage = () => {
   const { translate } = useLanguage()
   const [openFaq, setOpenFaq] = useState(0)
   const { faqs, isLoading: faqLoading } = useGetListFaqs()
+  const heroCtaRef = useRef<HTMLAnchorElement>(null)
+
+  const heroTrustPoints = [translate('home.hero.trust1'), translate('home.hero.trust2'), translate('home.hero.trust3')]
 
   const heroStats = [
     { value: translate('home.hero.statsCustomersValue'), label: translate('home.hero.statsCustomersLabel') },
@@ -137,19 +141,30 @@ const HomePage = () => {
               </h1>
               <p className='mt-5 max-w-xl text-lg leading-relaxed text-gray-600'>{translate('home.hero.description')}</p>
 
-              <div className='mt-8 flex flex-col gap-4 sm:flex-row'>
-                <Link href='/booking' className='sm:flex-none'>
-                  <MyButton variant='default' size='large' className='w-full px-8'>
+              <div className='mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:gap-5'>
+                <Link ref={heroCtaRef} href='/booking' className='sm:flex-none'>
+                  <MyButton variant='cta' size='large' className='cta-shine w-full px-10 py-4 text-lg'>
+                    <CalendarIcon className='size-5' strokeWidth={2} />
                     {translate('home.hero.bookCta')}
                   </MyButton>
                 </Link>
                 <Link
                   href='/track-order'
-                  className='inline-flex items-center justify-center rounded-full border border-primary/30 bg-white/70 px-8 py-3 text-base font-semibold text-primary backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary/5 sm:flex-none'
+                  className='inline-flex items-center justify-center rounded-full px-4 py-3 text-base font-semibold text-primary underline-offset-4 transition-colors hover:underline sm:flex-none'
                 >
                   {translate('home.hero.trackCta')}
                 </Link>
               </div>
+
+              {/* Trust points right under the CTA to reduce hesitation */}
+              <ul className='mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-gray-600'>
+                {heroTrustPoints.map((point) => (
+                  <li key={point} className='flex items-center gap-1.5'>
+                    <CheckIcon className='size-4 text-secondary' strokeWidth={2.5} />
+                    {point}
+                  </li>
+                ))}
+              </ul>
 
               {/* Stats */}
               <div className='mt-12 grid max-w-md grid-cols-3 gap-6'>
@@ -403,6 +418,8 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+      <BookingStickyBar watchRef={heroCtaRef} />
     </div>
   )
 }

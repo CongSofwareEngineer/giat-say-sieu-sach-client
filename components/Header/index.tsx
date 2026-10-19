@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 
 import MyImage from '../MyImage'
+import MyButton from '../MyButton'
 import NotificationBell from '../NotificationBell'
 import { MenuIcon } from '../Icons/Functions/Menu'
 import { CloseIcon } from '../Icons/Functions/Close'
@@ -12,6 +13,7 @@ import { LogOutIcon } from '../Icons/Functions/LogOut'
 import { SettingIcon } from '../Icons/Functions/Setting'
 import { UserCircleIcon } from '../Icons/UserCircle'
 import GlobeIcon from '../Icons/Globe'
+import CalendarIcon from '../Icons/Calendar'
 import { ArrowDownIcon } from '../Icons/ArrowDown'
 
 import { cn } from '@/utils/tailwind'
@@ -243,6 +245,16 @@ const Header = () => {
               </div>
             )}
 
+            {/* Main call-to-action, always visible on desktop (hidden on the booking page itself) */}
+            {!isMobile && pathname !== '/booking' && (
+              <Link href='/booking'>
+                <MyButton variant='cta' className='cta-shine px-5'>
+                  <CalendarIcon className='size-4' strokeWidth={2} />
+                  {translate('menu.booking')}
+                </MyButton>
+              </Link>
+            )}
+
             {!isMobile && (!hasHydrated || !isLogin) && (
               <div className='hidden lg:flex items-center gap-2'>
                 <Link
@@ -253,7 +265,7 @@ const Header = () => {
                 </Link>
                 <Link
                   href='/register'
-                  className='rounded-full bg-gradient-to-br from-primary to-secondary px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-8px_rgba(10,111,135,0.6)] transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-8px_rgba(10,111,135,0.7)]'
+                  className='rounded-full border border-primary/30 px-5 py-2.5 text-sm font-semibold text-primary transition-colors hover:border-primary hover:bg-primary/5'
                 >
                   {translate('menu.register')}
                 </Link>
@@ -270,6 +282,14 @@ const Header = () => {
       {isMobileMenuOpen && (
         <div className='lg:hidden max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-border/60 bg-white/95 shadow-[0_24px_48px_-16px_rgba(10,111,135,0.25)] backdrop-blur-xl animation-fade-in'>
           <nav className='max-w-7xl mx-auto px-4 py-4 space-y-1'>
+            {pathname !== '/booking' && (
+              <Link href='/booking' className='mb-3 block'>
+                <MyButton variant='cta' className='w-full py-3 text-base'>
+                  <CalendarIcon className='size-5' strokeWidth={2} />
+                  {translate('menu.booking')}
+                </MyButton>
+              </Link>
+            )}
             {mainNavItems.map((item) => (
               <Link
                 key={item.href}

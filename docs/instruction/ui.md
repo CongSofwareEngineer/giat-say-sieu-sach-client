@@ -2,7 +2,7 @@
 > Cập nhật: 2026-10-19
 
 ## Tổng quan
-Bộ primitive `components/My*` + Header/Footer + token style trong `app/globals.css` (Tailwind v4 + daisyUI theme `giat-say-sieu-sach`). Phong cách: bo tròn lớn, glassmorphism nhẹ, shadow nhuốm màu primary, focus ring mềm; giữ tông sáng, không đổi cấu trúc heading/text/metadata (an toàn SEO). Sub-logic: (1) MySelect, (2) Form input/button & primitive khác, (3) MyTable, (4) Header/Footer, (5) Trang chính sách `/policy`.
+Bộ primitive `components/My*` + Header/Footer + token style trong `app/globals.css` (Tailwind v4 + daisyUI theme `giat-say-sieu-sach`). Phong cách: bo tròn lớn, glassmorphism nhẹ, shadow nhuốm màu primary, focus ring mềm; giữ tông sáng, không đổi cấu trúc heading/text/metadata (an toàn SEO). Sub-logic: (1) MySelect, (2) Form input/button & primitive khác, (3) MyTable, (4) Header/Footer, (5) Trang chính sách `/policy`, (6) Thẻ gói Phổ biến, (7) CTA đặt lịch.
 
 ## Dùng chung
 - Token form chung: `h-11`, `rounded-xl`, `focus:ring-4 ring-primary/10` (áp cho `MyInput`, `MyTextarea`, `MySelect`).
@@ -18,7 +18,7 @@ Bộ primitive `components/My*` + Header/Footer + token style trong `app/globals
 - Không có giá trị → hiện placeholder "Chọn" (không tự lấy option đầu như `<select>` gốc).
 
 ## 2. Primitive khác
-- `MyButton`: hover nhấc nhẹ, active co, focus ring, shadow theo variant, `outline` tông primary.
+- `MyButton`: hover nhấc nhẹ, active co, focus ring, shadow theo variant, `outline` tông primary. Variant `cta` (nền `accent` vàng) **chỉ dành cho hành động đặt lịch** — xem §7.
 - `MyBadge` nền nhạt + `ring-inset`; `MyPagination` dạng pill; `MyModal`, `MyDrawer`, `Toast`, `MyEmpty`, `MyLoading` làm mới.
 
 ## 3. MyTable (`components/MyTable/index.tsx`)
@@ -29,7 +29,7 @@ Bộ primitive `components/My*` + Header/Footer + token style trong `app/globals
 - `components/ChatMarkdown` vẫn dùng `<table>` riêng (style markdown, không phải bảng dữ liệu).
 
 ## 4. Header / Footer
-- Header: nav dạng pill, dropdown kính mờ có animation, nút Đăng ký gradient, chuông thông báo (xem `docs/instruction/profile.md`).
+- Header: nav dạng pill, dropdown kính mờ có animation, nút "Đặt lịch" (§7), nút Đăng ký dạng viền, chuông thông báo (xem `docs/instruction/profile.md`).
 - Footer: đường sáng phía trên, glow, nút mạng xã hội mới.
 - Địa chỉ (Footer "Thông tin liên hệ" + trang `/contact`): lấy từ chi nhánh API qua `useGetListBranches` (mỗi chi nhánh: tên + `formatAddress`; trang Liên hệ kèm `openingHours`). Chưa có chi nhánh → `contact.info.addressUpdating`. Không còn dùng `INFO_CONTACT.Address` ở UI. Cache chi nhánh xem `docs/instruction/booking.md` §2.
 - Link: Header dropdown "Thêm" có Khuyến mãi (`/promotions`); Footer "Liên kết nhanh" có Khuyến mãi, "Dịch vụ" có Chính sách (`/policy`).
@@ -60,6 +60,23 @@ Làm nổi bật gói được nhiều người chọn (`plan.popular`) bằng m
 - Màu lấy từ theme `accent` → `primary`. `prefers-reduced-motion: reduce` tắt animation.
 ### Edge cases
 - `MyCard` không có `overflow-hidden` nên vòng không bị cắt; badge "Phổ biến" vẫn nằm trên viền như trước.
+
+## 7. CTA đặt lịch (trang chủ + Header)
+### Mục đích
+Làm hành động chính của site — đặt lịch giặt — luôn nổi bật và trong tầm tay. Màu vàng `accent` chỉ dùng cho CTA này để tách khỏi tông teal của phần còn lại.
+### Entry points
+- `components/MyButton` — variant `cta`.
+- `app/globals.css` — class `.cta-shine` (vệt sáng `::after` lướt qua, keyframes `ctaShine` 3.5s; tắt khi `prefers-reduced-motion`). Cần đặt trên phần tử `relative` (MyButton đã có).
+- `app/page.tsx` (hero) — nút `cta` lớn + icon `CalendarIcon`, link "Theo dõi đơn" dạng text, danh sách 3 điểm cam kết dưới nút.
+- `components/Header/index.tsx` — desktop: nút `cta` cạnh chọn ngôn ngữ, luôn hiện (cả khi đã đăng nhập); mobile: nút đầu menu. Ẩn khi `pathname === '/booking'`.
+- `components/BookingStickyBar` — props `watchRef` (ref tới nút CTA ở hero). Chỉ render trên mobile (`useModalDrawer`, ≤768px).
+### Luồng xử lý
+- `BookingStickyBar` dùng `IntersectionObserver` trên `watchRef`: hiện khi phần tử đã cuộn lên khỏi màn hình (`top < 0`), ẩn khi cuộn lại về hero. Thanh `fixed bottom-5 left-4 right-[74px]` để chừa chỗ cho nút liên hệ nổi (`ContactFloatingButtons`, góc phải).
+### Translation / Constants
+- `home.hero.bookCta`, `home.hero.trackCta`, `home.hero.trust1..3`, `menu.booking`.
+### Edge cases
+- Khi ẩn, thanh sticky có `pointer-events-none`, `aria-hidden`, `tabIndex=-1` để không bấm/tab nhầm.
+- Đường dẫn `/booking` vẫn viết literal như phần còn lại của code (chưa có constant route).
 
 ## Translation / Constants
 - Dùng lại `common.close`, `common.search`, `common.select`, `common.notFound`.

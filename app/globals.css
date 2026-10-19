@@ -195,6 +195,37 @@ body {
   }
 }
 
+/* Main call-to-action: a soft light streak sweeps across the button every few seconds */
+.cta-shine {
+  overflow: hidden;
+}
+
+.cta-shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.65) 50%, transparent 70%);
+  transform: translateX(-120%);
+  animation: ctaShine 3.5s ease-in-out infinite;
+}
+
+@keyframes ctaShine {
+  0%,
+  60% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-shine::after {
+    animation: none;
+  }
+}
+
 /* reCAPTCHA v3 badge would cover the floating contact buttons; the booking form shows the required notice instead */
 .grecaptcha-badge {
   visibility: hidden;
