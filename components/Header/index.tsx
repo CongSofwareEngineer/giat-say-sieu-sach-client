@@ -12,7 +12,7 @@ import { CloseIcon } from '../Icons/Functions/Close'
 import { LogOutIcon } from '../Icons/Functions/LogOut'
 import { SettingIcon } from '../Icons/Functions/Setting'
 import { UserCircleIcon } from '../Icons/UserCircle'
-import GlobeIcon from '../Icons/Globe'
+// import GlobeIcon from '../Icons/Globe'
 import CalendarIcon from '../Icons/Calendar'
 import { ArrowDownIcon } from '../Icons/ArrowDown'
 
@@ -21,7 +21,7 @@ import { images } from '@/config/images'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
 import useUser from '@/hooks/useUser'
-import { LANGUAGE_SUPPORT } from '@/zustand/language'
+// import { LANGUAGE_SUPPORT } from '@/zustand/language'
 import { SITE_CONFIG } from '@/constants/app'
 import { removeCookie } from '@/utils/cookie'
 import { COOKIES_KEY } from '@/constants/cookies'
@@ -29,12 +29,12 @@ import { COOKIES_KEY } from '@/constants/cookies'
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isLangOpen, setIsLangOpen] = useState(false)
+  // const [isLangOpen, setIsLangOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
-  const { translate, lang, setLanguage } = useLanguage()
+  const { translate } = useLanguage()
   const { isMobile } = useModalDrawer()
   const { user, isLogin, hasHydrated, logout } = useUser()
 
@@ -48,7 +48,7 @@ const Header = () => {
 
   useEffect(() => {
     setIsMobileMenuOpen(false)
-    setIsLangOpen(false)
+    // setIsLangOpen(false)
     setIsUserMenuOpen(false)
     setIsMoreMenuOpen(false)
   }, [pathname])
@@ -147,6 +147,7 @@ const Header = () => {
           )}
 
           <div className='flex items-center gap-2'>
+            {/* Language switcher temporarily hidden (Vietnamese only) — re-enable when expanding branches
             <div className='relative'>
               <button
                 onClick={() => setIsLangOpen(!isLangOpen)}
@@ -187,6 +188,7 @@ const Header = () => {
                 </div>
               )}
             </div>
+            */}
 
             {/* UI only for now: notifications are not loaded yet */}
             {hasHydrated && isLogin && <NotificationBell notifications={[]} />}

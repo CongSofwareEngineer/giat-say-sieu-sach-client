@@ -63,10 +63,11 @@ export const language = create<LanguageState>()(
       }),
       {
         storage: {
-          getItem: (name: string) => {
-            const locale = localStorage.getItem(name) as LANGUAGE_SUPPORT
-
-            const language = getLanguage(locale || LANGUAGE_SUPPORT.VN)
+          getItem: (_name: string) => {
+            // Vietnamese only for now (language switcher hidden) — restore the stored locale when re-enabling it
+            // const locale = localStorage.getItem(_name) as LANGUAGE_SUPPORT
+            // const language = getLanguage(locale || LANGUAGE_SUPPORT.VN)
+            const language = getLanguage(LANGUAGE_SUPPORT.VN)
 
             return {
               state: {

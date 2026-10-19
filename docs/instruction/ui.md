@@ -30,6 +30,7 @@ Bộ primitive `components/My*` + Header/Footer + token style trong `app/globals
 
 ## 4. Header / Footer
 - Header: nav dạng pill, dropdown kính mờ có animation, nút "Đặt lịch" (§7), nút Đăng ký dạng viền, chuông thông báo (xem `docs/instruction/profile.md`).
+- **Chọn ngôn ngữ: tạm ẩn** — khối nút 🌐 trong Header đang được comment (kèm import `GlobeIcon`, `LANGUAGE_SUPPORT`, state `isLangOpen`). Site chỉ chạy tiếng Việt: `zustand/language.ts` `storage.getItem` luôn trả `LANGUAGE_SUPPORT.VN`, bỏ qua giá trị `en` đã lưu trong localStorage. Bật lại (khi mở rộng chi nhánh): bỏ comment ở cả 2 file. File `en.json` vẫn giữ, vẫn phải thêm key cho cả 2 ngôn ngữ.
 - Footer: đường sáng phía trên, glow, nút mạng xã hội mới.
 - Địa chỉ (Footer "Thông tin liên hệ" + trang `/contact`): lấy từ chi nhánh API qua `useGetListBranches` (mỗi chi nhánh: tên + `formatAddress`; trang Liên hệ kèm `openingHours`). Chưa có chi nhánh → `contact.info.addressUpdating`. Không còn dùng `INFO_CONTACT.Address` ở UI. Cache chi nhánh xem `docs/instruction/booking.md` §2.
 - Link: Header dropdown "Thêm" có Khuyến mãi (`/promotions`); Footer "Liên kết nhanh" có Khuyến mãi, "Dịch vụ" có Chính sách (`/policy`).
@@ -68,7 +69,7 @@ Làm hành động chính của site — đặt lịch giặt — luôn nổi b�
 - `components/MyButton` — variant `cta`.
 - `app/globals.css` — class `.cta-shine` (vệt sáng `::after` lướt qua, keyframes `ctaShine` 3.5s; tắt khi `prefers-reduced-motion`). Cần đặt trên phần tử `relative` (MyButton đã có).
 - `app/page.tsx` (hero) — nút `cta` lớn + icon `CalendarIcon`, link "Theo dõi đơn" dạng text, danh sách 3 điểm cam kết dưới nút.
-- `components/Header/index.tsx` — desktop: nút `cta` cạnh chọn ngôn ngữ, luôn hiện (cả khi đã đăng nhập); mobile: nút đầu menu. Ẩn khi `pathname === '/booking'`.
+- `components/Header/index.tsx` — desktop: nút `cta` ở cụm nút bên phải, luôn hiện (cả khi đã đăng nhập); mobile: nút đầu menu. Ẩn khi `pathname === '/booking'`.
 - `components/BookingStickyBar` — props `watchRef` (ref tới nút CTA ở hero). Chỉ render trên mobile (`useModalDrawer`, ≤768px).
 ### Luồng xử lý
 - `BookingStickyBar` dùng `IntersectionObserver` trên `watchRef`: hiện khi phần tử đã cuộn lên khỏi màn hình (`top < 0`), ẩn khi cuộn lại về hero. Thanh `fixed bottom-5 left-4 right-[74px]` để chừa chỗ cho nút liên hệ nổi (`ContactFloatingButtons`, góc phải).
