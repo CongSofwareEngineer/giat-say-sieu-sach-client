@@ -196,7 +196,7 @@ const Verify = ({ phoneNumber, length = 6, onVerified, onError, onBack, autoSend
 
       {/* daisyUI OTP: empty spans (one per digit) + a single controlled input */}
       <label
-        className={cn('otp otp-joined otp-lg otp-primary justify-center', status === 'error' && 'otp-error', status === 'verified' && 'otp-success')}
+        className={cn('otp otp-lg otp-primary', status === 'error' && 'otp-error', status === 'verified' && 'otp-success')}
       >
         {Array.from({ length }).map((_, i) => (
           <span key={i} />

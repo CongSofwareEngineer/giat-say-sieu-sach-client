@@ -191,7 +191,7 @@ const ForgotPasswordPage = () => {
             <form onSubmit={handleReset} className='space-y-4'>
               <div className='flex flex-col items-center gap-2'>
                 {/* daisyUI OTP: empty spans (one per digit) + a single controlled input */}
-                <label className={cn('otp otp-joined otp-lg otp-primary justify-center', resetErrors.otp && 'otp-error')}>
+                <label className={cn('otp otp-lg otp-primary', resetErrors.otp && 'otp-error')}>
                   {Array.from({ length: OTP_LENGTH }).map((_, i) => (
                     <span key={i} />
                   ))}

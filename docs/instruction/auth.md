@@ -90,6 +90,7 @@ Khách đã lưu email trong hồ sơ tự đặt lại mật khẩu bằng mã 
 ### Edge cases
 - Bước 1 lỗi: 429 → "Quá nhiều yêu cầu", khác → "Không thể gửi mã". Bước 2: 400 → lỗi dưới ô OTP, 429 / khác → lỗi chung.
 - Email được lưu ở `/profile` (xem `docs/instruction/profile.md` §7), **chưa xác minh** — gõ sai email thì khách dùng §5.
+- Ô OTP dùng class daisyUI `otp otp-lg otp-primary` (6 ô rời, `otp-error` khi lỗi). Project không sinh theme daisyUI nên các biến theme mà `.otp` cần (`--border`, `--radius-field`, `--size-field`, `--color-base-100`, `--color-error`, …) được khai báo riêng cho `.otp` trong `app/globals.css`. Không thêm `justify-center` / class layout lên `<label class="otp">` (làm lệch chữ số so với ô).
 
 ## 5. Admin cấp mật khẩu tạm (`/admin/customers`)
 ### Mục đích

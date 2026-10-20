@@ -230,3 +230,18 @@ body {
 .grecaptcha-badge {
   visibility: hidden;
 }
+
+/* daisyUI OTP: no daisyUI theme is emitted, so supply the theme vars it relies on (scoped to .otp) */
+.otp {
+  --border: 1px;
+  --depth: 1;
+  --size-field: 0.25rem;
+  --radius-field: 0.5rem;
+  --color-base-100: var(--color-card);
+  --color-base-content: var(--color-text);
+  --color-error: #dc2626;
+  --color-success: #16a34a;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--color-text);
+  font-weight: 600;
+}
