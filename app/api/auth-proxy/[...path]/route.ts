@@ -6,7 +6,7 @@ import { getTokenExpiry } from '@/config/baseApi'
 
 export const runtime = 'nodejs'
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_APP || 'https://server-giat-say-sieu-sach-nestjs.onrender.com'
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_APP
 
 async function proxy(request: NextRequest, method: string, params: Promise<{ path: string[] }>) {
   const { path } = await params
