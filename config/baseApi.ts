@@ -4,11 +4,12 @@ import { toast } from '@/utils/toast'
 import { user as userStore } from '@/zustand/user'
 import { language as languageStore } from '@/zustand/language'
 
-interface TokenResponse {
-  accessToken: string
-  refreshToken: string
-  accessTokenExpiresIn: number
-  refreshTokenExpiresIn: number
+// POST /auth/refresh response: only a new access token (the refresh token is not rotated)
+interface RefreshResponse {
+  data?: {
+    accessToken?: string
+    accessExpire?: string
+  }
 }
 
 interface RequestOptions extends RequestInit {
@@ -26,7 +27,7 @@ export class HttpError extends Error {
 }
 
 let isRefreshing = false
-let refreshPromise: Promise<TokenResponse | null> | null = null
+let refreshPromise: Promise<string | null> | null = null
 
 // Status codes returned when the server rejects the refresh token
 const REFRESH_REJECTED_STATUS = [401, 403]
@@ -50,7 +51,7 @@ const handleSessionExpired = () => {
 
 // Read the `exp` (seconds) claim from a JWT without verifying the signature.
 // The access token cookie is httpOnly, so we cannot rely on its max-age to know if it expired.
-const getTokenExpiry = (token: string): number | null => {
+export const getTokenExpiry = (token: string): number | null => {
   try {
     const payload = token.split('.')[1]
 
@@ -73,9 +74,14 @@ class BaseAPI {
     this.endpoint = endpoint
   }
 
-  private async saveTokens(tokens: TokenResponse): Promise<void> {
-    await setCookie(COOKIES_KEY.accessToken, tokens.accessToken, tokens.accessTokenExpiresIn)
-    await setCookie(COOKIES_KEY.refreshToken, tokens.refreshToken, tokens.refreshTokenExpiresIn)
+  // Only the access token cookie is replaced; the refresh token cookie keeps its value and lifetime.
+  // Not remembered (client) -> session cookie, otherwise it lives until the JWT `exp`.
+  private async saveAccessToken(accessToken: string): Promise<void> {
+    const isRemembered = typeof window === 'undefined' || userStore.getState().isRemembered
+    const expiry = getTokenExpiry(accessToken)
+    const maxAge = isRemembered && expiry ? Math.max(expiry - Math.floor(Date.now() / 1000), 0) : undefined
+
+    await setCookie(COOKIES_KEY.accessToken, accessToken, maxAge || undefined)
   }
 
   async getAuthToken(): Promise<string | null> {
@@ -105,12 +111,12 @@ class BaseAPI {
     }
 
     try {
-      const newTokens = await this.refreshAccessToken(refreshToken)
+      const newAccessToken = await this.refreshAccessToken(refreshToken)
 
-      if (newTokens) {
-        await this.saveTokens(newTokens)
+      if (newAccessToken) {
+        await this.saveAccessToken(newAccessToken)
 
-        return newTokens.accessToken
+        return newAccessToken
       }
     } catch (error) {
       // Only a rejected refresh token means the login expired; network errors are ignored
@@ -122,9 +128,9 @@ class BaseAPI {
     return null
   }
 
-  private async refreshAccessToken(refreshToken: string): Promise<TokenResponse | null> {
+  private async refreshAccessToken(refreshToken: string): Promise<string | null> {
     if (isRefreshing && refreshPromise) {
-      return refreshPromise as Promise<TokenResponse | null>
+      return refreshPromise
     }
 
     isRefreshing = true
@@ -140,7 +146,7 @@ class BaseAPI {
     }
   }
 
-  private async executeRefresh(refreshToken: string): Promise<TokenResponse | null> {
+  private async executeRefresh(refreshToken: string): Promise<string | null> {
     const url = `${this.baseUrl}/auth/refresh`
 
     // The server reads the refresh token from the Authorization header, not the body
@@ -156,7 +162,10 @@ class BaseAPI {
       throw new HttpError(response.status)
     }
 
-    return response.json()
+    // The backend wraps the payload in `data`
+    const result: RefreshResponse = await response.json()
+
+    return result.data?.accessToken || null
   }
 
   async request<T>(url: string, options?: RequestOptions): Promise<T> {

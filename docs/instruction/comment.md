@@ -1,8 +1,8 @@
 # Comment (đánh giá)
-> Cập nhật: 2026-10-19
+> Cập nhật: 2026-10-20
 
 ## Tổng quan
-Khách đánh giá dịch vụ (sao, tiêu đề, nội dung, ảnh); hiển thị ở trang bảng giá và trang đánh giá. Sub-logic: (1) Dịch vụ đánh giá đồng bộ server, (2) Validate/chuẩn hoá SĐT, (3) Hiển thị ảnh thumbnail, (4) Giới hạn nội dung/ảnh và SĐT che từ API. Upload ảnh xem `docs/instruction/upload.md`; admin xem/ẩn đánh giá xem `docs/instruction/admin.md`.
+Khách đánh giá dịch vụ (sao, tiêu đề, nội dung, ảnh); hiển thị ở trang bảng giá và trang đánh giá. Sub-logic: (1) Dịch vụ đánh giá đồng bộ server, (2) Validate/chuẩn hoá SĐT, (3) Hiển thị ảnh thumbnail, (4) Giới hạn nội dung/ảnh và SĐT che từ API, (5) Admin trả lời / xoá đánh giá. Upload ảnh xem `docs/instruction/upload.md`; admin xem/ẩn đánh giá xem `docs/instruction/admin.md`.
 
 ## Dùng chung
 - `services/comment.ts` — API đánh giá, `getServiceName`, kiểu `CommentItem` (`phone` đã che từ server).
@@ -46,6 +46,22 @@ Nội dung đánh giá tối đa 200 ký tự, tối đa 3 ảnh; SĐT người 
 ### Edge cases
 - Giới hạn 200 ký tự và 3 ảnh cũng được server kiểm tra (DTO); lỗi server chung hiện `reviews.error`.
 - Nếu API trả SĐT rỗng (tài khoản không đủ số để che) thì không hiện dòng SĐT.
+
+## 5. Admin trả lời / xoá đánh giá
+### Entry points
+- `components/Comment/CommentCard.tsx` — nút Trả lời (chỉ admin), Xoá (admin hoặc chủ đánh giá), khối "Shop phản hồi".
+- `components/Comment/ReplyForm.tsx` — modal nhập trả lời, gọi `replyComment` của `useGetListComments`.
+- `services/comment.ts` — `replyComment` (`POST /comments/:id/reply`), `deleteComment` (`DELETE /comments/me/:id`), `adminDeleteComment` (`DELETE /comments/:id`), `buildCommentReplies`.
+### Luồng xử lý
+1. Admin (`user.isAdmin`) bấm Trả lời → modal `ReplyForm` → gửi `{ content }` → thành công thì invalidate `QUERY_KEYS.getListComments`, toast `common.success`, đóng modal.
+2. API public trả mỗi comment gốc kèm `replies`; `buildCommentReplies` giữ nguyên `replies` có sẵn và chỉ ghép thêm từ danh sách phẳng (danh sách admin).
+3. `CommentCard` hiện các reply dưới nội dung với nhãn `reviews.shopReply`.
+4. Xoá: đánh giá của chính mình → `deleteComment`; admin xoá đánh giá người khác → `adminDeleteComment` (endpoint `/me/:id` chỉ khớp đánh giá của người gọi).
+### Translation / Constants
+- `reviews.form.reply`, `reviews.form.replyLabel`, `reviews.form.replyPlaceholder`, `reviews.form.replySubmit`, `reviews.validation.replyRequired`, `reviews.shopReply`, `reviews.error`.
+### Edge cases
+- Nội dung trống → `reviews.validation.replyRequired`, không gửi. Lỗi server → `reviews.error` trong modal.
+- Danh sách public cache 300s phía server, nhưng server xoá cache khi có reply mới.
 
 ## Liên quan
 - `docs/instruction/upload.md` (upload ảnh đánh giá), `docs/instruction/admin.md` (xem chi tiết/ẩn đánh giá), `docs/instruction/auth.md` (validate SĐT login/register).

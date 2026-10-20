@@ -30,7 +30,7 @@ const CommentCard = ({ comment, className }: CommentCardProps) => {
   const { translate } = useLanguage()
   const { open, close } = useModalDrawer()
   const { user, isLogin, hasHydrated } = useUser()
-  const { deleteComment, isDeleting } = useGetListComments()
+  const { deleteComment, adminDeleteComment, isDeleting, isAdminDeleting } = useGetListComments()
 
   // Admin can reply/delete any review; a logged-in user can edit/delete their own
   const isAdmin = hasHydrated && isLogin && !!user?.isAdmin
@@ -94,9 +94,11 @@ const CommentCard = ({ comment, className }: CommentCardProps) => {
             </MyButton>
             <MyButton
               variant='error'
-              loading={isDeleting}
+              loading={isDeleting || isAdminDeleting}
               onClick={async () => {
-                await deleteComment(comment.id)
+                // "/me/:id" only matches the caller's own review, so admin uses the admin endpoint for others
+                if (isOwnReview) await deleteComment(comment.id)
+                else await adminDeleteComment(comment.id)
                 close()
               }}
             >

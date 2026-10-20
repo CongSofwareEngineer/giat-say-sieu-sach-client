@@ -1,6 +1,9 @@
 import { NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
 
+import { COOKIES_KEY } from '@/constants/cookies'
+import { getTokenExpiry } from '@/config/baseApi'
+
 export const runtime = 'nodejs'
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_APP || 'https://server-giat-say-sieu-sach-nestjs.onrender.com'
@@ -36,29 +39,25 @@ async function proxy(request: NextRequest, method: string, params: Promise<{ pat
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${refreshToken}` },
     })
 
-    if (refreshResponse.ok) {
-      const newTokens = await refreshResponse.json()
+    // The backend returns `{ data: { accessToken } }`; the refresh token is not rotated
+    const newAccessToken: string | undefined = refreshResponse.ok ? (await refreshResponse.json())?.data?.accessToken : undefined
 
-      cookieStore.set('accessToken', newTokens.accessToken, {
+    if (newAccessToken) {
+      const expiry = getTokenExpiry(newAccessToken)
+
+      cookieStore.set(COOKIES_KEY.accessToken, newAccessToken, {
         httpOnly: true,
         sameSite: 'strict',
         secure: true,
         path: '/',
-        maxAge: newTokens.accessTokenExpiresIn,
-      })
-      cookieStore.set('refreshToken', newTokens.refreshToken, {
-        httpOnly: true,
-        sameSite: 'strict',
-        secure: true,
-        path: '/',
-        maxAge: newTokens.refreshTokenExpiresIn,
+        ...(expiry ? { maxAge: Math.max(expiry - Math.floor(Date.now() / 1000), 0) } : {}),
       })
 
       response = await fetch(targetUrl, {
         method,
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${newTokens.accessToken}`,
+          Authorization: `Bearer ${newAccessToken}`,
         },
         body,
         redirect: 'manual',

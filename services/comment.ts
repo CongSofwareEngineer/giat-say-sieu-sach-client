@@ -78,7 +78,8 @@ export const buildCommentReplies = (comments: CommentItem[]): CommentItem[] => {
   const roots: CommentItem[] = []
 
   comments.forEach((comment) => {
-    map.set(comment.id, { ...comment, replies: [] })
+    // Keep replies already nested by the API (public list), group the rest from the flat list (admin list)
+    map.set(comment.id, { ...comment, replies: comment.replies ? [...comment.replies] : [] })
   })
 
   comments.forEach((comment) => {

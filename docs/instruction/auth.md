@@ -1,5 +1,5 @@
 # Auth (đăng ký / đăng nhập / token)
-> Cập nhật: 2026-10-19
+> Cập nhật: 2026-10-20
 
 ## Tổng quan
 Xác thực khách hàng bằng **họ tên + số điện thoại + mật khẩu**. Token (access/refresh) lưu ở httpOnly cookie, chỉ đọc/ghi qua server actions trong `utils/cookie.ts` (`COOKIES_KEY`). Trạng thái đăng nhập là store Zustand `zustand/user.ts` (`useUser`). Sub-logic: (1) Đăng ký, (2) Tự refresh token + báo hết hạn.
@@ -36,13 +36,16 @@ Mọi API `isUseAuth` luôn gắn `accessToken`; thiếu/hết hạn thì dùng 
 - `app/api/auth-proxy/[...path]/route.ts` — proxy cũng gửi refresh token qua header `Authorization`.
 ### Luồng xử lý
 1. `getAuthToken`: còn hạn (đọc `exp` JWT, trừ hao 5s) → dùng luôn; ngược lại → `renewAccessToken`.
-2. `renewAccessToken`: không có refresh token → `handleSessionExpired`, trả `null`. Có → `POST /auth/refresh` với header `Authorization: Bearer <refreshToken>` (KHÔNG gửi trong body); nhiều request cùng refresh chia sẻ 1 promise; lưu token mới vào cookie.
+2. `renewAccessToken`: không có refresh token → `handleSessionExpired`, trả `null`. Có → `POST /auth/refresh` với header `Authorization: Bearer <refreshToken>` (KHÔNG gửi trong body); nhiều request cùng refresh chia sẻ 1 promise.
+   - Response server: `{ success, data: { accessToken, accessExpire } }` — chỉ có access token mới (server **không rotate** refresh token).
+   - `saveAccessToken` chỉ ghi lại cookie `accessToken` (`maxAge` = `exp` của JWT − bây giờ; user không "ghi nhớ" → session cookie). Cookie `refreshToken` **giữ nguyên** giá trị và hạn ban đầu (15 ngày).
 3. API trả 401 (request `isUseAuth`) → gọi lại `renewAccessToken` và retry 1 lần.
 4. `handleSessionExpired` (chỉ client, chỉ khi `isLogin`): `user.logout()` + toast `auth.sessionExpired`. **Không xóa cookie** (cookie chỉ xóa khi user bấm Đăng xuất ở `components/Header`).
 ### Translation / Constants
 - `auth.sessionExpired`; `COOKIES_KEY`.
 ### Edge cases
-- Refresh lỗi 401/403 → session expired; lỗi mạng/khác → bỏ qua, không logout.
+- Refresh lỗi 401/403 → session expired; lỗi mạng/khác hoặc response thiếu `data.accessToken` → bỏ qua, không logout.
+- `app/api/auth-proxy` (hiện chưa có chỗ gọi) dùng cùng response: chỉ ghi cookie `accessToken`; refresh thất bại thì proxy xóa cả 2 cookie.
 - Refresh token bị thu hồi: mỗi request auth sau đó vẫn thử refresh 1 lần rồi thất bại (user đã logout nên không toast lặp).
 - Server component: `handleSessionExpired` không làm gì (không có `window`). Không tự redirect `/login`.
 
