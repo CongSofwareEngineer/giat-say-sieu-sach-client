@@ -13,8 +13,8 @@ async function proxy(request: NextRequest, method: string, params: Promise<{ pat
   const targetUrl = `${BACKEND_URL}/${path.join('/')}${request.nextUrl.search}`
 
   const cookieStore = await cookies()
-  const accessToken = cookieStore.get('accessToken')?.value
-  const refreshToken = cookieStore.get('refreshToken')?.value
+  const accessToken = cookieStore.get(COOKIES_KEY.accessToken)?.value
+  const refreshToken = cookieStore.get(COOKIES_KEY.refreshToken)?.value
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
