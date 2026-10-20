@@ -655,6 +655,22 @@
       "registerNow": "Register now",
       "error": "Invalid phone number or password"
     },
+    "forgotPassword": {
+      "title": "Forgot password",
+      "subtitle": "Enter your registered phone number and we will send an OTP to the account's email",
+      "sendCode": "Send OTP",
+      "sentHint": "If account {phone} has an email, a {length}-digit OTP has been sent to it. The code is valid for 10 minutes.",
+      "otpLabel": "OTP code",
+      "otpRequired": "Please enter all {length} OTP digits",
+      "otpInvalid": "The OTP is incorrect or has expired",
+      "submit": "Reset password",
+      "success": "Password reset successfully, please log in",
+      "resend": "Didn't get the code? Resend",
+      "noEmail": "No email on your account? Contact the store for a temporary password:",
+      "contactZalo": "Message on Zalo",
+      "contactPhone": "Call {phone}",
+      "backToLogin": "Back to login"
+    },
     "register": {
       "title": "Register",
       "subtitle": "Create a new account",
@@ -718,7 +734,9 @@
       "email": "Email",
       "emailPlaceholder": "Enter email",
       "save": "Save Changes",
-      "saved": "Changes saved!"
+      "saved": "Changes saved!",
+      "emailInvalid": "Invalid email",
+      "emailHint": "Used to receive an OTP when you forget your password"
     },
     "loyalty": {
       "tier": "Membership tier",
@@ -896,7 +914,16 @@
       "roleAdmin": "Admin",
       "status": "Status",
       "createdAt": "Created At",
-      "filterByRole": "Filter by role"
+      "filterByRole": "Filter by role",
+      "resetPassword": {
+        "action": "Reset password",
+        "title": "Reset password",
+        "confirm": "Create a temporary password for \"{name}\"? The old password will stop working.",
+        "submit": "Create temporary password",
+        "done": "Temporary password for \"{name}\":",
+        "copy": "Copy password",
+        "hint": "This password is shown only once. Send it to the customer via Zalo/phone; they will be asked to change it when logging in."
+      }
     },
     "blog": {
       "title": "Blog Management",
@@ -1298,7 +1325,8 @@
       "minLength": "Password must be at least {min} characters",
       "sameAsCurrent": "The new password must differ from the current one",
       "currentInvalid": "Current password is incorrect"
-    }
+    },
+    "tempPasswordNotice": "You are using a temporary password from the store. Please change it to a new password to keep your account secure."
   },
   "promotions": {
     "seo": {

@@ -655,6 +655,22 @@
       "registerNow": "Đăng ký ngay",
       "error": "Số điện thoại hoặc mật khẩu không đúng"
     },
+    "forgotPassword": {
+      "title": "Quên mật khẩu",
+      "subtitle": "Nhập số điện thoại đã đăng ký, chúng tôi sẽ gửi mã OTP tới email của tài khoản",
+      "sendCode": "Gửi mã OTP",
+      "sentHint": "Nếu tài khoản {phone} đã có email, mã OTP gồm {length} số đã được gửi tới email đó. Mã có hiệu lực trong 10 phút.",
+      "otpLabel": "Mã OTP",
+      "otpRequired": "Vui lòng nhập đủ {length} số OTP",
+      "otpInvalid": "Mã OTP không đúng hoặc đã hết hạn",
+      "submit": "Đặt lại mật khẩu",
+      "success": "Đặt lại mật khẩu thành công, vui lòng đăng nhập",
+      "resend": "Không nhận được mã? Gửi lại",
+      "noEmail": "Tài khoản chưa có email? Liên hệ cửa hàng để được cấp mật khẩu tạm:",
+      "contactZalo": "Nhắn Zalo",
+      "contactPhone": "Gọi {phone}",
+      "backToLogin": "Quay lại đăng nhập"
+    },
     "register": {
       "title": "Đăng ký",
       "subtitle": "Tạo tài khoản mới",
@@ -718,7 +734,9 @@
       "email": "Email",
       "emailPlaceholder": "Nhập email",
       "save": "Lưu thay đổi",
-      "saved": "Đã lưu thay đổi!"
+      "saved": "Đã lưu thay đổi!",
+      "emailInvalid": "Email không hợp lệ",
+      "emailHint": "Dùng để nhận mã OTP khi quên mật khẩu"
     },
     "loyalty": {
       "tier": "Hạng thành viên",
@@ -896,7 +914,16 @@
       "roleAdmin": "Admin",
       "status": "Trạng thái",
       "createdAt": "Ngày tạo",
-      "filterByRole": "Lọc theo vai trò"
+      "filterByRole": "Lọc theo vai trò",
+      "resetPassword": {
+        "action": "Đặt lại mật khẩu",
+        "title": "Đặt lại mật khẩu",
+        "confirm": "Tạo mật khẩu tạm cho \"{name}\"? Mật khẩu cũ sẽ không dùng được nữa.",
+        "submit": "Tạo mật khẩu tạm",
+        "done": "Mật khẩu tạm của \"{name}\":",
+        "copy": "Sao chép mật khẩu",
+        "hint": "Mật khẩu chỉ hiển thị một lần. Gửi cho khách qua Zalo/điện thoại; khách sẽ được yêu cầu đổi mật khẩu khi đăng nhập."
+      }
     },
     "blog": {
       "title": "Quản lý blog",
@@ -1298,7 +1325,8 @@
       "minLength": "Mật khẩu phải có ít nhất {min} ký tự",
       "sameAsCurrent": "Mật khẩu mới phải khác mật khẩu hiện tại",
       "currentInvalid": "Mật khẩu hiện tại không đúng"
-    }
+    },
+    "tempPasswordNotice": "Bạn đang dùng mật khẩu tạm do cửa hàng cấp. Hãy đổi sang mật khẩu mới để bảo mật tài khoản."
   },
   "promotions": {
     "seo": {

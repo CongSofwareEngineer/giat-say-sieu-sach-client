@@ -105,6 +105,10 @@ export const CANCELLABLE_ORDER_STATUS = ORDER_STATUS.PENDING
 // Server rejects passwords shorter than this
 export const MIN_PASSWORD_LENGTH = 4 as number
 
+// Forgot password: digits of the email OTP and wait before asking for a new one (must match server)
+export const OTP_LENGTH = 6 as number
+export const OTP_RESEND_SECONDS = 60 as number
+
 // How long the "Copied" state stays on a copy button (ms)
 export const COPY_FEEDBACK_DURATION = 2000 as number
 
@@ -230,6 +234,7 @@ export const PROMOTION_DISCOUNT_RANGE = {
 export const MAX_ACTIVE_ORDERS_PER_PHONE = 3 as number
 
 // reCAPTCHA v3 (invisible, free tier) protecting the guest booking endpoint; disabled when the site key is empty
+// https://console.cloud.google.com/security/recaptcha
 export const RECAPTCHA = {
   SITE_KEY: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? '',
   SCRIPT_URL: 'https://www.google.com/recaptcha/api.js',
@@ -261,6 +266,7 @@ export const COMMENT_SERVICES = [
 
 // Vietnamese mobile phone in local form (0 + 9 digits)
 export const VN_LOCAL_PHONE_REGEX = /^0[0-9]{9}$/
+export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 // Origins allowed to call the internal API proxies (app/api/*)
 export const ALLOWED_ORIGINS: readonly string[] = [SITE_CONFIG.url, 'http://localhost:3000', 'http://localhost:3001']

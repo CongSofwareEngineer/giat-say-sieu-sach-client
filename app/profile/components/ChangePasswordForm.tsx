@@ -10,6 +10,7 @@ import { EyeSlashIcon } from '@/components/Icons/EyeSlash'
 import { HttpError } from '@/config/baseApi'
 import { HTTP_STATUS, MIN_PASSWORD_LENGTH } from '@/constants/app'
 import useLanguage from '@/hooks/useLanguage'
+import useUser from '@/hooks/useUser'
 import UserService from '@/services/users'
 import { toast } from '@/utils/toast'
 
@@ -21,6 +22,7 @@ const EMPTY_FORM: PasswordForm = { currentPassword: '', newPassword: '', confirm
 
 const ChangePasswordForm = () => {
   const { translate } = useLanguage()
+  const { user, updateUser } = useUser()
   const [form, setForm] = useState<PasswordForm>(EMPTY_FORM)
   const [errors, setErrors] = useState<PasswordErrors>({})
   const [visible, setVisible] = useState<Record<PasswordField, boolean>>({ currentPassword: false, newPassword: false, confirmPassword: false })
@@ -54,6 +56,7 @@ const ChangePasswordForm = () => {
     try {
       await UserService.changePassword({ currentPassword: form.currentPassword, newPassword: form.newPassword })
       setForm(EMPTY_FORM)
+      updateUser({ mustChangePassword: false })
       toast({ message: translate('changePassword.success'), type: 'default' })
     } catch (error) {
       // 400 = wrong current password (the new one is already validated above)
@@ -97,6 +100,11 @@ const ChangePasswordForm = () => {
         <p className='text-sm text-gray-500'>{translate('changePassword.subtitle', { min: MIN_PASSWORD_LENGTH })}</p>
       </MyCardHeader>
       <MyCardBody>
+        {user.mustChangePassword && (
+          <p className='mb-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-700'>
+            {translate('changePassword.tempPasswordNotice')}
+          </p>
+        )}
         <form onSubmit={handleSubmit} className='space-y-4'>
           {renderPasswordInput('currentPassword', 'current-password')}
           {renderPasswordInput('newPassword', 'new-password')}

@@ -2,11 +2,11 @@
 > Cập nhật: 2026-10-20
 
 ## Tổng quan
-Xác thực khách hàng bằng **họ tên + số điện thoại + mật khẩu**. Token (access/refresh) lưu ở httpOnly cookie, chỉ đọc/ghi qua server actions trong `utils/cookie.ts` (`COOKIES_KEY`). Trạng thái đăng nhập là store Zustand `zustand/user.ts` (`useUser`). Sub-logic: (1) Đăng ký, (2) Tự refresh token + báo hết hạn.
+Xác thực khách hàng bằng **họ tên + số điện thoại + mật khẩu**. Token (access/refresh) lưu ở httpOnly cookie, chỉ đọc/ghi qua server actions trong `utils/cookie.ts` (`COOKIES_KEY`). Trạng thái đăng nhập là store Zustand `zustand/user.ts` (`useUser`). Sub-logic: (1) Đăng ký, (2) Tự refresh token + báo hết hạn, (3) Ghi nhớ đăng nhập, (4) Quên mật khẩu qua email OTP, (5) Admin cấp mật khẩu tạm. (4) và (5) chạy song song: khách có email tự lấy lại, khách chưa có email nhờ cửa hàng. Cả hai đều **miễn phí** (không SMS/Zalo ZNS).
 
 ## Dùng chung
 - `config/baseApi.ts` — `BaseAPI` ghép URL, gắn header, ném `HttpError` (giữ `status`).
-- `services/auth/index.ts` — `AuthService.register`, login; `services/auth/type.ts` — kiểu `Auth` (token).
+- `services/auth/index.ts` — `AuthService.register`, login, `forgotPassword`, `resetPassword`; `services/auth/type.ts` — kiểu `Auth` (token).
 - `utils/phone.ts` — `formatPhoneToE164`, `isValidVnPhone`, `normalizeVnPhone` (nhận `+84` / `84` / `0`).
 - Translation: nhóm `auth.*` (`vn.json`/`en.json`).
 
@@ -69,5 +69,45 @@ Checkbox "Ghi nhớ đăng nhập" (mặc định tích) quyết định phiên 
 - Người dùng lưu từ phiên cũ (chưa có `isRemembered`) được coi là ghi nhớ (giá trị mặc định `true`).
 - Ở server render, `onRehydrateStorage` không đụng `sessionStorage` (guard `typeof window`).
 
+## 4. Quên mật khẩu qua email OTP (`/forgot-password`)
+### Mục đích
+Khách đã lưu email trong hồ sơ tự đặt lại mật khẩu bằng mã OTP gửi qua email (backend gửi bằng Gmail SMTP / Brevo free).
+### Entry points
+- `app/forgot-password/page.tsx` (2 bước trong một trang), `app/forgot-password/layout.tsx` (metadata `noindex`; cũng nằm trong `PRIVATE_PATHS` của `next-sitemap.config.js`).
+- Link "Quên mật khẩu?" ở `app/login/page.tsx`.
+- `AuthService.forgotPassword(phone, captchaToken)`, `AuthService.resetPassword(phone, otp, newPassword)` — đều `isUseAuth: false`.
+### Luồng xử lý
+1. **Bước 1**: nhập SĐT + tick reCAPTCHA (`HumanVerification`) → `POST /auth/forgot-password { phone (E.164), captchaToken }`. Server **luôn trả OK** dù SĐT không tồn tại / chưa có email (không lộ tài khoản) → chuyển bước 2, bắt đầu đếm ngược `OTP_RESEND_SECONDS`.
+2. **Bước 2**: nhập OTP (`OTP_LENGTH` số, ô OTP daisyUI) + mật khẩu mới (≥ `MIN_PASSWORD_LENGTH`) + xác nhận → `POST /auth/reset-password { phone, otp, newPassword }` → toast `auth.forgotPassword.success` → `/login`.
+3. "Gửi lại" quay về bước 1 (giữ SĐT) vì cần captcha mới; nút gửi bị khoá đến hết đếm ngược.
+4. Hộp cuối trang: chưa có email → link Zalo / hotline (`INFO_CONTACT`) để được admin cấp mật khẩu tạm (§5).
+### API backend cần có
+- `POST /auth/forgot-password`: kiểm captcha; giới hạn gửi theo SĐT + IP (quá → **429**); có email → tạo OTP 6 số, lưu **hash**, hạn 10 phút, gửi email.
+- `POST /auth/reset-password`: OTP sai / hết hạn / đã dùng → **400**; sai quá 5 lần thì huỷ OTP; quá nhiều → **429**. Thành công → đổi mật khẩu, xoá OTP, tắt `mustChangePassword`, **thu hồi refresh token** cũ.
+### Translation / Constants
+- `auth.forgotPassword.*`, dùng lại `otp.error.{tooManyRequests,sendFailed}`, `otp.resendIn`, `changePassword.*` (label/placeholder mật khẩu), `auth.register.{captchaRequired,passwordMismatch}`.
+- `OTP_LENGTH` (6), `OTP_RESEND_SECONDS` (60), `MIN_PASSWORD_LENGTH`, `HTTP_STATUS`, `INFO_CONTACT`.
+### Edge cases
+- Bước 1 lỗi: 429 → "Quá nhiều yêu cầu", khác → "Không thể gửi mã". Bước 2: 400 → lỗi dưới ô OTP, 429 / khác → lỗi chung.
+- Email được lưu ở `/profile` (xem `docs/instruction/profile.md` §7), **chưa xác minh** — gõ sai email thì khách dùng §5.
+
+## 5. Admin cấp mật khẩu tạm (`/admin/customers`)
+### Mục đích
+Khách chưa có email (hoặc không nhận được mail) liên hệ cửa hàng; admin tạo mật khẩu tạm, khách đăng nhập rồi buộc đổi.
+### Entry points
+- Nút "Đặt lại mật khẩu" ở cột thao tác `app/admin/customers/page.tsx` → modal `components/admin/AdminResetPassword.tsx` (qua `useModalDrawer`).
+- `useAdminCustomers().resetCustomerPassword(id)` → `UserService.resetUserPassword(id)` → `PATCH /users/:id/reset-password` → `{ tempPassword }`.
+- Kiểu `User.mustChangePassword?: boolean` (`services/users/type.ts`).
+### Luồng xử lý
+1. Admin xác nhận → server tạo mật khẩu tạm, gắn `mustChangePassword: true`, thu hồi refresh token cũ, trả `tempPassword` (chỉ một lần).
+2. Modal hiện mật khẩu tạm + nút copy; admin gửi cho khách qua Zalo / điện thoại. Lỗi → toast `common.error` từ hook, modal giữ bước xác nhận.
+3. Khách đăng nhập: `user.mustChangePassword` → `router.replace('/profile')` (thay vì `/` hoặc `/admin`). `/profile` tự mở tab Đổi mật khẩu + cảnh báo `changePassword.tempPasswordNotice` (xem `docs/instruction/profile.md` §2).
+4. Đổi mật khẩu thành công → server tắt cờ; client `updateUser({ mustChangePassword: false })`.
+### Translation / Constants
+- `admin.customers.resetPassword.*`, `common.{copied,close,cancel}`, `COPY_FEEDBACK_DURATION`.
+### Edge cases
+- Chỉ nhắc + chuyển tab, **không chặn** các trang khác khi còn cờ.
+- `/profile` đồng bộ `mustChangePassword` từ `GET /users/me` mỗi lần vào (server không trả field → coi là `false`).
+
 ## Liên quan
-- `docs/instruction/profile.md` (đổi mật khẩu), `docs/instruction/booking.md` (đặt lịch dùng SĐT E.164).
+- `docs/instruction/profile.md` (đổi mật khẩu §2, email §7), `docs/instruction/admin.md` (trang khách hàng), `docs/instruction/booking.md` (đặt lịch dùng SĐT E.164).

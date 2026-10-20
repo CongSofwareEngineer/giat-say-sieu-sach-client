@@ -1,13 +1,13 @@
 # Profile (khu vực khách hàng `/profile`)
-> Cập nhật: 2026-10-19
+> Cập nhật: 2026-10-20
 
 ## Tổng quan
-Trang cá nhân của khách đã đăng nhập: thông tin, avatar, sổ địa chỉ, đổi mật khẩu, đơn hàng của tôi, hạng + điểm tích lũy. Kèm chuông thông báo trên Header (mới làm UI). Sub-logic: (1) Hạng khách hàng & điểm, (2) Đổi mật khẩu, (3) Đơn hàng của tôi, (4) Chuông thông báo, (5) Dữ liệu Tỉnh/Xã (proxy esgoo), (6) Sổ địa chỉ. Avatar xem `docs/instruction/upload.md`.
+Trang cá nhân của khách đã đăng nhập: thông tin, avatar, sổ địa chỉ, đổi mật khẩu, đơn hàng của tôi, hạng + điểm tích lũy. Kèm chuông thông báo trên Header (mới làm UI). Sub-logic: (1) Hạng khách hàng & điểm, (2) Đổi mật khẩu, (3) Đơn hàng của tôi, (4) Chuông thông báo, (5) Dữ liệu Tỉnh/Xã (proxy esgoo), (6) Sổ địa chỉ, (7) Thông tin cá nhân (tên + email). Avatar xem `docs/instruction/upload.md`.
 
 ## Dùng chung
-- `app/profile/page.tsx` — làm mới profile khi vào trang (`GET /users/me` → cập nhật `loyaltyPoints` vào store).
+- `app/profile/page.tsx` — làm mới profile khi vào trang (`GET /users/me` → cập nhật `loyaltyPoints`, `mustChangePassword` vào store); còn `mustChangePassword` → tự mở tab `password`.
 - `app/profile/components/ProfileSidebar.tsx` — menu tab (`orders`, `password`...), gắn `LoyaltyCard`, đổi avatar.
-- `services/users/index.ts` — `changePassword`, `updateAvatar`.
+- `services/users/index.ts` — `changePassword`, `updateAvatar`, `updateProfile`.
 - Store `zustand/user.ts` (`useUser`, chờ `hasHydrated`).
 
 ## 1. Hạng khách hàng & điểm tích lũy
@@ -26,6 +26,7 @@ Trang cá nhân của khách đã đăng nhập: thông tin, avatar, sổ địa
 - `app/profile/components/ChangePasswordForm.tsx`: mật khẩu hiện tại, mới (≥ `MIN_PASSWORD_LENGTH` = 4, khác cũ), xác nhận → `PATCH /users/me/password { currentPassword, newPassword }`.
 - Sai mật khẩu cũ BE trả **400** (không phải 401, tránh FE tự refresh + retry) → hiện "Mật khẩu hiện tại không đúng".
 - Tài khoản guest (tạo khi đặt không login) không có mật khẩu.
+- Đang dùng mật khẩu tạm do admin cấp (`user.mustChangePassword`) → hiện cảnh báo `changePassword.tempPasswordNotice` trên form; nhập mật khẩu tạm vào ô "Mật khẩu hiện tại". Thành công → `updateUser({ mustChangePassword: false })`. Luồng cấp mật khẩu tạm xem `docs/instruction/auth.md` §5.
 
 ## 3. Đơn hàng của tôi
 - `app/profile/components/MyOrders.tsx` → `GET /laundry-orders/me` có phân trang (`PAGE_SIZE`), hook `hooks/reactQuery/useGetMyOrders.ts`.
@@ -66,6 +67,17 @@ Khách thêm / sửa / xoá / đặt mặc định địa chỉ giao nhận đ�
 - Lỗi request → hiện `profile.addresses.errors.save` trong form, modal không đóng.
 - Địa chỉ đầu tiên luôn được server đặt mặc định; địa chỉ đang mặc định thì checkbox "mặc định" bị khoá.
 - Tỉnh/Xã lấy từ §5; nếu tên tỉnh cũ không còn trong danh sách mới thì select trống, cần chọn lại.
+
+## 7. Thông tin cá nhân (tên + email)
+### Entry points
+- `app/profile/components/ProfileInfoForm.tsx` → `UserService.updateProfile` (`PATCH /users/me`).
+### Luồng xử lý
+1. Form lấy `name`, `phone`, `email` từ store. **SĐT chỉ hiển thị** (disabled) vì là định danh đăng nhập.
+2. Validate: tên bắt buộc; email không bắt buộc nhưng nếu có phải khớp `EMAIL_REGEX`.
+3. Gửi `{ name, email }` (email rỗng → `null` = xoá email) → OK thì `updateUser` + hiện "Đã lưu"; lỗi → toast `common.error`.
+### Ghi chú
+- Email dùng để nhận OTP quên mật khẩu (`docs/instruction/auth.md` §4); **chưa xác minh** email.
+- Keys: `profile.info.{emailInvalid,emailHint}`.
 
 ## Translation / Constants
 - `ALLOWED_ORIGINS`, `LOCATION_API`

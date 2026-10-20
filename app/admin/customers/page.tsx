@@ -12,6 +12,7 @@ import MyTable, { MyTableColumn } from '@/components/MyTable'
 import MyBadge from '@/components/MyBadge'
 import MySelect from '@/components/MySelect'
 import AdminDeleteConfirm from '@/components/admin/AdminDeleteConfirm'
+import AdminResetPassword from '@/components/admin/AdminResetPassword'
 import UserForm from '@/components/UserForm'
 import useAdminCustomers from '@/hooks/admin/useAdminCustomers'
 import useLanguage from '@/hooks/useLanguage'
@@ -20,7 +21,7 @@ import useModalDrawer from '@/hooks/useModalDrawer'
 const AdminCustomersPage = () => {
   const { translate } = useLanguage()
   const { open } = useModalDrawer()
-  const { customers, meta, isLoading, deleteCustomer, isDeleting } = useAdminCustomers()
+  const { customers, meta, isLoading, deleteCustomer, isDeleting, resetCustomerPassword } = useAdminCustomers()
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState<string>('all')
   const [currentPage, setCurrentPage] = useState(1)
@@ -70,6 +71,14 @@ const AdminCustomersPage = () => {
     })
   }
 
+  const openResetPassword = (customer: User) => {
+    open({
+      mode: 'modal',
+      title: translate('admin.customers.resetPassword.title'),
+      children: <AdminResetPassword customerName={customer.name} onConfirm={() => resetCustomerPassword(customer._id)} />,
+    })
+  }
+
   const columns: MyTableColumn<User>[] = [
     {
       key: 'name',
@@ -111,6 +120,13 @@ const AdminCustomersPage = () => {
         <div className='flex items-center justify-center gap-2'>
           <button type='button' onClick={() => openEdit(customer)} className='px-3 py-1 text-xs text-blue-600 border border-blue-600 rounded-lg'>
             {translate('common.edit')}
+          </button>
+          <button
+            type='button'
+            onClick={() => openResetPassword(customer)}
+            className='px-3 py-1 text-xs text-amber-600 border border-amber-600 rounded-lg whitespace-nowrap'
+          >
+            {translate('admin.customers.resetPassword.action')}
           </button>
           <button type='button' onClick={() => confirmDelete(customer)} className='px-3 py-1 text-xs text-red-600 border border-red-600 rounded-lg'>
             {translate('common.delete')}

@@ -13,7 +13,9 @@ export type User = {
   role: UserRole
   loyaltyPoints: number
   isActive: boolean
-  email?: string
+  email?: string | null
+  // true after an admin reset: the user is logging in with a temporary password
+  mustChangePassword?: boolean
   fids?: string[]
   createdAt?: string
   updatedAt?: string

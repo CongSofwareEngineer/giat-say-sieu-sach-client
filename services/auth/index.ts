@@ -16,6 +16,15 @@ class AuthApi extends BaseAPI {
 
     return response.data
   }
+
+  // Server emails an OTP when the account has an email; the response is the same either way
+  async forgotPassword(phone: string, captchaToken?: string): Promise<void> {
+    await this.post<{ data: null }>('/forgot-password', { phone, captchaToken }, { isUseAuth: false })
+  }
+
+  async resetPassword(phone: string, otp: string, newPassword: string): Promise<void> {
+    await this.post<{ data: null }>('/reset-password', { phone, otp, newPassword }, { isUseAuth: false })
+  }
 }
 
 const AuthService = new AuthApi('auth')

@@ -5,11 +5,13 @@ import { useEffect, useState } from 'react'
 import MyButton from '@/components/MyButton'
 import MyCard, { MyCardBody, MyCardHeader } from '@/components/MyCard'
 import MyInput from '@/components/MyInput'
+import { EMAIL_REGEX } from '@/constants/app'
 import useLanguage from '@/hooks/useLanguage'
 import useUser from '@/hooks/useUser'
-import { isValidVnPhone } from '@/utils/phone'
+import UserService from '@/services/users'
+import { toast } from '@/utils/toast'
 
-type InfoErrors = { name?: string; phone?: string; email?: string }
+type InfoErrors = { name?: string; email?: string }
 
 const ProfileInfoForm = () => {
   const { translate } = useLanguage()
@@ -31,28 +33,33 @@ const ProfileInfoForm = () => {
     const newErrors: InfoErrors = {}
 
     if (!infoForm.name.trim()) newErrors.name = translate('common.required')
-    if (!infoForm.phone.trim()) newErrors.phone = translate('booking.validation.phoneRequired')
-    else if (!isValidVnPhone(infoForm.phone)) newErrors.phone = translate('booking.validation.phoneInvalid')
+    if (infoForm.email.trim() && !EMAIL_REGEX.test(infoForm.email.trim())) newErrors.email = translate('profile.info.emailInvalid')
 
     setErrors(newErrors)
 
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Phone is the login id, so only name and email are saved (empty email = null removes it)
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!validate()) return
+    if (isSaving || !validate()) return
 
     setIsSaving(true)
 
-    // Simulate API call
-    setTimeout(() => {
-      updateUser({ name: infoForm.name.trim(), phone: infoForm.phone.trim(), email: infoForm.email.trim() })
-      setIsSaving(false)
+    try {
+      const payload = { name: infoForm.name.trim(), email: infoForm.email.trim() || null }
+
+      await UserService.updateProfile(payload)
+      updateUser(payload)
       setIsSaved(true)
       setTimeout(() => setIsSaved(false), 2000)
-    }, 800)
+    } catch {
+      toast({ message: translate('common.error'), type: 'error' })
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -76,8 +83,8 @@ const ProfileInfoForm = () => {
             required
             type='tel'
             value={infoForm.phone}
-            onChange={(e) => setInfoForm((prev) => ({ ...prev, phone: e.target.value }))}
-            error={errors.phone}
+            disabled
+            readOnly
           />
           <MyInput
             label={translate('profile.info.email')}
@@ -85,7 +92,9 @@ const ProfileInfoForm = () => {
             type='email'
             value={infoForm.email}
             onChange={(e) => setInfoForm((prev) => ({ ...prev, email: e.target.value }))}
+            error={errors.email}
           />
+          <p className='-mt-2 text-xs text-gray-500'>{translate('profile.info.emailHint')}</p>
           <div className='flex items-center justify-end gap-3'>
             {isSaved && <span className='text-sm text-green-600'>{translate('profile.info.saved')}</span>}
             <MyButton type='submit' variant='primary' loading={isSaving}>

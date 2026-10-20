@@ -84,7 +84,9 @@ const LoginPage = () => {
 
       login(response.user, formData.rememberMe)
       await syncFcmFid()
-      router.replace(response.user.role === 'ADMIN' ? '/admin' : '/')
+      // Logged in with a temp password from an admin reset -> profile opens the change password tab
+      if (response.user.mustChangePassword) router.replace('/profile')
+      else router.replace(response.user.role === 'ADMIN' ? '/admin' : '/')
     } catch {
       setErrors((prev) => ({ ...prev, general: translate('auth.login.error') }))
     } finally {
@@ -139,9 +141,9 @@ const LoginPage = () => {
                 />
                 <span className='text-sm text-gray-600'>{translate('auth.login.rememberMe')}</span>
               </label>
-              <button type='button' className='px-1 py-2 text-sm text-primary'>
+              <Link href='/forgot-password' className='px-1 py-2 text-sm text-primary'>
                 {translate('auth.login.forgotPassword')}
-              </button>
+              </Link>
             </div>
 
             <MyButton type='submit' variant='default' size='large' loading={isSubmitting} className='w-full'>

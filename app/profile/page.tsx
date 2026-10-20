@@ -16,7 +16,7 @@ import UserService from '@/services/users'
 const ProfilePage = () => {
   const { translate } = useLanguage()
   const router = useRouter()
-  const { isLogin, hasHydrated, updateUser } = useUser()
+  const { isLogin, hasHydrated, updateUser, user } = useUser()
 
   const [activeTab, setActiveTab] = useState<ProfileTab>('info')
 
@@ -27,13 +27,18 @@ const ProfilePage = () => {
     }
   }, [hasHydrated, isLogin, router])
 
+  // Temp password from an admin reset -> open the change password tab
+  useEffect(() => {
+    if (hasHydrated && user.mustChangePassword) setActiveTab('password')
+  }, [hasHydrated, user.mustChangePassword])
+
   // Refresh profile so loyalty points earned from completed orders are up to date
   useEffect(() => {
     if (!hasHydrated || !isLogin) return
 
     UserService.getProfile()
       .then((profile) => {
-        if (profile) updateUser({ loyaltyPoints: profile.loyaltyPoints ?? 0 })
+        if (profile) updateUser({ loyaltyPoints: profile.loyaltyPoints ?? 0, mustChangePassword: !!profile.mustChangePassword })
       })
       .catch(() => {})
   }, [hasHydrated, isLogin, updateUser])

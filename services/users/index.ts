@@ -60,6 +60,13 @@ class UserApi extends BaseAPI {
     return response.data
   }
 
+  // Admin: server sets a temporary password, flags mustChangePassword and returns it once
+  async resetUserPassword(id: string): Promise<{ tempPassword: string }> {
+    const response = await this.patch<{ data: { tempPassword: string } }>(`/${id}/reset-password`, {}, { isUseAuth: true })
+
+    return response.data
+  }
+
   async createUser(payload: {
     phone: string
     name: string

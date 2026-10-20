@@ -78,6 +78,14 @@ const useAdminCustomers = (params?: AdminCustomersParams) => {
     },
   })
 
+  // The temp password is shown in the modal, so success has no toast
+  const { mutateAsync: resetCustomerPassword, isPending: isResettingPassword } = useMutation({
+    mutationFn: (id: string) => UserService.resetUserPassword(id),
+    onError: () => {
+      toast({ message: translate('common.error'), type: 'error' })
+    },
+  })
+
   return {
     customers: data?.data ?? [],
     meta: data?.meta,
@@ -88,9 +96,11 @@ const useAdminCustomers = (params?: AdminCustomersParams) => {
     createCustomer,
     updateCustomer,
     deleteCustomer,
+    resetCustomerPassword,
     isCreating,
     isUpdating,
     isDeleting,
+    isResettingPassword,
   }
 }
 
