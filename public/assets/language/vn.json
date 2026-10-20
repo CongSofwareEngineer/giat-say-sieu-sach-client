@@ -378,6 +378,7 @@
     "title": "Đánh giá dịch vụ",
     "subtitle": "Khách hàng chia sẻ trải nghiệm thực tế về dịch vụ của chúng tôi",
     "writeReview": "Viết đánh giá",
+    "loginRequired": "Vui lòng đăng nhập để viết đánh giá",
     "allServices": "Tất cả dịch vụ",
     "service": "Dịch vụ",
     "empty": "Chưa có đánh giá nào. Hãy là người đầu tiên chia sẻ trải nghiệm của bạn!",
@@ -1041,7 +1042,17 @@
       "period": "Thời gian áp dụng",
       "dateInvalid": "Ngày kết thúc phải sau ngày bắt đầu",
       "percentInvalid": "Phần trăm giảm phải từ {min} đến {max}",
-      "nameRequired": "Vui lòng nhập tên chương trình"
+      "nameRequired": "Vui lòng nhập tên chương trình",
+      "code": "Mã khuyến mãi",
+      "codePlaceholder": "Ví dụ: GIAM20",
+      "codeHint": "Không bắt buộc. Bỏ trống nếu chương trình chỉ để thông báo.",
+      "discount": "Mức giảm",
+      "discountType": "Kiểu giảm",
+      "discountTypes": { "PERCENTAGE": "Theo phần trăm", "FIXED_AMOUNT": "Số tiền cố định" },
+      "discountAmount": "Giảm (đ)",
+      "amountInvalid": "Số tiền giảm phải lớn hơn 0",
+      "isActive": "Đang bật (hiển thị cho khách)",
+      "inactive": "Đã tắt"
     },
     "branches": {
       "title": "Quản lý chi nhánh",
@@ -1347,7 +1358,9 @@
     "expired": "Đã kết thúc",
     "bookNow": "Đặt lịch ngay",
     "empty": "Hiện chưa có chương trình khuyến mãi nào. Hãy quay lại sau nhé!",
-    "note": "Ghi tên chương trình vào ô \"Ghi chú cho cửa hàng\" khi đặt lịch để được áp dụng ưu đãi."
+    "note": "Ghi tên chương trình vào ô \"Ghi chú cho cửa hàng\" khi đặt lịch để được áp dụng ưu đãi.",
+    "discountAmount": "Giảm {amount}",
+    "code": "Mã:"
   },
   "policy": {
     "seo": {

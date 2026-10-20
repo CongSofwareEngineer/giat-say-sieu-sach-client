@@ -378,6 +378,7 @@
     "title": "Service Reviews",
     "subtitle": "Real experiences shared by our customers",
     "writeReview": "Write a review",
+    "loginRequired": "Please log in to write a review",
     "allServices": "All services",
     "service": "Service",
     "empty": "No reviews yet. Be the first to share your experience!",
@@ -1041,7 +1042,17 @@
       "period": "Valid period",
       "dateInvalid": "The end date must be after the start date",
       "percentInvalid": "The discount must be between {min} and {max}%",
-      "nameRequired": "Please enter the promotion name"
+      "nameRequired": "Please enter the promotion name",
+      "code": "Promo code",
+      "codePlaceholder": "e.g. SAVE20",
+      "codeHint": "Optional. Leave empty for an announcement-only promotion.",
+      "discount": "Discount",
+      "discountType": "Discount type",
+      "discountTypes": { "PERCENTAGE": "Percentage", "FIXED_AMOUNT": "Fixed amount" },
+      "discountAmount": "Discount (VND)",
+      "amountInvalid": "Discount amount must be greater than 0",
+      "isActive": "Enabled (visible to customers)",
+      "inactive": "Disabled"
     },
     "branches": {
       "title": "Branch management",
@@ -1347,7 +1358,9 @@
     "expired": "Ended",
     "bookNow": "Book now",
     "empty": "There are no promotions right now. Please check back later!",
-    "note": "Write the promotion name in the \"Note for the shop\" field when booking to get the deal."
+    "note": "Write the promotion name in the \"Note for the shop\" field when booking to get the deal.",
+    "discountAmount": "{amount} off",
+    "code": "Code:"
   },
   "policy": {
     "seo": {

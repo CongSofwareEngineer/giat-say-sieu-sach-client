@@ -130,12 +130,12 @@ class CommentApi extends BaseAPI {
     return { data: response.data, meta: response.meta }
   }
 
+  // Login required: the server takes name/phone from the account
   async createComment(
     categoryId: string,
-    payload: { rating?: number; content: string; images: CloudinaryImage[] },
-    options?: { isUseAuth?: boolean }
+    payload: { rating: number; title?: string; content: string; images: CloudinaryImage[] }
   ): Promise<CommentItem> {
-    const response = await this.post<{ data: CommentItem }>(`/laundry-categories/${categoryId}`, payload, { isUseAuth: options?.isUseAuth ?? false })
+    const response = await this.post<{ data: CommentItem }>(`/laundry-categories/${categoryId}`, payload, { isUseAuth: true })
 
     return response.data
   }

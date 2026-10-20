@@ -12,7 +12,7 @@ import CalendarIcon from '@/components/Icons/Calendar'
 import GiftIcon from '@/components/Icons/Gift'
 import useLanguage from '@/hooks/useLanguage'
 import { PROMOTION_STATUS } from '@/constants/app'
-import { getPromotionPeriodText } from '@/services/promotion'
+import { getPromotionDiscountText, getPromotionPeriodText } from '@/services/promotion'
 import { getPromotionStatusBadgeVariant } from '@/utils/functions'
 
 type PromotionListProps = {
@@ -53,14 +53,19 @@ const PromotionList = ({ promotions }: PromotionListProps) => {
                   <div className='flex size-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-secondary text-white'>
                     <GiftIcon className='size-6' />
                   </div>
-                  {!!promotion.discountPercent && (
+                  {!!promotion.discountValue && (
                     <span className='rounded-full bg-accent px-3 py-1 text-sm font-extrabold text-text'>
-                      {translate('promotions.discount', { percent: promotion.discountPercent })}
+                      {getPromotionDiscountText(promotion, translate)}
                     </span>
                   )}
                 </div>
 
-                <h2 className='mt-4 text-lg font-bold text-text'>{promotion.title}</h2>
+                <h2 className='mt-4 text-lg font-bold text-text'>{promotion.name}</h2>
+                {promotion.code && (
+                  <p className='mt-1 text-sm text-gray-600'>
+                    {translate('promotions.code')} <span className='font-mono font-bold text-primary'>{promotion.code}</span>
+                  </p>
+                )}
                 <div className='flex-1'>
                   {promotion.description && <p className='mt-2 whitespace-pre-line text-sm leading-relaxed text-gray-500'>{promotion.description}</p>}
                 </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 import MyCard, { MyCardBody } from '@/components/MyCard'
 import MyButton from '@/components/MyButton'
@@ -17,7 +18,9 @@ import { COMMENT_SERVICES } from '@/constants/app'
 import useGetListComments from '@/hooks/reactQuery/useGetListComments'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
+import useUser from '@/hooks/useUser'
 import { cn } from '@/utils/tailwind'
+import { toast } from '@/utils/toast'
 
 const PAGE_SIZE = 6
 
@@ -35,6 +38,8 @@ type CommentSectionProps = {
 const CommentSection = ({ serviceId, onServiceChange, tag, title, subtitle, headingLevel = 'h2', className }: CommentSectionProps) => {
   const { translate } = useLanguage()
   const { open } = useModalDrawer()
+  const { isLogin } = useUser()
+  const router = useRouter()
   const [internalServiceId, setInternalServiceId] = useState('')
   const [page, setPage] = useState(1)
 
@@ -76,6 +81,14 @@ const CommentSection = ({ serviceId, onServiceChange, tag, title, subtitle, head
   }
 
   const openCommentForm = () => {
+    // The review API requires an account (POST /comments/... is JWT-guarded)
+    if (!isLogin) {
+      toast({ message: translate('reviews.loginRequired'), type: 'default' })
+      router.push('/login')
+
+      return
+    }
+
     open({
       title: translate('reviews.form.heading'),
       classNames: { container: 'md:w-[560px]' },

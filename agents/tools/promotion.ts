@@ -1,8 +1,9 @@
 import type { AgentTool } from '../base'
 
 import { TOOL_NAME } from '@/constants/tools'
-import { PROMOTION_STATUS } from '@/constants/app'
+import { PROMOTION_DISCOUNT_TYPE, PROMOTION_STATUS } from '@/constants/app'
 import PromotionService, { getPromotionStatus } from '@/services/promotion'
+import { convertPriceToCurrent } from '@/utils/functions'
 
 // Fetch promotions from the real API
 export const getPromotionsTool: AgentTool = {
@@ -21,9 +22,11 @@ export const getPromotionsTool: AgentTool = {
 
     return promotions
       .map((p) => {
-        const discount = p.discountPercent ? ` (giảm ${p.discountPercent}%)` : ''
+        const amount = p.discountType === PROMOTION_DISCOUNT_TYPE.FIXED_AMOUNT ? convertPriceToCurrent(p.discountValue) : `${p.discountValue}%`
+        const discount = p.discountValue ? ` (giảm ${amount})` : ''
+        const code = p.code ? ` [mã ${p.code}]` : ''
 
-        return `- ${p.title}${discount}: ${p.description || 'Không có mô tả'}`
+        return `- ${p.name}${discount}${code}: ${p.description || 'Không có mô tả'}`
       })
       .join('\n')
   },

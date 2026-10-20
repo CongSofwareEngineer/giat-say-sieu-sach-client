@@ -51,15 +51,12 @@ const useGetListComments = (serviceId?: string, categoryId?: string) => {
         categoryId?: string
       }
     ) =>
-      CommentService.createComment(
-        payload.categoryId || payload.serviceId || '',
-        {
-          rating: payload.rating ?? 0,
-          content: payload.content,
-          images: payload.images,
-        },
-        { isUseAuth: isLogin }
-      ),
+      CommentService.createComment(payload.categoryId || payload.serviceId || '', {
+        rating: payload.rating ?? 0,
+        title: payload.title,
+        content: payload.content,
+        images: payload.images,
+      }),
     onSuccess: refresh,
   })
 

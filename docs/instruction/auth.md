@@ -81,9 +81,9 @@ Khách đã lưu email trong hồ sơ tự đặt lại mật khẩu bằng mã 
 2. **Bước 2**: nhập OTP (`OTP_LENGTH` số, ô OTP daisyUI) + mật khẩu mới (≥ `MIN_PASSWORD_LENGTH`) + xác nhận → `POST /auth/reset-password { phone, otp, newPassword }` → toast `auth.forgotPassword.success` → `/login`.
 3. "Gửi lại" quay về bước 1 (giữ SĐT) vì cần captcha mới; nút gửi bị khoá đến hết đếm ngược.
 4. Hộp cuối trang: chưa có email → link Zalo / hotline (`INFO_CONTACT`) để được admin cấp mật khẩu tạm (§5).
-### API backend cần có
-- `POST /auth/forgot-password`: kiểm captcha; giới hạn gửi theo SĐT + IP (quá → **429**); có email → tạo OTP 6 số, lưu **hash**, hạn 10 phút, gửi email.
-- `POST /auth/reset-password`: OTP sai / hết hạn / đã dùng → **400**; sai quá 5 lần thì huỷ OTP; quá nhiều → **429**. Thành công → đổi mật khẩu, xoá OTP, tắt `mustChangePassword`, **thu hồi refresh token** cũ.
+### API backend (đã có, `src/module/auth` + `user.service`)
+- `POST /auth/forgot-password { phone, captchaToken }`: kiểm captcha; giới hạn 3 lần/phút/IP (quá → **429**); có email → tạo OTP 6 số, lưu **hash** trên user, hạn 10 phút, gửi email qua SMTP. Gửi lại cùng SĐT trong 60s bị **bỏ qua im lặng** (vẫn 200, để không lộ SĐT có email). Luôn trả `{ data: null }`.
+- `POST /auth/reset-password { phone, otp, newPassword }`: OTP sai / hết hạn / đã dùng → **400**; sai đủ 5 lần thì huỷ OTP + **429**; quá 10 lần/phút/IP → **429**. Thành công → đổi mật khẩu, xoá OTP, tắt `mustChangePassword`, **thu hồi mọi refresh token** cũ (máy khác đang đăng nhập sẽ bị "phiên hết hạn" khi refresh).
 ### Translation / Constants
 - `auth.forgotPassword.*`, dùng lại `otp.error.{tooManyRequests,sendFailed}`, `otp.resendIn`, `changePassword.*` (label/placeholder mật khẩu), `auth.register.{captchaRequired,passwordMismatch}`.
 - `OTP_LENGTH` (6), `OTP_RESEND_SECONDS` (60), `MIN_PASSWORD_LENGTH`, `HTTP_STATUS`, `INFO_CONTACT`.

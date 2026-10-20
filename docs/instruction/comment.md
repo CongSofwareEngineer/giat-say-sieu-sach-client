@@ -2,7 +2,7 @@
 > Cập nhật: 2026-10-20
 
 ## Tổng quan
-Khách đánh giá dịch vụ (sao, tiêu đề, nội dung, ảnh); hiển thị ở trang bảng giá và trang đánh giá. Sub-logic: (1) Dịch vụ đánh giá đồng bộ server, (2) Validate/chuẩn hoá SĐT, (3) Hiển thị ảnh thumbnail, (4) Giới hạn nội dung/ảnh và SĐT che từ API, (5) Admin trả lời / xoá đánh giá. Upload ảnh xem `docs/instruction/upload.md`; admin xem/ẩn đánh giá xem `docs/instruction/admin.md`.
+Khách đánh giá dịch vụ (sao, tiêu đề, nội dung, ảnh); hiển thị ở trang bảng giá và trang đánh giá. Sub-logic: (1) Dịch vụ đánh giá đồng bộ server, (2) Validate/chuẩn hoá SĐT, (3) Hiển thị ảnh thumbnail, (4) Giới hạn nội dung/ảnh và SĐT che từ API, (5) Admin trả lời / xoá đánh giá, (6) Bắt buộc đăng nhập + tiêu đề. Upload ảnh xem `docs/instruction/upload.md`; admin xem/ẩn đánh giá xem `docs/instruction/admin.md`.
 
 ## Dùng chung
 - `services/comment.ts` — API đánh giá, `getServiceName`, kiểu `CommentItem` (`phone` đã che từ server).
@@ -13,7 +13,7 @@ Khách đánh giá dịch vụ (sao, tiêu đề, nội dung, ảnh); hiển th�
 ## 1. Dịch vụ đánh giá đồng bộ server
 ### Luồng xử lý
 - `COMMENT_SERVICES` nằm trong `constants/app.ts`, hardcode nhưng dùng đúng id của `laundry-categories` trên server (Giặt thường, Giặt nhanh, Giặt khô, Ủi đồ); tên hiển thị qua `translate(labelKey)`.
-- Gửi đánh giá: `serviceId` làm `categoryId` trong `POST /comments/laundry-categories/:id`. Hook chỉ gửi `rating`, `content`, `images`; tên/SĐT lấy từ tài khoản phía server.
+- Gửi đánh giá: `serviceId` làm `categoryId` trong `POST /comments/laundry-categories/:id`. Hook chỉ gửi `rating`, `title`, `content`, `images` (có token); tên/SĐT lấy từ tài khoản phía server.
 - `CommentSection` dùng `COMMENT_SERVICES` cho bộ lọc (bỏ `useGetListPrice`, bớt 1 API call).
 ### Translation / Constants
 - `COMMENT_SERVICES`; `reviews.services.{regular,express,dryClean,ironing}`.
@@ -62,6 +62,23 @@ Nội dung đánh giá tối đa 200 ký tự, tối đa 3 ảnh; SĐT người 
 ### Edge cases
 - Nội dung trống → `reviews.validation.replyRequired`, không gửi. Lỗi server → `reviews.error` trong modal.
 - Danh sách public cache 300s phía server, nhưng server xoá cache khi có reply mới.
+
+## 6. Bắt buộc đăng nhập + tiêu đề
+### Mục đích
+API tạo đánh giá của server yêu cầu đăng nhập (`JwtAuthGuard`, `rating` 1–5), nên client chặn khách vãng lai trước khi mở form.
+### Entry points
+- `components/Comment/CommentSection.tsx` — `openCommentForm`.
+- `hooks/reactQuery/useGetListComments.ts` — `createComment`, `updateComment`.
+- `services/comment.ts` — `createComment(categoryId, { rating, title?, content, images })`, luôn `isUseAuth: true`.
+### Luồng xử lý
+1. Bấm "Viết đánh giá": `useUser().isLogin` = false → toast `reviews.loginRequired` + `router.push('/login')`, không mở modal.
+2. Đã đăng nhập → modal `CommentForm` (tên/SĐT khoá theo tài khoản). Tạo: gửi `title` + `rating` + `content` + `images`. Sửa: `PATCH /comments/me/:id` với `title`, `content`, `images`, `rating`.
+3. Server lưu `title` (tối đa 100 ký tự) và trả về trong `CommentItem.title`; đánh giá cũ có `title` rỗng.
+### Translation / Constants
+- `reviews.loginRequired`.
+### Edge cases
+- Trang login chưa có tham số quay lại → sau khi đăng nhập khách phải tự mở lại trang đánh giá.
+- `CommentForm` vẫn còn nhánh cho khách chưa đăng nhập (nhập tên/SĐT, ẩn sao) nhưng không còn đường vào.
 
 ## Liên quan
 - `docs/instruction/upload.md` (upload ảnh đánh giá), `docs/instruction/admin.md` (xem chi tiết/ẩn đánh giá), `docs/instruction/auth.md` (validate SĐT login/register).

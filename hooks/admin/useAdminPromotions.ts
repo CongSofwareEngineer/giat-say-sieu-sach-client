@@ -12,7 +12,7 @@ const useAdminPromotions = () => {
 
   const { data, isLoading } = useQuery<PromotionItem[]>({
     queryKey: [QUERY_KEYS.getListPromotions],
-    queryFn: () => PromotionService.getPromotions(),
+    queryFn: () => PromotionService.getAdminPromotions(),
   })
 
   const refresh = () => {

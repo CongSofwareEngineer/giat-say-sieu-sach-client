@@ -13,7 +13,7 @@ import { PAGE_SIZE, PROMOTION_STATUS } from '@/constants/app'
 import useAdminPromotions from '@/hooks/admin/useAdminPromotions'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
-import { getPromotionPeriodText, getPromotionStatus, PromotionItem } from '@/services/promotion'
+import { getPromotionDiscountText, getPromotionPeriodText, getPromotionStatus, PromotionItem } from '@/services/promotion'
 import { getPromotionStatusBadgeVariant } from '@/utils/functions'
 
 const STATUS_LABEL_KEY: Record<PROMOTION_STATUS, string> = {
@@ -29,10 +29,11 @@ const AdminPromotionsPage = () => {
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
 
-  const filteredPromotions = useMemo(
-    () => promotions.filter((promotion) => promotion.title.toLowerCase().includes(search.trim().toLowerCase())),
-    [promotions, search]
-  )
+  const filteredPromotions = useMemo(() => {
+    const keyword = search.trim().toLowerCase()
+
+    return promotions.filter((promotion) => promotion.name.toLowerCase().includes(keyword) || promotion.code.toLowerCase().includes(keyword))
+  }, [promotions, search])
 
   const totalPages = Math.max(1, Math.ceil(filteredPromotions.length / PAGE_SIZE))
   const paginatedPromotions = useMemo(() => {
@@ -54,27 +55,28 @@ const AdminPromotionsPage = () => {
     open({
       mode: 'modal',
       title: translate('admin.promotions.delete'),
-      children: <AdminDeleteConfirm itemName={promotion.title} onConfirm={() => deletePromotion(promotion.id)} isDeleting={isDeleting} />,
+      children: <AdminDeleteConfirm itemName={promotion.name} onConfirm={() => deletePromotion(promotion.id)} isDeleting={isDeleting} />,
     })
   }
 
   const columns: MyTableColumn<PromotionItem>[] = [
     {
-      key: 'title',
+      key: 'name',
       title: translate('admin.promotions.name'),
       className: 'font-medium',
       render: (promotion) => (
         <div className='min-w-0'>
-          <p className='font-medium text-text'>{promotion.title}</p>
+          <p className='font-medium text-text'>{promotion.name}</p>
+          {promotion.code && <p className='mt-0.5 font-mono text-xs text-primary'>{promotion.code}</p>}
           {promotion.description && <p className='mt-0.5 line-clamp-1 text-xs text-gray-500'>{promotion.description}</p>}
         </div>
       ),
     },
     {
-      key: 'discountPercent',
-      title: translate('admin.promotions.discountPercent'),
+      key: 'discount',
+      title: translate('admin.promotions.discount'),
       align: 'center',
-      render: (promotion) => (promotion.discountPercent ? translate('promotions.discount', { percent: promotion.discountPercent }) : '—'),
+      render: (promotion) => getPromotionDiscountText(promotion, translate) || '—',
     },
     {
       key: 'period',
@@ -86,6 +88,9 @@ const AdminPromotionsPage = () => {
       title: translate('common.status'),
       align: 'center',
       render: (promotion) => {
+        // Disabled promotions are hidden from customers whatever their dates
+        if (!promotion.isActive) return <MyBadge variant='default'>{translate('admin.promotions.inactive')}</MyBadge>
+
         const status = getPromotionStatus(promotion)
 
         return <MyBadge variant={getPromotionStatusBadgeVariant(status)}>{translate(STATUS_LABEL_KEY[status])}</MyBadge>

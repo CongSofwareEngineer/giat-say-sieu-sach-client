@@ -224,6 +224,12 @@ export enum PROMOTION_STATUS {
   EXPIRED = 'EXPIRED',
 }
 
+// Promotion discount types (must match server DiscountType)
+export enum PROMOTION_DISCOUNT_TYPE {
+  PERCENTAGE = 'PERCENTAGE',
+  FIXED_AMOUNT = 'FIXED_AMOUNT',
+}
+
 // Allowed discount percent of a promotion
 export const PROMOTION_DISCOUNT_RANGE = {
   MIN: 1,
