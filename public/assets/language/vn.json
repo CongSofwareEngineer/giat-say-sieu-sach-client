@@ -668,6 +668,7 @@
       "success": "Đặt lại mật khẩu thành công, vui lòng đăng nhập",
       "resend": "Không nhận được mã? Gửi lại",
       "noEmail": "Tài khoản chưa có email? Liên hệ cửa hàng để được cấp mật khẩu tạm:",
+      "contactAdmin": "Vui lòng liên hệ cửa hàng qua Zalo hoặc hotline, chúng tôi sẽ cấp mật khẩu tạm để bạn đăng nhập và đổi lại mật khẩu mới.",
       "contactZalo": "Nhắn Zalo",
       "contactPhone": "Gọi {phone}",
       "backToLogin": "Quay lại đăng nhập"

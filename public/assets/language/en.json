@@ -668,6 +668,7 @@
       "success": "Password reset successfully, please log in",
       "resend": "Didn't get the code? Resend",
       "noEmail": "No email on your account? Contact the store for a temporary password:",
+      "contactAdmin": "Please contact the store via Zalo or hotline. We will give you a temporary password so you can log in and set a new one.",
       "contactZalo": "Message on Zalo",
       "contactPhone": "Call {phone}",
       "backToLogin": "Back to login"

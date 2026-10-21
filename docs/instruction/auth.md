@@ -1,8 +1,8 @@
 # Auth (đăng ký / đăng nhập / token)
-> Cập nhật: 2026-10-20
+> Cập nhật: 2026-10-21
 
 ## Tổng quan
-Xác thực khách hàng bằng **họ tên + số điện thoại + mật khẩu**. Token (access/refresh) lưu ở httpOnly cookie, chỉ đọc/ghi qua server actions trong `utils/cookie.ts` (`COOKIES_KEY`). Trạng thái đăng nhập là store Zustand `zustand/user.ts` (`useUser`). Sub-logic: (1) Đăng ký, (2) Tự refresh token + báo hết hạn, (3) Ghi nhớ đăng nhập, (4) Quên mật khẩu qua email OTP, (5) Admin cấp mật khẩu tạm. (4) và (5) chạy song song: khách có email tự lấy lại, khách chưa có email nhờ cửa hàng. Cả hai đều **miễn phí** (không SMS/Zalo ZNS).
+Xác thực khách hàng bằng **họ tên + số điện thoại + mật khẩu**. Token (access/refresh) lưu ở httpOnly cookie, chỉ đọc/ghi qua server actions trong `utils/cookie.ts` (`COOKIES_KEY`). Trạng thái đăng nhập là store Zustand `zustand/user.ts` (`useUser`). Sub-logic: (1) Đăng ký, (2) Tự refresh token + báo hết hạn, (3) Ghi nhớ đăng nhập, (4) Quên mật khẩu (**tạm thời chỉ liên hệ admin**; luồng email OTP đã comment lại), (5) Admin cấp mật khẩu tạm. Hiện mọi khách quên mật khẩu đều nhờ cửa hàng cấp mật khẩu tạm (§5). Sau này có dịch vụ gửi mã tốt hơn sẽ bật lại / thay luồng email OTP.
 
 ## Dùng chung
 - `config/baseApi.ts` — `BaseAPI` ghép URL, gắn header, ném `HttpError` (giữ `status`).
@@ -69,8 +69,13 @@ Checkbox "Ghi nhớ đăng nhập" (mặc định tích) quyết định phiên 
 - Người dùng lưu từ phiên cũ (chưa có `isRemembered`) được coi là ghi nhớ (giá trị mặc định `true`).
 - Ở server render, `onRehydrateStorage` không đụng `sessionStorage` (guard `typeof window`).
 
-## 4. Quên mật khẩu qua email OTP (`/forgot-password`)
-### Mục đích
+## 4. Quên mật khẩu (`/forgot-password`)
+### Trạng thái hiện tại (tạm thời)
+- Trang `/forgot-password` **chỉ hiển thị hướng dẫn liên hệ cửa hàng**: tiêu đề + câu `auth.forgotPassword.contactAdmin` + link Zalo (`INFO_CONTACT.Zalo`) và gọi hotline (`INFO_CONTACT.Phone`) + link quay lại `/login`. Admin cấp mật khẩu tạm theo §5.
+- Luồng email OTP bên dưới **đã comment lại** ở cuối `app/forgot-password/page.tsx` (giữ nguyên code). `AuthService.forgotPassword` / `resetPassword` và các key `auth.forgotPassword.*` cũ vẫn giữ, hiện không có chỗ gọi. Bật lại: khôi phục phần code đã comment và bỏ component tạm phía trên.
+- Link "Quên mật khẩu?" ở `/login` vẫn trỏ tới `/forgot-password`.
+
+### Luồng email OTP (đang tắt) — mục đích
 Khách đã lưu email trong hồ sơ tự đặt lại mật khẩu bằng mã OTP gửi qua email (backend gửi bằng Gmail SMTP / Brevo free).
 ### Entry points
 - `app/forgot-password/page.tsx` (2 bước trong một trang), `app/forgot-password/layout.tsx` (metadata `noindex`; cũng nằm trong `PRIVATE_PATHS` của `next-sitemap.config.js`).
