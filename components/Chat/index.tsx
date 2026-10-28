@@ -1,15 +1,18 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 
 import ChatMessageList from './ChatMessageList'
 
+import CancelOrderConfirm from '@/components/CancelOrderConfirm'
 import { TrashIcon } from '@/components/Icons/Trash'
 import { CloseIcon } from '@/components/Icons/Functions/Close'
 import SendIcon from '@/components/Icons/Functions/Send'
 import MyButton from '@/components/MyButton'
 import useChat from '@/hooks/useChat'
 import useLanguage from '@/hooks/useLanguage'
+import useModalDrawer from '@/hooks/useModalDrawer'
 import useUser from '@/hooks/useUser'
 import useLaundryBooking from '@/hooks/useLaundryBooking'
 import { chatAgent } from '@/agents'
@@ -18,9 +21,11 @@ import { formatPickupTime, getBookingErrorMessage } from '@/agents/tools/booking
 import { notifyUnreadMessage } from '@/utils/notification'
 import { formatAddress } from '@/services/address'
 import { chat } from '@/zustand/chat'
-import { getOrderCode } from '@/services/order'
-import { getMyOrders, ORDER_PHONE_FORM_MARKER } from '@/agents/tools/myOrders'
+import OrderService, { getOrderCode } from '@/services/order'
+import { getMyOrders, ORDER_PHONE_FORM_MARKER, PendingCancelOrder, takePendingCancelOrder } from '@/agents/tools/myOrders'
 import { BOOKING_SOURCE } from '@/constants/app'
+import { QUERY_KEYS } from '@/constants/reactQuery'
+import { toast } from '@/utils/toast'
 
 type ChatProps = {
   onClose?: () => void
@@ -47,6 +52,8 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
   } = useChat()
 
   const { user } = useUser()
+  const queryClient = useQueryClient()
+  const { open: openModal, close: closeModal } = useModalDrawer()
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Laundry form state, shared with the booking page
@@ -238,6 +245,39 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
 
   const handleCancelOrderPhone = useCallback(() => setShowOrderPhoneForm(false), [])
 
+  // Confirm modal for the order picked by the cancel_my_order tool (only the click cancels it)
+  const openCancelOrderConfirm = (order: PendingCancelOrder) => {
+    openModal({
+      mode: 'modal',
+      add: true,
+      title: translate('myOrders.cancel.title'),
+      children: (
+        <CancelOrderConfirm
+          orderCode={order.code}
+          onClose={closeModal}
+          onConfirm={async () => {
+            await OrderService.cancelMyOrder(order.id)
+            closeModal()
+            toast({ message: translate('myOrders.cancel.success'), type: 'default' })
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.getMyOrders] })
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.getMyOrder, order.id] })
+
+            const cancelledText = translate('agent.order.cancel.cancelled', { code: order.code })
+
+            addMessage({
+              id: Date.now(),
+              text: cancelledText,
+              isUser: false,
+              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            })
+            // Keep the agent aware the order is now cancelled
+            setHistory([...chat.getState().history, { role: 'assistant', content: cancelledText }])
+          }}
+        />
+      ),
+    })
+  }
+
   // Chat handlers
   const handleSend = async (messageText?: string) => {
     const textToSend = messageText || inputValue
@@ -258,9 +298,12 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
 
     addMessage(userMessage)
     setSending(true)
+    // Drop a cancel request left over from a failed turn
+    takePendingCancelOrder()
 
     try {
       const { text, history: newHistory } = await chatAgent.chat(textToSend, history, { locale: lang, userId: user?.id })
+      const cancelOrder = takePendingCancelOrder()
 
       if (text) {
         const wantsLaundryForm = text.includes(LAUNDRY_FORM_MARKER)
@@ -285,6 +328,10 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
 
         if (wantsPhoneForm) {
           setShowOrderPhoneForm(true)
+        }
+
+        if (cancelOrder) {
+          openCancelOrderConfirm(cancelOrder)
         }
 
         if (!chat.getState().isOpen) {

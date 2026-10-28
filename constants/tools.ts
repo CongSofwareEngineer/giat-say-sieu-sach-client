@@ -10,6 +10,8 @@ export const TOOL_NAME = {
   getContactInfo: 'get_contact_info',
   getBranches: 'get_branches',
   getMyAddresses: 'get_my_addresses',
+  cancelMyOrder: 'cancel_my_order',
+  getMyLoyalty: 'get_my_loyalty',
   // FAQ tool set (small, common questions)
   getFaq: 'get_faq',
   // Laundry tool set (booking/pickup intent -> open the order form)

@@ -2,9 +2,9 @@ import type { AgentContext, AgentTool } from '../base'
 
 import { statusLabel } from './order'
 
-import { MAX_CHAT_ORDERS } from '@/constants/app'
+import { CANCELLABLE_ORDER_STATUS, MAX_CHAT_ORDERS, PAGE_SIZE } from '@/constants/app'
 import { TOOL_NAME } from '@/constants/tools'
-import OrderService, { getOrderCode, OrderItem, PublicOrderItem } from '@/services/order'
+import OrderService, { getOrderCode, normalizeOrderCode, OrderItem, PublicOrderItem } from '@/services/order'
 import { formatPhoneToE164, isValidVnPhone } from '@/utils/phone'
 import { translate } from '@/utils/language'
 
@@ -82,4 +82,95 @@ export const getMyOrdersTool: AgentTool = {
     required: [],
   },
   execute: async (args, ctx) => getMyOrders(typeof args?.phone === 'string' ? args.phone.trim() : undefined, ctx),
+}
+
+export type PendingCancelOrder = { id: string; code: string }
+
+// Order the cancel tool picked in the current turn. The chat reads it once the
+// agent replies and opens the confirm modal, so only the user's click cancels.
+let pendingCancelOrder: PendingCancelOrder | null = null
+
+// Read and clear the order waiting for the user's confirmation
+export const takePendingCancelOrder = (): PendingCancelOrder | null => {
+  const order = pendingCancelOrder
+
+  pendingCancelOrder = null
+
+  return order
+}
+
+// Own order by code: public lookup for the id, then the "my order" endpoint (404 for other users)
+const findOwnOrderByCode = async (code: string): Promise<OrderItem | undefined> => {
+  const publicOrder = await OrderService.getOrderByCode(code).catch(() => undefined)
+
+  if (!publicOrder) return undefined
+
+  return OrderService.getMyOrder(publicOrder.id).catch(() => undefined)
+}
+
+const requestCancelConfirm = (order: OrderItem): string => {
+  const code = getOrderCode(order)
+
+  pendingCancelOrder = { id: order.id, code }
+
+  return (
+    `Order #${code} can be cancelled. The client now shows a confirm dialog; the order is only cancelled after the user clicks confirm there. ` +
+    'Briefly tell the user to confirm the cancellation in the dialog. Do not say the order is already cancelled.'
+  )
+}
+
+// Cancel a just-placed order of the logged-in user (asks for confirmation in the UI)
+export const cancelMyOrderTool: AgentTool = {
+  name: TOOL_NAME.cancelMyOrder,
+  description:
+    'Start cancelling one of the logged in user own orders that is still waiting for confirmation. Use when the user asks to cancel an order ("huỷ đơn", "cancel my order"). The user confirms in a dialog, never cancel twice.',
+  parameters: {
+    type: 'object',
+    properties: {
+      orderCode: {
+        type: 'string',
+        description: 'Order code to cancel (8 characters, e.g. "K7QH3MZP"). Leave empty when the user did not give one.',
+      },
+    },
+    required: [],
+  },
+  execute: async (args, ctx) => {
+    // The cancel endpoint needs the owner's token, guests must call the shop
+    if (!ctx?.userId) return translate('agent.order.cancel.requireLogin', {}, 'Bạn cần đăng nhập để huỷ đơn qua chat.')
+
+    const code = normalizeOrderCode(String(args?.orderCode ?? ''))
+
+    if (code) {
+      const order = await findOwnOrderByCode(code)
+
+      if (!order) return translate('agent.order.cancel.notFound', { code }, `Không tìm thấy đơn #${code} trong tài khoản của bạn.`)
+
+      if (order.status !== CANCELLABLE_ORDER_STATUS) {
+        const status = statusLabel(order.status)
+
+        return translate('agent.order.cancel.notCancellable', { code, status }, `Đơn #${code} đang ở trạng thái "${status}" nên không thể huỷ.`)
+      }
+
+      return requestCancelConfirm(order)
+    }
+
+    // No code: pick among the user's orders still waiting for confirmation
+    const response = await OrderService.getMyOrders({ limit: PAGE_SIZE })
+    const pending = (response.data ?? []).filter((o) => o.status === CANCELLABLE_ORDER_STATUS)
+
+    if (pending.length === 0) return translate('agent.order.cancel.noPending', {}, 'Bạn không có đơn nào đang chờ xác nhận để huỷ.')
+
+    if (pending.length === 1) return requestCancelConfirm(pending[0])
+
+    const items = pending.map((o) => {
+      const params = { code: getOrderCode(o), date: formatDate(o.createdAt), price: o.finalAmount.toLocaleString('vi-VN') }
+
+      return translate('agent.order.cancel.pickItem', params, `- #${params.code} · ${params.date} · ${params.price}đ`)
+    })
+
+    return [
+      translate('agent.order.cancel.pickOne', { count: pending.length }, `Bạn có ${pending.length} đơn đang chờ xác nhận, bạn muốn huỷ đơn nào?`),
+      ...items,
+    ].join('\n')
+  },
 }

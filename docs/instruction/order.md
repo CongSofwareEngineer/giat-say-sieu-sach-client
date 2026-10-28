@@ -28,6 +28,7 @@ Logic đơn hàng xuyên suốt booking, chat, track-order, profile và admin. *
 - API `PATCH /laundry-orders/me/:id/cancel`, chỉ `PENDING` (`CANCELLABLE_ORDER_STATUS`).
 - Profile tab "Đơn hàng của tôi" + trang theo dõi (nút Huỷ chỉ hiện khi login & là chủ đơn — `GET /laundry-orders/me/:id`, 404 = không phải chủ). Modal dùng chung `components/CancelOrderConfirm`.
 - Đơn guest không huỷ được trên web (API huỷ cần token).
+- Chat AI cũng huỷ được (tool `cancel_my_order`, vẫn qua modal xác nhận) — xem `docs/instruction/chat.md` §6.
 
 ## 5. Admin sửa số kg
 - Cột "Số kg" trong `admin/orders` → modal sửa từng dòng, xem trước thành tiền mới.

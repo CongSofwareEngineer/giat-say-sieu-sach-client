@@ -1,15 +1,15 @@
 # Chat AI (trợ lý đa agent)
-> Cập nhật: 2026-10-16
+> Cập nhật: 2026-10-28
 
 ## Tổng quan
-Chat nổi là trợ lý đa agent; chỉ lời gọi LLM rời trình duyệt (qua `/api/chat-agent/chat/completions`), còn tool chạy client-side với `AgentContext` (`locale`, `userId`). Sub-logic: (1) Đặt lịch giặt không cần login, (2) Tra cứu đơn theo SĐT / mã đơn, (3) Form chọn Tỉnh/Xã qua LocationApi, (4) Định dạng danh sách đơn, (5) Địa chỉ cửa hàng / địa chỉ đã lưu. Form đặt lịch dùng chung với trang `/booking` — xem `docs/instruction/booking.md`.
+Chat nổi là trợ lý đa agent; chỉ lời gọi LLM rời trình duyệt (qua `/api/chat-agent/chat/completions`), còn tool chạy client-side với `AgentContext` (`locale`, `userId`). Sub-logic: (1) Đặt lịch giặt không cần login, (2) Tra cứu đơn theo SĐT / mã đơn, (3) Form chọn Tỉnh/Xã qua LocationApi, (4) Định dạng danh sách đơn, (5) Địa chỉ cửa hàng / địa chỉ đã lưu, (6) Huỷ đơn qua chat, (7) Điểm tích lũy & hạng. Form đặt lịch dùng chung với trang `/booking` — xem `docs/instruction/booking.md`.
 
 ## Dùng chung
 - `agents/index.ts` (router → chọn agent → `runAgent`), `agents/runAgent.ts` (tool loop, `MAX_TOOL_ROUNDS = 6`), `agents/llm.ts`, `agents/base.ts`.
-- `agents/tools/*` — booking, order, myOrders, faq, search...; `agents/agents/*` — faq, price, recommend, fallback, router.
+- `agents/tools/*` — booking, order, myOrders (cả huỷ đơn), loyalty, faq, search...; `agents/agents/*` — faq, price, recommend, fallback, router.
 - Dữ liệu FAQ (tool `faq`, `search`): `FaqService.getFaqs()` lấy toàn bộ FAQ đang hiển thị (`?limit=FULL_LIST_LIMIT`), cache localStorage `LOCAL_STORAGE_KEY.faqs` trong `FAQ_CACHE_DURATION` (3 ngày). Admin quản lý ở `/admin/faqs` (xem `docs/instruction/admin.md` §4).
 - Danh sách chi nhánh (tool `get_branches` trong `agents/tools/order.ts`): tên, địa chỉ, giờ mở cửa (`openingHours`), SĐT, link bản đồ — xem §5.
-- `services/order.ts` — `getMyOrders`, `createGuestOrder`, `lookupOrdersByPhone`, `getOrderByCode`, `getOrderCode`, `normalizeOrderCode`.
+- `services/order.ts` — `getMyOrders`, `getMyOrder`, `cancelMyOrder`, `createGuestOrder`, `lookupOrdersByPhone`, `getOrderByCode`, `getOrderCode`, `normalizeOrderCode`.
 - Translation `chat.*`, `agent.*`; `TOOL_NAME`, `AGENT_NAME` (`constants/tools.ts`); `MAX_CHAT_ORDERS` (4).
 
 ## 1. Đặt lịch giặt (không cần login)
@@ -60,5 +60,37 @@ Trả lời "địa chỉ" bằng dữ liệu chi nhánh thật từ API (`GET /
 - Không có chi nhánh → `agent.order.branch.empty`; `get_contact_info` lỗi API chi nhánh → vẫn trả phone/email, địa chỉ = `branch.empty`.
 - `get_my_addresses` khi chưa login (`ctx.userId` rỗng) → `agent.address.requireLogin`, không gọi API.
 
+## 6. Huỷ đơn qua chat
+### Mục đích
+Khách đã đăng nhập huỷ đơn còn `PENDING` ngay trong chat. AI **không tự huỷ**: tool chỉ chọn đơn, khách phải bấm xác nhận trong modal.
+### Entry points
+- `agents/tools/myOrders.ts` — tool `cancel_my_order` (`TOOL_NAME.cancelMyOrder`, gắn vào agent `recommend`), `takePendingCancelOrder()`.
+- `components/Chat/index.tsx` — `openCancelOrderConfirm` mở `CancelOrderConfirm` (dùng chung với `/profile`, `/track-order`) qua `useModalDrawer` (`mode: 'modal'`, `add: true` — modal z-index cao hơn drawer chat trên mobile).
+### Luồng xử lý
+1. Khách nhắn "huỷ đơn …" → router → `recommend` → `cancel_my_order({ orderCode? })`.
+2. Chưa login → `agent.order.cancel.requireLogin` (API `PATCH /laundry-orders/me/:id/cancel` cần token; khách vãng lai gọi hotline).
+3. Có mã → `getOrderByCode` lấy id → `getMyOrder(id)` kiểm tra đơn của chính khách (404 → `notFound`) → khác `CANCELLABLE_ORDER_STATUS` → `notCancellable` (kèm trạng thái).
+4. Không mã → `getMyOrders({ limit: PAGE_SIZE })` lọc `PENDING`: 0 đơn → `noPending`; 1 đơn → chọn luôn; nhiều đơn → `pickOne` + danh sách `pickItem` để khách nói mã.
+5. Chọn được đơn → tool lưu `{ id, code }` vào biến module `pendingCancelOrder` và bảo LLM nhắc khách xác nhận. Không dùng marker trong câu trả lời (LLM có thể chép sai id).
+6. `handleSend` xoá pending cũ trước khi gọi agent, sau khi agent trả lời gọi `takePendingCancelOrder()` → có thì mở modal.
+7. Khách bấm "Huỷ đơn" → `OrderService.cancelMyOrder(id)` → toast `myOrders.cancel.success`, invalidate `QUERY_KEYS.getMyOrders` + `getMyOrder`, thêm tin `agent.order.cancel.cancelled` vào chat và history. Lỗi → `CancelOrderConfirm` hiện `myOrders.cancel.error`. Đóng modal → không huỷ.
+### Translation / Constants
+- `agent.order.cancel.{requireLogin,notFound,notCancellable,noPending,pickOne,pickItem,cancelled}`, dùng lại `myOrders.cancel.*`; `TOOL_NAME.cancelMyOrder`, `CANCELLABLE_ORDER_STATUS`, `PAGE_SIZE` (`constants/app.ts`).
+### Edge cases
+- Không mã chỉ xét 10 đơn mới nhất; đơn `PENDING` cũ hơn thì khách cần nói mã.
+- Đơn huỷ không bị trừ điểm (điểm giữ chỗ tự được nhả) — xem `docs/instruction/order.md` §3, §4.
+
+## 7. Điểm tích lũy & hạng
+### Entry points
+- `agents/tools/loyalty.ts` — tool `get_my_loyalty` (`TOOL_NAME.getMyLoyalty`, agent `recommend`).
+### Luồng xử lý
+1. Chưa login → `agent.loyalty.requireLogin`.
+2. `UserService.getProfile()` lấy `loyaltyPoints` mới nhất (store persist có thể cũ) → `getCustomerTier()` (`utils/loyalty.ts`) → `getPointsValue()` (`utils/orderPricing.ts`).
+3. Trả: hạng + điểm + số tiền quy đổi (`agent.loyalty.summary`), còn bao nhiêu điểm lên hạng (`profile.loyalty.toNextTier` / `topTier`), cách tích (`profile.loyalty.earnRule`), cách đổi (`agent.loyalty.redeemRule`, theo `LOYALTY_REDEEM`). Agent hiển thị nguyên văn.
+### Translation / Constants
+- `agent.loyalty.{requireLogin,summary,redeemRule}`, dùng lại `profile.loyalty.{tiers.*,toNextTier,topTier,earnRule}`; `TOOL_NAME.getMyLoyalty`, `LOYALTY_REDEEM`, `CUSTOMER_TIER_MIN_POINTS`.
+### Edge cases
+- Ngưỡng hạng/quy đổi lấy từ constants FE — phải khớp server (xem `docs/instruction/profile.md` §1).
+
 ## Liên quan
-- `docs/instruction/booking.md` (form dùng chung), `docs/instruction/order.md` (tạo đơn, giá, điểm), `docs/instruction/tracking.md` (tra cứu trang /track-order).
+- `docs/instruction/booking.md` (form dùng chung), `docs/instruction/order.md` (tạo đơn, giá, điểm, huỷ đơn), `docs/instruction/tracking.md` (tra cứu trang /track-order), `docs/instruction/profile.md` §1 (hạng & điểm).

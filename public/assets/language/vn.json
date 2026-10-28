@@ -1238,7 +1238,21 @@
         "item": "**Đơn #{code}**\nTình trạng: **{status}**\nDịch vụ: {services}\nTổng tiền: {price}đ · Ngày đặt: {date}",
         "empty": "Không tìm thấy đơn hàng nào. Vui lòng kiểm tra lại số điện thoại đã dùng khi đặt lịch.",
         "invalidPhone": "Số điện thoại không hợp lệ."
+      },
+      "cancel": {
+        "requireLogin": "Bạn cần đăng nhập để huỷ đơn qua chat. Nếu đã đặt lịch mà không đăng nhập, vui lòng gọi hotline để được hỗ trợ.",
+        "notFound": "Không tìm thấy đơn #{code} trong tài khoản của bạn.",
+        "notCancellable": "Đơn #{code} đang ở trạng thái \"{status}\" nên không thể huỷ. Chỉ huỷ được khi đơn còn chờ xác nhận.",
+        "noPending": "Bạn không có đơn nào đang chờ xác nhận để huỷ.",
+        "pickOne": "Bạn có {count} đơn đang chờ xác nhận, bạn muốn huỷ đơn nào?",
+        "pickItem": "- #{code} · {date} · {price}đ",
+        "cancelled": "Đã huỷ đơn #{code}."
       }
+    },
+    "loyalty": {
+      "requireLogin": "Bạn cần đăng nhập để xem điểm tích lũy và hạng thành viên.",
+      "summary": "Hạng thành viên: **{tier}**\nĐiểm tích lũy: **{points} điểm** (đổi được {value}đ khi đặt lịch)",
+      "redeemRule": "Cứ {step} điểm được giảm {amount}đ khi đặt lịch."
     },
     "address": {
       "empty": "Bạn chưa có địa chỉ nào được lưu trong hồ sơ.",

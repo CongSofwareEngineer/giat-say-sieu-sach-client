@@ -1238,7 +1238,21 @@
         "item": "**Order #{code}**\nStatus: **{status}**\nServices: {services}\nTotal: {price}đ · Created: {date}",
         "empty": "No orders found. Please check the phone number you booked with.",
         "invalidPhone": "Invalid phone number."
+      },
+      "cancel": {
+        "requireLogin": "Please log in to cancel an order in chat. If you booked without logging in, please call our hotline for help.",
+        "notFound": "Order #{code} was not found in your account.",
+        "notCancellable": "Order #{code} is \"{status}\" and can no longer be cancelled. Orders can only be cancelled while waiting for confirmation.",
+        "noPending": "You have no orders waiting for confirmation to cancel.",
+        "pickOne": "You have {count} orders waiting for confirmation. Which one do you want to cancel?",
+        "pickItem": "- #{code} · {date} · {price}đ",
+        "cancelled": "Order #{code} has been cancelled."
       }
+    },
+    "loyalty": {
+      "requireLogin": "Please log in to see your loyalty points and membership tier.",
+      "summary": "Membership tier: **{tier}**\nLoyalty points: **{points} points** (worth {value}đ at booking)",
+      "redeemRule": "Every {step} points gives {amount}đ off at booking."
     },
     "address": {
       "empty": "You have no saved addresses in your profile.",
