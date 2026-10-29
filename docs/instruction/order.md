@@ -1,8 +1,8 @@
 # Order (tính tiền / điểm / giảm giá / huỷ / sửa kg)
-> Cập nhật: 2026-10-02
+> Cập nhật: 2026-10-29
 
 ## Tổng quan
-Logic đơn hàng xuyên suốt booking, chat, track-order, profile và admin. **Server là nơi tính tiền cuối cùng**; FE chỉ ước tính. Sub-logic: (1) Công thức tính tiền, (2) Dùng điểm khi đặt, (3) Giữ chỗ & trừ/cộng điểm, (4) Huỷ đơn, (5) Admin sửa số kg, (6) Copy mã đơn + timeline. Danh sách "đơn của tôi" ở profile xem `docs/instruction/profile.md`.
+Logic đơn hàng xuyên suốt booking, chat, track-order, profile và admin. **Server là nơi tính tiền cuối cùng**; FE chỉ ước tính. Sub-logic: (1) Công thức tính tiền, (2) Dùng điểm khi đặt, (3) Giữ chỗ & trừ/cộng điểm, (4) Huỷ đơn, (5) Admin sửa số kg, (6) Copy mã đơn + timeline, (7) Hoá đơn / biên nhận. Danh sách "đơn của tôi" ở profile xem `docs/instruction/profile.md`.
 
 ## Dùng chung
 - `services/order.ts` — `getMyOrder`, `cancelMyOrder`, `updateOrderItems`, `createGuestOrder`, field giảm giá.
@@ -37,6 +37,25 @@ Logic đơn hàng xuyên suốt booking, chat, track-order, profile và admin. *
 ## 6. Copy mã đơn + timeline theo dõi
 - Copy mã đơn: trang đặt lịch, tin nhắn thành công trong chat (`ChatMessage.orderCode`).
 - Timeline (`TrackOrderResult`): header gradient + thanh tiến độ, mỗi bước có icon/mô tả (`tracking.stepDesc.*`), hiện giảm giá nếu có.
+
+## 7. Hoá đơn / biên nhận
+### Mục đích
+Khách xem và in / lưu PDF chi tiết tiền của một đơn: từng dịch vụ, các khoản giảm, tổng thanh toán.
+### Entry points
+- Nút "Hoá đơn" ở mỗi đơn trong `app/profile/components/MyOrders.tsx` → `useModalDrawer().open({ mode: 'modal', children: <OrderInvoice order={order} /> })`.
+- `components/OrderInvoice/index.tsx` — props `{ order: OrderItem }`; chỉ dùng dữ liệu đã có trong `GET /laundry-orders/me`, không gọi API thêm.
+### Luồng xử lý
+1. Header: tên cửa hàng (`SITE_CONFIG.title`), địa chỉ + SĐT (`INFO_CONTACT`), mã đơn, ngày tạo, trạng thái.
+2. Khách hàng: tên + SĐT của tài khoản (`useUser`), địa chỉ lấy đồ của đơn (nếu có).
+3. Bảng: dịch vụ · số kg · đơn giá (`unitPrice`) · thành tiền (`subtotal`), cuộn ngang trên màn nhỏ.
+4. Tổng: tạm tính (`totalAmount`) → từng khoản giảm > 0: giảm trên 10kg (`weightDiscount`), khuyến mãi (= `discountAmount − weightDiscount − pointsDiscount`, kèm mã nếu có `promotionCode`), dùng điểm (`pointsDiscount`, kèm số điểm) → tổng thanh toán (`finalAmount`).
+5. "In / Lưu PDF" → `window.print()`. CSS `@media print` trong `app/globals.css` chỉ in khối `.print-area` (ẩn modal, header, nút); trình duyệt cho chọn "Lưu thành PDF".
+### Translation / Constants
+- `orders.invoice.{button,title,code,date,status,customer,service,quantity,unitPrice,subtotal,total,weightDiscount,promotion,promotionWithCode,pointsDiscount,finalAmount,thanks,print}`.
+### Edge cases
+- Đơn chưa cân (1 kg tạm) → hoá đơn hiện số tạm; sau khi admin sửa kg sẽ đúng.
+- Không có ở `/track-order`: API public không trả đơn giá và địa chỉ.
+- Không phải hoá đơn VAT, chỉ là biên nhận.
 
 ## Translation / Constants
 - `common.copied`, `booking.contactNote`, `booking.points.*`, `booking.pricing.*`, `booking.success.copyCode`, `tracking.result.{orderCode,current,discount}`, `tracking.stepDesc.*`, `myOrders.*`, `admin.orders.{editWeight,weightEditDesc,weightInvalid,weightEditError,weightUpdated,weightLocked,newTotal,list.weight}`.

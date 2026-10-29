@@ -1,8 +1,8 @@
 # Auth (đăng ký / đăng nhập / token)
-> Cập nhật: 2026-10-21
+> Cập nhật: 2026-10-29
 
 ## Tổng quan
-Xác thực khách hàng bằng **họ tên + số điện thoại + mật khẩu**. Token (access/refresh) lưu ở httpOnly cookie, chỉ đọc/ghi qua server actions trong `utils/cookie.ts` (`COOKIES_KEY`). Trạng thái đăng nhập là store Zustand `zustand/user.ts` (`useUser`). Sub-logic: (1) Đăng ký, (2) Tự refresh token + báo hết hạn, (3) Ghi nhớ đăng nhập, (4) Quên mật khẩu (**tạm thời chỉ liên hệ admin**; luồng email OTP đã comment lại), (5) Admin cấp mật khẩu tạm. Hiện mọi khách quên mật khẩu đều nhờ cửa hàng cấp mật khẩu tạm (§5). Sau này có dịch vụ gửi mã tốt hơn sẽ bật lại / thay luồng email OTP.
+Xác thực khách hàng bằng **họ tên + số điện thoại + mật khẩu**. Token (access/refresh) lưu ở httpOnly cookie, chỉ đọc/ghi qua server actions trong `utils/cookie.ts` (`COOKIES_KEY`). Trạng thái đăng nhập là store Zustand `zustand/user.ts` (`useUser`). Sub-logic: (1) Đăng ký, (2) Tự refresh token + báo hết hạn, (3) Ghi nhớ đăng nhập, (4) Quên mật khẩu (**tạm thời chỉ liên hệ admin**; luồng email OTP đã comment lại), (5) Admin cấp mật khẩu tạm, (6) Đăng nhập bằng Google. Hiện mọi khách quên mật khẩu đều nhờ cửa hàng cấp mật khẩu tạm (§5). Sau này có dịch vụ gửi mã tốt hơn sẽ bật lại / thay luồng email OTP.
 
 ## Dùng chung
 - `config/baseApi.ts` — `BaseAPI` ghép URL, gắn header, ném `HttpError` (giữ `status`).
@@ -114,6 +114,33 @@ Khách chưa có email (hoặc không nhận được mail) liên hệ cửa hà
 ### Edge cases
 - Chỉ nhắc + chuyển tab, **không chặn** các trang khác khi còn cờ.
 - `/profile` đồng bộ `mustChangePassword` từ `GET /users/me` mỗi lần vào (server không trả field → coi là `false`).
+
+## 6. Đăng nhập bằng Google (`/login`, `/register`)
+### Mục đích
+Khách đăng nhập nhanh bằng Google. Mọi tài khoản vẫn phải có số điện thoại (đặt lịch, tra cứu, điểm đều theo SĐT), nên lần đầu khách phải nhập SĐT.
+### Entry points
+- `components/GoogleLoginButton/index.tsx` — props `{ onSuccess(user) }`; nằm dưới form ở `/login` (sau dòng "hoặc") và `/register`.
+- `googleLoginAction(idToken, phone?, password?)` (`app/login/actions.ts`, Server Action) → `AuthService.loginWithGoogle` → `POST /auth/google` (`isUseAuth: false`). Trả `{ status: 'ok', user } | 'requirePhone' | 'requirePassword' | { status: 'error', httpStatus }` thay vì throw (lỗi throw từ Server Action mất `status` ở client).
+- `/login` dùng chung `finishLogin(user, rememberMe)` cho cả 2 cách đăng nhập (sync FID, chuyển `/profile` nếu `mustChangePassword`, admin → `/admin`, còn lại `/`). `/register`: `login(user)` + về `/`.
+### Luồng xử lý
+1. Bấm "Tiếp tục với Google" → `signInWithPopup(getFirebaseAuth(), GoogleAuthProvider)` → lấy Firebase ID token.
+2. Gửi token. Server:
+   - Google đã liên kết → đăng nhập (cookie lưu như login thường, luôn "ghi nhớ").
+   - Chưa liên kết → `requirePhone` → form hiện ô SĐT (`auth.google.phoneHint`).
+3. Gửi lại token + SĐT (E.164):
+   - SĐT mới → server tạo tài khoản từ tên/email Google → đăng nhập.
+   - SĐT của tài khoản khách vãng lai (chưa có mật khẩu) → liên kết luôn.
+   - SĐT đã có tài khoản có mật khẩu → `requirePassword` → hiện ô mật khẩu (`auth.google.passwordHint`, SĐT bị khoá); đúng mật khẩu thì liên kết + đăng nhập.
+4. Thành công → `signOut` khỏi Firebase Auth (phiên nằm ở cookie của mình) → `onSuccess(user)`.
+### Translation / Constants
+- `auth.google.{button,phoneHint,passwordHint,passwordRequired,continue,wrongPassword,phoneLinked,error}`, `common.{or,cancel}`, `booking.validation.phoneInvalid`.
+- `FIREBASE_POPUP_CANCEL_CODES`, `HTTP_STATUS.{UNAUTHORIZED,CONFLICT}`; icon `components/Icons/SocialMedia/Google.tsx`.
+### Edge cases
+- Khách đóng popup → không báo lỗi.
+- 409: SĐT đã liên kết Google khác → `auth.google.phoneLinked`. 401 ở bước mật khẩu → `auth.google.wrongPassword`. Lỗi khác (token hết hạn, Firebase chưa bật Google) → `auth.google.error`; "Hủy" để làm lại từ đầu.
+- **Cấu hình bắt buộc**: Firebase Console → Authentication → bật provider Google + thêm domain web vào Authorized domains. Firebase project của client phải trùng `FIREBASE_PROJECT_ID` của server.
+- Chưa có Zalo (cần app Zalo Developers + duyệt quyền lấy SĐT).
+- Không có bước xác minh SĐT bằng OTP; liên kết tài khoản vãng lai không cần mật khẩu (giống `/auth/register` cho phép SĐT đó đặt mật khẩu).
 
 ## Liên quan
 - `docs/instruction/profile.md` (đổi mật khẩu §2, email §7), `docs/instruction/admin.md` (trang khách hàng), `docs/instruction/booking.md` (đặt lịch dùng SĐT E.164).

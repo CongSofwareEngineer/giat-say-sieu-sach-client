@@ -245,3 +245,22 @@ body {
   color: var(--color-text);
   font-weight: 600;
 }
+
+/* Print only the order invoice (components/OrderInvoice) when it is open */
+@media print {
+  body:has(.print-area) * {
+    visibility: hidden;
+  }
+
+  body:has(.print-area) .print-area,
+  body:has(.print-area) .print-area * {
+    visibility: visible;
+  }
+
+  body:has(.print-area) .print-area {
+    position: absolute;
+    inset: 0 0 auto 0;
+    padding: 24px;
+    background: #fff;
+  }
+}

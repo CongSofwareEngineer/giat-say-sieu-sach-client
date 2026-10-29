@@ -15,6 +15,8 @@ import useLanguage from '@/hooks/useLanguage'
 import useUser from '@/hooks/useUser'
 import { getStoredFcmFid } from '@/hooks/useNotifications'
 import { formatPhoneToE164, isValidVnPhone } from '@/utils/phone'
+import GoogleLoginButton from '@/components/GoogleLoginButton'
+import { User } from '@/services/users/type'
 
 const LoginPage = () => {
   const { translate } = useLanguage()
@@ -71,6 +73,15 @@ const LoginPage = () => {
     }
   }
 
+  // Shared by phone/password and Google login: cookies are already set
+  const finishLogin = async (user: User, rememberMe: boolean) => {
+    login(user, rememberMe)
+    await syncFcmFid()
+    // Logged in with a temp password from an admin reset -> profile opens the change password tab
+    if (user.mustChangePassword) router.replace('/profile')
+    else router.replace(user.role === 'ADMIN' ? '/admin' : '/')
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -82,11 +93,7 @@ const LoginPage = () => {
     try {
       const response = await loginAction(formatPhoneToE164(formData.phone) ?? formData.phone, formData.password, formData.rememberMe)
 
-      login(response.user, formData.rememberMe)
-      await syncFcmFid()
-      // Logged in with a temp password from an admin reset -> profile opens the change password tab
-      if (response.user.mustChangePassword) router.replace('/profile')
-      else router.replace(response.user.role === 'ADMIN' ? '/admin' : '/')
+      await finishLogin(response.user, formData.rememberMe)
     } catch {
       setErrors((prev) => ({ ...prev, general: translate('auth.login.error') }))
     } finally {
@@ -150,6 +157,14 @@ const LoginPage = () => {
               {translate('auth.login.submit')}
             </MyButton>
           </form>
+
+          <div className='my-6 flex items-center gap-3 text-xs text-gray-400'>
+            <span className='h-px flex-1 bg-border' />
+            {translate('common.or')}
+            <span className='h-px flex-1 bg-border' />
+          </div>
+
+          <GoogleLoginButton onSuccess={(user) => finishLogin(user, true)} />
 
           <div className='mt-6 text-center'>
             <p className='text-gray-600 text-sm'>

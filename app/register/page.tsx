@@ -12,6 +12,7 @@ import MyCard, { MyCardBody } from '@/components/MyCard'
 import { EyeIcon } from '@/components/Icons/Eye'
 import { EyeSlashIcon } from '@/components/Icons/EyeSlash'
 import HumanVerification from '@/components/HumanVerification'
+import GoogleLoginButton from '@/components/GoogleLoginButton'
 import { MIN_PASSWORD_LENGTH } from '@/constants/app'
 import { formatPhoneToE164 } from '@/utils/phone'
 import useLanguage from '@/hooks/useLanguage'
@@ -185,6 +186,19 @@ const RegisterPage = () => {
               {translate('auth.register.submit')}
             </MyButton>
           </form>
+
+          <div className='my-6 flex items-center gap-3 text-xs text-gray-400'>
+            <span className='h-px flex-1 bg-border' />
+            {translate('common.or')}
+            <span className='h-px flex-1 bg-border' />
+          </div>
+
+          <GoogleLoginButton
+            onSuccess={(user) => {
+              login(user)
+              router.replace('/')
+            }}
+          />
 
           <div className='mt-6 text-center'>
             <p className='text-gray-600 text-sm'>

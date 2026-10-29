@@ -33,7 +33,9 @@ export const IS_BUILD_PHASE = process.env.NEXT_PHASE === PHASE_PRODUCTION_BUILD
 // HTTP status codes checked on API errors
 export enum HTTP_STATUS {
   BAD_REQUEST = 400,
+  UNAUTHORIZED = 401,
   NOT_FOUND = 404,
+  CONFLICT = 409,
   TOO_MANY_REQUESTS = 429,
 }
 
@@ -131,6 +133,22 @@ export enum UPLOAD_IMAGE_TYPE {
 export const MAX_IMAGES_PER_UPLOAD = 10 as number
 
 // localStorage keys
+// In-app notifications (Header bell); the server only sends `type` + `data`, the text comes from `notification.types.*`
+export enum NOTIFICATION_TYPE {
+  ORDER_STATUS = 'ORDER_STATUS',
+}
+
+export const NOTIFICATION_INBOX = {
+  pageSize: 20,
+  // Fallback refresh when no push arrives (push also refreshes the list right away)
+  refetchIntervalMs: 60_000,
+} as const
+
+export const TRACK_ORDER_PATH = '/track-order'
+
+// Firebase Auth error codes when the customer closes the Google popup: not an error to show
+export const FIREBASE_POPUP_CANCEL_CODES: readonly string[] = ['auth/popup-closed-by-user', 'auth/cancelled-popup-request']
+
 export enum LOCAL_STORAGE_KEY {
   branches = 'branches_cache',
   // v2: old cache held only the first 20 FAQs

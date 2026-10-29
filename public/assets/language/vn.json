@@ -368,6 +368,13 @@
     "weightNotEstimated": "Khách chưa ước lượng số kg — shipper cân khi lấy đồ, cập nhật lại số kg cho đơn."
   },
   "reviews": {
+    "order": {
+      "button": "Đánh giá",
+      "title": "Đánh giá đơn hàng",
+      "forOrder": "Đánh giá cho đơn #{code}",
+      "reviewed": "Đã đánh giá",
+      "alreadyReviewed": "Đơn này đã được đánh giá rồi"
+    },
     "services": {
       "regular": "Giặt thường",
       "express": "Giặt nhanh",
@@ -640,6 +647,16 @@
     }
   },
   "auth": {
+    "google": {
+      "button": "Tiếp tục với Google",
+      "phoneHint": "Lần đầu đăng nhập bằng Google: nhập số điện thoại để nhận đơn và tra cứu đơn hàng.",
+      "passwordHint": "Số điện thoại này đã có tài khoản. Nhập mật khẩu của tài khoản đó để liên kết với Google.",
+      "passwordRequired": "Vui lòng nhập mật khẩu",
+      "continue": "Tiếp tục",
+      "wrongPassword": "Mật khẩu không đúng",
+      "phoneLinked": "Số điện thoại này đã liên kết với một tài khoản Google khác",
+      "error": "Không thể đăng nhập bằng Google, vui lòng thử lại"
+    },
     "sessionExpired": "Phiên đăng nhập của bạn đã hết hạn. Vui lòng đăng nhập lại.",
     "login": {
       "title": "Đăng nhập",
@@ -701,6 +718,26 @@
     }
   },
   "orders": {
+    "invoice": {
+      "button": "Hoá đơn",
+      "title": "Hoá đơn",
+      "code": "Mã đơn",
+      "date": "Ngày",
+      "status": "Trạng thái",
+      "customer": "Khách hàng",
+      "service": "Dịch vụ",
+      "quantity": "Số lượng",
+      "unitPrice": "Đơn giá",
+      "subtotal": "Thành tiền",
+      "total": "Tạm tính",
+      "weightDiscount": "Giảm đơn trên 10kg",
+      "promotion": "Khuyến mãi",
+      "promotionWithCode": "Khuyến mãi ({code})",
+      "pointsDiscount": "Dùng {points} điểm",
+      "finalAmount": "Tổng thanh toán",
+      "thanks": "Cảm ơn quý khách đã sử dụng dịch vụ!",
+      "print": "In / Lưu PDF"
+    },
     "title": "Đơn hàng của tôi",
     "subtitle": "Quản lý đơn hàng",
     "empty": "Bạn chưa có đơn hàng nào",
@@ -1275,6 +1312,38 @@
     "processing": "Đang xử lý..."
   },
   "notification": {
+    "types": {
+      "ORDER_STATUS": {
+        "PENDING": {
+          "title": "Đã nhận đơn #{code}",
+          "body": "Chúng tôi đã nhận đơn đặt lịch của bạn."
+        },
+        "RECEIVED": {
+          "title": "Đã lấy đồ đơn #{code}",
+          "body": "Shipper đã lấy đồ, đơn đang chờ giặt."
+        },
+        "WASHING": {
+          "title": "Đang giặt đơn #{code}",
+          "body": "Đồ của bạn đang được giặt."
+        },
+        "DRYING": {
+          "title": "Đang sấy đơn #{code}",
+          "body": "Đồ của bạn đang được sấy khô."
+        },
+        "READY": {
+          "title": "Đơn #{code} đã xong",
+          "body": "Đồ đã sạch, sẵn sàng giao lại cho bạn."
+        },
+        "COMPLETED": {
+          "title": "Hoàn thành đơn #{code}",
+          "body": "Cảm ơn bạn! Hãy đánh giá đơn hàng để giúp chúng tôi tốt hơn."
+        },
+        "CANCELLED": {
+          "title": "Đơn #{code} đã huỷ",
+          "body": "Đơn hàng của bạn đã được huỷ."
+        }
+      }
+    },
     "permission": {
       "granted": "Đã cấp quyền thông báo",
       "denied": "Đã từ chối quyền thông báo",

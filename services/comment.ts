@@ -18,6 +18,8 @@ export type CommentItem = {
   isVisible: boolean
   images: CloudinaryImage[]
   parentComment: string | null
+  // Order this review is about (reviews written from a service page have none)
+  orderId?: string | null
   createdAt: string
   name?: string
   // Masked by the API as "first 3 digits...last 3 digits", e.g. 090...567
@@ -136,6 +138,16 @@ class CommentApi extends BaseAPI {
     payload: { rating: number; title?: string; content: string; images: CloudinaryImage[] }
   ): Promise<CommentItem> {
     const response = await this.post<{ data: CommentItem }>(`/laundry-categories/${categoryId}`, payload, { isUseAuth: true })
+
+    return response.data
+  }
+
+  // Review of one of my COMPLETED orders (one per order, 409 when already reviewed)
+  async createOrderComment(
+    orderId: string,
+    payload: { rating: number; title?: string; content: string; images: CloudinaryImage[] }
+  ): Promise<CommentItem> {
+    const response = await this.post<{ data: CommentItem }>(`/orders/${orderId}`, payload, { isUseAuth: true })
 
     return response.data
   }

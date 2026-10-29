@@ -27,6 +27,8 @@ export type OrderItem = {
   district?: string
   city?: string
   items: OrderItemDetail[]
+  // My orders only: the customer already reviewed this order
+  isReviewed?: boolean
   createdAt: string
   updatedAt: string
 }

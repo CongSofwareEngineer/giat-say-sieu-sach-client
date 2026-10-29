@@ -1,6 +1,6 @@
 import { User } from '../users/type'
 
-import { Auth } from './type'
+import { Auth, GoogleLoginResponse } from './type'
 
 import BaseAPI from '@/config/baseApi'
 
@@ -13,6 +13,13 @@ class AuthApi extends BaseAPI {
 
   async register(name: string, phone: string, password: string, captchaToken?: string): Promise<Auth & { user: User }> {
     const response = await this.post<{ data: Auth & { user: User } }>('/register', { name, phone, password, captchaToken }, { isUseAuth: false })
+
+    return response.data
+  }
+
+  // Sign in with Google (Firebase ID token); phone/password only for the first-time steps
+  async loginWithGoogle(idToken: string, phone?: string, password?: string): Promise<GoogleLoginResponse> {
+    const response = await this.post<{ data: GoogleLoginResponse }>('/google', { idToken, phone, password }, { isUseAuth: false })
 
     return response.data
   }

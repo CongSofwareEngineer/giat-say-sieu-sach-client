@@ -22,7 +22,8 @@ import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
 import useUser from '@/hooks/useUser'
 // import { LANGUAGE_SUPPORT } from '@/zustand/language'
-import { SITE_CONFIG } from '@/constants/app'
+import { SITE_CONFIG, TRACK_ORDER_PATH } from '@/constants/app'
+import useGetNotifications from '@/hooks/reactQuery/useGetNotifications'
 import { removeCookie } from '@/utils/cookie'
 import { COOKIES_KEY } from '@/constants/cookies'
 
@@ -37,6 +38,27 @@ const Header = () => {
   const { translate } = useLanguage()
   const { isMobile } = useModalDrawer()
   const { user, isLogin, hasHydrated, logout } = useUser()
+  const { notifications, unreadCount, markRead, markAllRead } = useGetNotifications()
+
+  // Server sends type + data only: build the text in the current language
+  const bellItems = notifications.map((item) => {
+    const params = { code: item.data.orderCode ?? '' }
+
+    return {
+      id: item.id,
+      title: translate(`notification.types.${item.type}.${item.data.status}.title`, params),
+      body: translate(`notification.types.${item.type}.${item.data.status}.body`, params),
+      createdAt: item.createdAt,
+      isRead: item.isRead,
+    }
+  })
+
+  const handleNotificationClick = (id: string) => {
+    const item = notifications.find((notification) => notification.id === id)
+
+    if (item && !item.isRead) markRead(item.id)
+    if (item?.data.orderCode) router.push(`${TRACK_ORDER_PATH}?code=${item.data.orderCode}`)
+  }
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20)
@@ -191,7 +213,14 @@ const Header = () => {
             */}
 
             {/* UI only for now: notifications are not loaded yet */}
-            {hasHydrated && isLogin && <NotificationBell notifications={[]} />}
+            {hasHydrated && isLogin && (
+              <NotificationBell
+                notifications={bellItems}
+                unreadCount={unreadCount}
+                onMarkAllRead={() => markAllRead()}
+                onItemClick={(item) => handleNotificationClick(item.id)}
+              />
+            )}
 
             {!isMobile && hasHydrated && isLogin && (
               <div className='relative hidden md:block'>

@@ -1,5 +1,5 @@
 # Profile (khu vực khách hàng `/profile`)
-> Cập nhật: 2026-10-20
+> Cập nhật: 2026-10-29
 
 ## Tổng quan
 Trang cá nhân của khách đã đăng nhập: thông tin, avatar, sổ địa chỉ, đổi mật khẩu, đơn hàng của tôi, hạng + điểm tích lũy. Kèm chuông thông báo trên Header (mới làm UI). Sub-logic: (1) Hạng khách hàng & điểm, (2) Đổi mật khẩu, (3) Đơn hàng của tôi, (4) Chuông thông báo, (5) Dữ liệu Tỉnh/Xã (proxy esgoo), (6) Sổ địa chỉ, (7) Thông tin cá nhân (tên + email). Avatar xem `docs/instruction/upload.md`.
@@ -30,11 +30,15 @@ Trang cá nhân của khách đã đăng nhập: thông tin, avatar, sổ địa
 
 ## 3. Đơn hàng của tôi
 - `app/profile/components/MyOrders.tsx` → `GET /laundry-orders/me` có phân trang (`PAGE_SIZE`), hook `hooks/reactQuery/useGetMyOrders.ts`.
-- Mỗi đơn: mã, ngày, trạng thái, dịch vụ/kg, giá (gạch giá gốc nếu giảm), điểm đã dùng, nút "Theo dõi" (`/track-order?code=`), nút "Huỷ đơn" khi `PENDING`.
+- Mỗi đơn: mã, ngày, trạng thái, dịch vụ/kg, giá (gạch giá gốc nếu giảm), điểm đã dùng, và các nút:
+  - "Huỷ đơn" khi `PENDING`;
+  - "Đánh giá" khi `COMPLETED` và `isReviewed` = false; đã đánh giá thì hiện chữ "Đã đánh giá" (xem `docs/instruction/comment.md` §7);
+  - "Hoá đơn" — modal biên nhận, in / lưu PDF (xem `docs/instruction/order.md` §7);
+  - "Theo dõi" (`/track-order?code=`).
 
 ## 4. Chuông thông báo (UI)
-- `components/NotificationBell/index.tsx` (gắn ở `components/Header`): badge chưa đọc (tối đa "9+"), dropdown, empty state, "Đánh dấu đã đọc", click ngoài để đóng.
-- Hiện Header truyền `notifications={[]}` → luôn empty. Việc tiếp: BE thêm collection Notification + API; FE viết hook truyền `notifications`, `onMarkAllRead`, `onItemClick`.
+- `components/NotificationBell/index.tsx` (gắn ở `components/Header`): badge chưa đọc (tối đa "9+", ưu tiên prop `unreadCount` từ server), dropdown, empty state, "Đánh dấu đã đọc", click ngoài hoặc click một mục để đóng.
+- Dữ liệu thật từ `GET /notifications/me` — luồng đầy đủ xem `docs/instruction/notifications.md` §4.
 
 ## 5. Dữ liệu Tỉnh/Xã (proxy esgoo)
 ### Mục đích

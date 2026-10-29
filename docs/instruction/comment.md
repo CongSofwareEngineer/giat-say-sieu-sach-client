@@ -1,8 +1,8 @@
 # Comment (đánh giá)
-> Cập nhật: 2026-10-20
+> Cập nhật: 2026-10-29
 
 ## Tổng quan
-Khách đánh giá dịch vụ (sao, tiêu đề, nội dung, ảnh); hiển thị ở trang bảng giá và trang đánh giá. Sub-logic: (1) Dịch vụ đánh giá đồng bộ server, (2) Validate/chuẩn hoá SĐT, (3) Hiển thị ảnh thumbnail, (4) Giới hạn nội dung/ảnh và SĐT che từ API, (5) Admin trả lời / xoá đánh giá, (6) Bắt buộc đăng nhập + tiêu đề. Upload ảnh xem `docs/instruction/upload.md`; admin xem/ẩn đánh giá xem `docs/instruction/admin.md`.
+Khách đánh giá dịch vụ (sao, tiêu đề, nội dung, ảnh); hiển thị ở trang bảng giá và trang đánh giá. Sub-logic: (1) Dịch vụ đánh giá đồng bộ server, (2) Validate/chuẩn hoá SĐT, (3) Hiển thị ảnh thumbnail, (4) Giới hạn nội dung/ảnh và SĐT che từ API, (5) Admin trả lời / xoá đánh giá, (6) Bắt buộc đăng nhập + tiêu đề, (7) Đánh giá theo từng đơn. Upload ảnh xem `docs/instruction/upload.md`; admin xem/ẩn đánh giá xem `docs/instruction/admin.md`.
 
 ## Dùng chung
 - `services/comment.ts` — API đánh giá, `getServiceName`, kiểu `CommentItem` (`phone` đã che từ server).
@@ -79,6 +79,25 @@ API tạo đánh giá của server yêu cầu đăng nhập (`JwtAuthGuard`, `ra
 ### Edge cases
 - Trang login chưa có tham số quay lại → sau khi đăng nhập khách phải tự mở lại trang đánh giá.
 - `CommentForm` vẫn còn nhánh cho khách chưa đăng nhập (nhập tên/SĐT, ẩn sao) nhưng không còn đường vào.
+
+## 7. Đánh giá theo từng đơn
+### Mục đích
+Khách đánh giá đúng đơn mình đã dùng sau khi đơn hoàn thành; mỗi đơn chỉ một đánh giá. Đánh giá vẫn hiện chung ở trang Đánh giá / Bảng giá như đánh giá thường.
+### Entry points
+- `app/profile/components/MyOrders.tsx` — nút "Đánh giá" khi `order.status === ORDER_STATUS.COMPLETED && !order.isReviewed` → modal `CommentForm` với prop `order={{ id, code }}`.
+- `components/Comment/CommentForm.tsx` — có `order` thì ẩn ô chọn dịch vụ, thay bằng dòng `reviews.order.forOrder`; không bắt buộc `serviceId`.
+- `useGetListComments().createOrderComment({ orderId, payload })` → `CommentService.createOrderComment(orderId, { rating, title, content, images })` → `POST /comments/orders/:orderId` (cần đăng nhập).
+### Luồng xử lý
+1. Server trả `isReviewed` cho từng đơn trong `GET /laundry-orders/me`.
+2. Khách điền sao, tiêu đề, nội dung, ảnh (giống form thường, cùng giới hạn) → upload ảnh → gửi.
+3. Server kiểm tra đơn của chính khách + `COMPLETED` + chưa có đánh giá, gắn đánh giá vào dịch vụ của món đầu tiên trong đơn, lưu `orderId`.
+4. Thành công → làm mới danh sách đánh giá + "Đơn hàng của tôi" (nút đổi thành "Đã đánh giá").
+### Translation / Constants
+- `reviews.order.{button,title,forOrder,reviewed,alreadyReviewed}`, `HTTP_STATUS.CONFLICT`.
+### Edge cases
+- 409 (đã đánh giá, vd mở ở 2 tab) → `reviews.order.alreadyReviewed`; lỗi khác → `reviews.error`.
+- Khách xoá đánh giá đó → đơn lại hiện nút "Đánh giá".
+- Admin ẩn đánh giá → đơn vẫn tính là đã đánh giá.
 
 ## Liên quan
 - `docs/instruction/upload.md` (upload ảnh đánh giá), `docs/instruction/admin.md` (xem chi tiết/ẩn đánh giá), `docs/instruction/auth.md` (validate SĐT login/register).

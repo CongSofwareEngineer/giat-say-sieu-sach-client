@@ -1,6 +1,47 @@
 import { onMessage, onRegistered, register, type MessagePayload, type Messaging } from 'firebase/messaging'
 
+import BaseAPI from '@/config/baseApi'
 import { getFirebaseMessaging } from '@/config/firebase'
+import { NOTIFICATION_TYPE, ORDER_STATUS } from '@/constants/app'
+
+// In-app notification saved by the server (Header bell)
+export type InboxNotification = {
+  id: string
+  type: NOTIFICATION_TYPE
+  data: { orderId?: string; orderCode?: string; status?: ORDER_STATUS }
+  isRead: boolean
+  createdAt: string
+}
+
+export type InboxNotificationList = {
+  data: InboxNotification[]
+  meta: { page: number; limit: number; total: number; totalPages: number; unreadCount: number }
+}
+
+class NotificationInboxApi extends BaseAPI {
+  async getMine(params?: { page?: number; limit?: number }): Promise<InboxNotificationList> {
+    const query = new URLSearchParams()
+
+    if (params?.page) query.set('page', String(params.page))
+    if (params?.limit) query.set('limit', String(params.limit))
+
+    const response = await this.get<InboxNotificationList>(`/me${query.toString() ? `?${query.toString()}` : ''}`, { isUseAuth: true })
+
+    return { data: response.data ?? [], meta: response.meta }
+  }
+
+  async markRead(id: string): Promise<InboxNotification> {
+    const response = await this.patch<{ data: InboxNotification }>(`/me/${id}/read`, {}, { isUseAuth: true })
+
+    return response.data
+  }
+
+  async markAllRead(): Promise<void> {
+    await this.patch<{ data: { modifiedCount: number } }>('/me/read-all', {}, { isUseAuth: true })
+  }
+}
+
+export const NotificationInboxService = new NotificationInboxApi('notifications')
 
 class NotificationService {
   private vapidKey: string

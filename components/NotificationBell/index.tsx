@@ -17,6 +17,8 @@ export type NotificationItem = {
 
 export type NotificationBellProps = {
   notifications: NotificationItem[]
+  // Unread total from the server (the list is only the latest page); defaults to the unread items in the list
+  unreadCount?: number
   onMarkAllRead?: () => void
   onItemClick?: (item: NotificationItem) => void
   className?: string
@@ -26,12 +28,12 @@ export type NotificationBellProps = {
 const MAX_BADGE_COUNT = 9
 
 // Header bell with an unread badge and a dropdown list (UI only: data and actions come from the parent)
-const NotificationBell = ({ notifications, onMarkAllRead, onItemClick, className }: NotificationBellProps) => {
+const NotificationBell = ({ notifications, unreadCount: unreadTotal, onMarkAllRead, onItemClick, className }: NotificationBellProps) => {
   const { translate } = useLanguage()
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const unreadCount = notifications.filter((item) => !item.isRead).length
+  const unreadCount = unreadTotal ?? notifications.filter((item) => !item.isRead).length
 
   // Close when clicking outside the bell / dropdown
   useEffect(() => {
@@ -88,7 +90,10 @@ const NotificationBell = ({ notifications, onMarkAllRead, onItemClick, className
                 <li key={item.id}>
                   <button
                     type='button'
-                    onClick={() => onItemClick?.(item)}
+                    onClick={() => {
+                      setIsOpen(false)
+                      onItemClick?.(item)
+                    }}
                     className={cn('flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-primary/5', !item.isRead && 'bg-primary/[0.04]')}
                   >
                     <span className={cn('mt-1.5 size-2 shrink-0 rounded-full', item.isRead ? 'bg-transparent' : 'bg-primary')} />

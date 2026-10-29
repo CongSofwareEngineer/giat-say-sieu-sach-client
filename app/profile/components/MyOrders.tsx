@@ -4,13 +4,15 @@ import { useState } from 'react'
 import Link from 'next/link'
 
 import CancelOrderConfirm from '@/components/CancelOrderConfirm'
+import CommentForm from '@/components/Comment/CommentForm'
 import MyBadge from '@/components/MyBadge'
 import MyButton from '@/components/MyButton'
 import MyCard, { MyCardBody, MyCardHeader } from '@/components/MyCard'
 import MyEmpty from '@/components/MyEmpty'
 import MyLoading from '@/components/MyLoading'
 import MyPagination from '@/components/MyPagination'
-import { CANCELLABLE_ORDER_STATUS } from '@/constants/app'
+import OrderInvoice from '@/components/OrderInvoice'
+import { CANCELLABLE_ORDER_STATUS, ORDER_STATUS } from '@/constants/app'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
 import useGetMyOrders from '@/hooks/reactQuery/useGetMyOrders'
@@ -42,6 +44,22 @@ const MyOrders = () => {
           }}
         />
       ),
+    })
+  }
+
+  const openReview = (order: OrderItem) => {
+    open({
+      mode: 'modal',
+      title: translate('reviews.order.title'),
+      children: <CommentForm order={{ id: order.id, code: getOrderCode(order) }} />,
+    })
+  }
+
+  const openInvoice = (order: OrderItem) => {
+    open({
+      mode: 'modal',
+      title: translate('orders.invoice.title'),
+      children: <OrderInvoice order={order} />,
     })
   }
 
@@ -106,17 +124,27 @@ const MyOrders = () => {
                         </p>
                       )}
                     </div>
-                    <div className='flex gap-2'>
+                    <div className='flex flex-wrap gap-2'>
                       {order.status === CANCELLABLE_ORDER_STATUS && (
                         <MyButton
                           variant='outline'
-
                           className='border-red-200 text-red-600 hover:border-red-400 hover:bg-red-50'
                           onClick={() => openCancelConfirm(order)}
                         >
                           {translate('myOrders.cancel.button')}
                         </MyButton>
                       )}
+                      {order.status === ORDER_STATUS.COMPLETED &&
+                        (order.isReviewed ? (
+                          <span className='self-center text-xs font-medium text-emerald-700'>{translate('reviews.order.reviewed')}</span>
+                        ) : (
+                          <MyButton variant='cta' onClick={() => openReview(order)}>
+                            {translate('reviews.order.button')}
+                          </MyButton>
+                        ))}
+                      <MyButton variant='outline' onClick={() => openInvoice(order)}>
+                        {translate('orders.invoice.button')}
+                      </MyButton>
                       <Link href={`/track-order?code=${orderCode}`}>
                         <MyButton variant='primary'>{translate('myOrders.track')}</MyButton>
                       </Link>

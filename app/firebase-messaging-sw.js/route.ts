@@ -39,7 +39,9 @@ self.addEventListener('notificationclick', (event) => {
             if (client.url === '/' && 'focus' in client) return client.focus()
           }
           if (clients.openWindow) {
-            return clients.openWindow(payload.data?.link_confirm ?? 'https://giatuisieusach.vercel.app/')
+            // Pushes with webpush.fcmOptions.link are opened by the Firebase SDK itself; this handles the rest
+            const data = event.notification?.data?.FCM_MSG?.data ?? event.notification?.data ?? {}
+            return clients.openWindow(data.link ?? self.location.origin)
           }
         })
     )

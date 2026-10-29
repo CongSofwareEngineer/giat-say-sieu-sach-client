@@ -13,18 +13,21 @@ import { PlusIcon } from '@/components/Icons/Plus'
 import { TrashIcon } from '@/components/Icons/Trash'
 import { CommentItem } from '@/services/comment'
 import UploadService, { CloudinaryImage } from '@/services/upload'
-import { COMMENT_SERVICES, MAX_COMMENT_CONTENT_LENGTH, MAX_COMMENT_IMAGES, UPLOAD_IMAGE_TYPE } from '@/constants/app'
+import { COMMENT_SERVICES, HTTP_STATUS, MAX_COMMENT_CONTENT_LENGTH, MAX_COMMENT_IMAGES, UPLOAD_IMAGE_TYPE } from '@/constants/app'
 import useBase64Img from '@/hooks/useBase64Img'
 import useGetListComments from '@/hooks/reactQuery/useGetListComments'
 import useLanguage from '@/hooks/useLanguage'
 import useModalDrawer from '@/hooks/useModalDrawer'
 import useUser from '@/hooks/useUser'
+import { HttpError } from '@/config/baseApi'
 import { cn } from '@/utils/tailwind'
 import { formatPhoneToE164, isValidVnPhone } from '@/utils/phone'
 
 type CommentFormProps = {
   defaultServiceId?: string
   editingComment?: CommentItem
+  // Review of a completed order (from "My orders"): no service picker, the server files it under the order's service
+  order?: { id: string; code: string }
   onDone?: () => void
 }
 
@@ -57,12 +60,12 @@ const fileToBase64 = (file: File) =>
   })
 
 // Review submission form with optional optimized image upload. Reused for create and edit.
-const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentFormProps) => {
+const CommentForm = ({ defaultServiceId = '', editingComment, order, onDone }: CommentFormProps) => {
   const { translate } = useLanguage()
   const { close } = useModalDrawer()
   const { user, isLogin } = useUser()
   const { getFileOptimize } = useBase64Img()
-  const { createComment, updateComment } = useGetListComments()
+  const { createComment, createOrderComment, updateComment } = useGetListComments()
 
   const isEditing = !!editingComment
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -124,7 +127,7 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
     if (!formData.name.trim()) newErrors.name = translate('reviews.validation.nameRequired')
     if (!formData.phone.trim()) newErrors.phone = translate('reviews.validation.phoneRequired')
     else if (!isValidVnPhone(formData.phone)) newErrors.phone = translate('reviews.validation.phoneInvalid')
-    if (!formData.serviceId) newErrors.serviceId = translate('reviews.validation.serviceRequired')
+    if (!order && !formData.serviceId) newErrors.serviceId = translate('reviews.validation.serviceRequired')
     if (isLogin && formData.rating < 1) newErrors.rating = translate('reviews.validation.ratingRequired')
     if (!formData.title.trim()) newErrors.title = translate('reviews.validation.titleRequired')
     if (!formData.content.trim()) newErrors.content = translate('reviews.validation.contentRequired')
@@ -171,6 +174,16 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
             ...(isLogin ? { rating: formData.rating } : {}),
           },
         })
+      } else if (order) {
+        await createOrderComment({
+          orderId: order.id,
+          payload: {
+            rating: formData.rating,
+            title: formData.title.trim(),
+            content: formData.content.trim(),
+            images: uploadedImages,
+          },
+        })
       } else {
         await createComment({
           serviceId: formData.serviceId,
@@ -187,8 +200,10 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
       onDone?.()
 
       setTimeout(() => close(), 1400)
-    } catch {
-      setSubmitError(translate('reviews.error'))
+    } catch (error) {
+      const isAlreadyReviewed = !!order && error instanceof HttpError && error.status === HTTP_STATUS.CONFLICT
+
+      setSubmitError(translate(isAlreadyReviewed ? 'reviews.order.alreadyReviewed' : 'reviews.error'))
     } finally {
       setIsSubmitting(false)
     }
@@ -228,21 +243,25 @@ const CommentForm = ({ defaultServiceId = '', editingComment, onDone }: CommentF
         error={errors.phone}
       />
 
-      <div>
-        <label className='mb-1.5 block text-sm font-medium text-text'>
-          {translate('reviews.form.service')}
-          <span className='ml-1 text-red-600'>*</span>
-        </label>
-        <MySelect
-          data={serviceOptions}
-          value={formData.serviceId}
-          placeholder={translate('reviews.form.selectService')}
-          disabled={isEditing}
-          onChange={(item) => handleChange('serviceId', item.value as string)}
-          style={{ width: '100%' }}
-        />
-        {errors.serviceId && <p className='mt-1 text-sm text-red-600'>{errors.serviceId}</p>}
-      </div>
+      {order ? (
+        <p className='rounded-xl bg-primary/5 px-3 py-2 text-sm text-text'>{translate('reviews.order.forOrder', { code: order.code })}</p>
+      ) : (
+        <div>
+          <label className='mb-1.5 block text-sm font-medium text-text'>
+            {translate('reviews.form.service')}
+            <span className='ml-1 text-red-600'>*</span>
+          </label>
+          <MySelect
+            data={serviceOptions}
+            value={formData.serviceId}
+            placeholder={translate('reviews.form.selectService')}
+            disabled={isEditing}
+            onChange={(item) => handleChange('serviceId', item.value as string)}
+            style={{ width: '100%' }}
+          />
+          {errors.serviceId && <p className='mt-1 text-sm text-red-600'>{errors.serviceId}</p>}
+        </div>
+      )}
 
       <div>
         <label className='mb-1.5 block text-sm font-medium text-text'>

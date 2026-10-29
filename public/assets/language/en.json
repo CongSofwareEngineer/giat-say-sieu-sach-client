@@ -368,6 +368,13 @@
     "weightNotEstimated": "Customer did not estimate the weight — weigh at pickup and update the order weight."
   },
   "reviews": {
+    "order": {
+      "button": "Review",
+      "title": "Review order",
+      "forOrder": "Review for order #{code}",
+      "reviewed": "Reviewed",
+      "alreadyReviewed": "This order has already been reviewed"
+    },
     "services": {
       "regular": "Regular Wash",
       "express": "Express Wash",
@@ -640,6 +647,16 @@
     }
   },
   "auth": {
+    "google": {
+      "button": "Continue with Google",
+      "phoneHint": "First time with Google: enter your phone number so we can take and track your orders.",
+      "passwordHint": "This phone number already has an account. Enter its password to link it with Google.",
+      "passwordRequired": "Please enter the password",
+      "continue": "Continue",
+      "wrongPassword": "Wrong password",
+      "phoneLinked": "This phone number is linked to another Google account",
+      "error": "Could not sign in with Google, please try again"
+    },
     "sessionExpired": "Your login session has expired. Please login again.",
     "login": {
       "title": "Login",
@@ -701,6 +718,26 @@
     }
   },
   "orders": {
+    "invoice": {
+      "button": "Invoice",
+      "title": "Invoice",
+      "code": "Order code",
+      "date": "Date",
+      "status": "Status",
+      "customer": "Customer",
+      "service": "Service",
+      "quantity": "Quantity",
+      "unitPrice": "Unit price",
+      "subtotal": "Amount",
+      "total": "Subtotal",
+      "weightDiscount": "Orders over 10kg discount",
+      "promotion": "Promotion",
+      "promotionWithCode": "Promotion ({code})",
+      "pointsDiscount": "{points} points redeemed",
+      "finalAmount": "Total due",
+      "thanks": "Thank you for choosing our service!",
+      "print": "Print / Save PDF"
+    },
     "title": "My Orders",
     "subtitle": "Manage your orders",
     "empty": "You have no orders yet",
@@ -1275,6 +1312,38 @@
     "processing": "Processing..."
   },
   "notification": {
+    "types": {
+      "ORDER_STATUS": {
+        "PENDING": {
+          "title": "Order #{code} received",
+          "body": "We have received your booking."
+        },
+        "RECEIVED": {
+          "title": "Order #{code} picked up",
+          "body": "Your laundry was picked up and is waiting to be washed."
+        },
+        "WASHING": {
+          "title": "Washing order #{code}",
+          "body": "Your laundry is being washed."
+        },
+        "DRYING": {
+          "title": "Drying order #{code}",
+          "body": "Your laundry is being dried."
+        },
+        "READY": {
+          "title": "Order #{code} is ready",
+          "body": "Your laundry is clean and ready to be delivered."
+        },
+        "COMPLETED": {
+          "title": "Order #{code} completed",
+          "body": "Thank you! Please review your order to help us improve."
+        },
+        "CANCELLED": {
+          "title": "Order #{code} cancelled",
+          "body": "Your order has been cancelled."
+        }
+      }
+    },
     "permission": {
       "granted": "Notifications enabled",
       "denied": "Notifications blocked",

@@ -17,6 +17,7 @@ export const QUERY_KEYS = {
   getListBlogs: 'getListBlogs',
   getProvinces: 'getProvinces',
   getWards: 'getWards',
+  getNotifications: 'getNotifications',
 }
 
 export type QUERY_PAGINATION = {

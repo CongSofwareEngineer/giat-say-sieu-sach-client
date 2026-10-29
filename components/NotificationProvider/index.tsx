@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 
 import useNotifications from '@/hooks/useNotifications'
 import useUser from '@/hooks/useUser'
@@ -8,9 +9,11 @@ import useLanguage from '@/hooks/useLanguage'
 import UserService from '@/services/users'
 import MyButton from '@/components/MyButton'
 import { toast as toastStore } from '@/zustand/toast'
+import { QUERY_KEYS } from '@/constants/reactQuery'
 
 const NotificationProvider = () => {
   const { translate } = useLanguage()
+  const queryClient = useQueryClient()
   const { isLogin, hasHydrated } = useUser()
   const [status, setStatus] = useState<'idle' | 'loading' | 'granted' | 'denied' | 'unsupported'>('idle')
   const { permission, isSupported, requestPermission, getFid, getStoredFid, onMessage } = useNotifications(process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY)
@@ -59,6 +62,10 @@ const NotificationProvider = () => {
     const unsubscribe = onMessage((payload) => {
       const { title, body } = payload.notification || {}
 
+      // A push usually means a new bell entry (e.g. order status changed)
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.getNotifications] })
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.getMyOrders] })
+
       if (title || body) {
         toastStore.getState().addToast({
           message: [title, body].filter(Boolean).join('\n'),
@@ -69,7 +76,7 @@ const NotificationProvider = () => {
     })
 
     return unsubscribe
-  }, [isSupported, onMessage])
+  }, [isSupported, onMessage, queryClient])
 
   const handleRequestPermission = async () => {
     setStatus('loading')

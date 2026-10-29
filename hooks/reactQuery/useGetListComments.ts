@@ -4,6 +4,7 @@ import { useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-q
 import { QUERY_KEYS } from '@/constants/reactQuery'
 import CommentService, { CommentItem, CreateCommentPayload, UpdateCommentPayload, buildCommentReplies } from '@/services/comment'
 import useUser from '@/hooks/useUser'
+import { CloudinaryImage } from '@/services/upload'
 
 const useGetListComments = (serviceId?: string, categoryId?: string) => {
   const queryClient = useQueryClient()
@@ -60,6 +61,21 @@ const useGetListComments = (serviceId?: string, categoryId?: string) => {
     onSuccess: refresh,
   })
 
+  const { mutateAsync: createOrderComment, isPending: isCreatingOrderComment } = useMutation({
+    mutationFn: ({
+      orderId,
+      payload,
+    }: {
+      orderId: string
+      payload: { rating: number; title?: string; content: string; images: CloudinaryImage[] }
+    }) => CommentService.createOrderComment(orderId, payload),
+    onSuccess: () => {
+      refresh()
+      // "My orders" shows the review button until the order is reviewed
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.getMyOrders] })
+    },
+  })
+
   const { mutateAsync: updateComment, isPending: isUpdating } = useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: UpdateCommentPayload }) => CommentService.updateComment(id, payload),
     onSuccess: refresh,
@@ -102,6 +118,7 @@ const useGetListComments = (serviceId?: string, categoryId?: string) => {
     isFetchingNextPage,
     meta,
     createComment,
+    createOrderComment,
     updateComment,
     replyComment,
     deleteComment,
@@ -109,6 +126,7 @@ const useGetListComments = (serviceId?: string, categoryId?: string) => {
     adminUpdateComment,
     toggleVisibility,
     isCreating,
+    isCreatingOrderComment,
     isUpdating,
     isReplying,
     isDeleting,
