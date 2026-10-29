@@ -1,5 +1,5 @@
 # Booking (đặt lịch giặt)
-> Cập nhật: 2026-10-19
+> Cập nhật: 2026-10-29
 
 ## Tổng quan
 Trang `/booking` và form trong Chat dùng **chung** một form và logic đặt lịch thật (`useLaundryBooking`). Khách chỉ chọn tỉnh nơi có chi nhánh phục vụ; đặt xong thì nhớ thông tin cho lần sau. Sub-logic: (1) Form + logic dùng chung, (2) Lọc tỉnh theo chi nhánh, (3) Prefill + nhớ địa chỉ, (4) Ghi chú cho cửa hàng, (5) Ngày giờ lấy + trả đồ, (6) Số kg ước lượng, (7) Thời gian giặt dự kiến, (8) Chống spam (reCAPTCHA v3 + báo lỗi 429). Tính tiền / điểm / giảm giá xem `docs/instruction/order.md`.
@@ -17,7 +17,7 @@ Trang `/booking` và form trong Chat dùng **chung** một form và logic đặt
 - `app/booking/page.tsx` — viết bằng `LaundryForm` + `useLaundryBooking(BOOKING_SOURCE.PAGE)`.
 - `components/Chat/index.tsx` — `useLaundryBooking(BOOKING_SOURCE.CHAT)`.
 ### Luồng xử lý
-- Submit (`submitBooking`) → `createLaundryBooking` (API guest order). Trang Booking: thành công hiện mã đơn ngẫu nhiên (`getOrderCode` → `order.code`, xem `tracking.md` §1) + nút theo dõi; lỗi → toast `getBookingErrorMessage(error, 'booking.error')` (429 có thông báo riêng, xem §8).
+- Submit (`submitBooking`) → `createLaundryBooking` (API guest order, gửi kèm `referralCode` từ link giới thiệu nếu có — xem `docs/instruction/profile.md` §8). Trang Booking: thành công hiện mã đơn ngẫu nhiên (`getOrderCode` → `order.code`, xem `tracking.md` §1) + nút theo dõi; lỗi → toast `getBookingErrorMessage(error, 'booking.error')` (429 có thông báo riêng, xem §8).
 - Form khởi tạo rỗng rồi prefill trong effect (tránh lỗi hydration ở `/booking`).
 
 ## 2. Lọc tỉnh theo chi nhánh

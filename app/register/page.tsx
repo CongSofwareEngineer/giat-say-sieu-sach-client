@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -13,10 +13,11 @@ import { EyeIcon } from '@/components/Icons/Eye'
 import { EyeSlashIcon } from '@/components/Icons/EyeSlash'
 import HumanVerification from '@/components/HumanVerification'
 import GoogleLoginButton from '@/components/GoogleLoginButton'
-import { MIN_PASSWORD_LENGTH } from '@/constants/app'
+import { MIN_PASSWORD_LENGTH, REFERRAL } from '@/constants/app'
 import { formatPhoneToE164 } from '@/utils/phone'
 import useLanguage from '@/hooks/useLanguage'
 import useUser from '@/hooks/useUser'
+import { clearReferralCode, getStoredReferralCode, parseReferralCode } from '@/utils/referral'
 
 const RegisterPage = () => {
   const { translate } = useLanguage()
@@ -27,6 +28,8 @@ const RegisterPage = () => {
   const [captchaToken, setCaptchaToken] = useState<string | undefined>(undefined)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  // Code of the referral link this visitor arrived with (read after mount: localStorage)
+  const [referralCode, setReferralCode] = useState<string | undefined>(undefined)
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -41,6 +44,11 @@ const RegisterPage = () => {
     captcha: '',
     general: '',
   })
+
+  // URL first: this effect runs before ReferralTracker has saved a `/register?ref=` code
+  useEffect(() => {
+    setReferralCode(parseReferralCode(new URLSearchParams(window.location.search).get(REFERRAL.QUERY_PARAM)) ?? getStoredReferralCode())
+  }, [])
 
   const validate = (): boolean => {
     const newErrors = { name: '', phone: '', password: '', confirmPassword: '', captcha: '', general: '' }
@@ -94,7 +102,15 @@ const RegisterPage = () => {
     setErrors((prev) => ({ ...prev, general: '' }))
 
     try {
-      const response = await registerAction(formData.name, formatPhoneToE164(formData.phone) ?? formData.phone, formData.password, captchaToken)
+      const response = await registerAction(
+        formData.name,
+        formatPhoneToE164(formData.phone) ?? formData.phone,
+        formData.password,
+        captchaToken,
+        referralCode
+      )
+
+      clearReferralCode()
 
       if (response?.accessToken && response.user) {
         login(response.user)
@@ -169,6 +185,12 @@ const RegisterPage = () => {
                 {showConfirmPassword ? <EyeSlashIcon className='w-5 h-5' /> : <EyeIcon className='w-5 h-5' />}
               </button>
             </div>
+
+            {referralCode && (
+              <p className='rounded-lg bg-primary/5 px-3 py-2 text-sm text-gray-600'>
+                {translate('referral.register.invitedBy', { code: referralCode })}
+              </p>
+            )}
 
             {errors.general && <p className='text-sm text-red-500'>{errors.general}</p>}
 

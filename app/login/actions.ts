@@ -16,9 +16,9 @@ export type GoogleLoginResult =
   | { status: 'error'; httpStatus?: number }
 
 // Returns a result instead of throwing: errors thrown by a Server Action lose their status on the client
-export async function googleLoginAction(idToken: string, phone?: string, password?: string): Promise<GoogleLoginResult> {
+export async function googleLoginAction(idToken: string, phone?: string, password?: string, referralCode?: string): Promise<GoogleLoginResult> {
   try {
-    const response = await AuthService.loginWithGoogle(idToken, phone, password)
+    const response = await AuthService.loginWithGoogle(idToken, phone, password, referralCode)
 
     if ('requirePhone' in response) return { status: 'requirePhone' }
     if ('requirePassword' in response) return { status: 'requirePassword' }

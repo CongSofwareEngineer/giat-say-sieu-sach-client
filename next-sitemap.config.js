@@ -9,7 +9,7 @@ const BLOG_ENDPOINT = 'blogs'
 const BLOG_PAGE_LIMIT = 100
 const BLOG_PATH_PREFIX = '/blog'
 // Pages that need login or are not content: keep them out of the sitemap
-const PRIVATE_PATHS = ['/admin', '/admin/*', '/api/*', '/login', '/register', '/forgot-password', '/profile', '/manifest.json']
+const PRIVATE_PATHS = ['/admin', '/admin/*', '/api/*', '/login', '/register', '/forgot-password', '/profile', '/profile/*', '/manifest.json']
 
 // Every published blog post (public API only returns published ones); empty list if the API is unreachable
 const getBlogPosts = async () => {

@@ -18,6 +18,9 @@ export const QUERY_KEYS = {
   getProvinces: 'getProvinces',
   getWards: 'getWards',
   getNotifications: 'getNotifications',
+  getReferralSummary: 'getReferralSummary',
+  getReferees: 'getReferees',
+  getReferralCommissions: 'getReferralCommissions',
 }
 
 export type QUERY_PAGINATION = {

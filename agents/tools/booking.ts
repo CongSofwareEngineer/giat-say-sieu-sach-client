@@ -19,6 +19,7 @@ import OrderService, { OrderItem } from '@/services/order'
 import { formatPhoneToE164 } from '@/utils/phone'
 import { translate } from '@/utils/language'
 import { getRecaptchaToken } from '@/utils/recaptcha'
+import { getStoredReferralCode } from '@/utils/referral'
 
 export type LaundryBookingInput = {
   name: string
@@ -179,6 +180,7 @@ export const createLaundryBooking = async (input: LaundryBookingInput): Promise<
     items,
     notes,
     captchaToken: await getRecaptchaToken(RECAPTCHA_ACTION.GUEST_ORDER),
+    referralCode: getStoredReferralCode(),
   })
 }
 

@@ -64,6 +64,8 @@ export type CreateGuestOrderPayload = {
   notes?: string
   // Invisible reCAPTCHA v3 token (anti-spam), omitted when reCAPTCHA is not configured
   captchaToken?: string
+  // From the last `?ref=` link, only used when the phone has no account yet
+  referralCode?: string
 }
 
 // Public order view returned by the no-auth lookups (no address/notes/user)

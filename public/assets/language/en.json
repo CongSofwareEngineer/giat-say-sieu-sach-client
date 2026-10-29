@@ -762,6 +762,7 @@
       "info": "Personal Info",
       "addresses": "Address Book",
       "orders": "My Orders",
+      "referrals": "Refer friends",
       "password": "Change Password"
     },
     "info": {
@@ -1506,5 +1507,48 @@
         ]
       }
     ]
+  },
+  "referral": {
+    "title": "Refer friends",
+    "subtitle": "Share your link and earn {rate}% of every completed order of the people you refer (as points)",
+    "yourLink": "Your referral link",
+    "code": "Referral code: {code}",
+    "copy": "Copy",
+    "share": "Share",
+    "shareFacebook": "Share on Facebook",
+    "shareTitle": "Giat Ui Sieu Sach",
+    "shareText": "Book laundry pickup and delivery in minutes with Giat Ui Sieu Sach!",
+    "loadError": "Could not load referral data",
+    "pointsValue": "{points} points",
+    "stats": {
+      "referred": "People referred",
+      "orders": "Orders with commission",
+      "points": "Commission points"
+    },
+    "rules": {
+      "share": "Send the link to friends. Friends who create an account or book for the first time from it are counted as your referrals.",
+      "commission": "For each of their completed orders you earn {rate}% of the order value (after discounts) as points: 1,000 VND = 1 point.",
+      "newOnly": "Only phone numbers without an existing account count. Referred customers book and earn points as usual."
+    },
+    "referees": {
+      "title": "People you referred",
+      "subtitle": "Customers who created an account from your link",
+      "customer": "Customer",
+      "joinedAt": "Joined",
+      "orders": "Completed orders",
+      "commission": "Commission",
+      "empty": "No one has used your link yet. Share it now!"
+    },
+    "commissions": {
+      "title": "Commission history",
+      "subtitle": "Points earned from each completed order",
+      "order": "Order",
+      "orderAmount": "Order value",
+      "points": "Points",
+      "empty": "No commission yet"
+    },
+    "register": {
+      "invitedBy": "You are signing up with a referral link (code {code})"
+    }
   }
 }

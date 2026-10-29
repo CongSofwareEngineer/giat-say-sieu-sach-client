@@ -13,6 +13,7 @@ import { organizationSchema, toJsonLd, webSiteSchema } from '@/config/seo'
 import ReactQuery from '@/components/ReactQuery'
 import MyModal from '@/components/MyModal'
 import ClientRender from '@/components/ClientRender'
+import ReferralTracker from '@/components/ReferralTracker'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_CONFIG.url),
@@ -128,6 +129,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             <FloatingChat />
             <NotificationProvider />
             <Toast />
+            <ReferralTracker />
           </ClientRender>
         </ReactQuery>
       </body>

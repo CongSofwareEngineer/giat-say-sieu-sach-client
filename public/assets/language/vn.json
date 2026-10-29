@@ -762,6 +762,7 @@
       "info": "Thông tin cá nhân",
       "addresses": "Sổ địa chỉ",
       "orders": "Đơn hàng của tôi",
+      "referrals": "Giới thiệu bạn bè",
       "password": "Đổi mật khẩu"
     },
     "info": {
@@ -1506,5 +1507,48 @@
         ]
       }
     ]
+  },
+  "referral": {
+    "title": "Giới thiệu bạn bè",
+    "subtitle": "Chia sẻ link của bạn, nhận {rate}% giá trị mỗi đơn hoàn thành của người được giới thiệu (quy ra điểm)",
+    "yourLink": "Link giới thiệu của bạn",
+    "code": "Mã giới thiệu: {code}",
+    "copy": "Sao chép",
+    "share": "Chia sẻ",
+    "shareFacebook": "Chia sẻ lên Facebook",
+    "shareTitle": "Giặt Ủi Siêu Sạch",
+    "shareText": "Đặt lịch giặt ủi nhanh, giao nhận tận nơi tại Giặt Ủi Siêu Sạch!",
+    "loadError": "Không tải được dữ liệu giới thiệu",
+    "pointsValue": "{points} điểm",
+    "stats": {
+      "referred": "Người đã giới thiệu",
+      "orders": "Đơn có hoa hồng",
+      "points": "Điểm hoa hồng"
+    },
+    "rules": {
+      "share": "Gửi link cho bạn bè. Bạn bè tạo tài khoản hoặc đặt lịch lần đầu từ link sẽ được ghi nhận là người bạn giới thiệu.",
+      "commission": "Mỗi đơn của họ hoàn thành, bạn nhận {rate}% giá trị đơn (sau giảm giá) quy ra điểm: 1.000đ = 1 điểm.",
+      "newOnly": "Chỉ áp dụng cho số điện thoại chưa từng có tài khoản. Người được giới thiệu vẫn đặt đơn và tích điểm như bình thường."
+    },
+    "referees": {
+      "title": "Người bạn đã giới thiệu",
+      "subtitle": "Danh sách khách hàng tạo tài khoản từ link của bạn",
+      "customer": "Khách hàng",
+      "joinedAt": "Ngày tham gia",
+      "orders": "Đơn hoàn thành",
+      "commission": "Hoa hồng",
+      "empty": "Chưa có ai dùng link của bạn. Hãy chia sẻ ngay!"
+    },
+    "commissions": {
+      "title": "Lịch sử hoa hồng",
+      "subtitle": "Điểm bạn nhận được từ từng đơn hoàn thành",
+      "order": "Đơn hàng",
+      "orderAmount": "Giá trị đơn",
+      "points": "Điểm nhận",
+      "empty": "Chưa có hoa hồng nào"
+    },
+    "register": {
+      "invitedBy": "Bạn đang đăng ký qua link giới thiệu (mã {code})"
+    }
   }
 }

@@ -146,6 +146,26 @@ export const NOTIFICATION_INBOX = {
 
 export const TRACK_ORDER_PATH = '/track-order'
 
+export const PROFILE_PATH = '/profile'
+export const PROFILE_REFERRALS_PATH = '/profile/referrals'
+// `/profile?tab=<ProfileTab>` opens that tab (used when leaving the referral page from the sidebar)
+export const PROFILE_TAB_QUERY = 'tab'
+
+// Referral link `<site>/?ref=<code>`: the referrer earns COMMISSION_RATE of each completed order of the referred customer as points
+// (must match server REFERRAL)
+export const REFERRAL = {
+  QUERY_PARAM: 'ref',
+  COMMISSION_RATE: 0.05,
+  CODE_MAX_LENGTH: 20,
+  CODE_REGEX: /^[a-zA-Z0-9]+$/,
+  PAGE_SIZE: 10,
+} as const
+
+// Share dialogs opened with an encoded URL appended
+export const SHARE_URL = {
+  FACEBOOK: 'https://www.facebook.com/sharer/sharer.php?u=',
+} as const
+
 // Firebase Auth error codes when the customer closes the Google popup: not an error to show
 export const FIREBASE_POPUP_CANCEL_CODES: readonly string[] = ['auth/popup-closed-by-user', 'auth/cancelled-popup-request']
 
@@ -156,6 +176,8 @@ export enum LOCAL_STORAGE_KEY {
   bookingAddress = 'booking_address',
   // Firebase Installation ID of this device, the push notification target
   fcmFid = 'fcm_fid',
+  // Referral code of the last `?ref=` link this device opened, sent when a new account is created
+  referralCode = 'referral_code',
 }
 
 // Branch list is refetched from the API once the local cache is older than this

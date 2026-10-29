@@ -11,15 +11,20 @@ class AuthApi extends BaseAPI {
     return response.data
   }
 
-  async register(name: string, phone: string, password: string, captchaToken?: string): Promise<Auth & { user: User }> {
-    const response = await this.post<{ data: Auth & { user: User } }>('/register', { name, phone, password, captchaToken }, { isUseAuth: false })
+  // referralCode: from the last `?ref=` link, only used by the server when the account is new
+  async register(name: string, phone: string, password: string, captchaToken?: string, referralCode?: string): Promise<Auth & { user: User }> {
+    const response = await this.post<{ data: Auth & { user: User } }>(
+      '/register',
+      { name, phone, password, captchaToken, referralCode },
+      { isUseAuth: false }
+    )
 
     return response.data
   }
 
   // Sign in with Google (Firebase ID token); phone/password only for the first-time steps
-  async loginWithGoogle(idToken: string, phone?: string, password?: string): Promise<GoogleLoginResponse> {
-    const response = await this.post<{ data: GoogleLoginResponse }>('/google', { idToken, phone, password }, { isUseAuth: false })
+  async loginWithGoogle(idToken: string, phone?: string, password?: string, referralCode?: string): Promise<GoogleLoginResponse> {
+    const response = await this.post<{ data: GoogleLoginResponse }>('/google', { idToken, phone, password, referralCode }, { isUseAuth: false })
 
     return response.data
   }

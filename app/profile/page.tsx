@@ -7,11 +7,12 @@ import AddressBook from './components/AddressBook'
 import ChangePasswordForm from './components/ChangePasswordForm'
 import MyOrders from './components/MyOrders'
 import ProfileInfoForm from './components/ProfileInfoForm'
-import ProfileSidebar, { ProfileTab } from './components/ProfileSidebar'
+import ProfileSidebar, { PROFILE_TABS, ProfileTab } from './components/ProfileSidebar'
 
 import useLanguage from '@/hooks/useLanguage'
 import useUser from '@/hooks/useUser'
 import UserService from '@/services/users'
+import { PROFILE_REFERRALS_PATH, PROFILE_TAB_QUERY } from '@/constants/app'
 
 const ProfilePage = () => {
   const { translate } = useLanguage()
@@ -26,6 +27,18 @@ const ProfilePage = () => {
       router.replace('/login')
     }
   }, [hasHydrated, isLogin, router])
+
+  // `/profile?tab=` (coming back from the referral page) opens that tab
+  useEffect(() => {
+    const tab = new URLSearchParams(window.location.search).get(PROFILE_TAB_QUERY) as ProfileTab | null
+
+    if (tab && PROFILE_TABS.includes(tab) && tab !== 'referrals') setActiveTab(tab)
+  }, [])
+
+  const handleChangeTab = (tab: ProfileTab) => {
+    if (tab === 'referrals') router.push(PROFILE_REFERRALS_PATH)
+    else setActiveTab(tab)
+  }
 
   // Temp password from an admin reset -> open the change password tab
   useEffect(() => {
@@ -54,7 +67,7 @@ const ProfilePage = () => {
         </div>
 
         <div className='grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6 items-start'>
-          <ProfileSidebar activeTab={activeTab} onChangeTab={setActiveTab} />
+          <ProfileSidebar activeTab={activeTab} onChangeTab={handleChangeTab} />
 
           {activeTab === 'info' && <ProfileInfoForm />}
           {activeTab === 'addresses' && <AddressBook />}
