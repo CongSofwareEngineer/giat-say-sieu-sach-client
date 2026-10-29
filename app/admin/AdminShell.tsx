@@ -22,6 +22,7 @@ import { images } from '@/config/images'
 import useLanguage from '@/hooks/useLanguage'
 import useUser from '@/hooks/useUser'
 import { cn } from '@/utils/tailwind'
+import { clearReferralCode } from '@/utils/referral'
 
 type MenuItem = {
   href: string
@@ -97,6 +98,7 @@ const AdminShell = ({ children }: { children: React.ReactNode }) => {
         <button
           type='button'
           onClick={() => {
+            clearReferralCode()
             logout()
             router.replace('/')
           }}

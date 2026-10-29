@@ -20,7 +20,7 @@ Khách tự tạo tài khoản, có reCAPTCHA của Firebase ("tôi không phả
 ### Luồng xử lý
 1. Mở trang → render reCAPTCHA, khách nhập form + tick captcha (captcha hết hạn thì xóa token, tick lại).
 2. Bấm Đăng ký → validate (họ tên, SĐT hợp lệ VN, mật khẩu ≥ `MIN_PASSWORD_LENGTH` (4, giống server và form đổi mật khẩu), xác nhận khớp, captcha). Sai bất kỳ mục nào → không gửi.
-3. Gửi `POST /auth/register` `{ name, phone (E.164), password, captchaToken, referralCode? }` (`isUseAuth: false`) qua Server Action `registerAction`. `referralCode` = mã từ link `?ref=` đã lưu ở localStorage (xem `docs/instruction/profile.md` §8); thành công thì xoá mã. Có mã → form hiện dòng `referral.register.invitedBy`.
+3. Gửi `POST /auth/register` `{ name, phone (E.164), password, captchaToken, referralCode? }` (`isUseAuth: false`) qua Server Action `registerAction`. `referralCode` = mã từ link `?ref=` đã lưu ở localStorage (xem `docs/instruction/profile.md` §8); thành công **không** xoá mã (mã chỉ xoá khi bấm Đăng xuất). Có mã → form hiện dòng `referral.register.invitedBy`.
 4. OK → server trả `{ accessToken, refreshToken, user, accessExpire, refreshExpire }` (giống login) → `registerAction` lưu token vào cookie (`saveAuthCookies`, dùng chung với login) → trang gọi `login(user)` và `router.replace('/')` (khách đã đăng nhập luôn). Response thiếu token → `router.replace('/login')`. Lỗi → câu chung `auth.register.error`.
 ### Translation / Constants
 - `auth.register.*` (`passwordMin` nhận `{min}`), `MIN_PASSWORD_LENGTH`. Vào từ Header + link ở `/login`.
@@ -131,7 +131,7 @@ Khách đăng nhập nhanh bằng Google. Mọi tài khoản vẫn phải có s�
    - SĐT mới → server tạo tài khoản từ tên/email Google → đăng nhập.
    - SĐT của tài khoản khách vãng lai (chưa có mật khẩu) → liên kết luôn.
    - SĐT đã có tài khoản có mật khẩu → `requirePassword` → hiện ô mật khẩu (`auth.google.passwordHint`, SĐT bị khoá); đúng mật khẩu thì liên kết + đăng nhập.
-4. Thành công → `clearReferralCode()` → `signOut` khỏi Firebase Auth (phiên nằm ở cookie của mình) → `onSuccess(user)`.
+4. Thành công (giữ nguyên mã giới thiệu đã lưu) → `signOut` khỏi Firebase Auth (phiên nằm ở cookie của mình) → `onSuccess(user)`.
 ### Translation / Constants
 - `auth.google.{button,phoneHint,passwordHint,passwordRequired,continue,wrongPassword,phoneLinked,error}`, `common.{or,cancel}`, `booking.validation.phoneInvalid`.
 - `FIREBASE_POPUP_CANCEL_CODES`, `HTTP_STATUS.{UNAUTHORIZED,CONFLICT}`; icon `components/Icons/SocialMedia/Google.tsx`.

@@ -17,7 +17,7 @@ import { MIN_PASSWORD_LENGTH, REFERRAL } from '@/constants/app'
 import { formatPhoneToE164 } from '@/utils/phone'
 import useLanguage from '@/hooks/useLanguage'
 import useUser from '@/hooks/useUser'
-import { clearReferralCode, getStoredReferralCode, parseReferralCode } from '@/utils/referral'
+import { getStoredReferralCode, parseReferralCode } from '@/utils/referral'
 
 const RegisterPage = () => {
   const { translate } = useLanguage()
@@ -109,8 +109,6 @@ const RegisterPage = () => {
         captchaToken,
         referralCode
       )
-
-      clearReferralCode()
 
       if (response?.accessToken && response.user) {
         login(response.user)

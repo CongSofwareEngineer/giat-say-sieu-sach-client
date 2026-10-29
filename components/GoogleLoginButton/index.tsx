@@ -12,7 +12,7 @@ import { FIREBASE_POPUP_CANCEL_CODES, HTTP_STATUS } from '@/constants/app'
 import useLanguage from '@/hooks/useLanguage'
 import { User } from '@/services/users/type'
 import { formatPhoneToE164, isValidVnPhone } from '@/utils/phone'
-import { clearReferralCode, getStoredReferralCode } from '@/utils/referral'
+import { getStoredReferralCode } from '@/utils/referral'
 
 export type GoogleLoginButtonProps = {
   // Cookies are already saved: the page stores the user and redirects
@@ -43,7 +43,6 @@ const GoogleLoginButton = ({ onSuccess }: GoogleLoginButtonProps) => {
     const result = await googleLoginAction(token, phoneValue, passwordValue, getStoredReferralCode())
 
     if (result.status === 'ok') {
-      clearReferralCode()
       // Our own cookies hold the session; the Firebase sign-in was only needed for the ID token
       const auth = getFirebaseAuth()
 

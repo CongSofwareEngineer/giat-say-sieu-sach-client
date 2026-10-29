@@ -94,7 +94,7 @@ Mỗi khách có một link riêng `https://giatuisieusach.vercel.app/?ref=<mã>
   - Đăng ký thường: `app/register/page.tsx` → `registerAction(..., referralCode)` → `POST /auth/register`. Form hiện dòng `referral.register.invitedBy` khi có mã.
   - Google: `GoogleLoginButton` → `googleLoginAction(token, phone, password, referralCode)` → `POST /auth/google`.
   - Đặt lịch không đăng nhập (trang `/booking` + form trong chat, cùng dùng `createLaundryBooking` ở `agents/tools/booking.ts`) → `POST /laundry-orders/guest`.
-  - Đăng ký / Google thành công → `clearReferralCode()`. Đặt lịch guest không xoá mã.
+  - Mã **chỉ bị xoá khi bấm Đăng xuất** (`clearReferralCode()` trong `handleLogout` của `components/Header` và nút đăng xuất của `app/admin/AdminShell.tsx`). Đăng ký / Google / đặt lịch guest thành công, đang login hay chưa login → giữ nguyên mã. Hết phiên tự động (`handleSessionExpired`) cũng không xoá.
 - Trang `app/profile/referrals/page.tsx` (cần đăng nhập, chưa login → `/login`) + `components/`:
   - `ReferralLinkCard` — link + nút Sao chép / Chia sẻ (`navigator.share`, không có thì sao chép) / Facebook (`SHARE_URL.FACEBOOK`), 3 ô thống kê (người đã giới thiệu, đơn có hoa hồng, tổng điểm hoa hồng), thể lệ.
   - `RefereeList` — bảng người đã giới thiệu: tên + SĐT che (`090...567`), ngày tham gia, số đơn hoàn thành, tổng hoa hồng. Phân trang.

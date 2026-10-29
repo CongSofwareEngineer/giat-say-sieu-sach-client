@@ -26,6 +26,7 @@ import { SITE_CONFIG, TRACK_ORDER_PATH } from '@/constants/app'
 import useGetNotifications from '@/hooks/reactQuery/useGetNotifications'
 import { removeCookie } from '@/utils/cookie'
 import { COOKIES_KEY } from '@/constants/cookies'
+import { clearReferralCode } from '@/utils/referral'
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -78,6 +79,7 @@ const Header = () => {
   const handleLogout = () => {
     removeCookie(COOKIES_KEY.accessToken)
     removeCookie(COOKIES_KEY.refreshToken)
+    clearReferralCode()
     logout()
     router.replace('/')
   }

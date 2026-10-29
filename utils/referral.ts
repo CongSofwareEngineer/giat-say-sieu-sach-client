@@ -27,7 +27,7 @@ export const saveReferralCode = (code: string) => {
   } catch {}
 }
 
-// Called once an account is created / logged in on this device: the code has been sent
+// Only cleared when the user clicks Logout; kept while logged in or logged out
 export const clearReferralCode = () => {
   try {
     localStorage.removeItem(LOCAL_STORAGE_KEY.referralCode)
