@@ -1175,6 +1175,17 @@
     "pressEnterToSend": "Note: press Enter to send",
     "clear": "Clear chat",
     "typing": "Staff is typing...",
+    "stop": "Stop responding",
+    "status": {
+      "price": "Checking the price list...",
+      "order": "Looking up your order...",
+      "branch": "Checking branch information...",
+      "address": "Checking your addresses...",
+      "loyalty": "Checking your loyalty points...",
+      "search": "Looking for an answer...",
+      "form": "Preparing the booking form...",
+      "promotion": "Checking promotions..."
+    },
     "sessionExpired": "Session Expired",
     "sessionExpiredMessage": "Your chat session has been inactive for a while. Would you like to continue or start a new chat?",
     "continue": "Continue",

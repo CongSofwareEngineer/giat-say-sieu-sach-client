@@ -1,4 +1,4 @@
-import type { AgentContext, ChatResult, AgentMessage } from './base'
+import type { AgentContext, AgentStreamHandlers, ChatResult, AgentMessage } from './base'
 
 import { toConversation } from './base'
 import { callLlm } from './llm'
@@ -12,16 +12,19 @@ import { AGENT_NAME, ROUTER_TOOL_NAME } from '@/constants/tools'
 // with its own tools until a final answer is produced. Runs entirely on the
 // client; the only server call is the LLM proxy (hides the API key).
 export const chatAgent = {
-  async chat(message: string, history: AgentMessage[], ctx: AgentContext): Promise<ChatResult> {
+  async chat(message: string, history: AgentMessage[], ctx: AgentContext, handlers: AgentStreamHandlers = {}): Promise<ChatResult> {
     const conversation = toConversation(history, message)
 
     // 1) Main agent decides which specialized agent should handle the message
     const routerSystem = buildRouterSystem(routableAgents())
-    const routeResult = await callLlm({
-      system: routerSystem,
-      messages: conversation,
-      tools: [routeToAgentTool],
-    })
+    const routeResult = await callLlm(
+      {
+        system: routerSystem,
+        messages: conversation,
+        tools: [routeToAgentTool],
+      },
+      handlers.signal
+    )
 
     const routeCall = routeResult.toolCalls.find((tool) => tool.name === ROUTER_TOOL_NAME)
 
@@ -29,7 +32,7 @@ export const chatAgent = {
     const target = routeCall ? getAgent(routeCall.arguments?.agent) : getAgent(AGENT_NAME.fallback)
 
     // 2) Run the selected agent with its own tool set
-    const reply = await runAgent(target, conversation, ctx)
+    const reply = await runAgent(target, conversation, ctx, handlers)
 
     return {
       text: reply.content?.trim() || '',

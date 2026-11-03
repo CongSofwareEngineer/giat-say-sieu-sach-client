@@ -40,3 +40,33 @@ export const AGENT_NAME = {
 } as const
 
 export type AGENT_NAME = (typeof AGENT_NAME)[keyof typeof AGENT_NAME]
+
+// Chat label (translation key) shown while a tool is running
+export const TOOL_STATUS_KEY: Partial<Record<TOOL_NAME, string>> = {
+  [TOOL_NAME.getServices]: 'chat.status.price',
+  [TOOL_NAME.getService]: 'chat.status.price',
+  [TOOL_NAME.estimateCost]: 'chat.status.price',
+  [TOOL_NAME.trackOrder]: 'chat.status.order',
+  [TOOL_NAME.getMyOrders]: 'chat.status.order',
+  [TOOL_NAME.cancelMyOrder]: 'chat.status.order',
+  [TOOL_NAME.getContactInfo]: 'chat.status.branch',
+  [TOOL_NAME.getBranches]: 'chat.status.branch',
+  [TOOL_NAME.getMyAddresses]: 'chat.status.address',
+  [TOOL_NAME.getMyLoyalty]: 'chat.status.loyalty',
+  [TOOL_NAME.getFaq]: 'chat.status.search',
+  [TOOL_NAME.search]: 'chat.status.search',
+  [TOOL_NAME.laundry]: 'chat.status.form',
+  [TOOL_NAME.getPromotions]: 'chat.status.promotion',
+}
+
+// LLM proxy endpoint and SSE protocol values
+export const CHAT_COMPLETIONS_PATH = '/api/chat-agent/chat/completions' as const
+export const SSE_CONTENT_TYPE = 'text/event-stream' as const
+export const SSE_DATA_PREFIX = 'data:' as const
+export const SSE_DONE_EVENT = '[DONE]' as const
+
+// Streamed text reveal: one step per tick (ms), each step shows pending / divisor chars
+export const CHAT_STREAM_TICK_MS = 30 as number
+export const CHAT_STREAM_CATCH_UP_DIVISOR = 15 as number
+// Within this distance from the bottom (px) the list keeps following new text
+export const CHAT_SCROLL_PIN_THRESHOLD = 60 as number

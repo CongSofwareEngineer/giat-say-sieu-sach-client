@@ -1,11 +1,11 @@
 # Chat AI (trợ lý đa agent)
-> Cập nhật: 2026-10-30
+> Cập nhật: 2026-11-03
 
 ## Tổng quan
-Chat nổi là trợ lý đa agent; chỉ lời gọi LLM rời trình duyệt (qua `/api/chat-agent/chat/completions`), còn tool chạy client-side với `AgentContext` (`locale`, `userId`). Sub-logic: (1) Đặt lịch giặt không cần login, (2) Tra cứu đơn theo SĐT / mã đơn, (3) Form chọn Tỉnh/Xã qua LocationApi, (4) Định dạng danh sách đơn, (5) Địa chỉ cửa hàng / địa chỉ đã lưu, (6) Huỷ đơn qua chat, (7) Điểm tích lũy & hạng, (8) Router prompt. Form đặt lịch dùng chung với trang `/booking` — xem `docs/instruction/booking.md`.
+Chat nổi là trợ lý đa agent; chỉ lời gọi LLM rời trình duyệt (qua `/api/chat-agent/chat/completions`), còn tool chạy client-side với `AgentContext` (`locale`, `userId`). Sub-logic: (1) Đặt lịch giặt không cần login, (2) Tra cứu đơn theo SĐT / mã đơn, (3) Form chọn Tỉnh/Xã qua LocationApi, (4) Định dạng danh sách đơn, (5) Địa chỉ cửa hàng / địa chỉ đã lưu, (6) Huỷ đơn qua chat, (7) Điểm tích lũy & hạng, (8) Router prompt, (9) Streaming câu trả lời. Form đặt lịch dùng chung với trang `/booking` — xem `docs/instruction/booking.md`.
 
 ## Dùng chung
-- `agents/index.ts` (router → chọn agent → `runAgent`), `agents/runAgent.ts` (tool loop, `MAX_TOOL_ROUNDS = 6`), `agents/llm.ts`, `agents/base.ts`.
+- `agents/index.ts` (router → chọn agent → `runAgent`), `agents/runAgent.ts` (tool loop, `MAX_TOOL_ROUNDS = 6`), `agents/llm.ts` (`callLlm` non-stream, `streamLlm` SSE — xem §9), `agents/base.ts`.
 - `agents/tools/*` — booking, order, myOrders (cả huỷ đơn), loyalty, faq, search...; `agents/agents/*` — faq, price, recommend, fallback, router.
 - Dữ liệu FAQ (tool `faq`, `search`): `FaqService.getFaqs()` lấy toàn bộ FAQ đang hiển thị (`?limit=FULL_LIST_LIMIT`), cache localStorage `LOCAL_STORAGE_KEY.faqs` trong `FAQ_CACHE_DURATION` (3 ngày). Admin quản lý ở `/admin/faqs` (xem `docs/instruction/admin.md` §4).
 - Danh sách chi nhánh (tool `get_branches` trong `agents/tools/order.ts`): tên, địa chỉ, giờ mở cửa (`openingHours`), SĐT, link bản đồ — xem §5.
@@ -104,6 +104,36 @@ Router chỉ phân loại tin nhắn mới nhất và chọn agent, không bao g
 4. Không có tool call → `agents/index.ts` chạy agent `fallback`.
 ### Edge cases
 - `ROUTER_EXAMPLES` chỉ render ví dụ có agent nằm trong danh sách routable (hoặc `fallback`), nên bỏ agent khỏi registry không làm ví dụ trỏ tới agent không tồn tại. Thêm agent mới → nên thêm 1–2 ví dụ.
+
+## 9. Streaming câu trả lời
+### Mục đích
+Chữ hiện dần trong lúc LLM sinh ra, kèm trạng thái việc đang làm và nút Dừng, thay vì chờ xong cả câu trả lời. Streaming không rút ngắn tổng thời gian: chữ đầu tiên chỉ có sau khi router và các tool chạy xong.
+### Entry points
+- `agents/llm.ts` — `streamLlm(request, { onText, signal })`: đọc SSE, trả về `{ text, toolCalls }` như `callLlm`.
+- `agents/runAgent.ts`, `agents/index.ts` — nhận `AgentStreamHandlers` (`onText`, `onToolCall`, `signal`).
+- `zustand/chatStream.ts` — store **không persist**: `text`, `activeTool`, `controller`, `begin/stop/discard/end`.
+- `components/Chat/textStream.ts` — `getVisibleStreamText`, `createTextSmoother`.
+- `components/Chat/index.tsx` (`handleSend`, cuộn, nút Dừng), `ChatMessageList.tsx` (`StreamingMessage`), `TypingIndicator.tsx` (nhãn trạng thái).
+### Luồng xử lý
+1. `handleSend` gọi `chatStream.begin()` lấy `AbortController`, tạo smoother rồi gọi `chatAgent.chat(..., handlers)`.
+2. Router dùng `callLlm` (non-stream) vì chỉ cần kết quả chọn agent. Indicator hiện `chat.typing`.
+3. Mỗi vòng của agent dùng `streamLlm`: `delta.content` → `onText`; `delta.tool_calls` được ghép theo `index` (thiếu thì theo `id` / vị trí).
+4. `onText`: cộng dồn text thô → `getVisibleStreamText` (bỏ marker, giữ lại đoạn cuối có thể là đầu marker) → `smoother.setTarget`. Smoother mỗi `CHAT_STREAM_TICK_MS` nhả `pending / CHAT_STREAM_CATCH_UP_DIVISOR` ký tự vào `chatStream.text`.
+5. `onToolCall`: xoá text nháp (chữ trước tool call không phải câu trả lời), đặt `activeTool` → indicator hiện nhãn theo `TOOL_STATUS_KEY`.
+6. Xong: `setTarget(cleanText)` + `await drain()` → `addMessage` + `setHistory`, xử lý form / modal huỷ đơn như cũ → `chatStream.end()`.
+### Cuộn
+- Trong `Chat`: khi đang "bám đáy" (`isPinnedRef`) thì mỗi lần stream cập nhật đặt `scrollTop` tức thì (không `smooth`, vì `smooth` chạy lại liên tục gây giật).
+- Chỉ cuộn **lên** mới bỏ bám đáy; về gần đáy (`CHAT_SCROLL_PIN_THRESHOLD`) hoặc gửi tin mới thì bám lại.
+### Translation / Constants
+- `chat.stop`, `chat.status.*`, `chat.typing`; `TOOL_STATUS_KEY`, `CHAT_COMPLETIONS_PATH`, `SSE_*`, `CHAT_STREAM_TICK_MS`, `CHAT_STREAM_CATCH_UP_DIVISOR`, `CHAT_SCROLL_PIN_THRESHOLD` (`constants/tools.ts`). Thêm tool mới → thêm nhãn vào `TOOL_STATUS_KEY` (thiếu thì dùng `chat.typing`).
+### Edge cases
+- **Dừng**: giữ phần chữ đã hiện và đưa vào history; không báo lỗi; không mở form/modal của lượt đó. Chưa có chữ thì history không đổi.
+- **Lỗi giữa chừng**: giữ phần chữ đã hiện, thêm tin `chat.error`, history không đổi.
+- **Xoá hội thoại khi đang chạy**: `discard()` huỷ lượt và bỏ toàn bộ kết quả.
+- **Đóng chat khi đang chạy**: `Chat` unmount nhưng lượt vẫn chạy (state nằm trong store); mở lại thấy bubble đang chạy tiếp. Form do tool mở nằm ở state cục bộ nên không hiện nếu đã đóng chat.
+- **Provider không trả SSE**: `streamLlm` đọc JSON như `callLlm`, chữ vẫn được smoother nhả dần.
+- **Tab ẩn**: smoother hiện hết ngay vì trình duyệt giới hạn timer.
+- **Markdown chưa hoàn chỉnh**: trong lúc chạy có thể thoáng thấy ký tự thô (`**`, `|` của bảng) cho tới khi đủ cú pháp.
 
 ## Liên quan
 - `docs/instruction/booking.md` (form dùng chung), `docs/instruction/order.md` (tạo đơn, giá, điểm, huỷ đơn), `docs/instruction/tracking.md` (tra cứu trang /track-order), `docs/instruction/profile.md` §1 (hạng & điểm).
