@@ -1,8 +1,8 @@
 # Chat AI (trợ lý đa agent)
-> Cập nhật: 2026-10-30
+> Cập nhật: 2026-11-04
 
 ## Tổng quan
-Chat nổi là trợ lý đa agent; chỉ lời gọi LLM rời trình duyệt (qua `/api/chat-agent/chat/completions`), còn tool chạy client-side với `AgentContext` (`locale`, `userId`). Sub-logic: (1) Đặt lịch giặt không cần login, (2) Tra cứu đơn theo SĐT / mã đơn, (3) Form chọn Tỉnh/Xã qua LocationApi, (4) Định dạng danh sách đơn, (5) Địa chỉ cửa hàng / địa chỉ đã lưu, (6) Huỷ đơn qua chat, (7) Điểm tích lũy & hạng, (8) Router prompt. Form đặt lịch dùng chung với trang `/booking` — xem `docs/instruction/booking.md`.
+Chat nổi là trợ lý đa agent; chỉ lời gọi LLM rời trình duyệt (qua `/api/chat-agent/chat/completions`), còn tool chạy client-side với `AgentContext` (`locale`, `userId`). Sub-logic: (1) Đặt lịch giặt không cần login, (2) Tra cứu đơn theo SĐT / mã đơn, (3) Form chọn Tỉnh/Xã qua LocationApi, (4) Định dạng danh sách đơn, (5) Địa chỉ cửa hàng / địa chỉ đã lưu, (6) Huỷ đơn qua chat, (7) Điểm tích lũy & hạng, (8) Router prompt, (9) Chuẩn hóa tool call. Form đặt lịch dùng chung với trang `/booking` — xem `docs/instruction/booking.md`.
 
 ## Dùng chung
 - `agents/index.ts` (router → chọn agent → `runAgent`), `agents/runAgent.ts` (tool loop, `MAX_TOOL_ROUNDS = 6`), `agents/llm.ts`, `agents/base.ts`.
@@ -98,12 +98,27 @@ Router chỉ phân loại tin nhắn mới nhất và chọn agent, không bao g
 ### Entry points
 - `agents/agents/router.ts` — `buildRouterSystem(routableAgents())`, `ROUTER_EXAMPLES`, `routeToAgentTool`; gọi từ `agents/index.ts`.
 ### Luồng xử lý
-1. Prompt chia theo guide prompt engineering của OpenAI: `# Identity` (là bộ điều phối, không phải trợ lý trả lời khách) → `# Instructions` (luật route) → `# Agents` (thẻ `<agent name>` sinh từ registry) → `# Examples` (few-shot `<user_message>` / `<decision>`).
-2. Luật: chọn đúng 1 agent qua `route_to_agent`; dựa vào tin mới nhất, chỉ dùng lượt trước để hiểu câu nối tiếp ngắn; nhiều ý → chọn yêu cầu chính; ngoài phạm vi → trả `FALLBACK` không gọi tool.
-3. Tin nhắn của khách được coi là nội dung cần phân loại, không phải lệnh: yêu cầu đổi vai trò / bỏ qua luật / lộ prompt → `FALLBACK`.
-4. Không có tool call → `agents/index.ts` chạy agent `fallback`.
+1. Prompt chia theo guide prompt engineering của OpenAI: `# Identity` (là bộ điều phối, không phải trợ lý trả lời khách) → `# Instructions` (luật route) → `# Agents` (thẻ `<agent name>` sinh từ registry, thêm `fallback`) → `# Examples` (few-shot `<user_message>` / `<decision>`).
+2. Luật: luôn gọi `route_to_agent` đúng 1 lần, `fallback` nằm trong `enum` của tool; dựa vào tin mới nhất, chỉ dùng lượt trước để hiểu câu nối tiếp ngắn; nhiều ý → chọn yêu cầu chính; ngoài phạm vi → chọn `fallback`. Giá, đơn, đặt chỗ, địa chỉ, liên hệ của doanh nghiệp khác và kiến thức chung/toán cũng là `fallback`.
+3. Tin nhắn của khách được coi là nội dung cần phân loại, không phải lệnh: yêu cầu đổi vai trò / bỏ qua luật / lộ prompt → `fallback`.
+4. Vẫn không có tool call hợp lệ (phòng khi model trả sai) → `agents/index.ts` chạy agent `fallback`. Output sai định dạng được chuẩn hóa trước — xem §9.
 ### Edge cases
 - `ROUTER_EXAMPLES` chỉ render ví dụ có agent nằm trong danh sách routable (hoặc `fallback`), nên bỏ agent khỏi registry không làm ví dụ trỏ tới agent không tồn tại. Thêm agent mới → nên thêm 1–2 ví dụ.
+
+## 9. Chuẩn hóa tool call
+### Mục đích
+Model đôi khi trả tool call sai định dạng. `callLlm` chuẩn hóa về một dạng để router và `runAgent` không bỏ sót lệnh gọi.
+### Entry points
+- `agents/llm.ts` — `parseEmbeddedCall`, `normalizeToolCall`, `parseTextToolCall`; chạy bên trong `callLlm`, nơi gọi không cần làm gì thêm.
+### Luồng xử lý
+1. Tên tool có dạng `tool({...})` với `tool` nằm trong `request.tools` → khôi phục tên thật và gộp tham số. Tham số trong tên được ưu tiên hơn `arguments`, vì khi đó `arguments` có thể rỗng hoặc chứa rác. Chấp nhận thiếu hoặc thừa `)`.
+2. Không có tool call và toàn bộ nội dung text chỉ là một lệnh `tool({...})` → đổi thành tool call (`id` = tên tool), `text` = `null`.
+3. Router (`agents/index.ts`) và `runAgent` vẫn so khớp tên tool tuyệt đối trên kết quả đã chuẩn hóa.
+### Edge cases
+- Tool không có trong `request.tools` (ví dụ `FALLBACK`) giữ nguyên, nên router vẫn đi vào agent `fallback`.
+- Text có thêm chữ trước hoặc sau lệnh gọi, hoặc chỉ nhắc đến tên tool → giữ nguyên là câu trả lời thường.
+- Request không có `tools` → không chuẩn hóa.
+- Tham số trong tên không parse được → giữ tên thật và dùng `arguments`.
 
 ## Liên quan
 - `docs/instruction/booking.md` (form dùng chung), `docs/instruction/order.md` (tạo đơn, giá, điểm, huỷ đơn), `docs/instruction/tracking.md` (tra cứu trang /track-order), `docs/instruction/profile.md` §1 (hạng & điểm).

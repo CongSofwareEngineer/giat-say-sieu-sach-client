@@ -79,6 +79,60 @@ const safeParse = (value: unknown): Record<string, unknown> => {
   return {}
 }
 
+// Parse `tool({...})` written by the model; tolerates a missing or extra ")".
+// Returns null when the text is anything other than a single call to the tool.
+const parseEmbeddedCall = (raw: string, toolName: string): Record<string, unknown> | null => {
+  const text = raw.trim()
+  const prefix = `${toolName}(`
+
+  if (!text.startsWith(prefix)) return null
+
+  const rest = text.slice(prefix.length)
+  const start = rest.indexOf('{')
+  const end = rest.lastIndexOf('}')
+
+  if (start < 0 || end < start) return rest.replaceAll(')', '').trim() ? null : {}
+
+  const before = rest.slice(0, start).trim()
+  const after = rest
+    .slice(end + 1)
+    .replaceAll(')', '')
+    .trim()
+
+  if (before || after) return null
+
+  try {
+    const parsed = JSON.parse(rest.slice(start, end + 1))
+
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null
+  } catch {
+    return null
+  }
+}
+
+// Some models put the whole call in the tool name: `tool({...})`. Restore the
+// real name; embedded args win because `arguments` can then be empty or junk.
+const normalizeToolCall = (call: AgentToolCall, tools: ToolDefinition[]): AgentToolCall => {
+  const tool = tools.find((item) => call.name.startsWith(`${item.name}(`))
+
+  if (!tool) return call
+
+  return { ...call, name: tool.name, arguments: { ...call.arguments, ...parseEmbeddedCall(call.name, tool.name) } }
+}
+
+// Some models write the call as plain text instead of using tool_calls
+const parseTextToolCall = (text: string | null, tools: ToolDefinition[]): AgentToolCall | null => {
+  if (!text) return null
+
+  for (const tool of tools) {
+    const args = parseEmbeddedCall(text, tool.name)
+
+    if (args) return { id: tool.name, name: tool.name, arguments: args }
+  }
+
+  return null
+}
+
 // Client-side LLM client. Builds the complete request and posts it to the
 // pass-through proxy (which only adds the API key), then parses the raw
 // chat.completions response.
@@ -127,6 +181,8 @@ export const callLlm = async (request: LlmRequest): Promise<LlmResponse> => {
         .join('') || null
   }
 
+  const tools = request.tools ?? []
+
   const toolCalls: AgentToolCall[] = (message.tool_calls ?? [])
     .map((call: any) => ({
       id: String(call?.id ?? ''),
@@ -134,6 +190,11 @@ export const callLlm = async (request: LlmRequest): Promise<LlmResponse> => {
       arguments: safeParse(call?.function?.arguments),
     }))
     .filter((call) => call.name)
+    .map((call) => normalizeToolCall(call, tools))
+
+  const textCall = toolCalls.length === 0 ? parseTextToolCall(text, tools) : null
+
+  if (textCall) return { text: null, toolCalls: [textCall] }
 
   return { text, toolCalls }
 }
