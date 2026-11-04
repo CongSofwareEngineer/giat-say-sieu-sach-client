@@ -1175,6 +1175,17 @@
     "pressEnterToSend": "Ghi chú: nhấn Enter để gửi",
     "clear": "Xóa hội thoại",
     "typing": "Nhân viên đang trả lời...",
+    "stop": "Dừng trả lời",
+    "status": {
+      "price": "Đang xem bảng giá...",
+      "order": "Đang tra cứu đơn hàng...",
+      "branch": "Đang xem thông tin chi nhánh...",
+      "address": "Đang xem địa chỉ của bạn...",
+      "loyalty": "Đang xem điểm tích lũy...",
+      "search": "Đang tìm câu trả lời...",
+      "form": "Đang chuẩn bị form đặt lịch...",
+      "promotion": "Đang xem khuyến mãi..."
+    },
     "sessionExpired": "Phiên làm việc đã hết hạn",
     "sessionExpiredMessage": "Cuộc trò chuyện của bạn đã không hoạt động trong một thời gian. Bạn có muốn tiếp tục hay bắt đầu cuộc trò chuyện mới?",
     "continue": "Tiếp tục",

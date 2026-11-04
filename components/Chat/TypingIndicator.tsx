@@ -1,9 +1,13 @@
 'use client'
 
 import useLanguage from '@/hooks/useLanguage'
+import { TOOL_STATUS_KEY, type TOOL_NAME } from '@/constants/tools'
+import { chatStream } from '@/zustand/chatStream'
 
 const TypingIndicator = () => {
   const { translate } = useLanguage()
+  const activeTool = chatStream((state) => state.activeTool)
+  const statusKey = (activeTool && TOOL_STATUS_KEY[activeTool as TOOL_NAME]) || 'chat.typing'
 
   return (
     <div className='flex justify-start'>
@@ -13,7 +17,7 @@ const TypingIndicator = () => {
           <span className='h-1.5 w-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:150ms]' />
           <span className='h-1.5 w-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:300ms]' />
         </span>
-        {translate('chat.typing')}
+        {translate(statusKey)}
       </div>
     </div>
   )

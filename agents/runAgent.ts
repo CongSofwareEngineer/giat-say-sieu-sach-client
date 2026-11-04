@@ -1,6 +1,6 @@
-import type { AgentContext, AgentDefinition, AgentMessage } from './base'
+import type { AgentContext, AgentDefinition, AgentMessage, AgentStreamHandlers } from './base'
 
-import { callLlm } from './llm'
+import { streamLlm } from './llm'
 
 import { translate } from '@/utils/language'
 
@@ -10,12 +10,19 @@ const MAX_TOOL_ROUNDS = 6
 // Run one agent's tool loop until it produces a final text answer.
 // Each round: ask the LLM -> if it requests tools, execute them on the
 // client and feed the results back -> repeat until a plain text reply.
-export const runAgent = async (agent: AgentDefinition, history: AgentMessage[], ctx: AgentContext): Promise<AgentMessage> => {
+export const runAgent = async (
+  agent: AgentDefinition,
+  history: AgentMessage[],
+  ctx: AgentContext,
+  handlers: AgentStreamHandlers = {}
+): Promise<AgentMessage> => {
   const system = typeof agent.systemPrompt === 'function' ? agent.systemPrompt(ctx) : agent.systemPrompt
   const messages: AgentMessage[] = [...history]
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round += 1) {
-    const result = await callLlm({ system, messages, tools: agent.tools })
+    handlers.signal?.throwIfAborted()
+
+    const result = await streamLlm({ system, messages, tools: agent.tools }, { onText: handlers.onText, signal: handlers.signal })
 
     if (result.toolCalls.length > 0) {
       messages.push({
@@ -26,6 +33,8 @@ export const runAgent = async (agent: AgentDefinition, history: AgentMessage[], 
 
       for (const call of result.toolCalls) {
         const tool = agent.tools.find((t) => t.name === call.name)
+
+        handlers.onToolCall?.(call.name)
 
         let output: string
 

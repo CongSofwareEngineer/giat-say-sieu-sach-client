@@ -19,10 +19,27 @@ import { CopyIcon } from '@/components/Icons/Functions/Copy'
 import useLanguage from '@/hooks/useLanguage'
 import { COPY_FEEDBACK_DURATION } from '@/constants/app'
 import { copyToClipboard } from '@/utils/functions'
+import { chatStream } from '@/zustand/chatStream'
+
+// Bubble of the reply being generated; subscribes alone so the list does not re-render per tick
+const StreamingMessage = () => {
+  const text = chatStream((state) => state.text)
+
+  return (
+    <div className='flex justify-start'>
+      <div className='max-w-[80%] px-3 py-2 rounded-2xl text-sm bg-gray-100 text-text rounded-bl-md'>
+        <ChatMarkdown>{text}</ChatMarkdown>
+        <span className='mt-1 block h-3 w-1.5 rounded-sm bg-gray-400 animate-pulse' />
+      </div>
+    </div>
+  )
+}
 
 type ChatMessageListProps = {
   messages: ChatMessage[]
   messagesEndRef: React.RefObject<HTMLDivElement | null>
+  listRef?: React.RefObject<HTMLDivElement | null>
+  onScroll?: () => void
   isSending: boolean
   onQuickOptionClick: (option: string) => void
   onLaundryClick?: () => void
@@ -47,6 +64,8 @@ type ChatMessageListProps = {
 const ChatMessageList = ({
   messages,
   messagesEndRef,
+  listRef,
+  onScroll,
   isSending,
   onQuickOptionClick,
   onLaundryClick,
@@ -69,6 +88,7 @@ const ChatMessageList = ({
 }: ChatMessageListProps) => {
   const { translate } = useLanguage()
   const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null)
+  const hasStreamText = chatStream((state) => state.text.length > 0)
 
   // Sort messages by id to ensure chronological order
   const sortedMessages = [...messages].sort((a, b) => a.id - b.id)
@@ -82,7 +102,7 @@ const ChatMessageList = ({
   }
 
   return (
-    <div className='flex-1  px-5 overflow-y-auto py-4 space-y-3'>
+    <div ref={listRef} onScroll={onScroll} className='flex-1  px-5 overflow-y-auto py-4 space-y-3'>
       {sortedMessages.map((msg) => (
         <div key={msg.id} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
           <div
@@ -143,7 +163,8 @@ const ChatMessageList = ({
         </div>
       )}
 
-      {isSending && <TypingIndicator />}
+      {hasStreamText && <StreamingMessage />}
+      {isSending && !hasStreamText && <TypingIndicator />}
       <div ref={messagesEndRef} />
     </div>
   )

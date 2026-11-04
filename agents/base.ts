@@ -62,6 +62,13 @@ export interface ChatResult {
   history: AgentMessage[]
 }
 
+// Live updates while an agent answers; signal cancels the running turn
+export interface AgentStreamHandlers {
+  onText?: (delta: string) => void
+  onToolCall?: (toolName: string) => void
+  signal?: AbortSignal
+}
+
 // Strip stored history down to plain user/assistant turns (drop tool turns
 // and assistant messages that only carried tool calls), keep the most recent
 // MAX_HISTORY_MESSAGES, then append the new user message. Keeps the router

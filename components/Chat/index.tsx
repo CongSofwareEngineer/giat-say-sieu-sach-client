@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 
 import ChatMessageList from './ChatMessageList'
+import { createTextSmoother, getVisibleStreamText } from './textStream'
 
 import CancelOrderConfirm from '@/components/CancelOrderConfirm'
 import { TrashIcon } from '@/components/Icons/Trash'
@@ -21,9 +22,11 @@ import { formatPickupTime, getBookingErrorMessage } from '@/agents/tools/booking
 import { notifyUnreadMessage } from '@/utils/notification'
 import { formatAddress } from '@/services/address'
 import { chat } from '@/zustand/chat'
+import { chatStream } from '@/zustand/chatStream'
 import OrderService, { getOrderCode } from '@/services/order'
 import { getMyOrders, ORDER_PHONE_FORM_MARKER, PendingCancelOrder, takePendingCancelOrder } from '@/agents/tools/myOrders'
 import { BOOKING_SOURCE } from '@/constants/app'
+import { CHAT_SCROLL_PIN_THRESHOLD } from '@/constants/tools'
 import { QUERY_KEYS } from '@/constants/reactQuery'
 import { toast } from '@/utils/toast'
 
@@ -55,6 +58,10 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
   const queryClient = useQueryClient()
   const { open: openModal, close: closeModal } = useModalDrawer()
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
+  // Follow new text unless the user scrolled up to read older messages
+  const isPinnedRef = useRef(true)
+  const lastScrollTopRef = useRef(0)
 
   // Laundry form state, shared with the booking page
   const {
@@ -103,9 +110,34 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [])
 
+  // Only an upward scroll unpins, so the smooth scroll down itself never does
+  const handleListScroll = useCallback(() => {
+    const list = listRef.current
+
+    if (!list) return
+
+    if (list.scrollHeight - list.scrollTop - list.clientHeight < CHAT_SCROLL_PIN_THRESHOLD) isPinnedRef.current = true
+    else if (list.scrollTop < lastScrollTopRef.current) isPinnedRef.current = false
+
+    lastScrollTopRef.current = list.scrollTop
+  }, [])
+
   useEffect(() => {
-    scrollToBottom()
+    // Sending a message always jumps back to the bottom
+    if (messages.at(-1)?.isUser) isPinnedRef.current = true
+    if (isPinnedRef.current) scrollToBottom()
   }, [messages, scrollToBottom])
+
+  // Instant scroll while streaming: a smooth one restarts on every tick and jitters
+  useEffect(
+    () =>
+      chatStream.subscribe(() => {
+        const list = listRef.current
+
+        if (list && isPinnedRef.current) list.scrollTop = list.scrollHeight
+      }),
+    []
+  )
 
   useEffect(() => {
     const timer = setTimeout(scrollToBottom, 350)
@@ -301,62 +333,86 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
     // Drop a cancel request left over from a failed turn
     takePendingCancelOrder()
 
-    try {
-      const { text, history: newHistory } = await chatAgent.chat(textToSend, history, { locale: lang, userId: user?.id })
-      const cancelOrder = takePendingCancelOrder()
+    const { begin, end, setText, setActiveTool } = chatStream.getState()
+    const controller = begin()
+    const smoother = createTextSmoother(setText)
+    let rawText = ''
 
-      if (text) {
-        const wantsLaundryForm = text.includes(LAUNDRY_FORM_MARKER)
-        const wantsPhoneForm = text.includes(ORDER_PHONE_FORM_MARKER)
-        const cleanText = text.replace(LAUNDRY_FORM_MARKER, '').replace(ORDER_PHONE_FORM_MARKER, '').trim()
+    // Stopping also ends the reveal of text that was already received
+    controller.signal.addEventListener('abort', () => smoother.stop())
 
-        if (cleanText) {
-          addMessage({
-            id: Date.now(),
-            text: cleanText,
-            isUser: false,
-            time: new Date().toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-            }),
-          })
-        }
+    const getTime = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 
-        if (wantsLaundryForm) {
-          setShowLaundryForm(true)
-        }
-
-        if (wantsPhoneForm) {
-          setShowOrderPhoneForm(true)
-        }
-
-        if (cancelOrder) {
-          openCancelOrderConfirm(cancelOrder)
-        }
-
-        if (!chat.getState().isOpen) {
-          incrementUnread()
-          notifyUnreadMessage()
-        }
-        setHistory(newHistory)
-      } else {
-        throw new Error('Empty agent reply')
-      }
-    } catch {
-      addMessage({
-        id: Date.now(),
-        text: translate('chat.error'),
-        isUser: false,
-        time: new Date().toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
-      })
+    const notifyIfClosed = () => {
       if (!chat.getState().isOpen) {
         incrementUnread()
         notifyUnreadMessage()
       }
+    }
+
+    try {
+      const { text, history: newHistory } = await chatAgent.chat(
+        textToSend,
+        history,
+        { locale: lang, userId: user?.id },
+        {
+          signal: controller.signal,
+          onText: (delta) => {
+            rawText += delta
+            smoother.setTarget(getVisibleStreamText(rawText))
+          },
+          // Text before a tool call is not the answer: go back to the status label
+          onToolCall: (toolName) => {
+            rawText = ''
+            smoother.reset()
+            setActiveTool(toolName)
+          },
+        }
+      )
+      const cancelOrder = takePendingCancelOrder()
+
+      if (!text) throw new Error('Empty agent reply')
+
+      const wantsLaundryForm = text.includes(LAUNDRY_FORM_MARKER)
+      const wantsPhoneForm = text.includes(ORDER_PHONE_FORM_MARKER)
+      const cleanText = text.replace(LAUNDRY_FORM_MARKER, '').replace(ORDER_PHONE_FORM_MARKER, '').trim()
+
+      // Finish the reveal first; the final text also covers replies that were never streamed
+      smoother.setTarget(cleanText)
+      await smoother.drain()
+      controller.signal.throwIfAborted()
+
+      if (cleanText) addMessage({ id: Date.now(), text: cleanText, isUser: false, time: getTime() })
+
+      if (wantsLaundryForm) setShowLaundryForm(true)
+
+      if (wantsPhoneForm) setShowOrderPhoneForm(true)
+
+      if (cancelOrder) openCancelOrderConfirm(cancelOrder)
+
+      notifyIfClosed()
+      setHistory(newHistory)
+    } catch {
+      const partialText = smoother.stop().trim()
+      const { isDiscarded } = chatStream.getState()
+
+      if (isDiscarded) return
+
+      if (partialText) addMessage({ id: Date.now(), text: partialText, isUser: false, time: getTime() })
+
+      if (controller.signal.aborted) {
+        // Stopped by the user: not an error, keep the partial answer as context
+        if (partialText) {
+          setHistory([...history, { role: 'user', content: textToSend }, { role: 'assistant', content: partialText }])
+        }
+
+        return
+      }
+
+      addMessage({ id: Date.now() + 1, text: translate('chat.error'), isUser: false, time: getTime() })
+      notifyIfClosed()
     } finally {
+      end()
       setSending(false)
     }
   }
@@ -373,6 +429,8 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
   }
 
   const handleClearChat = () => {
+    // A reply still being generated must not reappear after clearing
+    chatStream.getState().discard()
     clearChat()
     setInputValue('')
   }
@@ -399,6 +457,8 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
       <ChatMessageList
         messages={messages}
         messagesEndRef={messagesEndRef}
+        listRef={listRef}
+        onScroll={handleListScroll}
         isSending={isSending}
         onQuickOptionClick={handleQuickOptionClick}
         onLaundryClick={handleLaundryOptionClick}
@@ -431,13 +491,20 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
             placeholder={translate('chat.inputPlaceholder')}
             className='flex-1 px-3 py-2 text-sm border border-border rounded-2xl focus:outline-none resize-none'
           />
-          <MyButton onClick={() => handleSend()} disabled={!inputValue.trim() || isSending} className='shrink-0 self-stretch rounded-2xl px-4'>
-            {isSending ? (
-              <span className='inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white' />
-            ) : (
+          {isSending ? (
+            <MyButton
+              onClick={() => chatStream.getState().stop()}
+              aria-label={translate('chat.stop')}
+              title={translate('chat.stop')}
+              className='shrink-0 self-stretch rounded-2xl px-4'
+            >
+              <span className='inline-block size-3 rounded-sm bg-white' />
+            </MyButton>
+          ) : (
+            <MyButton onClick={() => handleSend()} disabled={!inputValue.trim()} className='shrink-0 self-stretch rounded-2xl px-4'>
               <SendIcon className='w-4 h-4' />
-            )}
-          </MyButton>
+            </MyButton>
+          )}
         </div>
         <div className='text-xs text-gray-500 text-right mt-1'>{inputValue.length}/200</div>
       </div>
