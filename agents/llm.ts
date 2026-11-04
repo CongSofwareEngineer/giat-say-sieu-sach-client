@@ -178,7 +178,8 @@ const postCompletion = (request: LlmRequest, isStream: boolean, signal?: AbortSi
       messages: buildOpenAiMessages(request.system, request.messages),
       ...(request.tools && request.tools.length > 0 ? { tools: buildOpenAiTools(request.tools) } : {}),
       temperature: 0.4,
-      ...(isStream ? { stream: true } : {}),
+      // include_usage: some providers only report tokens on streams when asked
+      ...(isStream ? { stream: true, stream_options: { include_usage: true } } : {}),
     }),
   })
 

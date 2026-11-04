@@ -1,4 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { after, NextRequest, NextResponse } from 'next/server'
+
+import { insertChatLogRow, isChatLogEnabled } from '@/services/googleSheets'
+import { buildChatLogFailureRow, buildChatLogRow, captureStream, readChatLogRequest } from '@/utils/chatLog'
 
 const ALLOWED_ORIGINS = ['https://giatuisieusach.vercel.app', 'http://localhost:3000', 'http://localhost:3001'] as const
 const MAX_BODY_BYTES = 1024 * 1024 // 1MB
@@ -49,6 +52,17 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const apiUrl = process.env.AGENT_API_URL || 'https://api.tokenrouter.com/v1'
   const apiKey = process.env.AGENT_API_KEY
   const target = `${apiUrl}/${path.join('/')}`
+  const logRequest = isChatLogEnabled() ? readChatLogRequest(arrayBuffer) : null
+
+  // Write after the response ends; a failed write must never affect the chat
+  const scheduleLog = (getRow: () => Promise<(string | number)[]>) =>
+    after(async () => {
+      try {
+        await insertChatLogRow(await getRow())
+      } catch (error) {
+        console.error('Chat log error:', error)
+      }
+    })
 
   try {
     // 🚀 TỐI ƯU RAM CẤP ĐỘ 2: Dùng Native Fetch (Bỏ @whatwg-node/fetch)
@@ -61,10 +75,26 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       body: arrayBuffer,
     })
 
-    return new Response(response.body, {
+    const contentType = response.headers.get('Content-Type') || 'application/json'
+    const source = response.body
+    let body: ReadableStream<Uint8Array> | null = source
+
+    if (logRequest && source) {
+      const ended = new Promise<Parameters<Parameters<typeof captureStream>[1]>>((resolve) => {
+        body = captureStream(source, (...result) => resolve(result))
+      })
+
+      scheduleLog(async () => {
+        const [raw, outcome] = await ended
+
+        return buildChatLogRow(logRequest, { isHttpOk: response.ok, contentType, raw, outcome })
+      })
+    }
+
+    return new Response(body, {
       status: response.status,
       headers: {
-        'Content-Type': response.headers.get('Content-Type') || 'application/json',
+        'Content-Type': contentType,
         'Access-Control-Allow-Origin': origin, // Bắt buộc phải có để Browser không chặn kết quả
         'Cache-Control': 'no-cache, no-transform',
         Connection: 'keep-alive',
@@ -73,6 +103,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     })
   } catch (err) {
     console.error('Proxy Stream Error:', err)
+
+    if (logRequest) {
+      scheduleLog(async () => buildChatLogFailureRow(logRequest, err instanceof Error ? err.message : String(err)))
+    }
 
     return NextResponse.json({ error: 'Failed to proxy request' }, { status: 500 })
   }

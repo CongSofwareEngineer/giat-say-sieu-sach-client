@@ -2,7 +2,7 @@
 > Cập nhật: 2026-11-04
 
 ## Tổng quan
-Chat nổi là trợ lý đa agent; chỉ lời gọi LLM rời trình duyệt (qua `/api/chat-agent/chat/completions`), còn tool chạy client-side với `AgentContext` (`locale`, `userId`). Sub-logic: (1) Đặt lịch giặt không cần login, (2) Tra cứu đơn theo SĐT / mã đơn, (3) Form chọn Tỉnh/Xã qua LocationApi, (4) Định dạng danh sách đơn, (5) Địa chỉ cửa hàng / địa chỉ đã lưu, (6) Huỷ đơn qua chat, (7) Điểm tích lũy & hạng, (8) Router prompt, (9) Streaming câu trả lời, (10) Chuẩn hóa tool call. Form đặt lịch dùng chung với trang `/booking` — xem `docs/instruction/booking.md`.
+Chat nổi là trợ lý đa agent; chỉ lời gọi LLM rời trình duyệt (qua `/api/chat-agent/chat/completions`), còn tool chạy client-side với `AgentContext` (`locale`, `userId`). Sub-logic: (1) Đặt lịch giặt không cần login, (2) Tra cứu đơn theo SĐT / mã đơn, (3) Form chọn Tỉnh/Xã qua LocationApi, (4) Định dạng danh sách đơn, (5) Địa chỉ cửa hàng / địa chỉ đã lưu, (6) Huỷ đơn qua chat, (7) Điểm tích lũy & hạng, (8) Router prompt, (9) Streaming câu trả lời, (10) Chuẩn hóa tool call, (11) Log token & câu hỏi lên Google Sheets. Form đặt lịch dùng chung với trang `/booking` — xem `docs/instruction/booking.md`.
 
 ## Dùng chung
 - `agents/index.ts` (router → chọn agent → `runAgent`), `agents/runAgent.ts` (tool loop, `MAX_TOOL_ROUNDS = 6`), `agents/llm.ts` (`callLlm` non-stream, `streamLlm` SSE — xem §9), `agents/base.ts`.
@@ -150,6 +150,42 @@ Model đôi khi trả tool call sai định dạng. `agents/llm.ts` chuẩn hóa
 - Request không có `tools` → không chuẩn hóa.
 - Tham số trong tên không parse được → giữ tên thật và dùng `arguments`.
 - **Khi streaming**: chuẩn hóa chạy sau khi nhận xong, nên lệnh gọi viết thành văn bản có thể thoáng hiện dưới dạng chữ nháp; `onToolCall` sẽ xoá chữ nháp đó (xem §9, bước 5).
+
+## 11. Log token & câu hỏi lên Google Sheets
+### Mục đích
+Mỗi lần gọi LLM ghi một dòng vào Google Sheet để thống kê token theo từng lần gọi và xem khách đã hỏi gì. Dùng Sheet thay vì MongoDB để log không chiếm dung lượng database đang có giới hạn: Sheet đầy hay lỗi thì chỉ mất log, không ảnh hưởng đơn hàng.
+### Entry points
+- `app/api/chat-agent/[...path]/route.ts` — bọc response của provider, đọc kết quả và ghi nền bằng `after()`.
+- `utils/chatLog.ts` — `readChatLogRequest`, `captureStream`, `buildChatLogRow`, `buildChatLogFailureRow`, `maskPhones`.
+- `services/googleSheets.ts` — `isChatLogEnabled`, `insertChatLogRow`. Chỉ dùng ở server vì có key service account.
+- `agents/llm.ts` — bật `stream_options.include_usage` để provider báo token khi stream.
+### Luồng xử lý
+1. Proxy đọc câu hỏi (tin `user` mới nhất trong body).
+2. `captureStream` chuyển nguyên từng byte về browser, đồng thời giữ lại toàn bộ nội dung. Khi khách bấm Dừng, lệnh huỷ vẫn truyền tới provider nên model ngừng sinh chữ.
+3. Khi response kết thúc, `after()` dựng dòng log (đọc được cả JSON của router và SSE của agent) rồi chèn ngay dưới dòng tiêu đề của tab `CHAT_LOG_SHEET_TAB`, nên dữ liệu mới nhất luôn ở trên cùng. Chèn và ghi nằm chung một `batchUpdate` nên các lần ghi đồng thời không đè nhau.
+### Cột dữ liệu
+Theo thứ tự `CHAT_LOG_COLUMNS` (dòng tiêu đề của Sheet phải khớp): `date`, `time` (giờ `SHOP_TIMEZONE`), `inputTokens`, `outputTokens`, `cachedTokens`, `totalTokens`, `status`, `question`, `toolCalls`, `answer` (hoặc nội dung lỗi khi `status = error`).
+- `cachedTokens` nằm trong `inputTokens`, không cộng thêm khi tính tổng.
+- Một tin nhắn có nhiều dòng; `question` lặp lại ở mỗi dòng. Vì mới nhất ở trên, dòng router nằm **dưới** các dòng agent của cùng tin nhắn. Dòng router là dòng có `toolCalls` chứa `route_to_agent`, nên đếm số tin nhắn bằng số dòng này.
+- **Tô màu**: dòng router được tô nền bằng Conditional formatting đặt ngay trên Sheet với công thức `=REGEXMATCH($I1,"^route_to_agent")`, không nằm trong code và không tốn thêm lượt ghi. Vùng áp dụng phải bắt đầu từ dòng 1 (gồm cả tiêu đề, tiêu đề không khớp nên không bị tô), để dòng chèn ngay dưới tiêu đề vẫn nằm trong rule. Tạo Sheet mới thì phải đặt lại rule này.
+- Không lưu id gom nhóm, user, agent hay vòng lặp: không thống kê được theo user/agent, và khi nhiều khách chat cùng lúc thì dòng của các tin nhắn có thể xen kẽ nhau.
+- Router lỗi, bị Dừng, hoặc model không gọi `route_to_agent` thì dòng đó không có `toolCalls` nên không được tô và không được đếm là tin nhắn.
+### Cấu hình
+- Env server: `GOOGLE_SHEETS_ID`, `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_PRIVATE_KEY`. Thiếu một biến → tắt log, proxy chuyển response thẳng như trước.
+- Sheet phải có tab tên `Logs` và được share quyền Editor cho email service account.
+### Translation / Constants
+- `CHAT_LOG_STATUS`, `CHAT_LOG_COLUMNS`, `CHAT_LOG_SHEET_TAB`, `CHAT_LOG_FIRST_DATA_ROW`, `CHAT_LOG_MAX_TEXT_LENGTH`, `CHAT_LOG_TIMEOUT_MS`, `CHAT_LOG_PHONE_REGEX`, `GOOGLE_SHEETS_API_URL`, `GOOGLE_SHEETS_SCOPE` (`constants/tools.ts`). Không có text UI.
+### Edge cases
+- **Che SĐT**: `question`, `toolCalls`, `answer` được che số điện thoại Việt Nam, giữ 3 số cuối. Chỉ che SĐT, nên tên và địa chỉ khách nhắn vẫn được lưu. Hotline của quán trong câu trả lời cũng bị che; số nước ngoài không bị che. Một số chuỗi số giống SĐT (ví dụ ngày `04-11-2026 10`) có thể bị che nhầm.
+- **Giới hạn độ dài**: `question`, `toolCalls`, `answer` cắt ở `CHAT_LOG_MAX_TEXT_LENGTH`.
+- **Công thức**: chữ được ghi dạng `stringValue` nên nội dung khách nhập không chạy thành công thức.
+- **Đổi tên tab**: id của tab được cache theo từng server instance. Đổi tên tab khi đang chạy thì cold start tiếp theo sẽ không tìm thấy tab và mất log.
+- **Bấm Dừng giữa chừng**: `status = aborted`, token để trống vì provider chưa kịp báo. Tổng token vì vậy có thể thấp hơn thực tế một chút. `streamLlm` huỷ stream sau `[DONE]` vẫn tính là `ok`.
+- **Provider không báo `usage`**: cột token để trống, không ghi 0 và không ước lượng.
+- **Lỗi provider / mất kết nối**: `status = error`, `answer` chứa nội dung lỗi.
+- **Ghi Sheet lỗi**: bỏ qua dòng đó, chat không bị ảnh hưởng, không có retry. `next.config.ts` xoá `console.*` ở production nên lỗi này không hiện trong log production.
+- **Quota Google Sheets**: khoảng 60 lần ghi/phút cho một service account, vượt quota thì mất dòng log. Một file tối đa 10 triệu ô, tức khoảng 1 triệu dòng với 10 cột.
+- **Độ tin cậy**: token do provider trả nên client không sửa được.
 
 ## Liên quan
 - `docs/instruction/booking.md` (form dùng chung), `docs/instruction/order.md` (tạo đơn, giá, điểm, huỷ đơn), `docs/instruction/tracking.md` (tra cứu trang /track-order), `docs/instruction/profile.md` §1 (hạng & điểm).

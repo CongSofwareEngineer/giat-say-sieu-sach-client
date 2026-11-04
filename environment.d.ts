@@ -23,6 +23,11 @@ interface EnvironmentVariables {
   // reCAPTCHA v3 site key (anti-spam on guest booking), empty = disabled
   readonly NEXT_PUBLIC_RECAPTCHA_SITE_KEY?: string
 
+  // Chat usage log (Google Sheets, server only), any one empty = logging disabled
+  readonly GOOGLE_SHEETS_ID?: string
+  readonly GOOGLE_SERVICE_ACCOUNT_EMAIL?: string
+  readonly GOOGLE_PRIVATE_KEY?: string
+
   // System One
   readonly SYSTEM_ONE_API_URL: string
   readonly SYSTEM_ONE_API_KEY: string

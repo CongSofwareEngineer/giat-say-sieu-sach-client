@@ -65,6 +65,39 @@ export const SSE_CONTENT_TYPE = 'text/event-stream' as const
 export const SSE_DATA_PREFIX = 'data:' as const
 export const SSE_DONE_EVENT = '[DONE]' as const
 
+export const CHAT_LOG_STATUS = {
+  ok: 'ok',
+  error: 'error',
+  aborted: 'aborted',
+} as const
+
+export type CHAT_LOG_STATUS = (typeof CHAT_LOG_STATUS)[keyof typeof CHAT_LOG_STATUS]
+
+// Column order of the usage log sheet; the sheet's header row must match it
+export const CHAT_LOG_COLUMNS = [
+  'date',
+  'time',
+  'inputTokens',
+  'outputTokens',
+  'cachedTokens',
+  'totalTokens',
+  'status',
+  'question',
+  'toolCalls',
+  'answer',
+] as const
+
+export const CHAT_LOG_SHEET_TAB = 'Logs' as const
+// Zero-based row right under the header: newest logs are inserted here
+export const CHAT_LOG_FIRST_DATA_ROW = 1 as number
+export const CHAT_LOG_MAX_TEXT_LENGTH = 5000 as number
+export const CHAT_LOG_TIMEOUT_MS = 8000 as number
+// Vietnamese phone numbers: 0xx or +84xx, with optional space, dot or dash
+export const CHAT_LOG_PHONE_REGEX = /(?<![\p{L}\p{N}.])(?:\+?84|0)(?:[ .-]?\d){8,10}(?![\p{L}\p{N}])/gu
+
+export const GOOGLE_SHEETS_API_URL = 'https://sheets.googleapis.com/v4/spreadsheets' as const
+export const GOOGLE_SHEETS_SCOPE = 'https://www.googleapis.com/auth/spreadsheets' as const
+
 // Streamed text reveal: one step per tick (ms), each step shows pending / divisor chars
 export const CHAT_STREAM_TICK_MS = 30 as number
 export const CHAT_STREAM_CATCH_UP_DIVISOR = 15 as number
