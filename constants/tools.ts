@@ -87,9 +87,9 @@ export const CHAT_LOG_COLUMNS = [
   'answer',
 ] as const
 
-export const CHAT_LOG_SHEET_TAB = 'Logs' as const
-// Zero-based row right under the header: newest logs are inserted here
-export const CHAT_LOG_FIRST_DATA_ROW = 1 as number
+// Anchored to column A: Sheets splits a whole-tab range into "tables" at empty
+// cells, which would make appended rows start in a later column
+export const CHAT_LOG_SHEET_RANGE = 'Logs!A:A' as const
 export const CHAT_LOG_MAX_TEXT_LENGTH = 5000 as number
 export const CHAT_LOG_TIMEOUT_MS = 8000 as number
 // Vietnamese phone numbers: 0xx or +84xx, with optional space, dot or dash

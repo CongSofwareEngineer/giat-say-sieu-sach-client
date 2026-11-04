@@ -1,6 +1,6 @@
 import { after, NextRequest, NextResponse } from 'next/server'
 
-import { insertChatLogRow, isChatLogEnabled } from '@/services/googleSheets'
+import { appendChatLogRow, isChatLogEnabled } from '@/services/googleSheets'
 import { buildChatLogFailureRow, buildChatLogRow, captureStream, readChatLogRequest } from '@/utils/chatLog'
 
 const ALLOWED_ORIGINS = ['https://giatuisieusach.vercel.app', 'http://localhost:3000', 'http://localhost:3001'] as const
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const scheduleLog = (getRow: () => Promise<(string | number)[]>) =>
     after(async () => {
       try {
-        await insertChatLogRow(await getRow())
+        await appendChatLogRow(await getRow())
       } catch (error) {
         console.error('Chat log error:', error)
       }
