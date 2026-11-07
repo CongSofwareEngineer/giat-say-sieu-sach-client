@@ -25,8 +25,11 @@ import { chat } from '@/zustand/chat'
 import { chatStream } from '@/zustand/chatStream'
 import OrderService, { getOrderCode } from '@/services/order'
 import { getMyOrders, ORDER_PHONE_FORM_MARKER, PendingCancelOrder, takePendingCancelOrder } from '@/agents/tools/myOrders'
-import { BOOKING_SOURCE } from '@/constants/app'
-import { CHAT_SCROLL_PIN_THRESHOLD } from '@/constants/tools'
+import ChatMessageService from '@/services/chatMessage'
+import { getChatDeviceId } from '@/utils/chatDevice'
+import { HttpError } from '@/config/baseApi'
+import { BOOKING_SOURCE, HTTP_STATUS } from '@/constants/app'
+import { CHAT_MESSAGE_TYPE, CHAT_SCROLL_PIN_THRESHOLD } from '@/constants/tools'
 import { QUERY_KEYS } from '@/constants/reactQuery'
 import { toast } from '@/utils/toast'
 
@@ -330,6 +333,26 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
 
     addMessage(userMessage)
     setSending(true)
+
+    const deviceId = getChatDeviceId()
+    let isUserSaved = false
+
+    // The backend blocks a user who is too far ahead of the bot replies (spam)
+    try {
+      await ChatMessageService.saveMessage(deviceId, CHAT_MESSAGE_TYPE.USER)
+      isUserSaved = true
+    } catch (error) {
+      if (error instanceof HttpError && error.status === HTTP_STATUS.TOO_MANY_REQUESTS) {
+        removeMessage(userMessage.id)
+        if (!messageText) setInputValue(textToSend)
+        toast({ message: translate('chat.spamBlocked'), type: 'warning' })
+        setSending(false)
+
+        return
+      }
+      // Backend unreachable: keep the chat working without the limit
+    }
+
     // Drop a cancel request left over from a failed turn
     takePendingCancelOrder()
 
@@ -413,6 +436,12 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
       notifyIfClosed()
     } finally {
       end()
+
+      // Every answered turn (also errors and stops) frees the user to send again
+      if (isUserSaved && !chatStream.getState().isDiscarded) {
+        await ChatMessageService.saveMessage(deviceId, CHAT_MESSAGE_TYPE.BOT).catch(() => undefined)
+      }
+
       setSending(false)
     }
   }
@@ -433,6 +462,8 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
     chatStream.getState().discard()
     clearChat()
     setInputValue('')
+    // Clearing also removes this device's history on the backend (resets the spam limit)
+    ChatMessageService.clearMessages(getChatDeviceId()).catch(() => undefined)
   }
 
   const renderChatHeader = () => (

@@ -26,6 +26,12 @@ export const TOOL_NAME = {
 
 export type TOOL_NAME = (typeof TOOL_NAME)[keyof typeof TOOL_NAME]
 
+// Sender of a chat message saved to the backend (spam limit)
+export enum CHAT_MESSAGE_TYPE {
+  USER = 'user',
+  BOT = 'bot',
+}
+
 // Router agent internal tool name used to pick a specialized agent
 export const ROUTER_TOOL_NAME = 'route_to_agent' as const
 

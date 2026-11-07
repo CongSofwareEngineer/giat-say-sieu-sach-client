@@ -1174,6 +1174,7 @@
     "online": "Đang trực tuyến",
     "pressEnterToSend": "Ghi chú: nhấn Enter để gửi",
     "clear": "Xóa hội thoại",
+    "spamBlocked": "Bạn gửi tin nhắn quá nhanh. Vui lòng chờ trợ lý trả lời rồi gửi tiếp.",
     "typing": "Nhân viên đang trả lời...",
     "stop": "Dừng trả lời",
     "status": {

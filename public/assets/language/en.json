@@ -1174,6 +1174,7 @@
     "online": "Online",
     "pressEnterToSend": "Note: press Enter to send",
     "clear": "Clear chat",
+    "spamBlocked": "You are sending messages too fast. Please wait for the assistant to reply before sending again.",
     "typing": "Staff is typing...",
     "stop": "Stop responding",
     "status": {

@@ -178,6 +178,8 @@ export enum LOCAL_STORAGE_KEY {
   fcmFid = 'fcm_fid',
   // Referral code of the last `?ref=` link this device opened, sent when a new account is created
   referralCode = 'referral_code',
+  // Random id of this device, keeps a separate chat history per device (guests included)
+  chatDeviceId = 'chat_device_id',
 }
 
 // Branch list is refetched from the API once the local cache is older than this
