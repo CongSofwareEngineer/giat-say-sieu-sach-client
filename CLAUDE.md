@@ -63,7 +63,7 @@ Cookies.get(COOKIES_KEY.accessToken)
 Docs gom theo **main feature**, KHÔNG theo từng logic nhỏ. Mỗi feature có 2 nơi, cùng tên `<feature>` (kebab-case):
 
 - `docs/instruction/<feature>.md` — **một file / một main feature**, mô tả **hành vi HIỆN TẠI**; mỗi sub-logic là một section trong file đó.
-- `docs/changelog/YYYY-MM-DD_<feature>.md` — **một file / một feature / một ngày**, ghi **lịch sử** thay đổi.
+- `docs/changelog/<feature>.md` — **một file / một main feature** (giống instruction), ghi **lịch sử** thay đổi theo từng ngày.
 
 ### Feature set của project
 
@@ -86,36 +86,31 @@ Docs gom theo **main feature**, KHÔNG theo từng logic nhỏ. Mỗi feature c�
 
 - Trước khi tạo file mới, kiểm tra logic có thuộc một feature **đã có** không — nếu có thì thêm/sửa section trong file đó. Chỉ tạo file mới cho một main feature thật sự mới (hỏi trước — xem rule 4).
 - Sub-logic dùng chung cho 2 feature thì đặt ở feature mà nó thuộc về chính, feature kia link tới section đó.
-- Nếu còn các file cũ kiểu `docs/<feature>/<ngày>-<slug>.md` (một file / một logic nhỏ), gộp chúng vào đúng `instruction/` + `changelog/` của feature rồi xóa file lẻ.
+- Nếu còn các file cũ kiểu `docs/<feature>/<ngày>-<slug>.md` hoặc `docs/changelog/YYYY-MM-DD_<feature>.md` (tách theo ngày), gộp chúng vào đúng `docs/instruction/<feature>.md` + `docs/changelog/<feature>.md` (mỗi ngày một heading) rồi xóa file lẻ.
 
 ### 5.1 Trước khi bắt đầu BẤT KỲ request nào
 - **Đọc `docs/instruction/` trước.** List thư mục và đọc file feature liên quan tới phần sắp đụng tới.
 - Instruction docs outrank your memory. Nếu chưa có doc cho logic đó → nói rõ, và bổ sung khi làm xong (§5.3).
 
-### 5.2 Sau khi thêm/sửa BẤT KỲ logic nào → changelog (ONE file / feature / ngày)
-- Thư mục `docs/changelog/`, tên file `YYYY-MM-DD_<feature>.md` (vd `2026-10-15_booking.md`). `<feature>` phải trùng tên file instruction.
-- **Một feature + một ngày = đúng MỘT file.** Nếu file hôm nay của feature đó đã có → **sửa file đó**, không tạo file thứ hai, không thêm hậu tố `-2` / `-3`. Ngày khác → file mới. **Không sửa file của những ngày trước** (đó là lịch sử).
-- **Tự gộp trùng**: nếu có nhiều file cùng ngày + feature (bị đánh số, hoặc file cũ theo từng logic nhỏ), gộp vào `YYYY-MM-DD_<feature>.md` và xóa phần dư.
-- Ghi **kết quả cuối của ngày**, không phải log từng lần thử; nếu sửa sau đè lên sửa trước trong cùng ngày thì chỉ mô tả hành vi cuối. Gom bullet theo sub-logic.
+### 5.2 Sau khi thêm/sửa BẤT KỲ logic nào → changelog (ONE file / feature)
+- Thư mục `docs/changelog/`, tên file `<feature>.md` (vd `booking.md`) — **trùng tên với file instruction**. Mỗi feature chỉ có **đúng MỘT file changelog**, không tách theo ngày, không thêm ngày vào tên file.
+- Trong file: mỗi ngày là **một heading lớn** `## YYYY-MM-DD`, bên dưới là danh sách bullet các thay đổi + giải thích ngắn. **Ngày mới nhất ở trên cùng.**
+- **Một ngày = một heading duy nhất.** Trong ngày sửa 10 lần thì vẫn chỉ 1 heading ngày đó — thêm bullet vào heading đã có, không tạo heading trùng.
+- Nếu sửa sau đè lên sửa trước trong cùng ngày → sửa lại bullet cũ cho đúng hành vi cuối, không ghi log từng lần thử.
+- **Không sửa nội dung của những ngày trước** (đó là lịch sử).
 - Template (tiếng Việt, ngắn gọn):
 
 ```md
-# <Tên feature>
+# <Tên feature> — Changelog
+> Instruction: docs/instruction/<feature>.md
 
-- Ngày: YYYY-MM-DD
-- Feature: <feature> (→ docs/instruction/<feature>.md)
-- Loại: Added | Changed | Fixed | Removed   (có thể nhiều, vd "Changed, Fixed")
-- File: `path/to/file.ts`, …   (hợp các file đã đụng trong ngày)
-
-## Thay đổi
-- **<Sub-logic A>**: thay đổi gì (mô tả hành vi, không phải diff từng dòng)
+## YYYY-MM-DD
+- **<Sub-logic A>**: thay đổi gì + vì sao (mô tả hành vi, không phải diff từng dòng)
 - **<Sub-logic B>**: …
+- Constants / keys mới: `QUERY_KEYS.xxx`, `common.xxx`   (nếu có)
 
-## Constants / Translation keys mới
-- `QUERY_KEYS.xxx`, `common.xxx`
-
-## Lý do
-- vì sao / bug / ticket cho từng thay đổi
+## YYYY-MM-DD   (ngày cũ hơn)
+- …
 ```
 
 - Dùng ngày hiện tại thật. Làm tự động — không đợi được yêu cầu.
@@ -157,7 +152,7 @@ Before reporting a task as done, verify:
 - [ ] No raw keys/names/values — all via `constants/` or `config/`
 - [ ] Nothing committed or pushed
 - [ ] Every add/delete was confirmed by the user
-- [ ] Docs updated per feature (rule 5): `docs/changelog/YYYY-MM-DD_<feature>.md` + `docs/instruction/<feature>.md`
+- [ ] Docs updated per feature (rule 5): `docs/changelog/<feature>.md` (heading ngày hôm nay) + `docs/instruction/<feature>.md`
 - [ ] `npm run lint` and `npm run build` pass (skill `review`)
 
 ---
@@ -216,7 +211,7 @@ utils/                     # cookie.ts ('use server'), toast, phone, date, loyal
 zustand/                   # stores: user, language, modal, drawer, toast, chat, address
 public/assets/language/    # vn.json, en.json
 docs/instruction/<feature>.md         # current behavior, one file per feature (rule 5)
-docs/changelog/YYYY-MM-DD_<feature>.md # change history, one file per feature per day (rule 5)
+docs/changelog/<feature>.md           # change history, one file per feature, one `## YYYY-MM-DD` heading per day (rule 5)
 scripts/replace-firebase-env.js  # postbuild: injects env into public FCM SW (if present)
 ```
 
