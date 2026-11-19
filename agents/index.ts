@@ -2,6 +2,7 @@ import type { AgentContext, AgentStreamHandlers, ChatResult, AgentMessage } from
 
 import { toConversation } from './base'
 import { runAgent } from './runAgent'
+import { runFastPath } from './fastPath'
 import { getAgent } from './agents'
 import { decideWithJev } from './agents/router'
 
@@ -40,7 +41,27 @@ export const chatAgent = {
 
     const target = getAgent(decision.agent)
 
-    // 2) Run the selected agent, sending only the tool schemas Jev kept
+    // 2) Agents with a fixed reply (out of scope) answer without any LLM call
+    const fixed = typeof target.fixedReply === 'function' ? target.fixedReply(ctx) : target.fixedReply
+
+    if (fixed) {
+      const reply: AgentMessage = { role: 'assistant', content: fixed }
+
+      return { text: fixed, history: [...conversation, reply] }
+    }
+
+    // 3) Requests whose answer is already decided: run that one tool and
+    // return its text, so the turn costs no LLM call either. Not eligible
+    // (null) means the agent runs as usual.
+    const fastText = decision.fastTool ? await runFastPath(decision.fastTool, message, ctx, handlers) : null
+
+    if (fastText) {
+      const reply: AgentMessage = { role: 'assistant', content: fastText }
+
+      return { text: fastText, history: [...conversation, reply] }
+    }
+
+    // 4) Run the selected agent, sending only the tool schemas Jev kept
     const reply = await runAgent(target, conversation, ctx, handlers, decision.toolNames)
 
     return {

@@ -49,12 +49,15 @@ export interface AgentTool extends ToolDefinition {
   execute: (args: Record<string, unknown>, ctx: AgentContext) => Promise<string>
 }
 
-// A specialized agent: system prompt + the subset of tools it may call
+// A specialized agent: system prompt + the subset of tools it may call.
+// `fixedReply` makes the agent answer without any LLM call: the orchestrator
+// returns this text as-is (used by the out-of-scope agent).
 export interface AgentDefinition {
   name: string
   description: string
   systemPrompt: string | ((ctx: AgentContext) => string)
   tools: AgentTool[]
+  fixedReply?: string | ((ctx: AgentContext) => string)
 }
 
 export interface ChatResult {

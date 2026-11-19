@@ -153,3 +153,27 @@ export const TOOL_PICK_NONE = 'none' as const
 // A tool is kept when Jev gives it at least this probability, so a close
 // second tool survives instead of being cut by the single top choice
 export const TOOL_PICK_MIN_PROBABILITY = 0.15 as number
+
+// Fast path: tools whose output is already the final, user-facing answer
+// (text built from the API data through translate()). When Jev picks one of
+// them confidently, the tool runs on its own and its text is the reply, so the
+// turn costs no LLM call. Tools whose result still needs interpreting (FAQ,
+// search, cost estimates) must stay out of this list.
+export const ANSWER_READY_TOOLS: TOOL_NAME[] = [
+  TOOL_NAME.getBranches,
+  TOOL_NAME.getContactInfo,
+  TOOL_NAME.getMyLoyalty,
+  TOOL_NAME.getPromotions,
+  TOOL_NAME.laundry,
+  TOOL_NAME.trackOrder,
+  TOOL_NAME.getMyOrders,
+  TOOL_NAME.cancelMyOrder,
+  TOOL_NAME.getServices,
+  TOOL_NAME.getService,
+  TOOL_NAME.estimateCost,
+]
+
+// Minimum probability Jev must put on the picked tool before the fast path
+// answers without an LLM. Probabilities sum to 1, so above 0.5 only one tool
+// can ever clear it: an unsure or split decision goes through the agent.
+export const FAST_PATH_MIN_PROBABILITY = 0.6 as number

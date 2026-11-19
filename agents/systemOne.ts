@@ -67,6 +67,17 @@ export const askSystemOne = async (
   }
 }
 
+// The top option, but only when Jev put at least `minProbability` on it.
+// Used to decide whether a choice is safe to act on without an LLM; a spread
+// out distribution returns undefined so the caller takes the normal path.
+export const confidentChoice = (answer: ChoiceAnswer | undefined, minProbability: number): string | undefined => {
+  if (!answer?.choice) return undefined
+
+  const probability = answer.probabilities?.[answer.choice] ?? answer.confidence ?? 0
+
+  return probability >= minProbability ? answer.choice : undefined
+}
+
 // Options Jev gave at least `minProbability`, most likely first. Falls back to
 // the top choice when the distribution is flat enough that nothing clears it.
 export const likelyChoices = (answer: ChoiceAnswer | undefined, minProbability: number): string[] => {

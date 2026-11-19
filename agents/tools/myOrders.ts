@@ -54,11 +54,13 @@ const fetchOrdersByPhone = async (phone: string): Promise<PublicOrderItem[]> =>
 export const getMyOrders = async (phone: string | undefined, ctx: AgentContext): Promise<string> => {
   if (ctx.userId) return formatOrderList(await fetchUserOrders())
 
+  // Finished reply + the marker on its own line, so the fast path can answer
+  // with it as-is and the client still renders the phone input
   if (!phone) {
-    return (
-      'The user is not logged in and has not given a phone number. Briefly ask them to enter the phone number they booked with, ' +
-      `then end your reply with the exact marker ${ORDER_PHONE_FORM_MARKER} on its own line so the client shows the phone input.`
-    )
+    return [
+      translate('agent.order.myOrders.askPhone', {}, 'Bạn vui lòng cho mình số điện thoại đã dùng khi đặt lịch để mình tra đơn nhé.'),
+      ORDER_PHONE_FORM_MARKER,
+    ].join('\n')
   }
 
   if (!isValidVnPhone(phone)) return translate('agent.order.myOrders.invalidPhone', {}, 'Số điện thoại không hợp lệ.')
@@ -108,14 +110,18 @@ const findOwnOrderByCode = async (code: string): Promise<OrderItem | undefined> 
   return OrderService.getMyOrder(publicOrder.id).catch(() => undefined)
 }
 
+// Stores the order for the confirm modal and returns the finished reply. The
+// order is only cancelled by the user's click in that modal, never here, so the
+// text must ask for the confirmation and never claim the order is cancelled.
 const requestCancelConfirm = (order: OrderItem): string => {
   const code = getOrderCode(order)
 
   pendingCancelOrder = { id: order.id, code }
 
-  return (
-    `Order #${code} can be cancelled. The client now shows a confirm dialog; the order is only cancelled after the user clicks confirm there. ` +
-    'Briefly tell the user to confirm the cancellation in the dialog. Do not say the order is already cancelled.'
+  return translate(
+    'agent.order.cancel.confirmPrompt',
+    { code },
+    `Mình đã chọn đơn #${code} (đang chờ xác nhận). Bạn bấm xác nhận trong hộp thoại vừa mở để huỷ đơn nhé.`
   )
 }
 

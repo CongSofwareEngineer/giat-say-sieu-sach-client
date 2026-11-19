@@ -104,6 +104,17 @@ export const ORDER_EDITABLE_STATUSES: ORDER_STATUS[] = [ORDER_STATUS.PENDING, OR
 // Customers can only cancel a just-placed order
 export const CANCELLABLE_ORDER_STATUS = ORDER_STATUS.PENDING
 
+// Finds an order code inside a free-text sentence, so the chat can look an
+// order up without asking an LLM to extract it. Server codes are 8 characters
+// from "2-9" + "A-Z" minus the look-alikes O, I and L (see tracking docs), and
+// the optional "#" is captured so a code without it can be required to contain
+// a digit — otherwise an 8-letter word would be read as an order code.
+export const ORDER_CODE_IN_TEXT_REGEX = /(?<![a-z0-9#])(#?)([2-9a-hjkmnp-z]{8})(?![a-z0-9])/i
+
+// Finds an approximate weight in a free-text sentence ("giặt sấy 5kg", "4,5 kg",
+// "3 ký"), so the chat can estimate a cost without asking an LLM to parse it
+export const WEIGHT_KG_IN_TEXT_REGEX = /(\d+(?:[.,]\d+)?)\s*(?:kgs?|kilograms?|kilos?|kilô|ki-?lô|ký)(?![a-z])/i
+
 // Server rejects passwords shorter than this
 export const MIN_PASSWORD_LENGTH = 4 as number
 

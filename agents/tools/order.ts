@@ -41,25 +41,17 @@ export const trackOrderTool: AgentTool = {
   },
   execute: async (args) => {
     const code = normalizeOrderCode(String(args?.orderCode ?? ''))
-    const phone = String(args?.phone ?? '').trim()
 
-    if (!code && phone) {
+    // Without a code there is nothing to look up (a phone number goes through
+    // get_my_orders). Asking for the code beats falling through to "not found".
+    if (!code) {
       return translate('agent.order.track.noCode', {}, 'Vui lòng cung cấp mã đơn hàng để tra cứu. Mã đơn hàng gồm 8 ký tự, dạng #XXXXXXXX.')
     }
 
-    let order: PublicOrderItem | undefined
+    // Public lookup by random code, works with or without login
+    const order: PublicOrderItem | undefined = await OrderService.getOrderByCode(code).catch(() => undefined)
 
-    if (code) {
-      // Public lookup by random code, works with or without login
-      order = await OrderService.getOrderByCode(code).catch(() => undefined)
-    }
-
-    if (!order)
-      return translate(
-        'agent.order.track.notFound',
-        { code: String(args?.orderCode || args?.phone) },
-        `Không tìm thấy đơn hàng nào cho "${args?.orderCode || args?.phone}".`
-      )
+    if (!order) return translate('agent.order.track.notFound', { code }, `Không tìm thấy đơn hàng nào cho "${code}".`)
 
     const serviceNames = order.items?.map((item) => item.categoryName).join(', ') || '—'
 

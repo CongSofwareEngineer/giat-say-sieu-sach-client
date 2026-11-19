@@ -1,6 +1,6 @@
 import type { AgentDefinition, AgentMessage, AgentTool } from '../base'
 
-import { askSystemOne, choiceQuestion, likelyChoices } from '../systemOne'
+import { askSystemOne, choiceQuestion, confidentChoice, likelyChoices } from '../systemOne'
 
 import { fallbackAgent } from './fallback'
 
@@ -8,6 +8,7 @@ import { AGENT_REGISTRY, routableAgents } from './index'
 
 import {
   AGENT_NAME,
+  FAST_PATH_MIN_PROBABILITY,
   ROUTER_TOOL_NAME,
   SYSTEM_ONE_QUESTION_ID,
   SYSTEM_ONE_STATE_MESSAGES,
@@ -109,6 +110,9 @@ export interface RouteDecision {
   agent?: string
   // Tool names the agent may call; undefined = no narrowing, use every tool
   toolNames?: string[]
+  // The one tool Jev is confident about (>= FAST_PATH_MIN_PROBABILITY).
+  // Candidate for the fast path, which answers with no LLM call.
+  fastTool?: string
 }
 
 // What Jev is asked about the conversation. Short on purpose: the whole point
@@ -164,12 +168,18 @@ export const decideWithJev = async (conversation: AgentMessage[], signal?: Abort
 
   if (!answers) return {}
 
+  const toolAnswer = answers[SYSTEM_ONE_QUESTION_ID.pickTool]
+
   // Keep every tool Jev found plausible, not just the top one, so a two-step
   // request (e.g. list orders then cancel) still has what it needs.
-  const toolNames = likelyChoices(answers[SYSTEM_ONE_QUESTION_ID.pickTool], TOOL_PICK_MIN_PROBABILITY).filter((name) => name !== TOOL_PICK_NONE)
+  const toolNames = likelyChoices(toolAnswer, TOOL_PICK_MIN_PROBABILITY).filter((name) => name !== TOOL_PICK_NONE)
+
+  // A single clear winner may be able to answer on its own (see agents/fastPath)
+  const fastTool = confidentChoice(toolAnswer, FAST_PATH_MIN_PROBABILITY)
 
   return {
     agent: answers[SYSTEM_ONE_QUESTION_ID.routeAgent]?.choice,
     toolNames,
+    fastTool: fastTool === TOOL_PICK_NONE ? undefined : fastTool,
   }
 }

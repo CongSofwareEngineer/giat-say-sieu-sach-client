@@ -1289,7 +1289,8 @@
         "header": "{count} đơn gần nhất của bạn:",
         "item": "**Đơn #{code}**\nTình trạng: **{status}**\nDịch vụ: {services}\nTổng tiền: {price}đ · Ngày đặt: {date}",
         "empty": "Không tìm thấy đơn hàng nào. Vui lòng kiểm tra lại số điện thoại đã dùng khi đặt lịch.",
-        "invalidPhone": "Số điện thoại không hợp lệ."
+        "invalidPhone": "Số điện thoại không hợp lệ.",
+      "askPhone": "Bạn vui lòng cho mình số điện thoại đã dùng khi đặt lịch để mình tra đơn nhé."
       },
       "cancel": {
         "requireLogin": "Bạn cần đăng nhập để huỷ đơn qua chat. Nếu đã đặt lịch mà không đăng nhập, vui lòng gọi hotline để được hỗ trợ.",
@@ -1298,7 +1299,8 @@
         "noPending": "Bạn không có đơn nào đang chờ xác nhận để huỷ.",
         "pickOne": "Bạn có {count} đơn đang chờ xác nhận, bạn muốn huỷ đơn nào?",
         "pickItem": "- #{code} · {date} · {price}đ",
-        "cancelled": "Đã huỷ đơn #{code}."
+        "cancelled": "Đã huỷ đơn #{code}.",
+      "confirmPrompt": "Mình đã chọn đơn #{code} (đang chờ xác nhận). Bạn bấm xác nhận trong hộp thoại vừa mở để huỷ đơn nhé."
       }
     },
     "loyalty": {
@@ -1311,8 +1313,29 @@
       "requireLogin": "Bạn cần đăng nhập để xem địa chỉ đã lưu.",
       "item": "{index}. {address} ({phone})"
     },
+    "price": {
+      "listHeader": "Bảng giá dịch vụ hiện tại:",
+      "item": "- **{name}**: {price}",
+      "unitPrice": "{price}/{unit}",
+      "serviceLine": "**{name}**: {price}",
+      "serviceNotFound": "Mình chưa rõ bạn hỏi dịch vụ nào. Đây là bảng giá hiện tại:",
+      "estimate": "Ước tính cho **{name}** với {weight}kg là **{total}**. Giá cuối tính theo khối lượng cân thực tế khi shipper nhận đồ.",
+      "invalidWeight": "Bạn cho mình biết khối lượng (kg) để mình ước tính giúp nhé.",
+      "empty": "Hiện chưa có dịch vụ nào trong bảng giá."
+    },
+    "promotion": {
+      "empty": "Hiện tại chưa có chương trình khuyến mãi nào.",
+      "item": "- **{name}**{discount}{code}: {description}",
+      "discount": " (giảm {amount})",
+      "code": " [mã {code}]",
+      "noDescription": "Không có mô tả"
+    },
+    "laundry": {
+      "formOpening": "Dạ, mình mở form đặt lịch giặt cho bạn ngay đây, bạn điền thông tin bên dưới nhé."
+    },
     "fallback": {
-      "message": "I could not finish that request. Please try again."
+      "message": "I could not finish that request. Please try again.",
+      "outOfScope": "Dạ, mình là trợ lý của Giặt Ủi Siêu Sạch. Mình hỗ trợ: bảng giá & dịch vụ, khuyến mãi, đặt lịch giặt, tra cứu / huỷ đơn, chi nhánh & liên hệ, điểm tích luỹ.\n\nNội dung khác nằm ngoài phạm vi của mình, bạn vui lòng hỏi một trong các mục trên nhé."
     },
     "run": {
       "toolNotAvailable": "Công cụ không khả dụng.",

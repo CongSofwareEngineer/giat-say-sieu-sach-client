@@ -1289,7 +1289,8 @@
         "header": "Your {count} most recent orders:",
         "item": "**Order #{code}**\nStatus: **{status}**\nServices: {services}\nTotal: {price}đ · Created: {date}",
         "empty": "No orders found. Please check the phone number you booked with.",
-        "invalidPhone": "Invalid phone number."
+        "invalidPhone": "Invalid phone number.",
+      "askPhone": "Please give me the phone number you booked with so I can look your orders up."
       },
       "cancel": {
         "requireLogin": "Please log in to cancel an order in chat. If you booked without logging in, please call our hotline for help.",
@@ -1298,7 +1299,8 @@
         "noPending": "You have no orders waiting for confirmation to cancel.",
         "pickOne": "You have {count} orders waiting for confirmation. Which one do you want to cancel?",
         "pickItem": "- #{code} · {date} · {price}đ",
-        "cancelled": "Order #{code} has been cancelled."
+        "cancelled": "Order #{code} has been cancelled.",
+      "confirmPrompt": "I found order #{code} (waiting for confirmation). Please confirm in the dialog that just opened to cancel it."
       }
     },
     "loyalty": {
@@ -1311,8 +1313,29 @@
       "requireLogin": "Please log in to see your saved addresses.",
       "item": "{index}. {address} ({phone})"
     },
+    "price": {
+      "listHeader": "Current service price list:",
+      "item": "- **{name}**: {price}",
+      "unitPrice": "{price}/{unit}",
+      "serviceLine": "**{name}**: {price}",
+      "serviceNotFound": "I am not sure which service you mean. Here is the current price list:",
+      "estimate": "An estimate for **{name}** at {weight}kg is **{total}**. The final price follows the weight measured when the driver picks the laundry up.",
+      "invalidWeight": "Could you tell me the weight in kg so I can estimate it for you?",
+      "empty": "There are no services in the price list yet."
+    },
+    "promotion": {
+      "empty": "There is no promotion running at the moment.",
+      "item": "- **{name}**{discount}{code}: {description}",
+      "discount": " (save {amount})",
+      "code": " [code {code}]",
+      "noDescription": "No description"
+    },
+    "laundry": {
+      "formOpening": "Sure, I am opening the booking form for you. Please fill in the details below."
+    },
     "fallback": {
-      "message": "I could not finish that request. Please try again."
+      "message": "I could not finish that request. Please try again.",
+      "outOfScope": "Hi, I am the Giặt Ủi Siêu Sạch assistant. I can help with: services & prices, promotions, booking a pickup, tracking / cancelling an order, branches & contact, loyalty points.\n\nAnything else is outside my scope, please ask about one of the topics above."
     },
     "run": {
       "toolNotAvailable": "Tool is not available.",

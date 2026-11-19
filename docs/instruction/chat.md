@@ -2,7 +2,7 @@
 > Cập nhật: 2026-11-19
 
 ## Tổng quan
-Chat nổi là trợ lý đa agent; chỉ lời gọi LLM rời trình duyệt (qua `/api/chat-agent/chat/completions`), còn tool chạy client-side với `AgentContext` (`locale`, `userId`). Sub-logic: (1) Đặt lịch giặt không cần login, (2) Tra cứu đơn theo SĐT / mã đơn, (3) Form chọn Tỉnh/Xã qua LocationApi, (4) Định dạng danh sách đơn, (5) Địa chỉ cửa hàng / địa chỉ đã lưu, (6) Huỷ đơn qua chat, (7) Điểm tích lũy & hạng, (8) Định tuyến & chọn tool bằng Jev (System One), (9) Streaming câu trả lời, (10) Chuẩn hóa tool call, (11) Log token & câu hỏi lên Google Sheets, (12) Giới hạn chat (3 tin chờ / 10 tin mỗi giờ), (13) Ngôn ngữ trả lời. Form đặt lịch dùng chung với trang `/booking` — xem `docs/instruction/booking.md`.
+Chat nổi là trợ lý đa agent; chỉ lời gọi LLM rời trình duyệt (qua `/api/chat-agent/chat/completions`), còn tool chạy client-side với `AgentContext` (`locale`, `userId`). Sub-logic: (1) Đặt lịch giặt không cần login, (2) Tra cứu đơn theo SĐT / mã đơn, (3) Form chọn Tỉnh/Xã qua LocationApi, (4) Định dạng danh sách đơn, (5) Địa chỉ cửa hàng / địa chỉ đã lưu, (6) Huỷ đơn qua chat, (7) Điểm tích lũy & hạng, (8) Định tuyến & chọn tool bằng Jev (System One), (9) Streaming câu trả lời, (10) Chuẩn hóa tool call, (11) Log token & câu hỏi lên Google Sheets, (12) Giới hạn chat (3 tin chờ / 10 tin mỗi giờ), (13) Ngôn ngữ trả lời, (14) Câu trả lời cố định (không gọi LLM), (15) Fast path: tool tự trả lời. Form đặt lịch dùng chung với trang `/booking` — xem `docs/instruction/booking.md`.
 
 ## Dùng chung
 - `agents/index.ts` (Jev quyết định agent + tool → `runAgent`), `agents/runAgent.ts` (tool loop, `MAX_TOOL_ROUNDS = 6`, lọc tool schema), `agents/llm.ts` (`callLlm` non-stream, `streamLlm` SSE — xem §9), `agents/systemOne.ts` (client Jev), `agents/base.ts`.
@@ -262,6 +262,97 @@ Trả lời khách bằng đúng ngôn ngữ khách đang nhắn, không tốn t
 ### Edge cases
 - Khách đổi ngôn ngữ website nhưng vẫn nhắn tiếng Việt → model trả lời tiếng Việt (theo tin nhắn, không theo `locale`).
 - Nội dung do tool trả về (danh sách đơn, điểm, địa chỉ...) vẫn dịch theo `locale` qua `translate()` trong từng tool, không đổi.
+
+## 14. Câu trả lời cố định (không gọi LLM)
+### Mục đích
+Chatbox chỉ phục vụ một tập vai trò cố định (bảng giá & dịch vụ, khuyến mãi, FAQ, đặt lịch, tra cứu / huỷ đơn, chi nhánh & liên hệ, điểm tích luỹ, địa chỉ đã lưu). Những tin nhắn mà câu trả lời đã xác định sẵn thì trả về text cố định, không tốn một lời gọi LLM nào — nhanh hơn, rẻ hơn, và câu từ luôn đồng nhất.
+### Entry points
+- `AgentDefinition.fixedReply` (`agents/base.ts`): `string | ((ctx) => string)`. Agent nào khai báo field này thì `chatAgent.chat` trả thẳng text đó.
+- `agents/index.ts` — sau khi Jev chọn agent, kiểm tra `target.fixedReply` trước khi gọi `runAgent`.
+- `agents/agents/fallback.ts` — agent `fallback` khai báo `fixedReply: () => translate('agent.fallback.outOfScope')`.
+### Luồng xử lý
+1. `decideWithJev` trả agent. Jev lỗi / timeout / tên agent lạ → `getAgent()` cũng cho ra `fallback`.
+2. `fallback` có `fixedReply` → `chat()` trả `{ text, history }` ngay, **không** gọi `runAgent`, không gọi LLM, không chạy tool.
+3. `components/Chat/index.tsx` không cần sửa: câu trả lời không stream vẫn được `smoother.setTarget(cleanText)` hiển thị dần như cũ.
+### Translation / Constants
+- `agent.fallback.outOfScope` — một câu duy nhất vừa chào, vừa liệt kê vai trò, vừa mời khách hỏi lại đúng phạm vi (dùng chung cho lời chào, cảm ơn, small talk và off-topic).
+- `fixedReply` phải là **hàm**, không phải string hằng: `translate()` đọc store ngôn ngữ lúc chạy, gán ở module scope sẽ khoá cứng ngôn ngữ lúc import.
+### Edge cases
+- Lời chào ("Chào bạn") và off-topic ("1+1 bằng mấy") dùng chung một câu — chấp nhận đánh đổi để chỉ có một key và không bao giờ tốn LLM. Muốn tách thì thêm option cho câu hỏi `route_agent` của Jev.
+- Yêu cầu đổi vai trò / prompt injection cũng route về `fallback` (xem §8) → cũng nhận câu cố định này, model không có cơ hội trả lời.
+- `systemPrompt` của `fallback` vẫn giữ để bật lại luồng LLM nếu cần; `agent.fallback.message` là key khác (lỗi khi tool loop quá `MAX_TOOL_ROUNDS`), không liên quan.
+
+## 15. Fast path — tool tự trả lời, không gọi LLM
+### Mục đích
+Với những câu hỏi mà câu trả lời đã xác định sẵn (chỉ là map data API vào một câu cố định), chạy đúng một tool rồi trả thẳng output của nó làm câu trả lời. Một lượt chat như vậy chỉ còn **1 request Jev**, không có chat completion nào. Trước đây LLM chỉ làm việc chép lại output của tool (prompt agent còn phải dặn "hiển thị nguyên văn"), nên vòng gọi đó vừa tốn tiền vừa có rủi ro model sửa số / đổi format.
+
+### Entry points
+- `agents/fastPath.ts` — `runFastPath(toolName, ctx, handlers)`: trả về text câu trả lời, hoặc `null` nghĩa là "không đủ điều kiện, chạy agent như cũ".
+- `agents/index.ts` — gọi `runFastPath` sau bước `fixedReply` (§14) và trước `runAgent`.
+- `agents/systemOne.ts` — `confidentChoice(answer, min)`: lấy `choice` top **chỉ khi** xác suất của nó >= `min`.
+- `agents/agents/router.ts` — `RouteDecision.fastTool`: tool Jev chắc chắn nhất, `undefined` nếu phân phối phân tán hoặc Jev chọn `none`.
+
+### Luồng xử lý
+1. Jev trả về phân phối xác suất cho câu `pick_tool` (§8). `confidentChoice` lấy tool top nếu xác suất >= `FAST_PATH_MIN_PROBABILITY` (0.6). Vì tổng xác suất = 1 nên trên 0.5 chỉ có tối đa **một** tool đạt ngưỡng → điều kiện "đúng 1 tool và chắc chắn" tự thoả mãn.
+2. `runFastPath` kiểm tra tool có nằm trong `ANSWER_READY_TOOLS` không. Không → `null`.
+3. Tìm tool trong **toàn bộ** `AGENT_REGISTRY`, không chỉ agent được route: `pick_tool` chọn trên union tool toàn cục nên tool có thể không thuộc agent đó.
+4. Gọi `handlers.onToolCall(name)` → UI vẫn hiện nhãn trạng thái (`TOOL_STATUS_KEY`) y như luồng tool loop.
+5. `tool.execute({}, ctx)` → output trim; rỗng → `null`.
+6. `chatAgent.chat` trả `{ text, history }`, assistant message được thêm vào history như một câu trả lời bình thường.
+
+### Tool đang chạy fast path
+`ANSWER_READY_TOOLS` (`constants/tools.ts`):
+
+| Tool | Câu trả lời lấy từ | Ghi chú |
+|---|---|---|
+| `get_branches` | `agent.order.branch.*` + `GET /branches` | §5 |
+| `get_contact_info` | `agent.order.contact.summary` + `INFO_CONTACT` + `GET /branches` | §5 |
+| `get_my_loyalty` | `agent.loyalty.*` + `profile.loyalty.*` + `GET /users/me` | §7; chưa login → `requireLogin` |
+| `get_promotions` | `agent.promotion.*` + `GET /promotions` | §4 của `promotion.md` |
+| `open_laundry_form` | `agent.laundry.formOpening` + `[LAUNDRY_FORM]` | §1 |
+| `track_order` | `agent.order.track.*` + `GET /laundry-orders/lookup/:code` | §2; cần mã đơn |
+| `get_my_orders` | `agent.order.myOrders.*` | §2, §4; guest cần SĐT |
+| `cancel_my_order` | `agent.order.cancel.*` | §6; khách vẫn phải xác nhận trong modal |
+| `get_services` | `agent.price.{listHeader,item,unitPrice,empty}` + `GET /laundry-categories` | bảng giá đầy đủ |
+| `get_service` | `agent.price.serviceLine` | khớp tên dịch vụ trong câu |
+| `estimate_cost` | `agent.price.estimate` | cần khối lượng kg |
+
+Tool **không** cho vào whitelist: `get_faq` / `search` (output còn cần model chọn & rút gọn — xem đề xuất ở §5 của plan), `get_my_addresses` (hiếm, giữ LLM).
+
+### Tham số tool (regex, không dùng LLM)
+Jev chỉ quyết định **tool nào** chạy, không trả tham số. Ba tool cần tham số thì đọc thẳng từ tin nhắn bằng regex trong `agents/fastPath.ts` — chính xác hơn và rẻ hơn việc nhờ LLM copy mã ra khỏi câu:
+
+| Tool | Tham số | Cách lấy | Không tìm thấy |
+|---|---|---|---|
+| `track_order` | `orderCode` | `ORDER_CODE_IN_TEXT_REGEX` (`constants/app.ts`) | trả `null` → agent + LLM hỏi lại trong ngữ cảnh |
+| `get_my_orders` | `phone` (chỉ guest) | `CHAT_LOG_PHONE_REGEX` + `isValidVnPhone` + `normalizeVnPhone` | `{}` → tool hỏi SĐT + bật `OrderPhoneForm` |
+| `cancel_my_order` | `orderCode` (tuỳ chọn) | như `track_order` | `{}` → tool liệt kê đơn `PENDING` để khách chọn |
+| `get_service` | `key` | truyền **cả tin nhắn**, tool tự khớp tên dịch vụ | tool trả bảng giá đầy đủ |
+| `estimate_cost` | `serviceName`, `weightKg` | `serviceName` = cả tin nhắn; `weightKg` từ `WEIGHT_KG_IN_TEXT_REGEX` | thiếu kg → `null` → agent hỏi lại |
+
+- `ORDER_CODE_IN_TEXT_REGEX`: mã đơn 8 ký tự thuộc bảng `2-9` + `A-Z` trừ `O I L` (xem `tracking.md` §1). `#` được capture riêng: **không có `#` thì mã phải chứa ít nhất một chữ số**, nếu không một từ 8 chữ cái (`abcdefgh`) sẽ bị đọc thành mã đơn.
+- `CHAT_LOG_PHONE_REGEX` (`constants/tools.ts`) dùng chung với phần ẩn SĐT trong log (§11) — cùng một pattern "SĐT Việt Nam trong câu tự do", không tách thành 2 constant. Tên key vẫn mang tiền tố `CHAT_LOG_` vì lịch sử.
+- `WEIGHT_KG_IN_TEXT_REGEX` (`constants/app.ts`): nhận `5kg`, `4,5 kg`, `3 ký`, `10 KGS`, `2.5kilo`; dấu phẩy thập phân được đổi sang dấu chấm trước khi `Number()`.
+- `get_service` / `estimate_cost` **không cần** regex riêng cho tên dịch vụ: `findPlan` (`agents/tools/price.ts`) so sánh **slug** (`utils/slugify`) nên khớp được cả tên dịch vụ model truyền vào ("Giặt sấy") lẫn cả câu của khách ("giat say 5kg bao nhieu" — không dấu vẫn khớp). Nhiều dịch vụ trong một câu → lấy dịch vụ được nhắc **trước nhất**.
+
+### Translation / Constants
+- `ANSWER_READY_TOOLS` (`constants/tools.ts`) — whitelist tool mà output **đã là câu trả lời cuối cho user**. Tool nào output còn cần model đọc/gộp/rút gọn thì **không** được cho vào.
+- `FAST_PATH_MIN_PROBABILITY` (0.6) — ngưỡng chắc chắn của Jev.
+- Text câu trả lời nằm trong chính tool, qua `translate()` (`agent.*`), nên fast path tự động đúng ngôn ngữ.
+- `agent.promotion.{empty,item,discount,code,noDescription}` — trước đây `promotion.ts` hardcode tiếng Việt trong code, nên user chọn EN vẫn ra tiếng Việt.
+- `agent.laundry.formOpening` — câu mở form. Output của `open_laundry_form` giờ là **câu trả lời hoàn chỉnh + marker trên dòng riêng** thay vì chỉ thị cho LLM, nên fast path dùng được; prompt agent `recommend` đổi sang "output its result exactly as-is, keeping the marker line unchanged".
+- `agent.order.myOrders.askPhone` + `agent.order.cancel.confirmPrompt` — hai nhánh còn lại từng trả **chỉ thị cho LLM** thay vì câu cho khách (guest chưa có SĐT; đã chọn được đơn cần huỷ). Giờ là câu hoàn chỉnh, nên fast path dùng được; prompt `recommend` đổi sang relay nguyên văn.
+- Nguyên tắc: tool nằm trong `ANSWER_READY_TOOLS` thì **mọi nhánh** output của nó phải là câu nói được với khách, kể cả nhánh lỗi / thiếu dữ liệu. Không được còn câu kiểu "Briefly tell the user to…".
+- `agent.price.*` — 3 tool giá trước đây hardcode tiếng Việt toàn bộ (`Bảng giá dịch vụ:`, `Không tìm thấy dịch vụ "..."`, `Ước tính cho ... là ...đ.`).
+- Không tìm thấy dịch vụ (`get_service` / `estimate_cost`) → trả **bảng giá đầy đủ** kèm `agent.price.serviceNotFound`, thay vì nhắc lại nguyên văn câu khách hỏi. Quan trọng với fast path: tham số truyền vào là cả tin nhắn, nếu echo lại sẽ ra câu vô nghĩa kiểu `Không tìm thấy dịch vụ "giặt sấy 5kg bao nhiêu"`.
+
+### Edge cases
+- Tin mơ hồ / nhiều ý → không tool nào đạt 0.6 → `fastTool` rỗng → chạy agent + LLM như cũ. Không mất chức năng nào.
+- Jev chọn `get_services` cho câu có kèm khối lượng ("giặt sấy 5kg bao nhiêu") → khách nhận bảng giá chứ không nhận phép tính. Vẫn là câu trả lời đúng, nhưng nếu gặp nhiều thì cân nhắc làm rõ `description` của `estimate_cost` để Jev phân biệt.
+- Tool throw (API chết) → `runFastPath` trả `null` → agent chạy lại tool đó và báo lỗi cho user bằng `agent.run.toolError`. Tool chạy 2 lần trong case lỗi này, chấp nhận được vì tool trong whitelist đều là read-only.
+- User bấm stop: `signal.throwIfAborted()` trước và sau khi chạy tool; abort được throw ra ngoài cho `handleSend` xử lý, không biến thành câu trả lời.
+- Agent route về `fallback` thì `fixedReply` (§14) thắng, fast path không chạy — quyết định phạm vi là cửa gác, giống hành vi cũ (trước đây cũng ra câu "chỉ hỗ trợ dịch vụ giặt").
+- Câu trả lời fast path **không stream** (không có `onText`); `components/Chat` vẫn hiện dần qua `smoother.setTarget` nên UI không đổi.
 
 ## Liên quan
 - `docs/instruction/booking.md` (form dùng chung), `docs/instruction/order.md` (tạo đơn, giá, điểm, huỷ đơn), `docs/instruction/tracking.md` (tra cứu trang /track-order), `docs/instruction/profile.md` §1 (hạng & điểm).
