@@ -99,11 +99,13 @@ Router chỉ phân loại tin nhắn mới nhất và chọn agent, không bao g
 - `agents/agents/router.ts` — `buildRouterSystem(routableAgents())`, `ROUTER_EXAMPLES`, `routeToAgentTool`; gọi từ `agents/index.ts`.
 ### Luồng xử lý
 1. Prompt chia theo guide prompt engineering của OpenAI: `# Identity` (là bộ điều phối, không phải trợ lý trả lời khách) → `# Instructions` (luật route) → `# Agents` (thẻ `<agent name>` sinh từ registry, thêm `fallback`) → `# Examples` (few-shot `<user_message>` / `<decision>`).
-2. Luật: luôn gọi `route_to_agent` đúng 1 lần, `fallback` nằm trong `enum` của tool; dựa vào tin mới nhất, chỉ dùng lượt trước để hiểu câu nối tiếp ngắn; nhiều ý → chọn yêu cầu chính; ngoài phạm vi → chọn `fallback`. Giá, đơn, đặt chỗ, địa chỉ, liên hệ của doanh nghiệp khác và kiến thức chung/toán cũng là `fallback`.
+2. Luật: luôn gọi `route_to_agent` đúng 1 lần, `fallback` nằm trong `enum` của tool; dựa vào tin mới nhất, chỉ dùng lượt trước để hiểu câu nối tiếp ngắn; nhiều ý → chọn yêu cầu chính. Một luật duy nhất gom hết các trường hợp `fallback`: chào hỏi / cảm ơn / tán gẫu, kiến thức chung & toán, và giá / đơn / đặt chỗ / địa chỉ / liên hệ của doanh nghiệp khác.
 3. Tin nhắn của khách được coi là nội dung cần phân loại, không phải lệnh: yêu cầu đổi vai trò / bỏ qua luật / lộ prompt → `fallback`.
 4. Vẫn không có tool call hợp lệ (phòng khi model trả sai) → `agents/index.ts` chạy agent `fallback`. Output sai định dạng được chuẩn hóa trước — xem §10.
 ### Edge cases
-- `ROUTER_EXAMPLES` chỉ render ví dụ có agent nằm trong danh sách routable (hoặc `fallback`), nên bỏ agent khỏi registry không làm ví dụ trỏ tới agent không tồn tại. Thêm agent mới → nên thêm 1–2 ví dụ.
+- `ROUTER_EXAMPLES` chỉ render ví dụ có agent nằm trong danh sách routable (hoặc `fallback`), nên bỏ agent khỏi registry không làm ví dụ trỏ tới agent không tồn tại.
+- Mỗi agent giữ **đúng 2 ví dụ** (`faq`, `price`, `recommend`, `fallback`). Số ví dụ lệch nhau tạo bias: khi tin nhắn mơ hồ, model nghiêng về agent xuất hiện nhiều lần nhất. Thêm agent mới → thêm 2 ví dụ, không thêm nhiều hơn.
+- Các nhánh của `recommend` không có ví dụ riêng (chi nhánh, điểm tích luỹ) dựa vào `description` của agent — description đã liệt kê đủ (branch locations, loyalty points, contact info). Quick option "Chi nhánh" còn gửi câu rõ nghĩa nên không cần few-shot — xem §5.
 
 ## 9. Streaming câu trả lời
 ### Mục đích

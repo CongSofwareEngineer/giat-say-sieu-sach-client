@@ -2,6 +2,8 @@
 > Instruction: docs/instruction/chat.md
 
 ## 2026-11-19
+- **Router prompt**: gộp 3 bullet về `fallback` trong `# Instructions` thành 1 (3 bullet cùng kết luận `fallback` làm model bị phân tán); giữ riêng luật chống prompt injection.
+- **Router few-shot**: cân lại `ROUTER_EXAMPLES` còn 2 ví dụ / agent (trước đó `recommend` 4, `fallback` 3) để tin nhắn mơ hồ không bị nghiêng về `recommend`. Bỏ 3 ví dụ "Cửa hàng ở đâu vậy?", "Mình còn bao nhiêu điểm?", "Viết giúp mình bài thơ về mùa thu" — các case này đã được `description` của agent và luật `fallback` cover.
 - **Giới hạn chat**: đổi từ "tối đa 2 tin chưa trả lời" sang 2 luật trong cửa sổ trượt 1 giờ: tối đa 3 tin chưa được trả lời và tối đa 10 tin. Đã login thì tính theo tài khoản (gửi token), chưa login thì theo `deviceId`.
 - **Toast khi bị chặn**: hiện lý do và số phút phải chờ, đọc từ body 429 (`reason`, `retryAfterSeconds`).
 - **Xoá hội thoại**: chỉ xoá ở client, không còn gọi `DELETE /chat-messages/:deviceId` (bỏ `ChatMessageService.clearMessages`).
