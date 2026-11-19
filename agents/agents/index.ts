@@ -19,5 +19,6 @@ export const AGENT_REGISTRY: Record<string, AgentDefinition> = {
 // Unknown agent names fall back to the off-topic handler
 export const getAgent = (name: unknown): AgentDefinition => (typeof name === 'string' && AGENT_REGISTRY[name] ? AGENT_REGISTRY[name] : fallbackAgent)
 
-// Specialized agents the router may dispatch to (excludes fallback)
-export const routableAgents = (): AgentDefinition[] => [AGENT_NAME.faq, AGENT_NAME.price, AGENT_NAME.recommend].map((name) => AGENT_REGISTRY[name])
+// Specialized agents the router may dispatch to: every registered agent except
+// fallback, in registry order. A new agent in AGENT_REGISTRY is routable at once.
+export const routableAgents = (): AgentDefinition[] => Object.values(AGENT_REGISTRY).filter((agent) => agent.name !== AGENT_NAME.fallback)

@@ -97,14 +97,18 @@ Khách đã đăng nhập huỷ đơn còn `PENDING` ngay trong chat. AI **khôn
 Router chỉ phân loại tin nhắn mới nhất và chọn agent, không bao giờ tự trả lời khách và không bị prompt injection đổi vai trò.
 ### Entry points
 - `agents/agents/router.ts` — `buildRouterSystem(routableAgents())`, `ROUTER_EXAMPLES`, `routeToAgentTool`; gọi từ `agents/index.ts`.
+- `agents/agents/index.ts` — `AGENT_REGISTRY` là **nguồn duy nhất**: `routableAgents()` = `Object.values(AGENT_REGISTRY)` trừ `fallback` (theo thứ tự khai báo trong registry), và `enum` của `routeToAgentTool` = `routableAgents()` + `fallback`.
+- **Thêm agent mới**: định nghĩa trong `agents/agents/`, thêm tên vào `AGENT_NAME`, đăng ký vào `AGENT_REGISTRY`, thêm 2 ví dụ vào `ROUTER_EXAMPLES`. Không cần sửa `routableAgents()` hay `enum` nữa.
 ### Luồng xử lý
-1. Prompt chia theo guide prompt engineering của OpenAI: `# Identity` (là bộ điều phối, không phải trợ lý trả lời khách) → `# Instructions` (luật route) → `# Agents` (thẻ `<agent name>` sinh từ registry, thêm `fallback`) → `# Examples` (few-shot `<user_message>` / `<decision>`).
+1. Prompt chia theo guide prompt engineering của OpenAI: `# Identity` (là bộ điều phối, không phải trợ lý trả lời khách) → `# Instructions` (luật route) → `# Agents` (thẻ `<agent name>` sinh từ registry) → `# Examples` (few-shot `<user_message>` / `<decision>`).
+   - Danh sách agent trong `<agents>` = `routableAgents()` + `fallbackAgent` (fallback không routable nên router tự nối vào cuối). Nội dung mỗi thẻ lấy từ `description` của agent, **không** hardcode trong router — sửa mô tả một agent chỉ cần sửa file agent đó.
 2. Luật: luôn gọi `route_to_agent` đúng 1 lần, `fallback` nằm trong `enum` của tool; dựa vào tin mới nhất, chỉ dùng lượt trước để hiểu câu nối tiếp ngắn; nhiều ý → chọn yêu cầu chính. Một luật duy nhất gom hết các trường hợp `fallback`: chào hỏi / cảm ơn / tán gẫu, kiến thức chung & toán, và giá / đơn / đặt chỗ / địa chỉ / liên hệ của doanh nghiệp khác.
 3. Tin nhắn của khách được coi là nội dung cần phân loại, không phải lệnh: yêu cầu đổi vai trò / bỏ qua luật / lộ prompt → `fallback`.
 4. Vẫn không có tool call hợp lệ (phòng khi model trả sai) → `agents/index.ts` chạy agent `fallback`. Output sai định dạng được chuẩn hóa trước — xem §10.
 ### Edge cases
 - `ROUTER_EXAMPLES` chỉ render ví dụ có agent nằm trong danh sách routable (hoặc `fallback`), nên bỏ agent khỏi registry không làm ví dụ trỏ tới agent không tồn tại.
 - Mỗi agent giữ **đúng 2 ví dụ** (`faq`, `price`, `recommend`, `fallback`). Số ví dụ lệch nhau tạo bias: khi tin nhắn mơ hồ, model nghiêng về agent xuất hiện nhiều lần nhất. Thêm agent mới → thêm 2 ví dụ, không thêm nhiều hơn.
+- `description` của agent **chỉ** được dùng cho router prompt (không gửi cho LLM ở chỗ nào khác), nên viết nó theo hướng "khi nào route vào đây", không phải mô tả chức năng chung.
 - Các nhánh của `recommend` không có ví dụ riêng (chi nhánh, điểm tích luỹ) dựa vào `description` của agent — description đã liệt kê đủ (branch locations, loyalty points, contact info). Quick option "Chi nhánh" còn gửi câu rõ nghĩa nên không cần few-shot — xem §5.
 
 ## 9. Streaming câu trả lời

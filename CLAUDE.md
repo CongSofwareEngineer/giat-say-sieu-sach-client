@@ -239,7 +239,7 @@ scripts/replace-firebase-env.js  # postbuild: injects env into public FCM SW (if
 
 ### AI chat agents
 - Only the LLM call leaves the browser (via `/api/chat-agent/chat/completions`); tools run client-side with `AgentContext` (`locale`, `userId`).
-- Add an agent: define it in `agents/agents/`, add its name to `AGENT_NAME` (`constants/tools.ts`), register it in `AGENT_REGISTRY` and `routableAgents()` (`agents/agents/index.ts`), and add it to the `enum` of `routeToAgentTool` (`agents/agents/router.ts`).
+- Add an agent: define it in `agents/agents/`, add its name to `AGENT_NAME` (`constants/tools.ts`), and register it in `AGENT_REGISTRY` (`agents/agents/index.ts`). `routableAgents()` and the `enum` of `routeToAgentTool` derive from the registry, so nothing else to touch; add 2 examples to `ROUTER_EXAMPLES` (`agents/agents/router.ts`) so routing has few-shot coverage.
 - Add a tool: implement it in `agents/tools/`, name it in `TOOL_NAME`, attach it to the agent(s) that may call it.
 - Model: `NEXT_PUBLIC_AGENT_MODEL` (client) — the proxy forwards it; key/URL stay server-side.
 
