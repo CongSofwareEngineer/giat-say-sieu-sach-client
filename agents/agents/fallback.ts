@@ -1,6 +1,7 @@
 import type { AgentDefinition } from '../base'
 
-import { answerInLanguageTool } from '../tools'
+// Language check tool disabled: the model replies in the user's own language by itself
+// import { answerInLanguageTool } from '../tools'
 
 import { AGENT_NAME } from '@/constants/tools'
 
@@ -13,6 +14,6 @@ export const fallbackAgent: AgentDefinition = {
 The user's message does not match any specialized topic (FAQ, pricing, orders).
 Be polite: greet or thank them, briefly explain you can only help with laundry service questions (services and prices, promotions, FAQ, order tracking, contact), and invite them to ask about those.
 Keep it short and natural.
-Reply in the user's language (use answer_in_language if unsure).`,
-  tools: [answerInLanguageTool],
+Reply in the same language as the user's message.`,
+  tools: [],
 }

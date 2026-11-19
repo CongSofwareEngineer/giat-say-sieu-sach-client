@@ -2,7 +2,7 @@
 > Cập nhật: 2026-11-19
 
 ## Tổng quan
-Chat nổi là trợ lý đa agent; chỉ lời gọi LLM rời trình duyệt (qua `/api/chat-agent/chat/completions`), còn tool chạy client-side với `AgentContext` (`locale`, `userId`). Sub-logic: (1) Đặt lịch giặt không cần login, (2) Tra cứu đơn theo SĐT / mã đơn, (3) Form chọn Tỉnh/Xã qua LocationApi, (4) Định dạng danh sách đơn, (5) Địa chỉ cửa hàng / địa chỉ đã lưu, (6) Huỷ đơn qua chat, (7) Điểm tích lũy & hạng, (8) Router prompt, (9) Streaming câu trả lời, (10) Chuẩn hóa tool call, (11) Log token & câu hỏi lên Google Sheets, (12) Giới hạn chat (3 tin chờ / 10 tin mỗi giờ). Form đặt lịch dùng chung với trang `/booking` — xem `docs/instruction/booking.md`.
+Chat nổi là trợ lý đa agent; chỉ lời gọi LLM rời trình duyệt (qua `/api/chat-agent/chat/completions`), còn tool chạy client-side với `AgentContext` (`locale`, `userId`). Sub-logic: (1) Đặt lịch giặt không cần login, (2) Tra cứu đơn theo SĐT / mã đơn, (3) Form chọn Tỉnh/Xã qua LocationApi, (4) Định dạng danh sách đơn, (5) Địa chỉ cửa hàng / địa chỉ đã lưu, (6) Huỷ đơn qua chat, (7) Điểm tích lũy & hạng, (8) Router prompt, (9) Streaming câu trả lời, (10) Chuẩn hóa tool call, (11) Log token & câu hỏi lên Google Sheets, (12) Giới hạn chat (3 tin chờ / 10 tin mỗi giờ), (13) Ngôn ngữ trả lời. Form đặt lịch dùng chung với trang `/booking` — xem `docs/instruction/booking.md`.
 
 ## Dùng chung
 - `agents/index.ts` (router → chọn agent → `runAgent`), `agents/runAgent.ts` (tool loop, `MAX_TOOL_ROUNDS = 6`), `agents/llm.ts` (`callLlm` non-stream, `streamLlm` SSE — xem §9), `agents/base.ts`.
@@ -226,6 +226,21 @@ Giới hạn số tin khách gửi cho trợ lý để chặn spam và giới h�
 - **Xoá hội thoại khi đang trả lời**: lượt bị huỷ không lưu tin bot, nên tin đó tính là đang chờ (tối đa 1 giờ).
 - **Lách giới hạn (khách vãng lai)**: xoá localStorage sẽ đổi `deviceId` và có quota mới. Endpoint `/api/chat-agent` vẫn gọi thẳng được mà không qua kiểm tra này.
 - Form đặt lịch và tra đơn theo SĐT (§1, §2) không gọi LLM nên không được lưu/đếm.
+
+## 13. Ngôn ngữ trả lời
+### Mục đích
+Trả lời khách bằng đúng ngôn ngữ khách đang nhắn, không tốn thêm một lượt gọi LLM để kiểm tra.
+### Entry points
+- `agents/agents/faq.ts`, `price.ts`, `recommend.ts`, `fallback.ts` — dòng cuối system prompt: `Reply in the same language as the user's message.`
+- `agents/tools/index.ts` — `baseTools = [searchTool]`.
+### Luồng xử lý
+1. Không detect ngôn ngữ, không truyền `locale` vào prompt. Model tự nhận diện ngôn ngữ của tin nhắn và trả lời bằng ngôn ngữ đó.
+2. Tool `answer_in_language` (`agents/tools/language.ts`) đã **tắt** — phần export và chỗ gắn vào `baseTools` / agent `fallback` được comment lại, file vẫn giữ để bật lại nếu cần. Mỗi lần model gọi tool này là thêm một vòng tool loop (1 request + token), trong khi model đã tự trả lời đúng ngôn ngữ.
+### Translation / Constants
+- `TOOL_NAME.answerInLanguage` vẫn còn trong `constants/tools.ts` (chưa dùng).
+### Edge cases
+- Khách đổi ngôn ngữ website nhưng vẫn nhắn tiếng Việt → model trả lời tiếng Việt (theo tin nhắn, không theo `locale`).
+- Nội dung do tool trả về (danh sách đơn, điểm, địa chỉ...) vẫn dịch theo `locale` qua `translate()` trong từng tool, không đổi.
 
 ## Liên quan
 - `docs/instruction/booking.md` (form dùng chung), `docs/instruction/order.md` (tạo đơn, giá, điểm, huỷ đơn), `docs/instruction/tracking.md` (tra cứu trang /track-order), `docs/instruction/profile.md` §1 (hạng & điểm).

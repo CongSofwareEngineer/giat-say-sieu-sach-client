@@ -26,7 +26,7 @@ Show the get_my_orders result list as-is (keep every line, code and status). If 
 If the user wants to place a new laundry booking ("gỡ đồ", "đặt giặt đồ", "tôi muốn giặt đồ"...), call open_laundry_form so the client shows the order form.
 If the user wants to cancel an order ("huỷ đơn", "cancel order"), call cancel_my_order (pass the code if they gave one). It never cancels by itself: relay its result, and when it lists several orders ask which code to cancel. Never claim an order was cancelled.
 If the user asks about their points or membership tier ("điểm", "hạng", "tích điểm"), call get_my_loyalty and show its result as-is.
-Reply in the user's language (use answer_in_language if unsure).`,
+Reply in the same language as the user's message.`,
   tools: [
     ...baseTools,
     trackOrderTool,
