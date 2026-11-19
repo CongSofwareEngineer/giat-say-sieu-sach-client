@@ -25,11 +25,11 @@ import { chat } from '@/zustand/chat'
 import { chatStream } from '@/zustand/chatStream'
 import OrderService, { getOrderCode } from '@/services/order'
 import { getMyOrders, ORDER_PHONE_FORM_MARKER, PendingCancelOrder, takePendingCancelOrder } from '@/agents/tools/myOrders'
-import ChatMessageService from '@/services/chatMessage'
+import ChatMessageService, { ChatLimitError } from '@/services/chatMessage'
 import { getChatDeviceId } from '@/utils/chatDevice'
 import { HttpError } from '@/config/baseApi'
 import { BOOKING_SOURCE, HTTP_STATUS } from '@/constants/app'
-import { CHAT_MESSAGE_TYPE, CHAT_SCROLL_PIN_THRESHOLD } from '@/constants/tools'
+import { CHAT_LIMIT_REASON, CHAT_MESSAGE_TYPE, CHAT_SCROLL_PIN_THRESHOLD, SECONDS_PER_MINUTE } from '@/constants/tools'
 import { QUERY_KEYS } from '@/constants/reactQuery'
 import { toast } from '@/utils/toast'
 
@@ -57,7 +57,7 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
     clearChat,
   } = useChat()
 
-  const { user } = useUser()
+  const { user, isLogin } = useUser()
   const queryClient = useQueryClient()
   const { open: openModal, close: closeModal } = useModalDrawer()
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -313,6 +313,16 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
     })
   }
 
+  // Toast text for a 429 from the chat limit (global throttler 429 has no reason)
+  const getChatLimitMessage = (limit?: ChatLimitError) => {
+    const minutes = Math.max(Math.ceil((limit?.retryAfterSeconds ?? 0) / SECONDS_PER_MINUTE), 1)
+
+    if (limit?.reason === CHAT_LIMIT_REASON.HOURLY_LIMIT) return translate('chat.limitHourly', { minutes })
+    if (limit?.reason === CHAT_LIMIT_REASON.PENDING_LIMIT) return translate('chat.limitPending', { minutes })
+
+    return translate('chat.spamBlocked')
+  }
+
   // Chat handlers
   const handleSend = async (messageText?: string) => {
     const textToSend = messageText || inputValue
@@ -335,17 +345,19 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
     setSending(true)
 
     const deviceId = getChatDeviceId()
+    // Same owner (account or device) for the user and the bot message of this turn
+    const isLoginTurn = isLogin
     let isUserSaved = false
 
-    // The backend blocks a user who is too far ahead of the bot replies (spam)
+    // The backend limits pending and hourly messages (per account when logged in, per device otherwise)
     try {
-      await ChatMessageService.saveMessage(deviceId, CHAT_MESSAGE_TYPE.USER)
+      await ChatMessageService.saveMessage(deviceId, CHAT_MESSAGE_TYPE.USER, isLoginTurn)
       isUserSaved = true
     } catch (error) {
       if (error instanceof HttpError && error.status === HTTP_STATUS.TOO_MANY_REQUESTS) {
         removeMessage(userMessage.id)
         if (!messageText) setInputValue(textToSend)
-        toast({ message: translate('chat.spamBlocked'), type: 'warning' })
+        toast({ message: getChatLimitMessage(error.data as ChatLimitError | undefined), type: 'warning' })
         setSending(false)
 
         return
@@ -439,7 +451,7 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
 
       // Every answered turn (also errors and stops) frees the user to send again
       if (isUserSaved && !chatStream.getState().isDiscarded) {
-        await ChatMessageService.saveMessage(deviceId, CHAT_MESSAGE_TYPE.BOT).catch(() => undefined)
+        await ChatMessageService.saveMessage(deviceId, CHAT_MESSAGE_TYPE.BOT, isLoginTurn).catch(() => undefined)
       }
 
       setSending(false)
@@ -462,8 +474,6 @@ const Chat = ({ onClose, isMobile = false }: ChatProps) => {
     chatStream.getState().discard()
     clearChat()
     setInputValue('')
-    // Clearing also removes this device's history on the backend (resets the spam limit)
-    ChatMessageService.clearMessages(getChatDeviceId()).catch(() => undefined)
   }
 
   const renderChatHeader = () => (

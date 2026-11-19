@@ -1,23 +1,24 @@
 import BaseAPI from '@/config/baseApi'
-import { CHAT_MESSAGE_TYPE } from '@/constants/tools'
+import { CHAT_LIMIT_REASON, CHAT_MESSAGE_TYPE } from '@/constants/tools'
 
 export type SavedChatMessage = {
-  indexChat: number
   type: CHAT_MESSAGE_TYPE
   createdAt: string
 }
 
-// Chat history kept on the backend per device, used to block users who send without waiting for replies
+// Body of the backend 429 when a chat message is over the limit
+export type ChatLimitError = {
+  reason?: CHAT_LIMIT_REASON
+  retryAfterSeconds?: number
+}
+
+// Chat messages kept on the backend only to enforce the chat limits (per account when logged in, per device otherwise)
 class ChatMessageApi extends BaseAPI {
-  // Throws HttpError 429 when the user is already ahead of the bot by the allowed limit
-  async saveMessage(deviceId: string, type: CHAT_MESSAGE_TYPE): Promise<SavedChatMessage> {
-    const response = await this.post<{ data: SavedChatMessage }>('', { deviceId, type }, { isUseAuth: false })
+  // Throws HttpError 429 (data: ChatLimitError) when the user is over the limit
+  async saveMessage(deviceId: string, type: CHAT_MESSAGE_TYPE, isLogin: boolean): Promise<SavedChatMessage> {
+    const response = await this.post<{ data: SavedChatMessage }>('', { deviceId, type }, { isUseAuth: isLogin })
 
     return response.data
-  }
-
-  async clearMessages(deviceId: string): Promise<void> {
-    await this.delete<{ data: { deletedCount: number } }>(`/${deviceId}`, { isUseAuth: false })
   }
 }
 

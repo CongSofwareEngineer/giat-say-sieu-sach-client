@@ -1,8 +1,8 @@
 # Chat AI (trợ lý đa agent)
-> Cập nhật: 2026-11-07
+> Cập nhật: 2026-11-19
 
 ## Tổng quan
-Chat nổi là trợ lý đa agent; chỉ lời gọi LLM rời trình duyệt (qua `/api/chat-agent/chat/completions`), còn tool chạy client-side với `AgentContext` (`locale`, `userId`). Sub-logic: (1) Đặt lịch giặt không cần login, (2) Tra cứu đơn theo SĐT / mã đơn, (3) Form chọn Tỉnh/Xã qua LocationApi, (4) Định dạng danh sách đơn, (5) Địa chỉ cửa hàng / địa chỉ đã lưu, (6) Huỷ đơn qua chat, (7) Điểm tích lũy & hạng, (8) Router prompt, (9) Streaming câu trả lời, (10) Chuẩn hóa tool call, (11) Log token & câu hỏi lên Google Sheets, (12) Giới hạn chat chống spam (lưu database). Form đặt lịch dùng chung với trang `/booking` — xem `docs/instruction/booking.md`.
+Chat nổi là trợ lý đa agent; chỉ lời gọi LLM rời trình duyệt (qua `/api/chat-agent/chat/completions`), còn tool chạy client-side với `AgentContext` (`locale`, `userId`). Sub-logic: (1) Đặt lịch giặt không cần login, (2) Tra cứu đơn theo SĐT / mã đơn, (3) Form chọn Tỉnh/Xã qua LocationApi, (4) Định dạng danh sách đơn, (5) Địa chỉ cửa hàng / địa chỉ đã lưu, (6) Huỷ đơn qua chat, (7) Điểm tích lũy & hạng, (8) Router prompt, (9) Streaming câu trả lời, (10) Chuẩn hóa tool call, (11) Log token & câu hỏi lên Google Sheets, (12) Giới hạn chat (3 tin chờ / 10 tin mỗi giờ). Form đặt lịch dùng chung với trang `/booking` — xem `docs/instruction/booking.md`.
 
 ## Dùng chung
 - `agents/index.ts` (router → chọn agent → `runAgent`), `agents/runAgent.ts` (tool loop, `MAX_TOOL_ROUNDS = 6`), `agents/llm.ts` (`callLlm` non-stream, `streamLlm` SSE — xem §9), `agents/base.ts`.
@@ -187,35 +187,38 @@ Theo thứ tự `CHAT_LOG_COLUMNS` (dòng tiêu đề của Sheet phải khớp)
 - **Quota Google Sheets**: khoảng 60 lần ghi/phút cho một service account, vượt quota thì mất dòng log. Một file tối đa 10 triệu ô, tức khoảng 1 triệu dòng với 10 cột.
 - **Độ tin cậy**: token do provider trả nên client không sửa được.
 
-## 12. Giới hạn chat chống spam (lưu database)
+## 12. Giới hạn chat (chống spam, tiết kiệm token)
 ### Mục đích
-Chặn khách gửi liên tục mà không chờ trả lời (spam, tốn token). Mỗi tin nhắn của khách và trợ lý được lưu vào MongoDB của backend NestJS. Mỗi máy có lịch sử riêng, kể cả khi chưa đăng nhập.
+Giới hạn số tin khách gửi cho trợ lý để chặn spam và giới hạn tiền token. Áp dụng cho cả khách chưa đăng nhập. Đã đăng nhập thì tính theo **tài khoản**, chưa đăng nhập thì tính theo **máy** (`deviceId`).
 ### Entry points
 - `utils/chatDevice.ts` — `getChatDeviceId()`: UUID ngẫu nhiên tạo một lần, lưu ở `LOCAL_STORAGE_KEY.chatDeviceId`. Nếu localStorage bị chặn thì dùng id tạm trong bộ nhớ của phiên trang.
-- `services/chatMessage.ts` — `ChatMessageService.saveMessage(deviceId, type)` (`POST /chat-messages`), `clearMessages(deviceId)` (`DELETE /chat-messages/:deviceId`). Cả hai là public (không cần token).
-- `components/Chat/index.tsx` — `handleSend`, `handleClearChat`.
-- Backend: module `src/module/chat-message` (collection `ChatMessage`).
-### Dữ liệu
-- Mỗi dòng gồm `deviceId`, `indexChat`, `type` (`user` | `bot`) và `createdAt` (ngày chat).
-- `indexChat` đánh số 1, 2, 3… theo từng máy, dùng **chung một bộ đếm** cho cả user và bot. Index `{deviceId, indexChat}` là unique.
-- Bản ghi tự xoá sau 30 ngày (TTL `CHAT_MESSAGE_TTL_SECONDS`) để không chiếm dung lượng database.
+- `services/chatMessage.ts` — `ChatMessageService.saveMessage(deviceId, type, isLogin)` (`POST /chat-messages`). Đã login thì gửi kèm token (`isUseAuth`), chưa login thì không.
+- `components/Chat/index.tsx` — `handleSend`, `getChatLimitMessage`, `handleClearChat`.
+- Backend: module `src/module/chat-message` (collection `ChatMessage`), xem `docs/instruction/chat.md` của repo backend.
+### Luật (cửa sổ trượt 1 giờ)
+1. **Tin chưa được trả lời**: tối đa **3** tin của khách sau tin bot gần nhất, chỉ tính các tin trong 1 giờ gần nhất. Tin chờ quá 1 giờ không còn tính, nên khách không bao giờ bị khoá mãi.
+2. **Tổng số tin**: tối đa **10** tin của khách trong 1 giờ gần nhất, kể cả khi bot đã trả lời hết.
+3. Vượt luật → backend trả **429** với body `{ reason: PENDING_LIMIT | HOURLY_LIMIT, retryAfterSeconds }`. `retryAfterSeconds` là thời gian tới khi có tin rời khỏi cửa sổ và khách gửi lại được.
 ### Luồng xử lý
-1. Khách gửi tin: hiện tin ngay và khoá ô gửi (`isSending`). Sau đó gọi `saveMessage(USER)`.
-2. Backend tính `indexChat` mới = index lớn nhất + 1. Nếu `indexChat > index bot gần nhất + CHAT_MAX_PENDING_USER_MESSAGES` (2) thì trả **429**, tức khách có tối đa 2 tin chưa được trả lời.
-3. Bị 429: gỡ tin vừa hiện, trả lại nội dung vào ô nhập (nếu khách gõ tay), toast cảnh báo `chat.spamBlocked`, không gọi LLM.
-4. Lưu được: chạy agent như bình thường (§9).
-5. Kết thúc lượt (trả lời xong, lỗi, hoặc bấm Dừng) đều gọi `saveMessage(BOT)` trước khi mở khoá ô gửi. Nhờ vậy khách không bị khoá vĩnh viễn sau lỗi. Backend chỉ nhận tin bot khi tin gần nhất là của user, nếu không thì trả 400.
-6. Xoá hội thoại (nút thùng rác) gọi `clearMessages(deviceId)`, xoá toàn bộ lịch sử của máy trên database và đếm lại từ đầu. `deviceId` được giữ nguyên.
+1. Khách gửi tin: hiện tin ngay và khoá ô gửi (`isSending`). Ghi nhớ trạng thái login của lượt này (`isLoginTurn`), rồi gọi `saveMessage(USER)`.
+2. Bị 429: gỡ tin vừa hiện, trả lại nội dung vào ô nhập (nếu khách gõ tay), toast theo `reason` kèm số phút chờ (`chat.limitPending` / `chat.limitHourly`). 429 không có `reason` (throttler global của backend) → `chat.spamBlocked`. Không gọi LLM.
+3. Lưu được: chạy agent như bình thường (§9).
+4. Kết thúc lượt (trả lời xong, lỗi, hoặc bấm Dừng) đều gọi `saveMessage(BOT)` với cùng `isLoginTurn` trước khi mở khoá ô gửi. Backend chỉ nhận tin bot khi tin gần nhất là của khách, nếu không thì trả 400 (client bỏ qua).
+5. **Xoá hội thoại** (nút thùng rác) chỉ xoá ở client (tin nhắn + history gửi lên AI, để bớt token), **không** reset bộ đếm trên backend.
+### Dữ liệu (backend)
+- Mỗi dòng: `userId` (null nếu khách vãng lai), `deviceId`, `type` (`user` | `bot`), `createdAt`. Không lưu nội dung tin.
+- Tự xoá sau 1 ngày (TTL), vì luật chỉ cần dữ liệu 1 giờ gần nhất.
 ### Translation / Constants
-- `chat.spamBlocked`; `LOCAL_STORAGE_KEY.chatDeviceId`, `HTTP_STATUS.TOO_MANY_REQUESTS` (`constants/app.ts`), `CHAT_MESSAGE_TYPE` (`constants/tools.ts`).
-- Backend: `ChatMessageType`, `CHAT_MAX_PENDING_USER_MESSAGES`, `CHAT_MESSAGE_TTL_SECONDS` (`src/common/app.ts`), `DB_COLLECTION.ChatMessage`.
+- `chat.limitPending`, `chat.limitHourly` (biến `{minutes}`), `chat.spamBlocked`; `CHAT_MESSAGE_TYPE`, `CHAT_LIMIT_REASON`, `SECONDS_PER_MINUTE` (`constants/tools.ts`), `LOCAL_STORAGE_KEY.chatDeviceId`, `HTTP_STATUS.TOO_MANY_REQUESTS` (`constants/app.ts`).
+- `HttpError` (`config/baseApi.ts`) có thêm `data` (JSON body của lỗi) để đọc `reason`.
+- Số 3 / 10 nằm ở backend (`CHAT_LIMIT`); câu toast ghi cứng 3 và 10, đổi constants backend thì sửa luôn 2 key này.
 ### Edge cases
-- **UI vs server**: UI vẫn chỉ cho gửi 1 tin rồi chờ trả lời. Ngưỡng 2 tin ở server chặn trường hợp gọi thẳng API, nhiều tab cùng lúc, hoặc khách đóng trang giữa chừng (tin bot không được lưu).
-- **Gửi đồng thời**: hai request cùng lấy một `indexChat` thì request sau dính lỗi unique key và cũng bị trả 429.
-- **Throttler global** của backend (5 request/giây) cũng trả 429, nên client cũng hiện `chat.spamBlocked`.
+- **UI vs server**: UI vẫn chỉ cho gửi 1 tin rồi chờ trả lời. Luật 3 tin chờ chặn trường hợp gọi thẳng API, nhiều tab, hoặc khách đóng trang giữa chừng (tin bot không được lưu).
+- **Login/logout**: tài khoản và máy có bộ đếm riêng. Khách vãng lai đăng nhập thì có thêm quota theo tài khoản.
+- **Gửi đồng thời**: hai request cùng lúc có thể cùng lọt qua kiểm tra (vượt quá 1 tin); throttler global (5 request/giây) giới hạn phần này.
 - **Backend không phản hồi** (lỗi khác 429): chat vẫn chạy nhưng không có giới hạn và không lưu tin bot cho lượt đó.
-- **Xoá hội thoại khi đang trả lời**: không lưu tin bot cho lượt bị huỷ.
-- **Giới hạn có thể bị vượt**: xoá localStorage (đổi `deviceId`) hoặc bấm xoá hội thoại đều reset bộ đếm. Endpoint là public, nên ai gọi thẳng `/api/chat-agent` vẫn bỏ qua được kiểm tra này.
+- **Xoá hội thoại khi đang trả lời**: lượt bị huỷ không lưu tin bot, nên tin đó tính là đang chờ (tối đa 1 giờ).
+- **Lách giới hạn (khách vãng lai)**: xoá localStorage sẽ đổi `deviceId` và có quota mới. Endpoint `/api/chat-agent` vẫn gọi thẳng được mà không qua kiểm tra này.
 - Form đặt lịch và tra đơn theo SĐT (§1, §2) không gọi LLM nên không được lưu/đếm.
 
 ## Liên quan

@@ -1175,6 +1175,8 @@
     "pressEnterToSend": "Note: press Enter to send",
     "clear": "Clear chat",
     "spamBlocked": "You are sending messages too fast. Please wait for the assistant to reply before sending again.",
+    "limitPending": "You have 3 messages still waiting for a reply. Please try again in {minutes} minutes.",
+    "limitHourly": "You have used all 10 messages for this hour. Please try again in {minutes} minutes.",
     "typing": "Staff is typing...",
     "stop": "Stop responding",
     "status": {

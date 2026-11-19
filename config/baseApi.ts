@@ -19,10 +19,13 @@ interface RequestOptions extends RequestInit {
 // API error that keeps the HTTP status so callers can tell 404 from other failures
 export class HttpError extends Error {
   status: number
+  // Parsed JSON error body from the backend (when there is one)
+  data?: unknown
 
-  constructor(status: number) {
+  constructor(status: number, data?: unknown) {
     super(`HTTP error! status: ${status}`)
     this.status = status
+    this.data = data
   }
 }
 
@@ -209,7 +212,10 @@ class BaseAPI {
     }
 
     if (!response.ok) {
-      throw new HttpError(response.status)
+      // Keep the error body so callers can read details (e.g. chat limit reason)
+      const errorData = await response.json().catch(() => undefined)
+
+      throw new HttpError(response.status, errorData)
     }
 
     return response.json() as Promise<T>

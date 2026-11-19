@@ -32,6 +32,14 @@ export enum CHAT_MESSAGE_TYPE {
   BOT = 'bot',
 }
 
+// Reason in the backend 429 body when a chat message is over the limit
+export enum CHAT_LIMIT_REASON {
+  PENDING_LIMIT = 'PENDING_LIMIT',
+  HOURLY_LIMIT = 'HOURLY_LIMIT',
+}
+
+export const SECONDS_PER_MINUTE = 60
+
 // Router agent internal tool name used to pick a specialized agent
 export const ROUTER_TOOL_NAME = 'route_to_agent' as const
 

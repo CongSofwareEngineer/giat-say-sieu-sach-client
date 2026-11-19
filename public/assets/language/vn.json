@@ -1175,6 +1175,8 @@
     "pressEnterToSend": "Ghi chú: nhấn Enter để gửi",
     "clear": "Xóa hội thoại",
     "spamBlocked": "Bạn gửi tin nhắn quá nhanh. Vui lòng chờ trợ lý trả lời rồi gửi tiếp.",
+    "limitPending": "Bạn đã gửi 3 tin nhắn chưa được trả lời. Vui lòng thử lại sau {minutes} phút.",
+    "limitHourly": "Bạn đã dùng hết 10 tin nhắn trong 1 giờ. Vui lòng thử lại sau {minutes} phút.",
     "typing": "Nhân viên đang trả lời...",
     "stop": "Dừng trả lời",
     "status": {
