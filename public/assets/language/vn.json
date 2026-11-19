@@ -1313,6 +1313,15 @@
       "requireLogin": "Bạn cần đăng nhập để xem địa chỉ đã lưu.",
       "item": "{index}. {address} ({phone})"
     },
+    "price": {
+      "listHeader": "Bảng giá dịch vụ:",
+      "item": "- {name}: {price}",
+      "unitPrice": "{price}đ/{unit}",
+      "serviceLine": "{name}: {price}",
+      "notFound": "Không tìm thấy dịch vụ \"{key}\".",
+      "estimate": "Ước tính cho \"{name}\" với {weight}kg là {total}đ.",
+      "invalidWeight": "Vui lòng cung cấp khối lượng hợp lệ (kg)."
+    },
     "promotion": {
       "empty": "Hiện tại chưa có chương trình khuyến mãi nào.",
       "item": "- **{name}**{discount}{code}: {description}",

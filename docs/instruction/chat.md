@@ -11,6 +11,7 @@ Chat nổi là trợ lý đa agent; chỉ lời gọi LLM rời trình duyệt (
 - Danh sách chi nhánh (tool `get_branches` trong `agents/tools/order.ts`): tên, địa chỉ, giờ mở cửa (`openingHours`), SĐT, link bản đồ — xem §5.
 - `services/order.ts` — `getMyOrders`, `getMyOrder`, `cancelMyOrder`, `createGuestOrder`, `lookupOrdersByPhone`, `getOrderByCode`, `getOrderCode`, `normalizeOrderCode`.
 - Translation `chat.*`, `agent.*`; `TOOL_NAME`, `AGENT_NAME` (`constants/tools.ts`); `MAX_CHAT_ORDERS` (4).
+- Mọi text tool trả về đều qua `translate()`: `agent.order.*`, `agent.loyalty.*`, `agent.address.*`, `agent.price.*` (3 tool giá: `get_services`, `get_service`, `estimate_cost`), `agent.promotion.*`, `agent.laundry.*`, `agent.run.*`. Tiền vẫn hiển thị theo `đ` / `toLocaleString('vi-VN')` ở cả 2 ngôn ngữ vì chỉ phục vụ thị trường VN.
 
 ## 1. Đặt lịch giặt (không cần login)
 ### Entry points

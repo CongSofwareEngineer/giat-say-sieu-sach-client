@@ -1313,6 +1313,15 @@
       "requireLogin": "Please log in to see your saved addresses.",
       "item": "{index}. {address} ({phone})"
     },
+    "price": {
+      "listHeader": "Service price list:",
+      "item": "- {name}: {price}",
+      "unitPrice": "{price}đ/{unit}",
+      "serviceLine": "{name}: {price}",
+      "notFound": "No service found for \"{key}\".",
+      "estimate": "An estimate for \"{name}\" at {weight}kg is {total}đ.",
+      "invalidWeight": "Please provide a valid weight in kg."
+    },
     "promotion": {
       "empty": "There is no promotion running at the moment.",
       "item": "- **{name}**{discount}{code}: {description}",
