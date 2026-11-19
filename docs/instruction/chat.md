@@ -313,11 +313,8 @@ Với những câu hỏi mà câu trả lời đã xác định sẵn (chỉ là
 | `track_order` | `agent.order.track.*` + `GET /laundry-orders/lookup/:code` | §2; cần mã đơn |
 | `get_my_orders` | `agent.order.myOrders.*` | §2, §4; guest cần SĐT |
 | `cancel_my_order` | `agent.order.cancel.*` | §6; khách vẫn phải xác nhận trong modal |
-| `get_services` | `agent.price.{listHeader,item,unitPrice,empty}` + `GET /laundry-categories` | bảng giá đầy đủ |
-| `get_service` | `agent.price.serviceLine` | khớp tên dịch vụ trong câu |
-| `estimate_cost` | `agent.price.estimate` | cần khối lượng kg |
 
-Tool **không** cho vào whitelist: `get_faq` / `search` (output còn cần model chọn & rút gọn — xem đề xuất ở §5 của plan), `get_my_addresses` (hiếm, giữ LLM).
+Tool **không** cho vào whitelist: `get_faq` / `search` (output còn cần model chọn & rút gọn), `get_services` / `get_service` / `estimate_cost` (cần tính toán theo kg), `get_my_addresses` (hiếm, giữ LLM).
 
 ### Tham số tool (regex, không dùng LLM)
 Jev chỉ quyết định **tool nào** chạy, không trả tham số. Ba tool cần tham số thì đọc thẳng từ tin nhắn bằng regex trong `agents/fastPath.ts` — chính xác hơn và rẻ hơn việc nhờ LLM copy mã ra khỏi câu:
@@ -327,13 +324,9 @@ Jev chỉ quyết định **tool nào** chạy, không trả tham số. Ba tool 
 | `track_order` | `orderCode` | `ORDER_CODE_IN_TEXT_REGEX` (`constants/app.ts`) | trả `null` → agent + LLM hỏi lại trong ngữ cảnh |
 | `get_my_orders` | `phone` (chỉ guest) | `CHAT_LOG_PHONE_REGEX` + `isValidVnPhone` + `normalizeVnPhone` | `{}` → tool hỏi SĐT + bật `OrderPhoneForm` |
 | `cancel_my_order` | `orderCode` (tuỳ chọn) | như `track_order` | `{}` → tool liệt kê đơn `PENDING` để khách chọn |
-| `get_service` | `key` | truyền **cả tin nhắn**, tool tự khớp tên dịch vụ | tool trả bảng giá đầy đủ |
-| `estimate_cost` | `serviceName`, `weightKg` | `serviceName` = cả tin nhắn; `weightKg` từ `WEIGHT_KG_IN_TEXT_REGEX` | thiếu kg → `null` → agent hỏi lại |
 
 - `ORDER_CODE_IN_TEXT_REGEX`: mã đơn 8 ký tự thuộc bảng `2-9` + `A-Z` trừ `O I L` (xem `tracking.md` §1). `#` được capture riêng: **không có `#` thì mã phải chứa ít nhất một chữ số**, nếu không một từ 8 chữ cái (`abcdefgh`) sẽ bị đọc thành mã đơn.
 - `CHAT_LOG_PHONE_REGEX` (`constants/tools.ts`) dùng chung với phần ẩn SĐT trong log (§11) — cùng một pattern "SĐT Việt Nam trong câu tự do", không tách thành 2 constant. Tên key vẫn mang tiền tố `CHAT_LOG_` vì lịch sử.
-- `WEIGHT_KG_IN_TEXT_REGEX` (`constants/app.ts`): nhận `5kg`, `4,5 kg`, `3 ký`, `10 KGS`, `2.5kilo`; dấu phẩy thập phân được đổi sang dấu chấm trước khi `Number()`.
-- `get_service` / `estimate_cost` **không cần** regex riêng cho tên dịch vụ: `findPlan` (`agents/tools/price.ts`) so sánh **slug** (`utils/slugify`) nên khớp được cả tên dịch vụ model truyền vào ("Giặt sấy") lẫn cả câu của khách ("giat say 5kg bao nhieu" — không dấu vẫn khớp). Nhiều dịch vụ trong một câu → lấy dịch vụ được nhắc **trước nhất**.
 
 ### Translation / Constants
 - `ANSWER_READY_TOOLS` (`constants/tools.ts`) — whitelist tool mà output **đã là câu trả lời cuối cho user**. Tool nào output còn cần model đọc/gộp/rút gọn thì **không** được cho vào.
@@ -343,12 +336,9 @@ Jev chỉ quyết định **tool nào** chạy, không trả tham số. Ba tool 
 - `agent.laundry.formOpening` — câu mở form. Output của `open_laundry_form` giờ là **câu trả lời hoàn chỉnh + marker trên dòng riêng** thay vì chỉ thị cho LLM, nên fast path dùng được; prompt agent `recommend` đổi sang "output its result exactly as-is, keeping the marker line unchanged".
 - `agent.order.myOrders.askPhone` + `agent.order.cancel.confirmPrompt` — hai nhánh còn lại từng trả **chỉ thị cho LLM** thay vì câu cho khách (guest chưa có SĐT; đã chọn được đơn cần huỷ). Giờ là câu hoàn chỉnh, nên fast path dùng được; prompt `recommend` đổi sang relay nguyên văn.
 - Nguyên tắc: tool nằm trong `ANSWER_READY_TOOLS` thì **mọi nhánh** output của nó phải là câu nói được với khách, kể cả nhánh lỗi / thiếu dữ liệu. Không được còn câu kiểu "Briefly tell the user to…".
-- `agent.price.*` — 3 tool giá trước đây hardcode tiếng Việt toàn bộ (`Bảng giá dịch vụ:`, `Không tìm thấy dịch vụ "..."`, `Ước tính cho ... là ...đ.`).
-- Không tìm thấy dịch vụ (`get_service` / `estimate_cost`) → trả **bảng giá đầy đủ** kèm `agent.price.serviceNotFound`, thay vì nhắc lại nguyên văn câu khách hỏi. Quan trọng với fast path: tham số truyền vào là cả tin nhắn, nếu echo lại sẽ ra câu vô nghĩa kiểu `Không tìm thấy dịch vụ "giặt sấy 5kg bao nhiêu"`.
 
 ### Edge cases
 - Tin mơ hồ / nhiều ý → không tool nào đạt 0.6 → `fastTool` rỗng → chạy agent + LLM như cũ. Không mất chức năng nào.
-- Jev chọn `get_services` cho câu có kèm khối lượng ("giặt sấy 5kg bao nhiêu") → khách nhận bảng giá chứ không nhận phép tính. Vẫn là câu trả lời đúng, nhưng nếu gặp nhiều thì cân nhắc làm rõ `description` của `estimate_cost` để Jev phân biệt.
 - Tool throw (API chết) → `runFastPath` trả `null` → agent chạy lại tool đó và báo lỗi cho user bằng `agent.run.toolError`. Tool chạy 2 lần trong case lỗi này, chấp nhận được vì tool trong whitelist đều là read-only.
 - User bấm stop: `signal.throwIfAborted()` trước và sau khi chạy tool; abort được throw ra ngoài cho `handleSend` xử lý, không biến thành câu trả lời.
 - Agent route về `fallback` thì `fixedReply` (§14) thắng, fast path không chạy — quyết định phạm vi là cửa gác, giống hành vi cũ (trước đây cũng ra câu "chỉ hỗ trợ dịch vụ giặt").

@@ -2,11 +2,6 @@
 > Instruction: docs/instruction/chat.md
 
 ## 2026-11-19
-- **Fast path cho 3 tool giá**: `get_services`, `get_service`, `estimate_cost` → whitelist đủ 11 tool. `get_service` nhận cả tin nhắn làm `key`, `estimate_cost` lấy `weightKg` từ `WEIGHT_KG_IN_TEXT_REGEX` (mới) và `serviceName` = cả tin nhắn; thiếu kg → `null` → agent hỏi lại.
-- **`price.ts` bỏ hardcode tiếng Việt** → `agent.price.*`, giá format qua `convertPriceToCurrent` (dùng chung với promotion) thay vì tự nối `đ`. Tên dịch vụ in đậm cho khớp các tool khác.
-- **Khớp tên dịch vụ bằng slug**: thêm `findPlan()` so sánh `slugify(tên dịch vụ)` với `slugify(text)` theo cả 2 chiều, nên khớp được cả tên model truyền vào lẫn cả câu của khách, và **không dấu vẫn khớp** ("giat say"). Nhiều dịch vụ trong một câu → lấy cái được nhắc trước nhất. Trước đó chỉ so một chiều `plan.name.includes(query)` nên truyền cả câu vào là trượt.
-- **Không tìm thấy dịch vụ → trả bảng giá đầy đủ** (`agent.price.serviceNotFound`) thay vì echo nguyên văn câu khách hỏi. Cần thiết vì fast path truyền cả tin nhắn làm tham số, echo lại sẽ ra câu vô nghĩa.
-- Constants / keys mới: `WEIGHT_KG_IN_TEXT_REGEX`, `agent.price.{listHeader,item,unitPrice,serviceLine,serviceNotFound,estimate,invalidWeight,empty}` (vn + en).
 - **Fast path cho 3 tool cần tham số**: `track_order`, `get_my_orders`, `cancel_my_order`. Jev không trả tham số, nên `agents/fastPath.ts` trích thẳng từ tin nhắn: mã đơn qua `ORDER_CODE_IN_TEXT_REGEX` (mới, `constants/app.ts`), SĐT qua `CHAT_LOG_PHONE_REGEX` + `isValidVnPhone`. `track_order` không tìm được mã → trả `null` để agent hỏi lại trong ngữ cảnh; `cancel_my_order` không có mã → tool liệt kê đơn `PENDING` như cũ; `get_my_orders` guest không có SĐT → hỏi SĐT + bật `OrderPhoneForm`. Huỷ đơn vẫn **chỉ** thực hiện khi khách bấm xác nhận trong modal.
 - **2 nhánh tool đổi từ chỉ thị-cho-LLM sang câu cho khách**: `get_my_orders` khi guest chưa có SĐT (`agent.order.myOrders.askPhone` + `[ORDER_PHONE_FORM]`) và `requestCancelConfirm` (`agent.order.cancel.confirmPrompt`). Prompt agent `recommend` đổi sang output nguyên văn.
 - **Sửa lỗi `track_order` không có mã lẫn SĐT**: trước đây rơi xuống nhánh "không tìm thấy" và in ra chuỗi `"undefined"` cho khách; giờ luôn trả `agent.order.track.noCode`. Biến `phone` không dùng trong tool đã bỏ (param `phone` trong schema vẫn giữ, nhưng hiện không còn tác dụng).

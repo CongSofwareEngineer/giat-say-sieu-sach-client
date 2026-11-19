@@ -111,10 +111,6 @@ export const CANCELLABLE_ORDER_STATUS = ORDER_STATUS.PENDING
 // a digit — otherwise an 8-letter word would be read as an order code.
 export const ORDER_CODE_IN_TEXT_REGEX = /(?<![a-z0-9#])(#?)([2-9a-hjkmnp-z]{8})(?![a-z0-9])/i
 
-// Finds an approximate weight in a free-text sentence ("giặt sấy 5kg", "4,5 kg",
-// "3 ký"), so the chat can estimate a cost without asking an LLM to parse it
-export const WEIGHT_KG_IN_TEXT_REGEX = /(\d+(?:[.,]\d+)?)\s*(?:kgs?|kilograms?|kilos?|kilô|ki-?lô|ký)(?![a-z])/i
-
 // Server rejects passwords shorter than this
 export const MIN_PASSWORD_LENGTH = 4 as number
 

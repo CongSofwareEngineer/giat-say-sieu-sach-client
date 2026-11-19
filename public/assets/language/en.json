@@ -1313,16 +1313,6 @@
       "requireLogin": "Please log in to see your saved addresses.",
       "item": "{index}. {address} ({phone})"
     },
-    "price": {
-      "listHeader": "Current service price list:",
-      "item": "- **{name}**: {price}",
-      "unitPrice": "{price}/{unit}",
-      "serviceLine": "**{name}**: {price}",
-      "serviceNotFound": "I am not sure which service you mean. Here is the current price list:",
-      "estimate": "An estimate for **{name}** at {weight}kg is **{total}**. The final price follows the weight measured when the driver picks the laundry up.",
-      "invalidWeight": "Could you tell me the weight in kg so I can estimate it for you?",
-      "empty": "There are no services in the price list yet."
-    },
     "promotion": {
       "empty": "There is no promotion running at the moment.",
       "item": "- **{name}**{discount}{code}: {description}",

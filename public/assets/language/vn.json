@@ -1313,16 +1313,6 @@
       "requireLogin": "Bạn cần đăng nhập để xem địa chỉ đã lưu.",
       "item": "{index}. {address} ({phone})"
     },
-    "price": {
-      "listHeader": "Bảng giá dịch vụ hiện tại:",
-      "item": "- **{name}**: {price}",
-      "unitPrice": "{price}/{unit}",
-      "serviceLine": "**{name}**: {price}",
-      "serviceNotFound": "Mình chưa rõ bạn hỏi dịch vụ nào. Đây là bảng giá hiện tại:",
-      "estimate": "Ước tính cho **{name}** với {weight}kg là **{total}**. Giá cuối tính theo khối lượng cân thực tế khi shipper nhận đồ.",
-      "invalidWeight": "Bạn cho mình biết khối lượng (kg) để mình ước tính giúp nhé.",
-      "empty": "Hiện chưa có dịch vụ nào trong bảng giá."
-    },
     "promotion": {
       "empty": "Hiện tại chưa có chương trình khuyến mãi nào.",
       "item": "- **{name}**{discount}{code}: {description}",

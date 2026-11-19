@@ -2,7 +2,7 @@ import type { AgentContext, AgentStreamHandlers, AgentTool } from './base'
 
 import { AGENT_REGISTRY } from './agents'
 
-import { ORDER_CODE_IN_TEXT_REGEX, WEIGHT_KG_IN_TEXT_REGEX } from '@/constants/app'
+import { ORDER_CODE_IN_TEXT_REGEX } from '@/constants/app'
 import { ANSWER_READY_TOOLS, CHAT_LOG_PHONE_REGEX, TOOL_NAME } from '@/constants/tools'
 import { normalizeOrderCode } from '@/services/order'
 import { isValidVnPhone, normalizeVnPhone } from '@/utils/phone'
@@ -60,18 +60,6 @@ const extractPhone = (message: string): string | undefined => {
   return found ? normalizeVnPhone(found) : undefined
 }
 
-// Approximate weight in kg ("5kg", "4,5 kg", "3 ký"); undefined when absent
-const extractWeightKg = (message: string): number | undefined => {
-  const match = WEIGHT_KG_IN_TEXT_REGEX.exec(message)
-
-  if (!match) return undefined
-
-  // Vietnamese decimal comma
-  const weight = Number(match[1].replace(',', '.'))
-
-  return Number.isFinite(weight) && weight > 0 ? weight : undefined
-}
-
 // Arguments per tool. Returning null means "cannot answer without the LLM":
 // track_order has nothing to look up without a code, so the agent asks for it
 // in context instead of the tool answering with a canned request.
@@ -93,16 +81,6 @@ const TOOL_ARGS: Record<string, (message: string) => Record<string, unknown> | n
     const orderCode = extractOrderCode(message)
 
     return orderCode ? { orderCode } : {}
-  },
-  // The pricing tools match a service name inside the text they are given
-  // (slug compare, diacritics ignored), so the raw message is the key: no
-  // separate extraction needed, and an unknown service answers with the list
-  [TOOL_NAME.getService]: (message) => ({ key: message }),
-  // Without a weight there is nothing to multiply, so the agent asks for it
-  [TOOL_NAME.estimateCost]: (message) => {
-    const weightKg = extractWeightKg(message)
-
-    return weightKg ? { serviceName: message, weightKg } : null
   },
 }
 

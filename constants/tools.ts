@@ -168,9 +168,6 @@ export const ANSWER_READY_TOOLS: TOOL_NAME[] = [
   TOOL_NAME.trackOrder,
   TOOL_NAME.getMyOrders,
   TOOL_NAME.cancelMyOrder,
-  TOOL_NAME.getServices,
-  TOOL_NAME.getService,
-  TOOL_NAME.estimateCost,
 ]
 
 // Minimum probability Jev must put on the picked tool before the fast path
