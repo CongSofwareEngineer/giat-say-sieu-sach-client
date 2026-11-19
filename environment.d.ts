@@ -31,6 +31,8 @@ interface EnvironmentVariables {
   // System One
   readonly SYSTEM_ONE_API_URL: string
   readonly SYSTEM_ONE_API_KEY: string
+  // Jev model asked for by the client, forwarded by the proxy (default jev-latest)
+  readonly NEXT_PUBLIC_SYSTEM_ONE_MODEL?: string
 }
 
 declare namespace NodeJS {

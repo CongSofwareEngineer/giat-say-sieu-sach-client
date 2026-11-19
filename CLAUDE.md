@@ -188,7 +188,7 @@ app/                       # App Router routes (page.tsx + layout.tsx per route)
   admin/                   # admin dashboard (AdminShell.tsx = client shell)
   api/auth-proxy/[...path] # proxies backend calls with the httpOnly token cookies (+ refresh on 401)
   api/chat-agent/[...path] # proxies LLM chat/completions; hides AGENT_API_KEY; origin allowlist, 1MB cap
-  api/systemone/           # proxies SYSTEM_ONE_API_URL; origin allowlist
+  api/systemone/           # proxies SYSTEM_ONE_API_URL (Jev decisions); origin allowlist
   firebase-messaging-sw.js/route.ts  # serves the FCM service worker built from config/firebase
   login/actions.ts, register/actions.ts  # server actions (set token cookies)
 agents/                    # client-side AI chat
@@ -239,7 +239,8 @@ scripts/replace-firebase-env.js  # postbuild: injects env into public FCM SW (if
 
 ### AI chat agents
 - Only the LLM call leaves the browser (via `/api/chat-agent/chat/completions`); tools run client-side with `AgentContext` (`locale`, `userId`).
-- Add an agent: define it in `agents/agents/`, add its name to `AGENT_NAME` (`constants/tools.ts`), and register it in `AGENT_REGISTRY` (`agents/agents/index.ts`). `routableAgents()` and the `enum` of `routeToAgentTool` derive from the registry, so nothing else to touch; add 2 examples to `ROUTER_EXAMPLES` (`agents/agents/router.ts`) so routing has few-shot coverage.
+- Routing is done by **Jev** (System One, `agents/systemOne.ts` + `decideWithJev` in `agents/agents/router.ts`): one `/api/systemone` request picks the agent **and** narrows the tool set, instead of an LLM router call. The LLM router is kept but commented out in `agents/index.ts` (`routeWithLlm`). See `docs/instruction/chat.md` §8.
+- Add an agent: define it in `agents/agents/`, add its name to `AGENT_NAME` (`constants/tools.ts`), and register it in `AGENT_REGISTRY` (`agents/agents/index.ts`). Its `description` becomes the Jev routing criterion (and the `<agent>` tag if the LLM router is switched back on), so write it as "when to route here"; nothing else to touch.
 - Add a tool: implement it in `agents/tools/`, name it in `TOOL_NAME`, attach it to the agent(s) that may call it.
 - Model: `NEXT_PUBLIC_AGENT_MODEL` (client) — the proxy forwards it; key/URL stay server-side.
 

@@ -117,3 +117,39 @@ export const CHAT_STREAM_TICK_MS = 30 as number
 export const CHAT_STREAM_CATCH_UP_DIVISOR = 15 as number
 // Within this distance from the bottom (px) the list keeps following new text
 export const CHAT_SCROLL_PIN_THRESHOLD = 60 as number
+
+// System One (Jev) — typed decision model used to route a message and pick
+// which tools may run, replacing the LLM router call. Proxied server-side so
+// SYSTEM_ONE_API_KEY stays hidden.
+export const SYSTEM_ONE_PATH = '/api/systemone' as const
+export const SYSTEM_ONE_MODEL = process.env.NEXT_PUBLIC_SYSTEM_ONE_MODEL || 'jev-latest'
+
+// Question types Jev supports; only `choice` is used for now
+export const SYSTEM_ONE_QUESTION_TYPE = {
+  choice: 'choice',
+  score: 'score',
+  noul: 'noul',
+  box: 'box',
+} as const
+
+export type SYSTEM_ONE_QUESTION_TYPE = (typeof SYSTEM_ONE_QUESTION_TYPE)[keyof typeof SYSTEM_ONE_QUESTION_TYPE]
+
+// Our own ids for the questions sent in one Jev request (answered in parallel)
+export const SYSTEM_ONE_QUESTION_ID = {
+  routeAgent: 'route_agent',
+  pickTool: 'pick_tool',
+} as const
+
+// Jev request budget: abort rather than keep the user waiting on a decision
+export const SYSTEM_ONE_TIMEOUT_MS = 6000 as number
+
+// Conversation turns put into the Jev `state` (the decision only needs the
+// latest message plus a little context, which is what keeps it cheap)
+export const SYSTEM_ONE_STATE_MESSAGES = 4 as number
+
+// Option meaning "answer directly, no tool needed" in the pick_tool question
+export const TOOL_PICK_NONE = 'none' as const
+
+// A tool is kept when Jev gives it at least this probability, so a close
+// second tool survives instead of being cut by the single top choice
+export const TOOL_PICK_MIN_PROBABILITY = 0.15 as number

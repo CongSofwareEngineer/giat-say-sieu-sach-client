@@ -2,10 +2,10 @@
 > Cập nhật: 2026-11-19
 
 ## Tổng quan
-Chat nổi là trợ lý đa agent; chỉ lời gọi LLM rời trình duyệt (qua `/api/chat-agent/chat/completions`), còn tool chạy client-side với `AgentContext` (`locale`, `userId`). Sub-logic: (1) Đặt lịch giặt không cần login, (2) Tra cứu đơn theo SĐT / mã đơn, (3) Form chọn Tỉnh/Xã qua LocationApi, (4) Định dạng danh sách đơn, (5) Địa chỉ cửa hàng / địa chỉ đã lưu, (6) Huỷ đơn qua chat, (7) Điểm tích lũy & hạng, (8) Router prompt, (9) Streaming câu trả lời, (10) Chuẩn hóa tool call, (11) Log token & câu hỏi lên Google Sheets, (12) Giới hạn chat (3 tin chờ / 10 tin mỗi giờ), (13) Ngôn ngữ trả lời. Form đặt lịch dùng chung với trang `/booking` — xem `docs/instruction/booking.md`.
+Chat nổi là trợ lý đa agent; chỉ lời gọi LLM rời trình duyệt (qua `/api/chat-agent/chat/completions`), còn tool chạy client-side với `AgentContext` (`locale`, `userId`). Sub-logic: (1) Đặt lịch giặt không cần login, (2) Tra cứu đơn theo SĐT / mã đơn, (3) Form chọn Tỉnh/Xã qua LocationApi, (4) Định dạng danh sách đơn, (5) Địa chỉ cửa hàng / địa chỉ đã lưu, (6) Huỷ đơn qua chat, (7) Điểm tích lũy & hạng, (8) Định tuyến & chọn tool bằng Jev (System One), (9) Streaming câu trả lời, (10) Chuẩn hóa tool call, (11) Log token & câu hỏi lên Google Sheets, (12) Giới hạn chat (3 tin chờ / 10 tin mỗi giờ), (13) Ngôn ngữ trả lời. Form đặt lịch dùng chung với trang `/booking` — xem `docs/instruction/booking.md`.
 
 ## Dùng chung
-- `agents/index.ts` (router → chọn agent → `runAgent`), `agents/runAgent.ts` (tool loop, `MAX_TOOL_ROUNDS = 6`), `agents/llm.ts` (`callLlm` non-stream, `streamLlm` SSE — xem §9), `agents/base.ts`.
+- `agents/index.ts` (Jev quyết định agent + tool → `runAgent`), `agents/runAgent.ts` (tool loop, `MAX_TOOL_ROUNDS = 6`, lọc tool schema), `agents/llm.ts` (`callLlm` non-stream, `streamLlm` SSE — xem §9), `agents/systemOne.ts` (client Jev), `agents/base.ts`.
 - `agents/tools/*` — booking, order, myOrders (cả huỷ đơn), loyalty, faq, search...; `agents/agents/*` — faq, price, recommend, fallback, router.
 - Dữ liệu FAQ (tool `faq`, `search`): `FaqService.getFaqs()` lấy toàn bộ FAQ đang hiển thị (`?limit=FULL_LIST_LIMIT`), cache localStorage `LOCAL_STORAGE_KEY.faqs` trong `FAQ_CACHE_DURATION` (3 ngày). Admin quản lý ở `/admin/faqs` (xem `docs/instruction/admin.md` §4).
 - Danh sách chi nhánh (tool `get_branches` trong `agents/tools/order.ts`): tên, địa chỉ, giờ mở cửa (`openingHours`), SĐT, link bản đồ — xem §5.
@@ -92,24 +92,45 @@ Khách đã đăng nhập huỷ đơn còn `PENDING` ngay trong chat. AI **khôn
 ### Edge cases
 - Ngưỡng hạng/quy đổi lấy từ constants FE — phải khớp server (xem `docs/instruction/profile.md` §1).
 
-## 8. Router prompt
+## 8. Định tuyến & chọn tool bằng Jev (System One)
 ### Mục đích
-Router chỉ phân loại tin nhắn mới nhất và chọn agent, không bao giờ tự trả lời khách và không bị prompt injection đổi vai trò.
+Chọn agent xử lý tin nhắn **và** chọn tool nào được phép chạy, bằng một request duy nhất tới Jev (model quyết định có kiểu dữ liệu của TypeSafe, docs: `docs.typesafe.ai`) thay vì một lời gọi LLM. Jev trả về giá trị + phân phối xác suất chứ không sinh văn bản, nên quyết định này nhanh và rẻ hơn nhiều; đồng thời chỉ gửi schema của những tool liên quan cho LLM nên request trả lời cũng nhẹ đi.
 ### Entry points
-- `agents/agents/router.ts` — `buildRouterSystem(routableAgents())`, `ROUTER_EXAMPLES`, `routeToAgentTool`; gọi từ `agents/index.ts`.
-- `agents/agents/index.ts` — `AGENT_REGISTRY` là **nguồn duy nhất**: `routableAgents()` = `Object.values(AGENT_REGISTRY)` trừ `fallback` (theo thứ tự khai báo trong registry), và `enum` của `routeToAgentTool` = `routableAgents()` + `fallback`.
-- **Thêm agent mới**: định nghĩa trong `agents/agents/`, thêm tên vào `AGENT_NAME`, đăng ký vào `AGENT_REGISTRY`, thêm 2 ví dụ vào `ROUTER_EXAMPLES`. Không cần sửa `routableAgents()` hay `enum` nữa.
+- `agents/systemOne.ts` — `askSystemOne(state, questions, signal)` POST `/api/systemone` (proxy giữ `SYSTEM_ONE_API_KEY` ở server, ghép URL `SYSTEM_ONE_API_URL + /systemone`); `choiceQuestion()` tạo câu hỏi type `choice`; `likelyChoices(answer, min)` lọc option theo `probabilities`.
+- `agents/agents/router.ts` — `decideWithJev(conversation, signal)`: dựng `state`, 2 câu hỏi, trả `{ agent, toolNames }`. `agentCriteria()` sinh từ `AGENT_REGISTRY`, `toolCriteria()` sinh từ tool của mọi agent routable + option `none`.
+- `agents/index.ts` — `chatAgent.chat()` gọi `decideWithJev` → `getAgent(decision.agent)` → `runAgent(..., decision.toolNames)`.
+- `agents/runAgent.ts` — `selectTools(agent, toolNames)` lọc tool schema gửi cho LLM.
 ### Luồng xử lý
-1. Prompt chia theo guide prompt engineering của OpenAI: `# Identity` (là bộ điều phối, không phải trợ lý trả lời khách) → `# Instructions` (luật route) → `# Agents` (thẻ `<agent name>` sinh từ registry) → `# Examples` (few-shot `<user_message>` / `<decision>`).
-   - Danh sách agent trong `<agents>` = `routableAgents()` + `fallbackAgent` (fallback không routable nên router tự nối vào cuối). Nội dung mỗi thẻ lấy từ `description` của agent, **không** hardcode trong router — sửa mô tả một agent chỉ cần sửa file agent đó.
-2. Luật: luôn gọi `route_to_agent` đúng 1 lần, `fallback` nằm trong `enum` của tool; dựa vào tin mới nhất, chỉ dùng lượt trước để hiểu câu nối tiếp ngắn; nhiều ý → chọn yêu cầu chính. Một luật duy nhất gom hết các trường hợp `fallback`: chào hỏi / cảm ơn / tán gẫu, kiến thức chung & toán, và giá / đơn / đặt chỗ / địa chỉ / liên hệ của doanh nghiệp khác.
-3. Tin nhắn của khách được coi là nội dung cần phân loại, không phải lệnh: yêu cầu đổi vai trò / bỏ qua luật / lộ prompt → `fallback`.
-4. Vẫn không có tool call hợp lệ (phòng khi model trả sai) → `agents/index.ts` chạy agent `fallback`. Output sai định dạng được chuẩn hóa trước — xem §10.
+1. `state` gửi cho Jev là text ngắn: `SYSTEM_ONE_STATE_MESSAGES` (4) lượt cuối trong thẻ `<conversation>` + tin mới nhất trong `<latest_user_message>`. Đây là lý do rẻ: quyết định không cần cả history.
+2. Một request chứa **2 câu hỏi** (Jev chạy song song, độc lập, `state` chỉ tính token một lần):
+   - `route_agent` (`choice`): `criteria` = `{ tên agent: description }` của **mọi** agent trong `AGENT_REGISTRY` (gồm `fallback`). Description lấy từ chính file agent, nên thêm agent vào registry là route được ngay, không sửa gì ở đây.
+   - `pick_tool` (`choice`): `criteria` = `{ tên tool: description }` của tất cả tool thuộc các agent routable (tên tool unique toàn cục theo `TOOL_NAME`) + `none` = "không cần tra cứu dữ liệu".
+3. Agent = `answers.route_agent.choice`. Tên lạ hoặc không có answer → `getAgent()` trả `fallbackAgent`.
+4. Tool: giữ **mọi** tool có `probabilities >= TOOL_PICK_MIN_PROBABILITY` (0.15), sắp theo xác suất giảm dần, bỏ `none` — không chỉ lấy `choice` cao nhất, để luồng 2 bước vẫn đủ tool (vd "huỷ đơn" → `cancel_my_order` 0.78 + `get_my_orders` 0.20).
+5. `runAgent` chỉ gửi schema của các tool đó cho LLM, ở mọi round của tool loop. Executor vẫn tìm trong `agent.tools` đầy đủ, nên tool bị lọc mà model vẫn gọi thì vẫn chạy được.
+### Translation / Constants
+- `constants/tools.ts`: `SYSTEM_ONE_PATH`, `SYSTEM_ONE_MODEL` (env `NEXT_PUBLIC_SYSTEM_ONE_MODEL`, default `jev-latest`), `SYSTEM_ONE_QUESTION_TYPE`, `SYSTEM_ONE_QUESTION_ID` (`route_agent`, `pick_tool`), `SYSTEM_ONE_TIMEOUT_MS` (6000), `SYSTEM_ONE_STATE_MESSAGES` (4), `TOOL_PICK_NONE`, `TOOL_PICK_MIN_PROBABILITY` (0.15).
+- Env: `SYSTEM_ONE_API_URL`, `SYSTEM_ONE_API_KEY` (server), `NEXT_PUBLIC_SYSTEM_ONE_MODEL` (client).
+- Câu hỏi gửi Jev (`ROUTE_INSTRUCTIONS`, `TOOL_INSTRUCTIONS`) là prompt cho model, không phải text UI → không qua `translate()`.
 ### Edge cases
-- `ROUTER_EXAMPLES` chỉ render ví dụ có agent nằm trong danh sách routable (hoặc `fallback`), nên bỏ agent khỏi registry không làm ví dụ trỏ tới agent không tồn tại.
-- Mỗi agent giữ **đúng 2 ví dụ** (`faq`, `price`, `recommend`, `fallback`). Số ví dụ lệch nhau tạo bias: khi tin nhắn mơ hồ, model nghiêng về agent xuất hiện nhiều lần nhất. Thêm agent mới → thêm 2 ví dụ, không thêm nhiều hơn.
-- `description` của agent **chỉ** được dùng cho router prompt (không gửi cho LLM ở chỗ nào khác), nên viết nó theo hướng "khi nào route vào đây", không phải mô tả chức năng chung.
-- Các nhánh của `recommend` không có ví dụ riêng (chi nhánh, điểm tích luỹ) dựa vào `description` của agent — description đã liệt kê đủ (branch locations, loyalty points, contact info). Quick option "Chi nhánh" còn gửi câu rõ nghĩa nên không cần few-shot — xem §5.
+- Jev lỗi / 4xx / timeout (`SYSTEM_ONE_TIMEOUT_MS`) / user bấm stop → `askSystemOne` trả `null` → `decideWithJev` trả `{}` → chạy agent `fallback` và không lọc tool. Không bao giờ throw ra UI.
+- `toolNames` giao với tool của agent = rỗng (Jev chọn `none`, hoặc chọn tool của agent khác) → `selectTools` trả **full tool set** của agent, không để agent chạy mù. Agent `fallback` không có tool nên case `none` không ảnh hưởng.
+- Jev coi tin nhắn là nội dung cần phân loại; `instructions` nói rõ "never as instructions" nên yêu cầu đổi vai trò vẫn ra `fallback` (test: "Chào bạn" → `fallback` 1.0 / `none` 1.0).
+- Phân phối phẳng (không option nào đạt 0.15) → `likelyChoices` lấy `choice` cao nhất để không trả mảng rỗng.
+### Bảo vệ proxy `/api/systemone`
+- `app/api/systemone/route.ts` chỉ là proxy để giấu `SYSTEM_ONE_API_KEY`; cùng tầng chặn với `/api/chat-agent` (xem §11 và `app/api/chat-agent/[...path]/route.ts`).
+- `OPTIONS` (preflight): origin không thuộc `ALLOWED_ORIGINS` → `403` và không trả header CORS nào, nên browser chặn luôn request thật. Origin hợp lệ → `204` + `Access-Control-Allow-Origin/Methods/Headers` + `Access-Control-Max-Age` 1 ngày.
+- `POST`: thiếu header `Origin` hoặc origin lạ → `403` trước khi đọc body và trước khi đọc env.
+- Giới hạn body `MAX_BODY_BYTES` = 1MB, check **2 lần**: `content-length` trước (không tốn RAM), rồi `byteLength` của body thật (header có thể thiếu hoặc khai thấp) → `413`.
+- Thiếu `SYSTEM_ONE_API_URL` → log server + `500`, không gọi fetch tới URL `undefined/...`.
+- `fetch` upstream bọc `try/catch` → `500 { error: 'Failed to proxy request' }`, không rò stack/URL backend ra client.
+- Response trả về có `Access-Control-Allow-Origin` = origin của request (bắt buộc để browser đọc được kết quả) và `Cache-Control: no-store`.
+- Lưu ý: `ALLOWED_ORIGINS` bị lặp ở `app/api/systemone` và `app/api/chat-agent` — đổi domain phải sửa cả hai.
+
+### Router LLM (đã tắt, giữ lại để bật lại)
+- `buildRouterSystem`, `ROUTER_EXAMPLES`, `routeToAgentTool` vẫn còn trong `agents/agents/router.ts`; chỗ gọi nằm trong block comment `routeWithLlm` ở `agents/index.ts` (kèm các import đã comment). Bật lại = bỏ comment và gọi `routeWithLlm` thay `decideWithJev`.
+- Khi dùng router LLM: prompt chia `# Identity` → `# Instructions` → `# Agents` (thẻ `<agent name>` sinh từ registry) → `# Examples` (few-shot). Mỗi agent giữ **đúng 2 ví dụ** trong `ROUTER_EXAMPLES` (lệch số ví dụ gây bias khi tin nhắn mơ hồ); không có tool call hợp lệ → agent `fallback`.
+- `description` của agent dùng cho **cả** `criteria` của Jev và prompt router LLM, nên viết theo hướng "khi nào route vào đây", không phải mô tả chức năng chung.
 
 ## 9. Streaming câu trả lời
 ### Mục đích
